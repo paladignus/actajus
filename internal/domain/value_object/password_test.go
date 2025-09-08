@@ -1,6 +1,7 @@
 package valueobject
 
 import (
+	"regexp"
 	"testing"
 )
 
@@ -15,7 +16,16 @@ func (p Password) IsEmpty() bool {
 }
 
 func (p Password) IsValid() bool {
-	return !p.IsEmpty()
+	number := regexp.MustCompile(`[0-9]`)
+	lower := regexp.MustCompile(`[a-z]`)
+	upper := regexp.MustCompile(`[A-Z]`)
+	special := regexp.MustCompile(`[\W_]`)
+	return !p.IsEmpty() &&
+		len(p.Value()) > 7 &&
+		number.MatchString(p.Value()) &&
+		lower.MatchString(p.Value()) &&
+		upper.MatchString(p.Value()) &&
+		special.MatchString(p.Value())
 }
 
 func TestPassword(t *testing.T) {
@@ -23,6 +33,12 @@ func TestPassword(t *testing.T) {
 	t.Run("empty password should be invalid", func(t *testing.T) {
 		if sut.IsValid() {
 			t.Errorf("expected empty password to be invalid")
+		}
+	})
+	t.Run("non-empty password should be valid", func(t *testing.T) {
+		sut = Password("Securepassword2!@#$%&*()_+/?;:.><,~^")
+		if !sut.IsValid() {
+			t.Errorf("expected non-empty password to be valid")
 		}
 	})
 }
