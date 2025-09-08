@@ -1,4 +1,8 @@
 mode: set
+/home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:7.31,9.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:11.31,13.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:15.41,17.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:19.31,23.2 3 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/password.go:8.34,10.2 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/password.go:12.34,14.2 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/password.go:16.34,27.2 5 1
