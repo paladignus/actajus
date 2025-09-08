@@ -1,6 +1,7 @@
 package valueobject
 
 import (
+	"regexp"
 	"testing"
 )
 
@@ -15,7 +16,9 @@ func (e Email) IsEmpty() bool {
 }
 
 func (e Email) IsValid() bool {
-	return !e.IsEmpty()
+	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(emailRegex)
+	return !e.IsEmpty() && re.MatchString(e.Value())
 }
 
 func TestEmail(t *testing.T) {
@@ -23,6 +26,12 @@ func TestEmail(t *testing.T) {
 		sut := Email("")
 		if sut.IsValid() {
 			t.Errorf("expected empty email to be invalid")
+		}
+	})
+	t.Run("invalid email should be invalid", func(t *testing.T) {
+		sut := Email("invalid-email")
+		if sut.IsValid() {
+			t.Errorf("expected invalid email to be invalid")
 		}
 	})
 }
