@@ -15,6 +15,10 @@ func (e Email) IsEmpty() bool {
 	return len(e) == 0
 }
 
+func (e Email) Equals(other Email) bool {
+	return e.Value() == other.Value()
+}
+
 func (e Email) IsValid() bool {
 	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	re := regexp.MustCompile(emailRegex)
@@ -32,6 +36,12 @@ func TestEmail(t *testing.T) {
 		sut := Email("invalid-email")
 		if sut.IsValid() {
 			t.Errorf("expected invalid email to be invalid")
+		}
+	})
+	t.Run("equals method should work correctly", func(t *testing.T) {
+		sut := Email("marcelo@marcelo.eti.br")
+		if !sut.Equals(Email("marcelo@marcelo.eti.br")) {
+			t.Errorf("expected emails to be equal")
 		}
 	})
 }
