@@ -20,6 +20,8 @@ mode: set
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/cpf.go:59.2,60.19 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/cpf.go:60.19,62.3 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/cpf.go:63.2,63.23 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/date.go:8.30,10.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/date.go:12.30,15.2 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:7.31,9.2 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:11.31,13.2 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/domain/value_object/email.go:15.41,17.2 1 1
