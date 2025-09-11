@@ -34,4 +34,16 @@ func TestDate(t *testing.T) {
 			}
 		}
 	})
+	t.Run("should return true if date is valid", func(t *testing.T) {
+		datesValids := []Date{
+			"01/01/2020",
+			"15/06/1995",
+			"31/12/2023",
+		}
+		for _, date := range datesValids {
+			if !date.IsValid() {
+				t.Errorf("Expected Date to be valid, but got invalid")
+			}
+		}
+	})
 }
