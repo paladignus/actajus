@@ -30,4 +30,18 @@ func TestFile(t *testing.T) {
 			}
 		}
 	})
+	validFiles := []File{
+		"image.png",
+		"document.pdf",
+		"photo.jpg",
+		"graphic.gif",
+		"picture.jpeg",
+	}
+	t.Run("should return true if file is valid", func(t *testing.T) {
+		for _, file := range validFiles {
+			if !file.IsValid() {
+				t.Errorf("Expected File to be valid, but got invalid")
+			}
+		}
+	})
 }
