@@ -13,8 +13,8 @@ func (t Text) Value() string {
 }
 
 func (t Text) IsValid() bool {
-	re := regexp.MustCompile(`[\W_]|[0-9]`)
-	return !re.MatchString(t.Value())
+	re := regexp.MustCompile("^[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]+$")
+	return re.MatchString(t.Value())
 }
 
 func TestText(t *testing.T) {
@@ -22,6 +22,12 @@ func TestText(t *testing.T) {
 	t.Run("should return error if text contains numbers and special characters", func(t *testing.T) {
 		if sut.IsValid() {
 			t.Errorf("Expected error for text with numbers and special characters, but got nil")
+		}
+	})
+	sut = Text("Marcelo Bento Pereira")
+	t.Run("should return nil if text is valid", func(t *testing.T) {
+		if !sut.IsValid() {
+			t.Errorf("Expected nil for valid text, but got error")
 		}
 	})
 }
