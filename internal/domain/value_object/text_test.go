@@ -1,21 +1,8 @@
-// Package valueobject
 package valueobject
 
 import (
-	"regexp"
 	"testing"
 )
-
-type Text string
-
-func (t Text) Value() string {
-	return string(t)
-}
-
-func (t Text) IsValid() bool {
-	re := regexp.MustCompile("^[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]+$")
-	return re.MatchString(t.Value())
-}
 
 func TestText(t *testing.T) {
 	sut := Text("M4rc3l0@#$%¨&*()")

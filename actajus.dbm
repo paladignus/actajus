@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="12"
+<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="13"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="false"
-	 last-position="-20,-52" last-zoom="1" scene-rect="-20.41,-52.3529,1865.64,1129.15"
+	 last-position="0,0" last-zoom="1" scene-rect="0,0,1734.03,1076.8"
 	 default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -26,14 +26,11 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	<type name="char" length="20"/>
 </domain>
 
-<table name="addresses" layers="0" collapse-mode="2" max-obj-count="15" z-value="0">
+<table name="addresses" layers="0" collapse-mode="2" max-obj-count="14" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="315.824" y="-0.9996"/>
+	<position x="60" y="60"/>
 	<column name="idaddresses" not-null="true">
-		<type name="public.xid" length="0"/>
-	</column>
-	<column name="id_users" not-null="true">
 		<type name="public.xid" length="0"/>
 	</column>
 	<column name="zipcode" not-null="true">
@@ -80,7 +77,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="emails" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="627.824" y="6.0004"/>
+	<position x="400" y="60"/>
 	<column name="address" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -107,7 +104,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="phones" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="935.824" y="4.0004"/>
+	<position x="740" y="60"/>
 	<column name="idphones" not-null="true">
 		<type name="public.xid" length="0"/>
 	</column>
@@ -150,7 +147,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="people" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="238.824" y="426.824"/>
+	<position x="1100" y="60"/>
 	<column name="idpeople" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
@@ -183,7 +180,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="accounts" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="11.71" y="2.7647"/>
+	<position x="1440" y="60"/>
 	<column name="idaccounts" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -218,7 +215,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="customers" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1096.06" y="444.471"/>
+	<position x="60" y="500"/>
 	<column name="idcustomers" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -239,7 +236,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="advocacy" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="813.647" y="441.176"/>
+	<position x="380" y="500"/>
 	<column name="idadvocacy" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -272,7 +269,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="lawyers" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="527.706" y="437.529"/>
+	<position x="720" y="500"/>
 	<column name="idlawyers" not-null="true">
 		<type name="uuid" length="0"/>
 	</column>
@@ -296,7 +293,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="documents" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="7.59" y="413.353"/>
+	<position x="1060" y="500"/>
 	<column name="iddocuments" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
@@ -317,13 +314,29 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="enterprise" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="812" y="334"/>
+	<position x="1320" y="500"/>
 	<column name="identerprise" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
 	<column name="cnpj" not-null="true">
 		<type name="text" length="0"/>
 	</column>
+</table>
+
+<table name="marital_status" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1080" y="340"/>
+	<column name="idmarital_status" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="marital_status_name_uq" type="uq-constr" table="public.marital_status">
+		<columns names="name" ref-type="src-columns"/>
+	</constraint>
 </table>
 
 </dbmodel>
