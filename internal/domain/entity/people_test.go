@@ -101,4 +101,10 @@ func TestEntityPeople(t *testing.T) {
 			t.Errorf("Expected error for invalid gender, but got %v", err)
 		}
 	})
+	_, err = NewPeople(dto.PeopleInputDTO{FirstName: "John", LastName: "Doe", BirthDate: "28/08/1999", MotherName: "Jane", FatherName: "Jack", Gender: "M"})
+	t.Run("should return error if marital status is invalid", func(t *testing.T) {
+		if err == nil || !errors.Is(err, ErrInvalidMarital) {
+			t.Errorf("Expected error for invalid marital status, but got %v", err)
+		}
+	})
 }
