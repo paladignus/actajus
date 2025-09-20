@@ -71,4 +71,10 @@ func TestEntityPeople(t *testing.T) {
 			t.Errorf("Expected error for invalid first name, but got %v", err)
 		}
 	})
+	_, err = NewPeople(dto.PeopleInputDTO{FirstName: "John", LastName: ""})
+	t.Run("should return error if last name is invalid", func(t *testing.T) {
+		if err == nil || !errors.Is(err, ErrInvalidLastName) {
+			t.Errorf("Expected error for invalid last name, but got %v", err)
+		}
+	})
 }
