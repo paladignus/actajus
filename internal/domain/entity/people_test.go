@@ -107,4 +107,10 @@ func TestEntityPeople(t *testing.T) {
 			t.Errorf("Expected error for invalid marital status, but got %v", err)
 		}
 	})
+	_, err = NewPeople(dto.PeopleInputDTO{FirstName: "John", LastName: "Doe", BirthDate: "28/08/1999", MotherName: "Jane", FatherName: "Jack", Gender: "M", MaritalStatus: "Single"})
+	t.Run("should create people entity successfully", func(t *testing.T) {
+		if err != nil {
+			t.Errorf("Expected no error, but got %v", err)
+		}
+	})
 }
