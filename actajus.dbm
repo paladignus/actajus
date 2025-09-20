@@ -157,13 +157,13 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	<column name="last_name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
-	<column name="gender">
+	<column name="gender" not-null="true">
 		<type name="char" length="0"/>
 	</column>
-	<column name="birthday">
+	<column name="birthday" not-null="true">
 		<type name="date" length="0"/>
 	</column>
-	<column name="parent">
+	<column name="father">
 		<type name="text" length="0"/>
 	</column>
 	<column name="mother">
