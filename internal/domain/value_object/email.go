@@ -1,3 +1,4 @@
+// Package valueobject
 package valueobject
 
 import "regexp"
