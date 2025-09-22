@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -15,6 +16,9 @@ type AuthenticateMockPersistence struct {
 }
 
 func (a *AuthenticateMockPersistence) Authenticate(username, password string) (string, error) {
+	if username == "" || password == "" {
+		return "", errors.New("username and password cannot be empty")
+	}
 	a.Username = username
 	a.Password = password
 	a.callsCount++
@@ -56,6 +60,13 @@ func TestSignIn(t *testing.T) {
 		userID, _ := sut.Execute(username, password)
 		if userID == "" {
 			t.Error("Expected userID to be not empty")
+		}
+	})
+
+	t.Run("should return an error if username id empty", func(t *testing.T) {
+		_, err := sut.Execute("", password)
+		if err == nil {
+			t.Error("Expected error to be nil")
 		}
 	})
 }
