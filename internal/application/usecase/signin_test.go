@@ -46,6 +46,11 @@ func TestSignIn(t *testing.T) {
 			t.Error("Expected username and password to match")
 		}
 	})
+	t.Run("should call repository only once", func(t *testing.T) {
+		if repository.callsCount != 1 {
+			t.Error("Expected callsCount to be 1")
+		}
+	})
 }
 
 func NewRandomString(n int) string {
