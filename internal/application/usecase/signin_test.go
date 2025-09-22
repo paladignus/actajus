@@ -9,13 +9,13 @@ type AuthenticateRepository interface {
 	Authenticate(username, password string) (string, error)
 }
 
-type AuthenticateMockPersistence struct {
+type AuthenticateSpyPersistence struct {
 	Username   string
 	Password   string
 	callsCount int
 }
 
-func (a *AuthenticateMockPersistence) Authenticate(username, password string) (string, error) {
+func (a *AuthenticateSpyPersistence) Authenticate(username, password string) (string, error) {
 	if username == "" || password == "" {
 		return "", errors.New("username and password cannot be empty")
 	}
@@ -40,7 +40,7 @@ func (s SignIn) Execute(username, password string) (string, error) {
 func TestSignIn(t *testing.T) {
 	username := NewRandomString(10)
 	password := NewRandomString(10)
-	repository := AuthenticateMockPersistence{}
+	repository := AuthenticateSpyPersistence{}
 	sut := NewSignIn(&repository)
 	sut.Execute(username, password)
 
