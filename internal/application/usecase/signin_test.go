@@ -69,6 +69,13 @@ func TestSignIn(t *testing.T) {
 			t.Error("Expected error to be nil")
 		}
 	})
+
+	t.Run("should return an error if password id empty", func(t *testing.T) {
+		_, err := sut.Execute(username, "")
+		if err == nil {
+			t.Error("Expected error to be nil")
+		}
+	})
 }
 
 func NewRandomString(n int) string {
