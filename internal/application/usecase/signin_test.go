@@ -3,11 +3,9 @@ package usecase
 import (
 	"errors"
 	"testing"
-)
 
-type AuthenticateRepository interface {
-	Authenticate(username, password string) (string, error)
-}
+	"github.com/paladignus/actajus/internal/domain/repository"
+)
 
 type AuthenticateSpyPersistence struct {
 	Username   string
@@ -26,10 +24,10 @@ func (a *AuthenticateSpyPersistence) Authenticate(username, password string) (st
 }
 
 type SignIn struct {
-	repository AuthenticateRepository
+	repository repository.AuthenticateRepository
 }
 
-func NewSignIn(repository AuthenticateRepository) SignIn {
+func NewSignIn(repository repository.AuthenticateRepository) SignIn {
 	return SignIn{repository}
 }
 
