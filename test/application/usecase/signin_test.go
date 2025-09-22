@@ -3,27 +3,15 @@ package usecase
 import (
 	"testing"
 
-	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
 )
-
-type SignIn struct {
-	repository repository.AuthenticateRepository
-}
-
-func NewSignIn(repository repository.AuthenticateRepository) SignIn {
-	return SignIn{repository}
-}
-
-func (s SignIn) Execute(username, password string) (string, error) {
-	return s.repository.Authenticate(username, password)
-}
 
 func TestSignIn(t *testing.T) {
 	username := NewRandomString(10)
 	password := NewRandomString(10)
 	repository := spy.AuthenticateSpyPersistence{}
-	sut := NewSignIn(&repository)
+	sut := usecase.NewSignIn(&repository)
 	sut.Execute(username, password)
 
 	t.Run("should corrects properties from repository", func(t *testing.T) {
