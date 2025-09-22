@@ -1,27 +1,11 @@
 package usecase
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
 )
-
-type AuthenticateSpyPersistence struct {
-	Username   string
-	Password   string
-	callsCount int
-}
-
-func (a *AuthenticateSpyPersistence) Authenticate(username, password string) (string, error) {
-	if username == "" || password == "" {
-		return "", errors.New("username and password cannot be empty")
-	}
-	a.Username = username
-	a.Password = password
-	a.callsCount++
-	return NewRandomString(4), nil
-}
 
 type SignIn struct {
 	repository repository.AuthenticateRepository
@@ -38,7 +22,7 @@ func (s SignIn) Execute(username, password string) (string, error) {
 func TestSignIn(t *testing.T) {
 	username := NewRandomString(10)
 	password := NewRandomString(10)
-	repository := AuthenticateSpyPersistence{}
+	repository := spy.AuthenticateSpyPersistence{}
 	sut := NewSignIn(&repository)
 	sut.Execute(username, password)
 
@@ -49,7 +33,7 @@ func TestSignIn(t *testing.T) {
 	})
 
 	t.Run("should call repository only once", func(t *testing.T) {
-		if repository.callsCount != 1 {
+		if repository.CallsCount != 1 {
 			t.Error("Expected callsCount to be 1")
 		}
 	})
