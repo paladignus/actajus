@@ -1,0 +1,58 @@
+package usecase
+
+import (
+	"fmt"
+	"testing"
+)
+
+type AuthenticateRepository interface {
+	Authenticate(username, password string) (string, error)
+}
+
+type AuthenticateMockPersistence struct {
+	Username   string
+	Password   string
+	callsCount int
+}
+
+func (a *AuthenticateMockPersistence) Authenticate(username, password string) (string, error) {
+	a.Username = username
+	a.Password = password
+	a.callsCount++
+	fmt.Println("Authenticate called", a.callsCount, "times")
+	return "id_user", nil
+}
+
+type SignIn struct {
+	repository AuthenticateRepository
+}
+
+func NewSignIn(repository AuthenticateRepository) SignIn {
+	return SignIn{repository}
+}
+
+func (s SignIn) Execute(username, password string) (string, error) {
+	return s.repository.Authenticate(username, password)
+}
+
+func TestSignIn(t *testing.T) {
+	username := NewRandomString(10)
+	password := NewRandomString(10)
+	repository := AuthenticateMockPersistence{}
+	sut := NewSignIn(&repository)
+	sut.Execute(username, password)
+	t.Run("should corrects properties from repository", func(t *testing.T) {
+		if repository.Username != username || repository.Password != password {
+			t.Error("Expected username and password to match")
+		}
+	})
+}
+
+func NewRandomString(n int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[i%len(letters)]
+	}
+	return string(b)
+}
