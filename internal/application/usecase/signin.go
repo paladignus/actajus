@@ -1,16 +1,21 @@
 // Package usecase
 package usecase
 
-import "github.com/paladignus/actajus/internal/domain/repository"
+import (
+	"context"
+
+	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/repository"
+)
 
 type SignIn struct {
-	repository repository.AuthenticateRepository
+	repository repository.Authenticate
 }
 
-func NewSignIn(repository repository.AuthenticateRepository) SignIn {
+func NewSignIn(repository repository.Authenticate) SignIn {
 	return SignIn{repository}
 }
 
-func (s SignIn) Execute(cpf, password string) (string, error) {
-	return s.repository.Authenticate(cpf, password)
+func (s SignIn) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
+	return s.repository.SignIn(ctx, cpf, password)
 }

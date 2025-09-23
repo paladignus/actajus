@@ -1,20 +1,29 @@
 // Package spy
 package spy
 
-import "errors"
+import (
+	"context"
+	"errors"
 
-type AuthenticateSpyPersistence struct {
+	"github.com/paladignus/actajus/internal/application/dto"
+)
+
+type AuthenticateSpy struct {
 	CPF        string
 	Password   string
 	CallsCount int
 }
 
-func (a *AuthenticateSpyPersistence) Authenticate(cpf, password string) (string, error) {
+func (a *AuthenticateSpy) SignIn(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
+	authenticated := dto.AuthenticatedOutput{}
 	if cpf == "" || password == "" {
-		return "", errors.New("cpf and password cannot be empty")
+		return authenticated, errors.New("cpf and password cannot be empty")
 	}
 	a.CPF = cpf
 	a.Password = password
 	a.CallsCount++
-	return "user_id", nil
+	authenticated.ID = "1"
+	authenticated.FirstName = "John"
+	authenticated.LastName = "Doe"
+	return authenticated, nil
 }

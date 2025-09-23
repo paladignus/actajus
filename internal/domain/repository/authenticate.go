@@ -1,6 +1,12 @@
 // Package repository
 package repository
 
-type AuthenticateRepository interface {
-	Authenticate(cpf, password string) (string, error)
+import (
+	"context"
+
+	"github.com/paladignus/actajus/internal/application/dto"
+)
+
+type Authenticate interface {
+	SignIn(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error)
 }

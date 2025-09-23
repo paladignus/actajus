@@ -1,6 +1,7 @@
 package usecase_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/usecase"
@@ -8,11 +9,12 @@ import (
 )
 
 func TestSignIn(t *testing.T) {
+	ctx := context.Background()
 	cpf := NewRandomString(10)
 	password := NewRandomString(10)
-	repository := spy.AuthenticateSpyPersistence{}
+	repository := spy.AuthenticateSpy{}
 	sut := usecase.NewSignIn(&repository)
-	sut.Execute(cpf, password)
+	sut.Execute(ctx, cpf, password)
 
 	t.Run("should corrects properties from repository", func(t *testing.T) {
 		if repository.CPF != cpf || repository.Password != password {
@@ -27,21 +29,21 @@ func TestSignIn(t *testing.T) {
 	})
 
 	t.Run("should return user id", func(t *testing.T) {
-		userID, _ := sut.Execute(cpf, password)
-		if userID == "" {
+		people, _ := sut.Execute(ctx, cpf, password)
+		if people.ID == "" {
 			t.Error("Expected userID to be not empty")
 		}
 	})
 
 	t.Run("should return an error if cpf id empty", func(t *testing.T) {
-		_, err := sut.Execute("", password)
+		_, err := sut.Execute(ctx, "", password)
 		if err == nil {
 			t.Error("Expected error to be nil")
 		}
 	})
 
 	t.Run("should return an error if password id empty", func(t *testing.T) {
-		_, err := sut.Execute(cpf, "")
+		_, err := sut.Execute(ctx, cpf, "")
 		if err == nil {
 			t.Error("Expected error to be nil")
 		}
