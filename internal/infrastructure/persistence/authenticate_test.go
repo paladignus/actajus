@@ -57,5 +57,20 @@ func TestAuthenticate(t *testing.T) {
 			t.Errorf("expected user not found error, got %v", err)
 		}
 	})
+	t.Run("should authenticate user", func(t *testing.T) {
+		user, err := sut.SignIn(ctx, "72775351115", "123456")
+		if err != nil {
+			t.Errorf("expected no error, got %v", err)
+		}
+		if user.ID == "" {
+			t.Errorf("expected user id, got empty")
+		}
+		if user.FirstName != "Marcelo" {
+			t.Errorf("expected first name Marcelo, got %s", user.FirstName)
+		}
+		if user.LastName != "Bento Pereira" {
+			t.Errorf("expected last name Bento Pereira, got %s", user.LastName)
+		}
+	})
 	db.Close()
 }
