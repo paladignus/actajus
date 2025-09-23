@@ -2,5 +2,5 @@
 package repository
 
 type AuthenticateRepository interface {
-	Authenticate(username, password string) (string, error)
+	Authenticate(cpf, password string) (string, error)
 }

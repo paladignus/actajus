@@ -8,15 +8,15 @@ import (
 )
 
 func TestSignIn(t *testing.T) {
-	username := NewRandomString(10)
+	cpf := NewRandomString(10)
 	password := NewRandomString(10)
 	repository := spy.AuthenticateSpyPersistence{}
 	sut := usecase.NewSignIn(&repository)
-	sut.Execute(username, password)
+	sut.Execute(cpf, password)
 
 	t.Run("should corrects properties from repository", func(t *testing.T) {
-		if repository.Username != username || repository.Password != password {
-			t.Error("Expected username and password to match")
+		if repository.CPF != cpf || repository.Password != password {
+			t.Error("Expected cpf and password to match")
 		}
 	})
 
@@ -27,13 +27,13 @@ func TestSignIn(t *testing.T) {
 	})
 
 	t.Run("should return user id", func(t *testing.T) {
-		userID, _ := sut.Execute(username, password)
+		userID, _ := sut.Execute(cpf, password)
 		if userID == "" {
 			t.Error("Expected userID to be not empty")
 		}
 	})
 
-	t.Run("should return an error if username id empty", func(t *testing.T) {
+	t.Run("should return an error if cpf id empty", func(t *testing.T) {
 		_, err := sut.Execute("", password)
 		if err == nil {
 			t.Error("Expected error to be nil")
@@ -41,7 +41,7 @@ func TestSignIn(t *testing.T) {
 	})
 
 	t.Run("should return an error if password id empty", func(t *testing.T) {
-		_, err := sut.Execute(username, "")
+		_, err := sut.Execute(cpf, "")
 		if err == nil {
 			t.Error("Expected error to be nil")
 		}

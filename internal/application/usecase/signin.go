@@ -11,6 +11,6 @@ func NewSignIn(repository repository.AuthenticateRepository) SignIn {
 	return SignIn{repository}
 }
 
-func (s SignIn) Execute(username, password string) (string, error) {
-	return s.repository.Authenticate(username, password)
+func (s SignIn) Execute(cpf, password string) (string, error) {
+	return s.repository.Authenticate(cpf, password)
 }
