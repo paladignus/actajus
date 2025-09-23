@@ -2,10 +2,12 @@ package valueobject
 
 import (
 	"testing"
+
+	valueobject "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
 func TestFile(t *testing.T) {
-	invalidFiles := []File{
+	invalidFiles := []valueobject.File{
 		"archive.zip",      // Extensão inválida
 		"noextensionfile",  // Sem extensão
 		"wrong.extension.", // Extensão inválida
@@ -18,7 +20,7 @@ func TestFile(t *testing.T) {
 			}
 		}
 	})
-	validFiles := []File{
+	validFiles := []valueobject.File{
 		"image.png",
 		"document.pdf",
 		"photo.jpg",

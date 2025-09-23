@@ -2,11 +2,13 @@ package valueobject
 
 import (
 	"testing"
+
+	valueobject "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
 func TestDate(t *testing.T) {
 	t.Run("should return false if date is invalid", func(t *testing.T) {
-		datesInvalids := []Date{
+		datesInvalids := []valueobject.Date{
 			"32/01/2020", // Dia inválido
 			"00/01/2020", // Dia inválido
 			"15/13/2020", // Mês inválido
@@ -22,7 +24,7 @@ func TestDate(t *testing.T) {
 		}
 	})
 	t.Run("should return true if date is valid", func(t *testing.T) {
-		datesValids := []Date{
+		datesValids := []valueobject.Date{
 			"01/01/2020",
 			"15/06/1995",
 			"31/12/2023",
