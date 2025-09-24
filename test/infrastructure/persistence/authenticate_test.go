@@ -6,8 +6,9 @@ import (
 	"os"
 	"testing"
 
-	errors "github.com/paladignus/actajus/internal/domain/error"
+	"github.com/paladignus/actajus/internal/domain/domainerrors"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
+	"github.com/paladignus/actajus/internal/infrastructure/persistence"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 )
 
@@ -25,10 +26,10 @@ func TestAuthenticate(t *testing.T) {
 	if err != nil {
 		logger.Error("failed to connect to database", slog.Any("error", err))
 	}
-	sut := NewAuthenticate(db, logger)
+	sut := persistence.NewAuthenticate(db, logger)
 	t.Run("should return user not found", func(t *testing.T) {
 		_, err := sut.SignIn(ctx, "72775351115", "1234569")
-		if err != errors.ErrUserNotFound {
+		if err != domainerrors.ErrUserNotFound {
 			t.Errorf("expected user not found error, got %v", err)
 		}
 	})
