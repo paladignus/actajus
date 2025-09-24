@@ -1,5 +1,5 @@
-// Package errors
-package errors
+// Package domainerrors
+package domainerrors
 
 import "errors"
 
