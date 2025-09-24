@@ -4,7 +4,6 @@ package persistence
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
@@ -30,5 +29,5 @@ func (a Authenticate) SignIn(ctx context.Context, cpf string, password string) (
 	if errors.Is(err, pgx.ErrNoRows) {
 		return autenticated, domainerrors.ErrUserNotFound
 	}
-	return autenticated, fmt.Errorf("persistence: error on query autenticate: %w", err)
+	return autenticated, err
 }
