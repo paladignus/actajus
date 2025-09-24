@@ -3,11 +3,13 @@ package persistence
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
-	errors "github.com/paladignus/actajus/internal/domain/error"
+	"github.com/paladignus/actajus/internal/domain/domainerrors"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 )
 
@@ -25,11 +27,8 @@ func (a Authenticate) SignIn(ctx context.Context, cpf string, password string) (
 	sql := `SELECT idpeople, first_name, last_name FROM people WHERE cpf = $1 AND password = crypt($2, password);`
 	err := a.db.Pool.QueryRow(ctx, sql, cpf, password).
 		Scan(&autenticated.ID, &autenticated.FirstName, &autenticated.LastName)
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			return autenticated, errors.ErrUserNotFound
-		}
-		a.log.Error("failed to autenticate", slog.Any("error", err))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return autenticated, domainerrors.ErrUserNotFound
 	}
-	return autenticated, err
+	return autenticated, fmt.Errorf("persistence: error on query autenticate: %w", err)
 }
