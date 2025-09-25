@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
 	"github.com/paladignus/actajus/test/utils"
 )
 
@@ -11,7 +12,7 @@ func TestAuthenticationRepository(t *testing.T) {
 	ctx := context.Background()
 	cpf := utils.NewRandomString(10)
 	password := utils.NewRandomString(10)
-	sut := NewAuthenticateSpy()
+	sut := spy.NewAuthenticateSpy()
 	sut.SignIn(ctx, cpf, password)
 
 	t.Run("should call SignIn once", func(t *testing.T) {
