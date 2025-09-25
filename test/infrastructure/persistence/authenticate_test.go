@@ -19,4 +19,10 @@ func TestAuthenticationRepository(t *testing.T) {
 			t.Errorf("expected call count to be 1, got %d", sut.CallCount)
 		}
 	})
+
+	t.Run("should pass correct CPF and password", func(t *testing.T) {
+		if sut.LastCPF != cpf && sut.LastPassword != password {
+			t.Errorf("expected cpf and password to match, got %s and %s", sut.LastCPF, sut.LastPassword)
+		}
+	})
 }
