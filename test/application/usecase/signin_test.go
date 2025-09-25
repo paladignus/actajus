@@ -36,11 +36,29 @@ func TestSignIn(t *testing.T) {
 		}
 	})
 
-	t.Run("should that a database erroris returned", func(t *testing.T) {
+	t.Run("should that an database error is returned", func(t *testing.T) {
 		repository.ShouldReturnError = true
 		_, err := sut.Execute(ctx, cpf, password)
 		if err == nil {
 			t.Error("Expected error to be not nil")
+		}
+	})
+
+	t.Run("should return authenticated user", func(t *testing.T) {
+		repository.ShouldReturnError = false
+		repository.ShouldReturnUserNotFound = false
+		output, err := sut.Execute(ctx, cpf, password)
+		if err != nil {
+			t.Error("Expected error to be nil")
+		}
+		if output.ID != repository.CustomOutput.ID {
+			t.Error("Expected ID to match")
+		}
+		if output.FirstName != repository.CustomOutput.FirstName {
+			t.Error("Expected FirstName to match")
+		}
+		if output.LastName != repository.CustomOutput.LastName {
+			t.Error("Expected LastName to match")
 		}
 	})
 }
