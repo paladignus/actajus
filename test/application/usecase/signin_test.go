@@ -6,12 +6,13 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
+	"github.com/paladignus/actajus/test/utils"
 )
 
 func TestSignIn(t *testing.T) {
 	ctx := context.Background()
-	cpf := NewRandomString(10)
-	password := NewRandomString(10)
+	cpf := utils.NewRandomString(10)
+	password := utils.NewRandomString(10)
 	repository := spy.NewAuthenticateSpy()
 	sut := usecase.NewSignIn(repository)
 	sut.Execute(ctx, cpf, password)
@@ -61,13 +62,4 @@ func TestSignIn(t *testing.T) {
 			t.Error("Expected LastName to match")
 		}
 	})
-}
-
-func NewRandomString(n int) string {
-	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letters[i%len(letters)]
-	}
-	return string(b)
 }
