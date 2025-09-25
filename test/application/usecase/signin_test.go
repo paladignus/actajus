@@ -35,6 +35,14 @@ func TestSignIn(t *testing.T) {
 			t.Error("Expected error to be not nil")
 		}
 	})
+
+	t.Run("should that a database erroris returned", func(t *testing.T) {
+		repository.ShouldReturnError = true
+		_, err := sut.Execute(ctx, cpf, password)
+		if err == nil {
+			t.Error("Expected error to be not nil")
+		}
+	})
 }
 
 func NewRandomString(n int) string {
