@@ -42,4 +42,21 @@ func TestAuthenticationRepository(t *testing.T) {
 			t.Error("expected error to be not nil")
 		}
 	})
+
+	t.Run("should return authenticated user", func(t *testing.T) {
+		sut.ShouldReturnError = false
+		output, err := sut.SignIn(ctx, cpf, password)
+		if err != nil {
+			t.Error("expected error to be nil, got", err)
+		}
+		if output.ID != sut.CustomOutput.ID {
+			t.Errorf("expected ID to match, got %s", output.ID)
+		}
+		if output.FirstName != sut.CustomOutput.FirstName {
+			t.Errorf("expected FirstName to match, got %s", output.FirstName)
+		}
+		if output.LastName != sut.CustomOutput.LastName {
+			t.Errorf("expected LastName to match, got %s", output.LastName)
+		}
+	})
 }
