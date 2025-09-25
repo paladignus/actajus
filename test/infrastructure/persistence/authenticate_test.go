@@ -33,4 +33,13 @@ func TestAuthenticationRepository(t *testing.T) {
 			t.Error("expected error to be not nil")
 		}
 	})
+
+	t.Run("should return database error", func(t *testing.T) {
+		sut.ShouldReturnUserNotFound = false
+		sut.ShouldReturnError = true
+		_, err := sut.SignIn(ctx, cpf, password)
+		if err == nil {
+			t.Error("expected error to be not nil")
+		}
+	})
 }
