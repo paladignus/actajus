@@ -25,4 +25,12 @@ func TestAuthenticationRepository(t *testing.T) {
 			t.Errorf("expected cpf and password to match, got %s and %s", sut.LastCPF, sut.LastPassword)
 		}
 	})
+
+	t.Run("should return user not found error", func(t *testing.T) {
+		sut.ShouldReturnUserNotFound = true
+		_, err := sut.SignIn(ctx, cpf, password)
+		if err == nil {
+			t.Error("expected error to be not nil")
+		}
+	})
 }
