@@ -2,98 +2,200 @@
 package adapter
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
+	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
-type jwtAdapter struct {
-	accessSecre   []byte
-	refreshSecret []byte
-	accessExpiry  time.Duration
-	refreshExpiry time.Duration
-}
+var (
+	ErrInvalidToken           = errors.New("invalid token")
+	ErrExpiredToken           = errors.New("token has expired")
+	ErrRevokedToken           = errors.New("token has been revoked")
+	ErrInvalidTokenType       = errors.New("invalid token type")
+	ErrInvalidTokenSigningKey = errors.New("invalid signing key")
+)
 
 type customClaims struct {
-	UserID string
+	UserID    string
+	TokenType string
 	jwt.RegisteredClaims
 }
 
-func NewJWTAdapter() jwtAdapter {
-	return jwtAdapter{}
+type jwtAdapter struct {
+	config config.JWTConfig
 }
 
-func (j *jwtAdapter) generateToken(userID string, secret []byte, expiresIn time.Duration) (string, error) {
-	jti := uuid.New().String()
+func NewJWTAdapter(config config.JWTConfig) jwtAdapter {
+	return jwtAdapter{config}
+}
+
+func (j *jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
+	accessToken, err := j.generateToken(
+		userID,
+		"access",
+		j.config.AccessSecret,
+		j.config.AccessExpiry,
+	)
+	if err != nil {
+		return dto.TokenPair{}, fmt.Errorf("failed to generate access token: %w", err)
+	}
+	refreshToken, err := j.generateToken(
+		userID,
+		"refresh",
+		j.config.RefreshSecret,
+		j.config.RefreshExpiry,
+	)
+	if err != nil {
+		return dto.TokenPair{}, fmt.Errorf("failed to generate refresh token: %w", err)
+	}
+	return dto.TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (j *jwtAdapter) generateToken(userID, tokenType, secret string, expiresIn time.Duration) (string, error) {
+	now := time.Now()
+	jti, err := j.generateJTI()
+	if err != nil {
+		return "", err
+	}
 	claims := customClaims{
-		UserID: userID,
+		UserID:    userID,
+		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(now.Add(expiresIn)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
 			ID:        jti,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(secret)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
+	return token.SignedString([]byte(secret))
+
+	// jti := uuid.New().String()
+	// claims := customClaims{
+	// 	UserID: userID,
+	// 	RegisteredClaims: jwt.RegisteredClaims{
+	// 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
+	// 		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	// 		ID:        jti,
+	// 	},
+	// }
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// tokenString, err := token.SignedString(secret)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// return tokenString, nil
 }
 
-func (j *jwtAdapter) validateToken(tokenString string, secret []byte) (string, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (interface{}, error) {
+func (j *jwtAdapter) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
+	return j.validateToken(tokenString, "access", j.config.AccessSecret)
+}
+
+func (j *jwtAdapter) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
+	return j.validateToken(tokenString, "refresh", j.config.RefreshSecret)
+}
+
+func (j *jwtAdapter) validateToken(tokenString, expectedType, secret string) (dto.TokenClaims, error) {
+	// revoked, err := j.repository.IsTokenRevoked(tokenString)
+	// if err != nil {
+	// 	return dto.TokenClaims{}, fmt.Errorf("failed to check token revocation %w", err)
+	// }
+	// if revoked {
+	// 	return dto.TokenClaims{}, ErrRevokedToken
+	// }
+
+	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("método de assinatura inválido")
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
-		return secret, nil
+		return []byte(secret), nil
 	})
 	if err != nil {
-		return "", err
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return dto.TokenClaims{}, ErrExpiredToken
+		}
+		return dto.TokenClaims{}, ErrInvalidToken
 	}
-	if claims, ok := token.Claims.(*customClaims); ok && token.Valid {
-		//cache token, ver depois
-		return claims.UserID, nil
+	claims, ok := token.Claims.(*customClaims)
+	if !ok && !token.Valid {
+		return dto.TokenClaims{}, ErrInvalidToken
 	}
-	return "", errors.New("token inválido")
+	if claims.TokenType != expectedType {
+		return dto.TokenClaims{}, ErrInvalidTokenType
+	}
+	return dto.TokenClaims{
+		UserID:    claims.UserID,
+		TokenType: claims.TokenType,
+	}, nil
+}
+
+func (j *jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
+	claims, err := j.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return dto.TokenPair{}, fmt.Errorf("failed refresh token: %w", err)
+	}
+	return j.GenerateTokenPair(claims.UserID)
 }
 
 func (j *jwtAdapter) revokeToken(tokenString string, secret []byte) error {
-	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return secret, nil
+	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (any, error) {
+		return []byte(secret), nil
 	})
-	if err != nil {
-		return err
+	var expiresAt time.Time
+	if token != nil {
+		if claims, ok := token.Claims.(*customClaims); ok {
+			expiresAt = claims.ExpiresAt.Time
+		}
 	}
-	if _, ok := token.Claims.(*customClaims); ok {
-		// delete token cache posterior
-		return nil
+	if expiresAt.IsZero() {
+		expiresAt = time.Now().Add(24 * time.Hour * 30)
 	}
-	return errors.New("token inválido")
+	return err
+	// return j.repository.SaveRevokeToken(tokenString, expiresAt)
 }
 
-func (j *jwtAdapter) GenereteAccessToken(userID string) (string, error) {
-	return j.generateToken(userID, j.accessSecre, j.accessExpiry)
+func (j jwtAdapter) IsTokenRevoked(token string) (bool, error) {
+	return true, nil
+	// return j.repository.IsTokenRevoked(token)
 }
 
-func (j *jwtAdapter) GenereteRefreshToken(userID string) (string, error) {
-	return j.generateToken(userID, j.refreshSecret, j.refreshExpiry)
-}
+// func (j *jwtAdapter) GenereteAccessToken(userID string) (string, error) {
+// 	return j.generateToken(userID, j.accessSecret, j.accessExpiry)
+// }
+//
+// func (j *jwtAdapter) GenereteRefreshToken(userID string) (string, error) {
+// 	return j.generateToken(userID, j.refreshSecret, j.refreshExpiry)
+// }
+//
+// func (j *jwtAdapter) ValidateAccessToken(token string) (string, error) {
+// 	return j.validateToken(token, j.accessSecre)
+// }
+//
+// func (j *jwtAdapter) ValidateRefreshToken(token string) (string, error) {
+// 	return j.validateToken(token, j.refreshSecret)
+// }
+//
+// func (j *jwtAdapter) RevokeAccessToken(token string) error {
+// 	return j.revokeToken(token, j.accessSecre)
+// }
+//
+// func (j *jwtAdapter) RevokeRefreshToken(token string) error {
+// 	return j.revokeToken(token, j.refreshSecret)
+// }
 
-func (j *jwtAdapter) ValidateAccessToken(token string) (string, error) {
-	return j.validateToken(token, j.accessSecre)
-}
-
-func (j *jwtAdapter) ValidateRefreshToken(token string) (string, error) {
-	return j.validateToken(token, j.refreshSecret)
-}
-
-func (j *jwtAdapter) RevokeAccessToken(token string) error {
-	return j.revokeToken(token, j.accessSecre)
-}
-
-func (j *jwtAdapter) RevokeRefreshToken(token string) error {
-	return j.revokeToken(token, j.refreshSecret)
+func (j *jwtAdapter) generateJTI() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }
