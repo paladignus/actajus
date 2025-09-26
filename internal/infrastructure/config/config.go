@@ -30,10 +30,10 @@ type DatabaseConfig struct {
 }
 
 type JWTConfig struct {
-	SecretKey          string
-	AccessTokenExpiry  time.Duration
-	RefreshTokenExpiry time.Duration
-	Issuer             string
+	AccessSecret  string
+	RefreshSecret string
+	AccessExpiry  time.Duration
+	RefreshExpiry time.Duration
 }
 
 type LoggerConfig struct {
@@ -57,10 +57,11 @@ func Load() Config {
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{
-			SecretKey:          getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
-			AccessTokenExpiry:  time.Duration(getEnvAsInt("ACCESS_TOKEN_EXPIRY", 15)) * time.Minute,
-			RefreshTokenExpiry: time.Duration(getEnvAsInt("REFRESH_TOKEN_EXPIRE", 7*24)) * time.Hour,
-			Issuer:             getEnv("JWT_ISSUER", "auth-service"),
+			AccessSecret:  getEnv("ACCESS_SECRET", "your-secret-key-change-in-production"),
+			RefreshSecret: getEnv("REFRESH_SECRET", "your-secret-key-change-in-production"),
+			// Issuer:             getEnv("JWT_ISSUER", "auth-service"),
+			AccessExpiry:  time.Duration(getEnvAsInt("ACCESS_EXPIRY", 15)) * time.Minute,
+			RefreshExpiry: time.Duration(getEnvAsInt("REFRESH_EXPIRE", 7*24)) * time.Hour,
 		},
 		Logger: LoggerConfig{
 			Level:  getEnv("LOG_LEVEL", "info"),

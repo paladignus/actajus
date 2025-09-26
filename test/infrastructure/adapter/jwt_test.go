@@ -11,10 +11,10 @@ import (
 
 func TestJWT(t *testing.T) {
 	config := config.Load()
-	sut := spy.NewJWTAdapter(config.JWT.SecretKey, config.JWT.AccessTokenExpiry)
+	sut := spy.NewJWTAdapter(config.JWT.AccessSecret, config.JWT.AccessExpiry)
 	t.Run("should create a new JWT adapter instance", func(t *testing.T) {
-		if sut.SecretKey != config.JWT.SecretKey || sut.ExpiresIn != config.JWT.AccessTokenExpiry {
-			t.Errorf("expected SecretKey %s and ExpiresIn %v, got SecretKey %s and ExpiresIn %v", sut.SecretKey, sut.ExpiresIn, config.JWT.SecretKey, config.JWT.AccessTokenExpiry)
+		if sut.SecretKey != config.JWT.AccessSecret || sut.ExpiresIn != config.JWT.AccessExpiry {
+			t.Errorf("expected SecretKey %s and ExpiresIn %v, got SecretKey %s and ExpiresIn %v", sut.SecretKey, sut.ExpiresIn, config.JWT.AccessSecret, config.JWT.AccessExpiry)
 		}
 	})
 	t.Run("should have correct expiration time", func(t *testing.T) {
