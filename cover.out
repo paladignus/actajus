@@ -1,3 +1,7 @@
 mode: set
-github.com/paladignus/actajus/internal/infrastructure/adapter/spy/jwt.go:22.74,24.2 1 1
-github.com/paladignus/actajus/internal/infrastructure/adapter/spy/jwt.go:26.49,29.2 2 1
+github.com/paladignus/actajus/internal/application/usecase/signin.go:17.82,19.2 1 1
+github.com/paladignus/actajus/internal/application/usecase/signin.go:21.101,23.16 2 1
+github.com/paladignus/actajus/internal/application/usecase/signin.go:23.16,25.3 1 1
+github.com/paladignus/actajus/internal/application/usecase/signin.go:26.2,27.16 2 1
+github.com/paladignus/actajus/internal/application/usecase/signin.go:27.16,29.3 1 0
+github.com/paladignus/actajus/internal/application/usecase/signin.go:30.2,32.20 3 1

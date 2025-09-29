@@ -10,6 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/service"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
@@ -31,11 +32,11 @@ type jwtAdapter struct {
 	config config.JWTConfig
 }
 
-func NewJWTAdapter(config config.JWTConfig) jwtAdapter {
+func NewJWTAdapter(config config.JWTConfig) service.Token {
 	return jwtAdapter{config}
 }
 
-func (j *jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
+func (j jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
 	accessToken, err := j.generateToken(
 		userID,
 		"access",
@@ -60,7 +61,7 @@ func (j *jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
 	}, nil
 }
 
-func (j *jwtAdapter) generateToken(userID, tokenType, secret string, expiresIn time.Duration) (string, error) {
+func (j jwtAdapter) generateToken(userID, tokenType, secret string, expiresIn time.Duration) (string, error) {
 	now := time.Now()
 	jti, err := j.generateJTI()
 	if err != nil {
@@ -78,33 +79,17 @@ func (j *jwtAdapter) generateToken(userID, tokenType, secret string, expiresIn t
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secret))
-
-	// jti := uuid.New().String()
-	// claims := customClaims{
-	// 	UserID: userID,
-	// 	RegisteredClaims: jwt.RegisteredClaims{
-	// 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
-	// 		IssuedAt:  jwt.NewNumericDate(time.Now()),
-	// 		ID:        jti,
-	// 	},
-	// }
-	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// tokenString, err := token.SignedString(secret)
-	// if err != nil {
-	// 	return "", err
-	// }
-	// return tokenString, nil
 }
 
-func (j *jwtAdapter) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
+func (j jwtAdapter) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
 	return j.validateToken(tokenString, "access", j.config.AccessSecret)
 }
 
-func (j *jwtAdapter) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
+func (j jwtAdapter) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
 	return j.validateToken(tokenString, "refresh", j.config.RefreshSecret)
 }
 
-func (j *jwtAdapter) validateToken(tokenString, expectedType, secret string) (dto.TokenClaims, error) {
+func (j jwtAdapter) validateToken(tokenString, expectedType, secret string) (dto.TokenClaims, error) {
 	// revoked, err := j.repository.IsTokenRevoked(tokenString)
 	// if err != nil {
 	// 	return dto.TokenClaims{}, fmt.Errorf("failed to check token revocation %w", err)
@@ -138,7 +123,7 @@ func (j *jwtAdapter) validateToken(tokenString, expectedType, secret string) (dt
 	}, nil
 }
 
-func (j *jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
+func (j jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
 	claims, err := j.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return dto.TokenPair{}, fmt.Errorf("failed refresh token: %w", err)
@@ -146,53 +131,29 @@ func (j *jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, err
 	return j.GenerateTokenPair(claims.UserID)
 }
 
-func (j *jwtAdapter) revokeToken(tokenString string, secret []byte) error {
-	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (any, error) {
-		return []byte(secret), nil
-	})
-	var expiresAt time.Time
-	if token != nil {
-		if claims, ok := token.Claims.(*customClaims); ok {
-			expiresAt = claims.ExpiresAt.Time
-		}
-	}
-	if expiresAt.IsZero() {
-		expiresAt = time.Now().Add(24 * time.Hour * 30)
-	}
-	return err
-	// return j.repository.SaveRevokeToken(tokenString, expiresAt)
-}
-
-func (j jwtAdapter) IsTokenRevoked(token string) (bool, error) {
-	return true, nil
-	// return j.repository.IsTokenRevoked(token)
-}
-
-// func (j *jwtAdapter) GenereteAccessToken(userID string) (string, error) {
-// 	return j.generateToken(userID, j.accessSecret, j.accessExpiry)
-// }
-//
-// func (j *jwtAdapter) GenereteRefreshToken(userID string) (string, error) {
-// 	return j.generateToken(userID, j.refreshSecret, j.refreshExpiry)
-// }
-//
-// func (j *jwtAdapter) ValidateAccessToken(token string) (string, error) {
-// 	return j.validateToken(token, j.accessSecre)
-// }
-//
-// func (j *jwtAdapter) ValidateRefreshToken(token string) (string, error) {
-// 	return j.validateToken(token, j.refreshSecret)
-// }
-//
-// func (j *jwtAdapter) RevokeAccessToken(token string) error {
-// 	return j.revokeToken(token, j.accessSecre)
-// }
-//
-// func (j *jwtAdapter) RevokeRefreshToken(token string) error {
-// 	return j.revokeToken(token, j.refreshSecret)
+// func (j *jwtAdapter) revokeToken(tokenString string, secret []byte) error {
+// 	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (any, error) {
+// 		return []byte(secret), nil
+// 	})
+// 	var expiresAt time.Time
+// 	if token != nil {
+// 		if claims, ok := token.Claims.(*customClaims); ok {
+// 			expiresAt = claims.ExpiresAt.Time
+// 		}
+// 	}
+// 	if expiresAt.IsZero() {
+// 		expiresAt = time.Now().Add(24 * time.Hour * 30)
+// 	}
+// 	return err
+// 	// return j.repository.SaveRevokeToken(tokenString, expiresAt)
 // }
 
-func (j *jwtAdapter) generateJTI() (string, error) {
+// func (j jwtAdapter) IsTokenRevoked(token string) (bool, error) {
+// 	return true, nil
+// 	// return j.repository.IsTokenRevoked(token)
+// }
+
+func (j jwtAdapter) generateJTI() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "", err

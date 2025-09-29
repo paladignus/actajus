@@ -52,8 +52,8 @@ func Load() Config {
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnvAsInt("DB_PORT", 5432),
 			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("DB_PASSWORD", "password"),
-			DBName:   getEnv("DB_NAME", "authdb"),
+			Password: getEnv("DB_PASSWORD", "M4rc3l0"),
+			DBName:   getEnv("DB_NAME", "actajus_test"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{

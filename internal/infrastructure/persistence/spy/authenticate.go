@@ -21,7 +21,7 @@ type AuthenticateSpy struct {
 func NewAuthenticateSpy() *AuthenticateSpy {
 	return &AuthenticateSpy{
 		CustomOutput: dto.AuthenticatedOutput{
-			ID:        "1",
+			UserID:    "1",
 			FirstName: "John",
 			LastName:  "Doe",
 		},

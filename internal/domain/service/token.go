@@ -1,19 +1,11 @@
 // Package service
 package service
 
-type AccessToken interface {
-	GenereteAccessToken(string) (string, error)
-	ValidateAccessToken(string) (string, error)
-	RevokeAccessToken(string) error
-}
+import "github.com/paladignus/actajus/internal/application/dto"
 
-type RefreshToken interface {
-	GenereteRefreshToken(string) (string, error)
-	ValidateRefreshToken(string) (string, error)
-	RevokeRefreshToken(string) error
-}
-
-type TokenService interface {
-	AccessToken
-	RefreshToken
+type Token interface {
+	GenerateTokenPair(string) (dto.TokenPair, error)
+	ValidateAccessToken(string) (dto.TokenClaims, error)
+	ValidateRefreshToken(string) (dto.TokenClaims, error)
+	RefreshAccessToken(refreshToken string) (dto.TokenPair, error)
 }

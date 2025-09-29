@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/usecase"
+	"github.com/paladignus/actajus/internal/infrastructure/adapter"
+	"github.com/paladignus/actajus/internal/infrastructure/config"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
 	"github.com/paladignus/actajus/test/utils"
 )
@@ -14,7 +16,9 @@ func TestSignIn(t *testing.T) {
 	cpf := utils.NewRandomString(10)
 	password := utils.NewRandomString(10)
 	repository := spy.NewAuthenticateSpy()
-	sut := usecase.NewSignIn(repository)
+	config := config.Load()
+	adapter := adapter.NewJWTAdapter(config.JWT)
+	sut := usecase.NewSignIn(repository, adapter)
 	sut.Execute(ctx, cpf, password)
 
 	t.Run("should corrects params from repository", func(t *testing.T) {
@@ -52,7 +56,7 @@ func TestSignIn(t *testing.T) {
 		if err != nil {
 			t.Error("Expected error to be nil")
 		}
-		if output.ID != repository.CustomOutput.ID {
+		if output.UserID != repository.CustomOutput.UserID {
 			t.Error("Expected ID to match")
 		}
 		if output.FirstName != repository.CustomOutput.FirstName {

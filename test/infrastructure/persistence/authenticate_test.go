@@ -50,8 +50,8 @@ func TestAuthenticationRepository(t *testing.T) {
 		if err != nil {
 			t.Error("expected error to be nil, got", err)
 		}
-		if output.ID != sut.CustomOutput.ID {
-			t.Errorf("expected ID to match, got %s", output.ID)
+		if output.UserID != sut.CustomOutput.UserID {
+			t.Errorf("expected ID to match, got %s", output.UserID)
 		}
 		if output.FirstName != sut.CustomOutput.FirstName {
 			t.Errorf("expected FirstName to match, got %s", output.FirstName)
