@@ -5,6 +5,7 @@ import (
 	"context"
 	"log"
 	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/paladignus/actajus/internal/application/usecase"
@@ -12,6 +13,8 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/interface/controller"
+	"github.com/paladignus/actajus/internal/interface/http/handler"
 )
 
 func main() {
@@ -23,14 +26,11 @@ func main() {
 		log.Fatal(err)
 	}
 	repository := persistence.NewAuthenticate(db)
-	adapter := adapter.NewJWTAdapter(config.JWT)
-	signin := usecase.NewSignIn(
-		repository,
-		adapter,
-	)
-	output, err := signin.Execute(ctx, "727.753.511-15", "123456")
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(output)
+	service := adapter.NewJWTAdapter(config.JWT)
+	usecase := usecase.NewSignIn(repository, service)
+	controller := controller.NewSignIn(usecase)
+	handler := handler.NewSignIn(controller)
+
+	http.HandleFunc("POST /signin", handler.SignIn)
+	http.ListenAndServe(":8080", nil)
 }

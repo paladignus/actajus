@@ -1,0 +1,7 @@
+POST http://localhost:8080/signin
+content-type: application/json
+
+{
+    "cpf": "72775351115",
+    "password": "1234567"
+}

@@ -3,12 +3,10 @@ package usecase
 
 import (
 	"context"
-	"strings"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/paladignus/actajus/internal/domain/service"
-	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
 type SignIn struct {
@@ -21,8 +19,7 @@ func NewSignIn(repository repository.Authenticate, service service.Token) SignIn
 }
 
 func (s SignIn) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
-	newCPF := vo.CPF(strings.TrimSpace(cpf))
-	person, err := s.repository.SignIn(ctx, newCPF.Clean(), strings.TrimSpace(password))
+	person, err := s.repository.SignIn(ctx, cpf, password)
 	if err != nil {
 		return dto.AuthenticatedOutput{}, err
 	}
