@@ -21,7 +21,10 @@ func NewAuthenticate(db *postgres.DB) Authenticate {
 
 func (a Authenticate) SignIn(ctx context.Context, cpf string, password string) (dto.AuthenticatedOutput, error) {
 	autenticated := dto.AuthenticatedOutput{}
-	sql := `SELECT idpeople, first_name, last_name FROM people WHERE cpf = $1 AND password = crypt($2, password);`
+	sql := `SELECT p.idpeople, p.first_name, p.last_name FROM people p
+		INNER JOIN documents d ON p.idpeople = d.id_people
+		INNER JOIN accounts a ON p.idpeople = a.id_people 
+		WHERE d.cpf = $1 AND a.password = crypt($2, password);`
 	err := a.db.Pool.QueryRow(ctx, sql, cpf, password).
 		Scan(&autenticated.UserID, &autenticated.FirstName, &autenticated.LastName)
 	if errors.Is(err, pgx.ErrNoRows) {

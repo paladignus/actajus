@@ -53,7 +53,7 @@ func Load() Config {
 			Port:     getEnvAsInt("DB_PORT", 5432),
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", "M4rc3l0"),
-			DBName:   getEnv("DB_NAME", "actajus_test"),
+			DBName:   getEnv("DB_NAME", "actajus"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},
 		JWT: JWTConfig{
