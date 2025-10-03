@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="4"
+<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="9"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="-180,0" last-zoom="1" scene-rect="-180,-12.4274,1945.01,1089.23"
+	 last-position="633,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -23,7 +23,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="people" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="520" y="100"/>
+	<position x="540" y="120"/>
 	<column name="idpeople" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
@@ -56,7 +56,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="gender" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="0" y="320"/>
+	<position x="20" y="380"/>
 	<column name="idgender" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="smallint" length="0"/>
@@ -72,7 +72,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="documents" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="0" y="20"/>
+	<position x="20" y="20"/>
 	<column name="iddocuments" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
@@ -97,7 +97,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 <table name="accounts" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1060" y="100"/>
+	<position x="1040" y="80"/>
 	<column name="idaccounts" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
@@ -142,6 +142,126 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	 dst-table="public.documents"
 	 src-required="true" dst-required="false"/>
 
+<table name="roles" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1720" y="60"/>
+	<column name="idroles" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<constraint name="roles_pk" type="pk-constr" table="public.roles">
+		<columns names="idroles" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="permissions" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1780" y="520"/>
+	<column name="idpermissions" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="resource" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="action" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<constraint name="permissions_pk" type="pk-constr" table="public.permissions">
+		<columns names="idpermissions" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="permissions_uq" type="uq-constr" table="public.permissions">
+		<columns names="resource,action" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="role_permission" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="2140" y="200"/>
+</table>
+
+<table name="account_role" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1400" y="400"/>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+
+	<customidxs object-type="column">
+		<object name="id_accounts" index="0"/>
+		<object name="id_roles" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="account_role_pk" index="0"/>
+		<object name="accounts_fk" index="1"/>
+		<object name="roles_fk" index="2"/>
+	</customidxs></table>
+
+<relationship name="accounts_has_many_account_role" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#e8ff78"
+	 src-table="public.accounts"
+	 dst-table="public.account_role"
+	 src-required="false" dst-required="false">
+	<special-pk-cols indexes="0"/>
+</relationship>
+
+<relationship name="roles_has_many_account_role" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#da1242"
+	 src-table="public.roles"
+	 dst-table="public.account_role"
+	 src-required="false" dst-required="false">
+	<constraint name="account_role_pk" type="pk-constr" alias="account_role_pk" protected="true" table="public.account_role">
+		</constraint>
+	<special-pk-cols indexes="0"/>
+</relationship>
+
+<relationship name="roles_has_many_role_permission" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#a3b97f"
+	 src-table="public.roles"
+	 dst-table="public.role_permission"
+	 src-required="true" dst-required="false">
+	<special-pk-cols indexes="0"/>
+</relationship>
+
+<relationship name="permissions_has_many_role_permission" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#e34586"
+	 src-table="public.permissions"
+	 dst-table="public.role_permission"
+	 src-required="true" dst-required="false">
+	<constraint name="role_permission_pk" type="pk-constr" alias="role_permission_pk" protected="true" table="public.role_permission">
+		</constraint>
+	<special-pk-cols indexes="0"/>
+</relationship>
+
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">
 	<columns names="id_mother" ref-type="src-columns"/>
@@ -160,9 +280,9 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	 dst-table="public.people" reference-fk="mother_fk"
 	 src-required="false" dst-required="false">
 	<line>
-		<position x="768.633" y="199.508"/>
-	<position x="768.633" y="78"/>
-	<position x="671.089" y="78"/>
+		<position x="788.633" y="219.508"/>
+	<position x="788.633" y="98"/>
+	<position x="691.089" y="98"/>
 	</line>
 	<label ref-type="name-label">
 		<position x="0" y="0"/>
@@ -175,9 +295,9 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	 dst-table="public.people" reference-fk="father_fk"
 	 src-required="false" dst-required="false">
 	<line>
-		<position x="786.763" y="217.639"/>
-	<position x="786.763" y="59.8694"/>
-	<position x="652.958" y="59.8694"/>
+		<position x="806.763" y="237.639"/>
+	<position x="806.763" y="79.8694"/>
+	<position x="672.958" y="79.8694"/>
 	</line>
 	<label ref-type="name-label">
 		<position x="0" y="0"/>
