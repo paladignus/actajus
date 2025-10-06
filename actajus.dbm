@@ -12,9 +12,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 layer-name-colors="#000000"
 	 layer-rect-colors="#b4b4b4"
 	 show-layer-names="false" show-layer-rects="false">
-<database name="actajus" is-template="false" allow-conns="true" append-at-eod="true">
-	<appended-sql> <![CDATA[CREATE EXTENSION IF NOT EXISTS pgcrypto;
-ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
+<database name="actajus" is-template="false" allow-conns="true" append-at-eod="true" prepend-at-bod="true">
+	<appended-sql> <![CDATA[ALTER DATABASE actajus SET datestyle TO "ISO, DMY";]]> </appended-sql>
+	<prepended-sql> <![CDATA[CREATE EXTENSION IF NOT EXISTS pgcrypto;]]> </prepended-sql>
 </database>
 
 <schema name="public" layers="0" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
@@ -94,10 +94,10 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 		<object name="people_fk" index="2"/>
 	</customidxs></table>
 
-<table name="accounts" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="accounts" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1040" y="80"/>
+	<position x="1040" y="-20"/>
 	<column name="idaccounts" not-null="true" default-value="uuidv7()">
 		<type name="uuid" length="0"/>
 	</column>
@@ -107,10 +107,29 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	<column name="avatar">
 		<type name="text" length="0"/>
 	</column>
+	<column name="last_login_at">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="updated_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="deleted_at">
+		<type name="timestamptz" length="0"/>
+	</column>
 	<constraint name="accounts_pk" type="pk-constr" table="public.accounts">
 		<columns names="idaccounts" ref-type="src-columns"/>
 	</constraint>
-</table>
+
+	<customidxs object-type="column">
+		<object name="id_people" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="accounts_uq" index="2"/>
+		<object name="people_fk" index="1"/>
+	</customidxs></table>
 
 <relationship name="gender_has_many_people" type="rel1n" layers="0"
 	 src-col-pattern="id_{st}"
@@ -142,7 +161,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	 dst-table="public.documents"
 	 src-required="true" dst-required="false"/>
 
-<table name="roles" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="roles" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1720" y="60"/>
@@ -153,6 +172,9 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
+	<column name="description" not-null="true">
+		<type name="text" length="0"/>
+	</column>
 	<column name="created_at" not-null="true" default-value="now()">
 		<type name="timestamptz" length="0"/>
 	</column>
@@ -161,7 +183,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	</constraint>
 </table>
 
-<table name="permissions" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="permissions" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1780" y="520"/>
@@ -173,6 +195,9 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 		<type name="text" length="0"/>
 	</column>
 	<column name="action" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="description" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">
@@ -192,21 +217,26 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	<position x="2140" y="200"/>
 </table>
 
-<table name="account_role" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="account_role" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1400" y="400"/>
-	<column name="created_at" not-null="true" default-value="now()">
+	<column name="assigned_at" not-null="true" default-value="NOW()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>
 
 	<customidxs object-type="column">
+		<object name="assigned_by" index="2"/>
 		<object name="id_accounts" index="0"/>
 		<object name="id_roles" index="1"/>
 	</customidxs>
 	<customidxs object-type="constraint">
 		<object name="account_role_pk" index="0"/>
 		<object name="accounts_fk" index="1"/>
+		<object name="people_fk" index="3"/>
 		<object name="roles_fk" index="2"/>
 	</customidxs></table>
 
@@ -230,7 +260,7 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 	 custom-color="#da1242"
 	 src-table="public.roles"
 	 dst-table="public.account_role"
-	 src-required="false" dst-required="false">
+	 src-required="true" dst-required="false">
 	<constraint name="account_role_pk" type="pk-constr" alias="account_role_pk" protected="true" table="public.account_role">
 		</constraint>
 	<special-pk-cols indexes="0"/>
@@ -261,6 +291,16 @@ ALTER DATABASE protus SET datestyle TO "ISO, DMY";]]> </appended-sql>
 		</constraint>
 	<special-pk-cols indexes="0"/>
 </relationship>
+
+<relationship name="people_has_many_account_role" type="rel1n" layers="0"
+	 src-col-pattern="assigned_by"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#44a213"
+	 src-table="public.people"
+	 dst-table="public.account_role"
+	 src-required="true" dst-required="false"/>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">
