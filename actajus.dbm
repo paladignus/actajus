@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="9"
+<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="10"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="633,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
+	 last-position="0,-28" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -300,6 +300,49 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 custom-color="#44a213"
 	 src-table="public.people"
 	 dst-table="public.account_role"
+	 src-required="true" dst-required="false"/>
+
+<table name="email" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="940" y="520"/>
+	<column name="idemails" not-null="true" default-value="uuidv7()">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="address" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="updated_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="deleted_at">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<constraint name="emails_pk" type="pk-constr" table="public.email">
+		<columns names="idemails" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="emails_name_uq" type="uq-constr" table="public.email">
+		<columns names="address" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="id_people" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="people_fk" index="1"/>
+	</customidxs></table>
+
+<relationship name="people_has_many_email" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#53a70d"
+	 src-table="public.people"
+	 dst-table="public.email"
 	 src-required="true" dst-required="false"/>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"

@@ -6,6 +6,16 @@ type AuthenticatedInput struct {
 	Password string
 }
 
+type Role struct {
+	IDRole int    `json:"-"`
+	Name   string `json:"name"`
+}
+
+type Permission struct {
+	Resource string `json:"resource"`
+	Action   string `json:"action"`
+}
+
 type AuthenticatedOutput struct {
 	AccessToken  string   `json:"access_token"`
 	RefreshToken string   `json:"refresh_token"`
