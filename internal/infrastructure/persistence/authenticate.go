@@ -24,6 +24,8 @@ func (a Authenticate) SignIn(ctx context.Context, cpf string, password string) (
 	sql := `SELECT p.idpeople, p.first_name, p.last_name FROM people p
 		INNER JOIN documents d ON p.idpeople = d.id_people
 		INNER JOIN accounts a ON p.idpeople = a.id_people 
+		INNER JOIN account_role	ar ON a.idaccounts = ar.id_accounts
+		INNER JOIN roles r ON r.idroles = ar.id_roles
 		WHERE d.cpf = $1 AND a.password = crypt($2, password);`
 	err := a.db.Pool.QueryRow(ctx, sql, cpf, password).
 		Scan(&autenticated.UserID, &autenticated.FirstName, &autenticated.LastName)

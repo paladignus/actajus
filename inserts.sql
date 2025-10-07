@@ -1,4 +1,4 @@
-INSERT INTO genders (gender) VALUES ('Feminino'), ('Masculino');
+INSERT INTO gender (name) VALUES ('Feminino'), ('Masculino');
 
 INSERT INTO people (first_name, last_name, birthday, id_gender)
 VALUES
@@ -11,8 +11,8 @@ VALUES
     'Sofia',
     'Jackson',
     '1980-01-01',
-    '0199ba1f-505d-71ed-bacd-ae7cdd67c100',
-    '0199ba1f-505d-7378-9424-2fd68424db6a',
+    '0199bc57-f525-7eed-9ea2-e0098c19607f',
+    '0199bc57-f526-7b75-99db-ae3293049df3',
     1
 );
 
@@ -25,12 +25,35 @@ INSERT INTO people (first_name, last_name, birthday, id_gender) VALUES
 
 INSERT INTO documents (cpf, id_people)
 VALUES
-('11122233344455', '0199ba23-bbb9-7c5c-bbaa-be860b76cce3');
+('11122233344', '0199bc58-f61a-76c8-8837-6a273aa9b2d0');
 
 INSERT INTO accounts (id_people, password, avatar)
 VALUES
 (
-    '0199ba23-bbb9-7c5c-bbaa-be860b76cce3',
+    '0199bc58-f61a-76c8-8837-6a273aa9b2d0',
+    crypt('admin123', gen_salt('bf')),
+    'default.png'
+);
+
+INSERT INTO accounts (id_people, password, avatar)
+VALUES
+(
+    '0199bc59-3d57-76f4-a493-7f7929b60c8a',
+    crypt('admin123', gen_salt('bf')),
+    'default.png'
+),
+(
+    '0199bc59-3d57-77fb-a7ba-1bf13c1b4723',
+    crypt('admin123', gen_salt('bf')),
+    'default.png'
+),
+(
+    '0199bc59-3d57-781e-8af0-e9a168f2cca7',
+    crypt('admin123', gen_salt('bf')),
+    'default.png'
+),
+(
+    '0199bc59-3d57-783b-8ee2-848c75d457cd',
     crypt('admin123', gen_salt('bf')),
     'default.png'
 );
@@ -125,16 +148,16 @@ INSERT INTO users (id, email, password, first_name, last_name) VALUES
 -- 5. Associar Roles aos Usuários
 INSERT INTO account_role (id_accounts, id_roles, assigned_by) VALUES 
 --Super_Admin tem todas as roles
-('0199ba2a-294f-73ce-8314-404be25debea', 1, '0199ba23-bbb9-7c5c-bbaa-be860b76cce3'),
+('0199bc5a-62a1-7ca3-994c-3c6493dd1375', 1, '0199bc58-f61a-76c8-8837-6a273aa9b2d0'),
 -- Admin tem role de admin
-('0199bac4-d4c6-78b6-9de0-5fcbe0da0f0d', 2, '0199ba23-bbb9-7c5c-bbaa-be860b76cce3'),
+('0199bc60-1e3d-7b0d-a559-00ff768266a6', 2, '0199bc58-f61a-76c8-8837-6a273aa9b2d0'),
 
 -- Manager tem roles de manager E customer (pode fazer pedidos)
-('0199bac4-d4cb-7c71-a049-386abd8da042', 3, '0199ba23-bbb9-7c5c-bbaa-be860b76cce3'),
-('0199bac4-d4cb-7c71-a049-386abd8da042', 5, '0199ba23-bbb9-7c5c-bbaa-be860b76cce3'),
+('0199bc60-1e40-79b8-a07d-8ca6004c12ba', 3, '0199bc58-f61a-76c8-8837-6a273aa9b2d0'),
+('0199bc60-1e40-79b8-a07d-8ca6004c12ba', 5, '0199bc58-f61a-76c8-8837-6a273aa9b2d0'),
 
 -- Editor tem role de editor
-('0199bac4-d4d0-735e-8331-04354cd7f9fb', 4, '0199ba23-bbb9-7c5c-bbaa-be860b76cce3'),
+('0199bc60-1e43-75d4-aa01-e507a23116fc', 4, '0199bc58-f61a-76c8-8837-6a273aa9b2d0'),
 
 -- Customer tem role de customer
-('0199bac4-d4d4-7306-92f1-c64b90b5a018', 5, '0199ba23-bbb9-7c5c-bbaa-be860b76cce3');
+('0199bc60-1e46-70da-a034-33bc4296f326', 5, '0199bc58-f61a-76c8-8837-6a273aa9b2d0');
