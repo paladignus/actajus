@@ -5,3 +5,49 @@ content-type: application/json
     "cpf": "11122233344",
     "password": "admin123"
 }
+
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "11122233344",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "22233344455",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "33344455566",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "44455566677",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "55566677788",
+    "password": "admin123"
+}
