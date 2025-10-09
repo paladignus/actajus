@@ -1,5 +1,5 @@
-// Package service
-package service
+// Package repository
+package repository
 
 import "time"
 

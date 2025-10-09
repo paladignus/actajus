@@ -1,10 +1,10 @@
-// Package domainerrors
-package domainerrors
+// Package domain
+package domain
 
 import "errors"
 
 var (
-	ErrUserNotFound       = errors.New("user not found")
+	ErrPersonNotFound     = errors.New("person not found")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrInvalidToken       = errors.New("invalid token")
 	ErrTokenExpired       = errors.New("token expired")

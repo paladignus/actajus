@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/paladignus/actajus/internal/domain/service"
+	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -14,7 +14,7 @@ type redisCache struct {
 	client *redis.Client
 }
 
-func NewRedisCache(ctx context.Context, client *redis.Client) service.Cache {
+func NewRedisCache(ctx context.Context, client *redis.Client) repository.Cache {
 	return redisCache{ctx, client}
 }
 

@@ -9,10 +9,10 @@ import (
 )
 
 type SignIn struct {
-	usecase usecase.SignIn
+	usecase usecase.Authenticate
 }
 
-func NewSignIn(usecase usecase.SignIn) SignIn {
+func NewSignIn(usecase usecase.Authenticate) SignIn {
 	return SignIn{usecase}
 }
 

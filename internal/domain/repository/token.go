@@ -1,10 +1,11 @@
 // Package repository
 package repository
 
-import "time"
+import "github.com/paladignus/actajus/internal/application/dto"
 
 type Token interface {
-	SaveRevokedToken(string, time.Time) error
-	IsTokenRevoked(string) (bool, error)
-	// ClearExpiredTokens() error
+	GenerateTokenPair(string) (dto.TokenPair, error)
+	ValidateAccessToken(string) (dto.TokenClaims, error)
+	ValidateRefreshToken(string) (dto.TokenClaims, error)
+	RefreshAccessToken(string) (dto.TokenPair, error)
 }

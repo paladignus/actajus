@@ -20,14 +20,18 @@ import (
 func main() {
 	config := config.Load()
 	ctx := context.Background()
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	slog := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     slog.LevelDebug,
+		AddSource: false,
+	}))
+	logger := adapter.NewSlogAdapter(slog)
 	db, err := postgres.NewConnection(ctx, &config.Database, logger)
 	if err != nil {
 		log.Fatal(err)
 	}
-	repository := persistence.NewAuthenticate(db)
-	service := adapter.NewJWTAdapter(config.JWT)
-	usecase := usecase.NewSignIn(repository, service)
+	repository := persistence.NewAccount(db)
+	// service := adapter.NewJWTAdapter(config.JWT)
+	usecase := usecase.NewAuthenticate(repository, logger)
 	controller := controller.NewSignIn(usecase)
 	handler := handler.NewSignIn(controller)
 

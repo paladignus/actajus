@@ -2,11 +2,11 @@ package usecase
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
-	"github.com/paladignus/actajus/internal/infrastructure/config"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
 	"github.com/paladignus/actajus/test/utils"
 )
@@ -16,9 +16,12 @@ func TestSignIn(t *testing.T) {
 	cpf := utils.NewRandomString(10)
 	password := utils.NewRandomString(10)
 	repository := spy.NewAuthenticateSpy()
-	config := config.Load()
-	adapter := adapter.NewJWTAdapter(config.JWT)
-	sut := usecase.NewSignIn(repository, adapter)
+	// config := config.Load()
+	// adapter := adapter.NewJWTAdapter(config.JWT)
+	slog := slog.New(slog.NewTextHandler(nil, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
+
+	logger := adapter.NewSlogAdapter(slog)
+	sut := usecase.NewAuthenticate(repository, logger)
 	sut.Execute(ctx, cpf, password)
 
 	t.Run("should corrects params from repository", func(t *testing.T) {
