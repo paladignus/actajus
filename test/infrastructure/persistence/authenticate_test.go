@@ -12,8 +12,8 @@ func TestAuthenticationRepository(t *testing.T) {
 	ctx := context.Background()
 	cpf := utils.NewRandomString(10)
 	password := utils.NewRandomString(10)
-	sut := spy.NewAuthenticateSpy()
-	sut.SignIn(ctx, cpf, password)
+	sut := spy.NewAccountSpy()
+	sut.FindUserAccountByCPF(ctx, cpf)
 
 	t.Run("should call SignIn once", func(t *testing.T) {
 		if sut.CallCount != 1 {
@@ -29,7 +29,7 @@ func TestAuthenticationRepository(t *testing.T) {
 
 	t.Run("should return user not found error", func(t *testing.T) {
 		sut.ShouldReturnUserNotFound = true
-		_, err := sut.SignIn(ctx, cpf, password)
+		_, err := sut.FindUserAccountByCPF(ctx, cpf)
 		if err == nil {
 			t.Error("expected error to be not nil")
 		}
@@ -38,7 +38,7 @@ func TestAuthenticationRepository(t *testing.T) {
 	t.Run("should return database error", func(t *testing.T) {
 		sut.ShouldReturnUserNotFound = false
 		sut.ShouldReturnError = true
-		_, err := sut.SignIn(ctx, cpf, password)
+		_, err := sut.FindUserAccountByCPF(ctx, cpf)
 		if err == nil {
 			t.Error("expected error to be not nil")
 		}
@@ -46,12 +46,12 @@ func TestAuthenticationRepository(t *testing.T) {
 
 	t.Run("should return authenticated user", func(t *testing.T) {
 		sut.ShouldReturnError = false
-		output, err := sut.SignIn(ctx, cpf, password)
+		output, err := sut.FindUserAccountByCPF(ctx, cpf)
 		if err != nil {
 			t.Error("expected error to be nil, got", err)
 		}
-		if output.UserID != sut.CustomOutput.UserID {
-			t.Errorf("expected ID to match, got %s", output.UserID)
+		if output.IDUser != sut.CustomOutput.IDUser {
+			t.Errorf("expected ID to match, got %s", output.IDUser)
 		}
 		if output.FirstName != sut.CustomOutput.FirstName {
 			t.Errorf("expected FirstName to match, got %s", output.FirstName)

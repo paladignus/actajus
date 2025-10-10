@@ -15,13 +15,14 @@ func TestSignIn(t *testing.T) {
 	ctx := context.Background()
 	cpf := utils.NewRandomString(10)
 	password := utils.NewRandomString(10)
-	repository := spy.NewAuthenticateSpy()
+	repository := spy.NewAccountSpy()
 	// config := config.Load()
 	// adapter := adapter.NewJWTAdapter(config.JWT)
 	slog := slog.New(slog.NewTextHandler(nil, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
 
 	logger := adapter.NewSlogAdapter(slog)
-	sut := usecase.NewAuthenticate(repository, logger)
+	sut := usecase.
+		NewAuthenticate(repository, logger)
 	sut.Execute(ctx, cpf, password)
 
 	t.Run("should corrects params from repository", func(t *testing.T) {
