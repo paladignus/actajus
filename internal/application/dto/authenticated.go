@@ -19,7 +19,7 @@ type Permission struct {
 type AuthenticatedOutput struct {
 	AccessToken  string   `json:"access_token"`
 	RefreshToken string   `json:"refresh_token"`
-	IDPerson     string   `json:"id_person"`
+	IDUser       string   `json:"id_user"`
 	FirstName    string   `json:"first_name"`
 	LastName     string   `json:"last_name"`
 	Email        string   `json:"email"`

@@ -59,7 +59,7 @@ func TestSignIn(t *testing.T) {
 		if err != nil {
 			t.Error("Expected error to be nil")
 		}
-		if output.UserID != repository.CustomOutput.UserID {
+		if output.IDUser != repository.CustomOutput.IDUser {
 			t.Error("Expected ID to match")
 		}
 		if output.FirstName != repository.CustomOutput.FirstName {

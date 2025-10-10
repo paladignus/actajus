@@ -27,7 +27,7 @@ func (a Account) FindPersonAccountByCPF(ctx context.Context, cpf string) (authen
 	INNER JOIN emails e ON p.idpeople = e.id_people
 	WHERE p.deleted_at IS NULL AND a.deleted_at IS NULL AND d.cpf = $1;`
 	err = a.db.Pool.QueryRow(ctx, sql, cpf).
-		Scan(&authenticated.IDPerson, &authenticated.FirstName, &authenticated.LastName, &authenticated.Email, &idaccount)
+		Scan(&authenticated.IDUser, &authenticated.FirstName, &authenticated.LastName, &authenticated.Email, &idaccount)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return authenticated, domain.ErrPersonNotFound
 	}
