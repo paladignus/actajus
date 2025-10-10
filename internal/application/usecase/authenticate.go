@@ -29,7 +29,7 @@ func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.Au
 		)
 		return dto.AuthenticatedOutput{}, err
 	}
-	if ok := a.persistencia.ValidatePassword(ctx, person.IDUser, password); !ok {
+	if !a.persistencia.ValidatePassword(ctx, person.IDUser, password) {
 		a.logger.Warn(ctx, "invalid credentials provided",
 			"cpf", cpf,
 			"id_person", person.IDUser,

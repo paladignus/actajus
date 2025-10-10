@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/paladignus/actajus/internal/domain/repository"
+	appctx "github.com/paladignus/actajus/internal/infrastructure/context"
 )
 
 type SlogAdapter struct {
@@ -16,20 +17,43 @@ func NewSlogAdapter(logger *slog.Logger) repository.Logger {
 	return &SlogAdapter{logger: logger}
 }
 
+// extractContextFields extrai campos do contexto automaticamente
+func (s *SlogAdapter) extractContextFields(ctx context.Context) []any {
+	var fields []any
+
+	if traceID := appctx.GetTraceID(ctx); traceID != "" {
+		fields = append(fields, "trace_id", traceID)
+	}
+
+	if userID := appctx.GetUserID(ctx); userID != "" {
+		fields = append(fields, "user_id", userID)
+	}
+
+	return fields
+}
+
 func (s *SlogAdapter) Debug(ctx context.Context, msg string, args ...any) {
-	s.logger.DebugContext(ctx, msg, args...)
+	contextFields := s.extractContextFields(ctx)
+	allArgs := append(contextFields, args...)
+	s.logger.DebugContext(ctx, msg, allArgs...)
 }
 
 func (s *SlogAdapter) Info(ctx context.Context, msg string, args ...any) {
-	s.logger.InfoContext(ctx, msg, args...)
+	contextFields := s.extractContextFields(ctx)
+	allArgs := append(contextFields, args...)
+	s.logger.InfoContext(ctx, msg, allArgs...)
 }
 
 func (s *SlogAdapter) Warn(ctx context.Context, msg string, args ...any) {
-	s.logger.WarnContext(ctx, msg, args...)
+	contextFields := s.extractContextFields(ctx)
+	allArgs := append(contextFields, args...)
+	s.logger.WarnContext(ctx, msg, allArgs...)
 }
 
 func (s *SlogAdapter) Error(ctx context.Context, msg string, args ...any) {
-	s.logger.ErrorContext(ctx, msg, args...)
+	contextFields := s.extractContextFields(ctx)
+	allArgs := append(contextFields, args...)
+	s.logger.ErrorContext(ctx, msg, allArgs...)
 }
 
 func (s *SlogAdapter) With(args ...any) repository.Logger {

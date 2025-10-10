@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/paladignus/actajus/internal/domain/repository"
+	appctx "github.com/paladignus/actajus/internal/infrastructure/context"
 )
 
 type responseWriter struct {
@@ -29,6 +30,8 @@ func LoggerMiddleware(logger repository.Logger) func(http.Handler) http.Handler 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
+			traceID := appctx.GetTraceID(r.Context())
+			contextLogger := logger.With("trace_id", traceID)
 			rw := &responseWriter{
 				ResponseWriter: w,
 				statusCode:     http.StatusOK,
@@ -42,11 +45,11 @@ func LoggerMiddleware(logger repository.Logger) func(http.Handler) http.Handler 
 			)
 			next.ServeHTTP(rw, r)
 			// Log da resposta
-			logLevel := logger.Info
+			logLevel := contextLogger.Info
 			if rw.statusCode >= 400 && rw.statusCode < 500 {
-				logLevel = logger.Warn
+				logLevel = contextLogger.Warn
 			} else if rw.statusCode >= 500 {
-				logLevel = logger.Error
+				logLevel = contextLogger.Error
 			}
 			logLevel(r.Context(), "http request completed",
 				"method", r.Method,

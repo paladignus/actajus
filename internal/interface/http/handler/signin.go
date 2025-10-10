@@ -8,6 +8,7 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/domain/repository"
+	appctx "github.com/paladignus/actajus/internal/infrastructure/context"
 )
 
 type SignIn struct {
@@ -20,6 +21,8 @@ func NewSignIn(usecase usecase.Authenticate, logger repository.Logger) SignIn {
 }
 
 func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	s.logger.Info(ctx, "processing sign_in request")
 	var req dto.AuthenticatedInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		s.logger.Warn(r.Context(), "invalid request body",
@@ -48,6 +51,10 @@ func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(errResponse)
 		return
 	}
+	ctx = appctx.WithUserID(ctx, resp.IDUser)
+	s.logger.Info(ctx, "authentication successful",
+		"cpf", req.CPF,
+	)
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
