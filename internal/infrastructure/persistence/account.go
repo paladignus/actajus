@@ -19,7 +19,7 @@ func NewAccount(db *postgres.DB) Account {
 	return Account{db}
 }
 
-func (a Account) FindPersonAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticatedOutput, err error) {
+func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticatedOutput, err error) {
 	var idaccount string
 	sql := `SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p
 	INNER JOIN documents d ON p.idpeople = d.id_people

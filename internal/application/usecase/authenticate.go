@@ -21,7 +21,7 @@ func NewAuthenticate(repository repository.Account, logger repository.Logger) Au
 
 func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
 	a.logger.Info(ctx, "authenticate user", "cpf", cpf)
-	person, err := a.persistencia.FindPersonAccountByCPF(ctx, cpf)
+	person, err := a.persistencia.FindUserAccountByCPF(ctx, cpf)
 	if err != nil {
 		a.logger.Warn(ctx, "user not found during authentication",
 			"cpf", cpf,
