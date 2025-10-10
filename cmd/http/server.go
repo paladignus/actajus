@@ -13,8 +13,8 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
-	"github.com/paladignus/actajus/internal/interface/controller"
 	"github.com/paladignus/actajus/internal/interface/http/handler"
+	"github.com/paladignus/actajus/internal/interface/http/middleware"
 )
 
 func main() {
@@ -32,9 +32,11 @@ func main() {
 	repository := persistence.NewAccount(db)
 	// service := adapter.NewJWTAdapter(config.JWT)
 	usecase := usecase.NewAuthenticate(repository, logger)
-	controller := controller.NewSignIn(usecase)
-	handler := handler.NewSignIn(controller)
+	handler := handler.NewSignIn(usecase, logger)
 
-	http.HandleFunc("POST /signin", handler.SignIn)
-	http.ListenAndServe(":8080", nil)
+	mux := http.NewServeMux()
+	// mux.Handle("POST /signin", http.HandlerFunc(handler.SignIn))
+	mux.HandleFunc("POST /signin", handler.SignIn)
+	// http.HandleFunc("POST /signin", handler.SignIn)
+	http.ListenAndServe(":8080", middleware.LoggerMiddleware(logger)(mux))
 }
