@@ -4,7 +4,7 @@ package domain
 import "errors"
 
 var (
-	ErrPersonNotFound     = errors.New("person not found")
+	ErrUserNotFound       = errors.New("user not found")
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrInvalidToken       = errors.New("invalid token")
 	ErrTokenExpired       = errors.New("token expired")

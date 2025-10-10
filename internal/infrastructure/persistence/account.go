@@ -29,7 +29,7 @@ func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenti
 	err = a.db.Pool.QueryRow(ctx, sql, cpf).
 		Scan(&authenticated.IDUser, &authenticated.FirstName, &authenticated.LastName, &authenticated.Email, &idaccount)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return authenticated, domain.ErrPersonNotFound
+		return authenticated, domain.ErrUserNotFound
 	}
 	return authenticated, err
 }
