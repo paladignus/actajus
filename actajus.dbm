@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="10"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
+	 last-position="633,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -226,13 +226,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<position x="2140" y="200"/>
 </table>
 
-<table name="account_role" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+<table name="account_role" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1400" y="400"/>
-	<column name="assigned_at" not-null="true" default-value="NOW()">
-		<type name="timestamptz" length="0"/>
-	</column>
 	<column name="created_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>
