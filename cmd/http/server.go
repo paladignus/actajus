@@ -33,19 +33,11 @@ func main() {
 	// service := adapter.NewJWTAdapter(config.JWT)
 	usecase := usecase.NewAuthenticate(repository, logger)
 	authHandler := handler.NewSignIn(usecase, logger)
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signin", authHandler.SignIn)
-	handler := middleware.TraceMiddleware(
-		middleware.LoggerMiddleware(logger)(mux),
-	)
-
 	logger.Info(ctx, "starting server", "port", config.Server.Port)
-	if err := http.ListenAndServe(":"+config.Server.Port, handler); err != nil {
+	if err := http.ListenAndServe(":"+config.Server.Port, middleware.LoggerMiddleware(logger)(mux)); err != nil {
 		logger.Error(ctx, "server failed", "error", err)
 		os.Exit(1)
 	}
-
-	// http.HandleFunc("POST /signin", handler.SignIn)
-	// http.ListenAndServe(":8080", middleware.LoggerMiddleware(logger)(mux))
 }
