@@ -23,7 +23,7 @@ var (
 )
 
 type customClaims struct {
-	UserID    string
+	IDUser    string
 	TokenType string
 	jwt.RegisteredClaims
 }
@@ -36,9 +36,9 @@ func NewJWTAdapter(config config.JWTConfig) repository.Token {
 	return jwtAdapter{config}
 }
 
-func (j jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
+func (j jwtAdapter) GenerateTokenPair(IDUser string) (dto.TokenPair, error) {
 	accessToken, err := j.generateToken(
-		userID,
+		IDUser,
 		"access",
 		j.config.AccessSecret,
 		j.config.AccessExpiry,
@@ -47,7 +47,7 @@ func (j jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
 		return dto.TokenPair{}, fmt.Errorf("failed to generate access token: %w", err)
 	}
 	refreshToken, err := j.generateToken(
-		userID,
+		IDUser,
 		"refresh",
 		j.config.RefreshSecret,
 		j.config.RefreshExpiry,
@@ -61,14 +61,14 @@ func (j jwtAdapter) GenerateTokenPair(userID string) (dto.TokenPair, error) {
 	}, nil
 }
 
-func (j jwtAdapter) generateToken(userID, tokenType, secret string, expiresIn time.Duration) (string, error) {
+func (j jwtAdapter) generateToken(IDUser, tokenType, secret string, expiresIn time.Duration) (string, error) {
 	now := time.Now()
 	jti, err := j.generateJTI()
 	if err != nil {
 		return "", err
 	}
 	claims := customClaims{
-		UserID:    userID,
+		IDUser:    IDUser,
 		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(expiresIn)),
@@ -118,7 +118,7 @@ func (j jwtAdapter) validateToken(tokenString, expectedType, secret string) (dto
 		return dto.TokenClaims{}, ErrInvalidTokenType
 	}
 	return dto.TokenClaims{
-		UserID:    claims.UserID,
+		IDUser:    claims.IDUser,
 		TokenType: claims.TokenType,
 	}, nil
 }
@@ -128,7 +128,7 @@ func (j jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, erro
 	if err != nil {
 		return dto.TokenPair{}, fmt.Errorf("failed refresh token: %w", err)
 	}
-	return j.GenerateTokenPair(claims.UserID)
+	return j.GenerateTokenPair(claims.IDUser)
 }
 
 // func (j *jwtAdapter) revokeToken(tokenString string, secret []byte) error {
