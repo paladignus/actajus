@@ -10,7 +10,7 @@ import (
 type AccountSpy struct {
 	ShouldReturnError        bool
 	ShouldReturnUserNotFound bool
-	CustomOutput             dto.AuthenticatedOutput
+	CustomOutput             dto.AuthenticatedResponse
 	CallCount                int
 	LastCPF                  string
 	LastPassword             string
@@ -18,7 +18,7 @@ type AccountSpy struct {
 
 func NewAccountSpy() *AccountSpy {
 	return &AccountSpy{
-		CustomOutput: dto.AuthenticatedOutput{
+		CustomOutput: dto.AuthenticatedResponse{
 			AccessToken:  "access_token",
 			RefreshToken: "refresh_token",
 			IDUser:       "1",
@@ -30,23 +30,23 @@ func NewAccountSpy() *AccountSpy {
 	}
 }
 
-func (a AccountSpy) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticatedOutput, err error) {
+func (a AccountSpy) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticatedResponse, err error) {
 	return authenticated, err
 }
 
-func (a AccountSpy) ValidatePassword(ctx context.Context, IDPeople, password string) (ok bool) {
-	return true
+func (a AccountSpy) ValidatePassword(ctx context.Context, IDPeople, password string) (err error) {
+	return err
 }
 
-// func (a *AuthenticateSpy) SignIn(ctx context.Context, cpf string, password string) (dto.AuthenticatedOutput, error) {
+// func (a *AuthenticateSpy) SignIn(ctx context.Context, cpf string, password string) (dto.AuthenticatedResponse, error) {
 // 	a.CallCount++
 // 	a.LastCPF = cpf
 // 	a.LastPassword = password
 // 	if a.ShouldReturnUserNotFound {
-// 		return dto.AuthenticatedOutput{}, domain.ErrUserNotFound
+// 		return dto.AuthenticatedResponse{}, domain.ErrUserNotFound
 // 	}
 // 	if a.ShouldReturnError {
-// 		return dto.AuthenticatedOutput{}, errors.New("spy database error")
+// 		return dto.AuthenticatedResponse{}, errors.New("spy database error")
 // 	}
 // 	return a.CustomOutput, nil
 // }
