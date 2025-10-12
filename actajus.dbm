@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="10"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="633,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
+	 last-position="626,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -308,7 +308,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.account_role"
 	 src-required="true" dst-required="false"/>
 
-<table name="email" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+<table name="emails" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="940" y="520"/>
@@ -327,10 +327,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="deleted_at">
 		<type name="timestamptz" length="0"/>
 	</column>
-	<constraint name="emails_pk" type="pk-constr" table="public.email">
+	<constraint name="emails_pk" type="pk-constr" table="public.emails">
 		<columns names="idemails" ref-type="src-columns"/>
 	</constraint>
-	<constraint name="emails_name_uq" type="uq-constr" table="public.email">
+	<constraint name="emails_name_uq" type="uq-constr" table="public.emails">
 		<columns names="address" ref-type="src-columns"/>
 	</constraint>
 
@@ -348,7 +348,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#53a70d"
 	 src-table="public.people"
-	 dst-table="public.email"
+	 dst-table="public.emails"
 	 src-required="true" dst-required="false"/>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
