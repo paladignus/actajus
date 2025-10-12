@@ -20,24 +20,22 @@ var (
 )
 
 type People struct {
-	FirstName     vo.Text
-	LastName      vo.Text
-	BirthDate     vo.Date
-	Mother        vo.Text
-	Father        vo.Text
-	Gender        vo.Text
-	MaritalStatus vo.Text
+	FirstName vo.Text
+	LastName  vo.Text
+	BirthDate vo.Date
+	Mother    vo.Text
+	Father    vo.Text
+	Gender    vo.Text
 }
 
-func NewPeople(people dto.PeopleInputDTO) (People, error) {
+func NewPeople(people dto.PeopleRequest) (People, error) {
 	p := People{
-		FirstName:     vo.Text(strings.TrimSpace(people.FirstName)),
-		LastName:      vo.Text(strings.TrimSpace(people.LastName)),
-		BirthDate:     vo.Date(strings.TrimSpace(people.BirthDate)),
-		Mother:        vo.Text(strings.TrimSpace(people.MotherName)),
-		Father:        vo.Text(strings.TrimSpace(people.FatherName)),
-		Gender:        vo.Text(strings.TrimSpace(people.Gender)),
-		MaritalStatus: vo.Text(strings.TrimSpace(people.MaritalStatus)),
+		FirstName: vo.Text(strings.TrimSpace(people.FirstName)),
+		LastName:  vo.Text(strings.TrimSpace(people.LastName)),
+		BirthDate: vo.Date(strings.TrimSpace(people.BirthDate)),
+		Mother:    vo.Text(strings.TrimSpace(people.MotherName)),
+		Father:    vo.Text(strings.TrimSpace(people.FatherName)),
+		Gender:    vo.Text(strings.TrimSpace(people.Gender)),
 	}
 	if !p.FirstName.IsValid() {
 		return p, ErrInvalidFirstName
@@ -56,9 +54,6 @@ func NewPeople(people dto.PeopleInputDTO) (People, error) {
 	}
 	if !p.Gender.IsValid() {
 		return p, ErrInvalidGender
-	}
-	if !p.MaritalStatus.IsValid() {
-		return p, ErrInvalidMarital
 	}
 	return p, nil
 }
