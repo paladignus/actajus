@@ -29,9 +29,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	repository := persistence.NewAccount(db)
-	// service := adapter.NewJWTAdapter(config.JWT)
-	usecase := usecase.NewAuthenticate(repository, logger)
+	persistence := persistence.NewPersistence(db)
+	token := adapter.NewJWTAdapter(config.JWT)
+	usecase := usecase.NewAuthenticate(
+		persistence.Account(),
+		logger,
+		token,
+	)
 	authHandler := handler.NewSignIn(usecase, logger)
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signin", authHandler.SignIn)
