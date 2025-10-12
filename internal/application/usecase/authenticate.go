@@ -5,52 +5,55 @@ import (
 	"context"
 
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/domain"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
 type Authenticate struct {
-	persistencia repository.Account
-	logger       repository.Logger
-	// token        repository.Token
+	repository.Account
+	repository.Logger
+	repository.Token
 }
 
-func NewAuthenticate(repository repository.Account, logger repository.Logger) Authenticate {
-	return Authenticate{repository, logger}
+func NewAuthenticate(
+	persistence repository.Account,
+	logger repository.Logger,
+	token repository.Token,
+) Authenticate {
+	return Authenticate{
+		persistence,
+		logger,
+		token,
+	}
 }
 
-func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
-	a.logger.Info(ctx, "authenticate user", "cpf", cpf)
-	person, err := a.persistencia.FindUserAccountByCPF(ctx, cpf)
+func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedResponse, error) {
+	a.Info(ctx, "authenticate user", "cpf", cpf)
+	person, err := a.FindUserAccountByCPF(ctx, cpf)
 	if err != nil {
-		a.logger.Warn(ctx, "user not found during authentication",
+		a.Warn(ctx, "user not found during authentication",
 			"cpf", cpf,
 			"error", err,
 		)
-		return dto.AuthenticatedOutput{}, err
+		return dto.AuthenticatedResponse{}, err
 	}
-	if !a.persistencia.ValidatePassword(ctx, person.IDUser, password) {
-		a.logger.Warn(ctx, "invalid credentials provided",
+	err = a.ValidatePassword(ctx, person.IDUser, password)
+	if err != nil {
+		a.Warn(ctx, "invalid credentials provided",
 			"cpf", cpf,
 			"id_person", person.IDUser,
 		)
-		return dto.AuthenticatedOutput{}, domain.ErrInvalidCredentials
+		return dto.AuthenticatedResponse{}, err
 	}
-	a.logger.Info(ctx, "person authenticated successfully",
+	a.Info(ctx, "person authenticated successfully",
 		"cpf", cpf,
 		"id_person", person.IDUser,
 	)
+	tokenPair, err := a.GenerateTokenPair(person.IDUser)
+	if err != nil {
+		a.Error(ctx, "failed to generate token pair", "error", err)
+	}
+	person.AccessToken = tokenPair.AccessToken
+	person.RefreshToken = tokenPair.RefreshToken
+	a.Info(ctx, "token pair generated successfully", "cpf", cpf)
 	return person, err
-
-	// person, err := s.repository.Authenticate(ctx, cpf, password)
-	// if err != nil {
-	// 	return dto.AuthenticatedOutput{}, err
-	// }
-	// tokenPair, err := s.service.GenerateTokenPair(person.UserID)
-	// if err != nil {
-	// 	return dto.AuthenticatedOutput{}, err
-	// }
-	// person.AccessToken = tokenPair.AccessToken
-	// person.RefreshToken = tokenPair.RefreshToken
-	// return person, nil
 }
