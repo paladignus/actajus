@@ -27,26 +27,26 @@ func NewAuthenticate(
 	}
 }
 
-func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticateOutput, error) {
-	a.Info(ctx, "authenticate user", "cpf", cpf)
-	person, err := a.FindUserAccountByCPF(ctx, cpf)
+func (a Authenticate) Execute(ctx context.Context, req dto.AuthenticateInput) (dto.AuthenticateOutput, error) {
+	a.Info(ctx, "authenticate user", "cpf", req.CPF)
+	person, err := a.FindUserAccountByCPF(ctx, req.CPF)
 	if err != nil {
 		a.Warn(ctx, "user not found during authentication",
-			"cpf", cpf,
+			"cpf", req.CPF,
 			"error", err,
 		)
 		return dto.AuthenticateOutput{}, err
 	}
-	err = a.ValidatePassword(ctx, person.IDUser, password)
+	err = a.ValidatePassword(ctx, person.IDUser, req.Password)
 	if err != nil {
 		a.Warn(ctx, "invalid credentials provided",
-			"cpf", cpf,
+			"cpf", req.CPF,
 			"id_person", person.IDUser,
 		)
 		return dto.AuthenticateOutput{}, err
 	}
 	a.Info(ctx, "person authenticated successfully",
-		"cpf", cpf,
+		"cpf", req.CPF,
 		"id_person", person.IDUser,
 	)
 	tokenPair, err := a.GenerateTokenPair(person.IDUser)
@@ -55,6 +55,6 @@ func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.Au
 	}
 	person.AccessToken = tokenPair.AccessToken
 	person.RefreshToken = tokenPair.RefreshToken
-	a.Info(ctx, "token pair generated successfully", "cpf", cpf)
+	a.Info(ctx, "token pair generated successfully", "cpf", req.CPF)
 	return person, err
 }

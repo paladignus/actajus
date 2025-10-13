@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paladignus/actajus/internal/infrastructure/adapter/spy"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
+	"github.com/paladignus/actajus/test/infrastructure/adapter/spy"
 )
 
 func TestJWT(t *testing.T) {

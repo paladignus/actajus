@@ -29,7 +29,7 @@ func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resp, err := s.usecase.Execute(r.Context(), req.CPF, req.Password)
+	resp, err := s.usecase.Execute(r.Context(), req)
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
@@ -15,13 +16,14 @@ func TestSignIn(t *testing.T) {
 	ctx := context.Background()
 	cpf := utils.NewRandomString(10)
 	password := utils.NewRandomString(10)
+	req := dto.AuthenticateInput{CPF: cpf, Password: password}
 	repository := spy.NewAccountSpy()
 	config := config.Load()
 	token := adapter.NewJWTAdapter(config.JWT)
 	logger := adapter.NewDefaultLogger()
 	sut := usecase.
 		NewAuthenticate(repository, logger, token)
-	sut.Execute(ctx, cpf, password)
+	sut.Execute(ctx, req)
 
 	t.Run("should corrects params from repository", func(t *testing.T) {
 		if repository.LastCPF != cpf || repository.LastPassword != password {
@@ -37,7 +39,7 @@ func TestSignIn(t *testing.T) {
 
 	t.Run("should return user not found error", func(t *testing.T) {
 		repository.ShouldReturnUserNotFound = true
-		_, err := sut.Execute(ctx, cpf, password)
+		_, err := sut.Execute(ctx, req)
 		if err == nil {
 			t.Error("Expected error to be not nil")
 		}
@@ -45,7 +47,7 @@ func TestSignIn(t *testing.T) {
 
 	t.Run("should that an database error is returned", func(t *testing.T) {
 		repository.ShouldReturnError = true
-		_, err := sut.Execute(ctx, cpf, password)
+		_, err := sut.Execute(ctx, req)
 		if err == nil {
 			t.Error("Expected error to be not nil")
 		}
@@ -54,7 +56,7 @@ func TestSignIn(t *testing.T) {
 	t.Run("should return authenticated user", func(t *testing.T) {
 		repository.ShouldReturnError = false
 		repository.ShouldReturnUserNotFound = false
-		output, err := sut.Execute(ctx, cpf, password)
+		output, err := sut.Execute(ctx, req)
 		if err != nil {
 			t.Error("Expected error to be nil")
 		}
