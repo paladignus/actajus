@@ -39,6 +39,8 @@ func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repos
 }
 
 func (db *DB) Close(ctx context.Context, logger repository.Logger) {
-	db.Pool.Close()
-	logger.Info(ctx, "database connection closed")
+	if db.Pool != nil {
+		db.Pool.Close()
+		logger.Info(ctx, "database connection closed")
+	}
 }
