@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/application/usecase"
+	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
 type SignIn struct {
-	usecase usecase.Authenticate
+	service service.Authenticate
 	logger  repository.Logger
 }
 
-func NewSignIn(usecase usecase.Authenticate, logger repository.Logger) SignIn {
-	return SignIn{usecase, logger}
+func NewSignIn(service service.Authenticate, logger repository.Logger) SignIn {
+	return SignIn{service, logger}
 }
 
 func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resp, err := s.usecase.Execute(r.Context(), req)
+	resp, err := s.service.Authenticate(r.Context(), req)
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {

@@ -2,18 +2,8 @@
 package dto
 
 type AuthenticateInput struct {
-	CPF      string
-	Password string
-}
-
-type Role struct {
-	IDRole int    `json:"-"`
-	Name   string `json:"name"`
-}
-
-type Permission struct {
-	Resource string `json:"resource"`
-	Action   string `json:"action"`
+	CPF      string `json:"cpf"`
+	Password string `json:"password"`
 }
 
 type AuthenticateOutput struct {
@@ -24,4 +14,14 @@ type AuthenticateOutput struct {
 	LastName     string   `json:"last_name"`
 	Email        string   `json:"email"`
 	Roles        []string `json:"roles"`
+}
+
+type Role struct {
+	IDRole int    `json:"-"`
+	Name   string `json:"name"`
+}
+
+type Permission struct {
+	Resource string `json:"resource"`
+	Action   string `json:"action"`
 }

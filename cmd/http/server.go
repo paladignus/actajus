@@ -10,6 +10,7 @@ import (
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
+	"github.com/paladignus/actajus/internal/infrastructure/controller"
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
@@ -32,7 +33,8 @@ func main() {
 		logger,
 		token,
 	)
-	authHandler := handler.NewSignIn(usecase, logger)
+	service := controller.NewAuthenticate(usecase)
+	authHandler := handler.NewSignIn(service, logger)
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signin", authHandler.SignIn)
 	logger.Info(ctx, "starting server", "port", config.Server.Port)
