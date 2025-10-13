@@ -10,7 +10,7 @@ import (
 type AccountSpy struct {
 	ShouldReturnError        bool
 	ShouldReturnUserNotFound bool
-	CustomOutput             dto.AuthenticatedResponse
+	CustomOutput             dto.AuthenticateOutput
 	CallCount                int
 	LastCPF                  string
 	LastPassword             string
@@ -18,7 +18,7 @@ type AccountSpy struct {
 
 func NewAccountSpy() *AccountSpy {
 	return &AccountSpy{
-		CustomOutput: dto.AuthenticatedResponse{
+		CustomOutput: dto.AuthenticateOutput{
 			AccessToken:  "access_token",
 			RefreshToken: "refresh_token",
 			IDUser:       "1",
@@ -30,7 +30,7 @@ func NewAccountSpy() *AccountSpy {
 	}
 }
 
-func (a AccountSpy) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticatedResponse, err error) {
+func (a AccountSpy) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticateOutput, err error) {
 	return authenticated, err
 }
 

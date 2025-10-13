@@ -1,5 +1,5 @@
-// Package repository
-package repository
+// Package gateway
+package gateway
 
 import "github.com/paladignus/actajus/internal/application/dto"
 

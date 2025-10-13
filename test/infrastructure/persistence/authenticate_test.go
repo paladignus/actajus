@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
+	"github.com/paladignus/actajus/test/infrastructure/persistence/spy"
 	"github.com/paladignus/actajus/test/utils"
 )
 

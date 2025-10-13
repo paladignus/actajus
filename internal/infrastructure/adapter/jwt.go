@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
@@ -32,7 +32,7 @@ type jwtAdapter struct {
 	config config.JWTConfig
 }
 
-func NewJWTAdapter(config config.JWTConfig) repository.Token {
+func NewJWTAdapter(config config.JWTConfig) gateway.Token {
 	return jwtAdapter{config}
 }
 

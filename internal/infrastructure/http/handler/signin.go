@@ -21,7 +21,7 @@ func NewSignIn(usecase usecase.Authenticate, logger repository.Logger) SignIn {
 
 func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
 	s.logger.Info(r.Context(), "processing sign_in request")
-	var req dto.AuthenticatedInput
+	var req dto.AuthenticateInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		s.logger.Warn(r.Context(), "invalid request body",
 			"error", err,

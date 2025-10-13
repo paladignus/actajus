@@ -19,7 +19,7 @@ func NewAccount(db *database.DB) Account {
 	return Account{db}
 }
 
-func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticatedOutput, err error) {
+func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticateOutput, err error) {
 	var IDAccount string
 	sql := `SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p
 	INNER JOIN documents d ON p.idpeople = d.id_people
@@ -35,13 +35,13 @@ func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenti
 			&IDAccount,
 		); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return dto.AuthenticatedOutput{}, exception.ErrUserNotFound
+			return dto.AuthenticateOutput{}, exception.ErrUserNotFound
 		}
-		return dto.AuthenticatedOutput{}, err
+		return dto.AuthenticateOutput{}, err
 	}
 	roles, err := a.GetRolesByAccountID(ctx, IDAccount)
 	if err != nil {
-		return dto.AuthenticatedOutput{}, err
+		return dto.AuthenticateOutput{}, err
 	}
 	authenticated.Roles = roles
 	return authenticated, nil

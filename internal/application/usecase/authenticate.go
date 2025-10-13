@@ -5,19 +5,20 @@ import (
 	"context"
 
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
 type Authenticate struct {
 	repository.Account
 	repository.Logger
-	repository.Token
+	gateway.Token
 }
 
 func NewAuthenticate(
 	persistence repository.Account,
 	logger repository.Logger,
-	token repository.Token,
+	token gateway.Token,
 ) Authenticate {
 	return Authenticate{
 		persistence,
@@ -26,7 +27,7 @@ func NewAuthenticate(
 	}
 }
 
-func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
+func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticateOutput, error) {
 	a.Info(ctx, "authenticate user", "cpf", cpf)
 	person, err := a.FindUserAccountByCPF(ctx, cpf)
 	if err != nil {
@@ -34,7 +35,7 @@ func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.Au
 			"cpf", cpf,
 			"error", err,
 		)
-		return dto.AuthenticatedOutput{}, err
+		return dto.AuthenticateOutput{}, err
 	}
 	err = a.ValidatePassword(ctx, person.IDUser, password)
 	if err != nil {
@@ -42,7 +43,7 @@ func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.Au
 			"cpf", cpf,
 			"id_person", person.IDUser,
 		)
-		return dto.AuthenticatedOutput{}, err
+		return dto.AuthenticateOutput{}, err
 	}
 	a.Info(ctx, "person authenticated successfully",
 		"cpf", cpf,

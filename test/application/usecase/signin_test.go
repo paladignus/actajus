@@ -7,7 +7,7 @@ import (
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/spy"
+	"github.com/paladignus/actajus/test/infrastructure/persistence/spy"
 	"github.com/paladignus/actajus/test/utils"
 )
 
