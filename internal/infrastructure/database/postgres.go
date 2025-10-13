@@ -1,5 +1,5 @@
-// Package postgres
-package postgres
+// Package database
+package database
 
 import (
 	"context"
@@ -11,8 +11,7 @@ import (
 )
 
 type DB struct {
-	Pool   *pgxpool.Pool
-	logger repository.Logger
+	Pool *pgxpool.Pool
 }
 
 func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repository.Logger) (*DB, error) {
@@ -36,10 +35,10 @@ func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repos
 	}
 
 	logger.Info(ctx, "database connection sucessfully")
-	return &DB{Pool: pool, logger: logger}, nil
+	return &DB{Pool: pool}, nil
 }
 
-func (db *DB) Close() {
+func (db *DB) Close(ctx context.Context, logger repository.Logger) {
 	db.Pool.Close()
-	// db.logger.Info(ctx, "database connection closed")
+	logger.Info(ctx, "database connection closed")
 }

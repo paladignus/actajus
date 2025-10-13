@@ -10,20 +10,21 @@ import (
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
+	"github.com/paladignus/actajus/internal/infrastructure/database"
+	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
+	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
-	"github.com/paladignus/actajus/internal/interface/http/handler"
-	"github.com/paladignus/actajus/internal/interface/http/middleware"
 )
 
 func main() {
 	config := config.Load()
 	ctx := context.Background()
 	logger := adapter.NewDefaultLogger()
-	db, err := postgres.NewConnection(ctx, &config.Database, logger)
+	db, err := database.NewConnection(ctx, &config.Database, logger)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close(ctx, logger)
 	persistence := persistence.NewPersistence(db)
 	token := adapter.NewJWTAdapter(config.JWT)
 	usecase := usecase.NewAuthenticate(

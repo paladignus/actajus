@@ -1,13 +1,15 @@
 // Package persistence
 package persistence
 
-import "github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
+import (
+	"github.com/paladignus/actajus/internal/infrastructure/database"
+)
 
 type Persistence struct {
-	db *postgres.DB
+	db *database.DB
 }
 
-func NewPersistence(db *postgres.DB) Persistence {
+func NewPersistence(db *database.DB) Persistence {
 	return Persistence{db}
 }
 

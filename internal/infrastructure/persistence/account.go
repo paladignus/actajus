@@ -8,14 +8,14 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
 
 type Account struct {
-	db *postgres.DB
+	db *database.DB
 }
 
-func NewAccount(db *postgres.DB) Account {
+func NewAccount(db *database.DB) Account {
 	return Account{db}
 }
 
