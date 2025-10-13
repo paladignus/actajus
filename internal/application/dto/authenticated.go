@@ -1,7 +1,7 @@
 // Package dto
 package dto
 
-type AuthenticatedRequest struct {
+type AuthenticatedInput struct {
 	CPF      string
 	Password string
 }
@@ -16,7 +16,7 @@ type Permission struct {
 	Action   string `json:"action"`
 }
 
-type AuthenticatedResponse struct {
+type AuthenticatedOutput struct {
 	AccessToken  string   `json:"access_token"`
 	RefreshToken string   `json:"refresh_token"`
 	IDUser       string   `json:"id_user"`

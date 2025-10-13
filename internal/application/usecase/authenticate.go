@@ -26,7 +26,7 @@ func NewAuthenticate(
 	}
 }
 
-func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedResponse, error) {
+func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.AuthenticatedOutput, error) {
 	a.Info(ctx, "authenticate user", "cpf", cpf)
 	person, err := a.FindUserAccountByCPF(ctx, cpf)
 	if err != nil {
@@ -34,7 +34,7 @@ func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.Au
 			"cpf", cpf,
 			"error", err,
 		)
-		return dto.AuthenticatedResponse{}, err
+		return dto.AuthenticatedOutput{}, err
 	}
 	err = a.ValidatePassword(ctx, person.IDUser, password)
 	if err != nil {
@@ -42,7 +42,7 @@ func (a Authenticate) Execute(ctx context.Context, cpf, password string) (dto.Au
 			"cpf", cpf,
 			"id_person", person.IDUser,
 		)
-		return dto.AuthenticatedResponse{}, err
+		return dto.AuthenticatedOutput{}, err
 	}
 	a.Info(ctx, "person authenticated successfully",
 		"cpf", cpf,

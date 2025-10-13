@@ -8,6 +8,6 @@ import (
 )
 
 type Account interface {
-	FindUserAccountByCPF(context.Context, string) (dto.AuthenticatedResponse, error)
+	FindUserAccountByCPF(context.Context, string) (dto.AuthenticatedOutput, error)
 	ValidatePassword(context.Context, string, string) error
 }

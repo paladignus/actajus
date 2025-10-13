@@ -28,7 +28,7 @@ type People struct {
 	Gender    vo.Text
 }
 
-func NewPeople(people dto.PeopleRequest) (People, error) {
+func NewPeople(people dto.PeopleInput) (People, error) {
 	p := People{
 		FirstName: vo.Text(strings.TrimSpace(people.FirstName)),
 		LastName:  vo.Text(strings.TrimSpace(people.LastName)),
