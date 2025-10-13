@@ -11,7 +11,6 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
-	Logger   LoggerConfig
 }
 
 type ServerConfig struct {
@@ -36,11 +35,6 @@ type JWTConfig struct {
 	RefreshExpiry time.Duration
 }
 
-type LoggerConfig struct {
-	Level  string
-	Format string
-}
-
 func Load() Config {
 	return Config{
 		Server: ServerConfig{
@@ -62,10 +56,6 @@ func Load() Config {
 			// Issuer:             getEnv("JWT_ISSUER", "auth-service"),
 			AccessExpiry:  time.Duration(getEnvAsInt("ACCESS_EXPIRY", 15)) * time.Minute,
 			RefreshExpiry: time.Duration(getEnvAsInt("REFRESH_EXPIRE", 7*24)) * time.Hour,
-		},
-		Logger: LoggerConfig{
-			Level:  getEnv("LOG_LEVEL", "info"),
-			Format: getEnv("LOG_FORMAT", "json"),
 		},
 	}
 }

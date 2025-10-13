@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"log/slog"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/usecase"
@@ -19,9 +18,7 @@ func TestSignIn(t *testing.T) {
 	repository := spy.NewAccountSpy()
 	config := config.Load()
 	token := adapter.NewJWTAdapter(config.JWT)
-	slog := slog.New(slog.NewTextHandler(nil, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
-
-	logger := adapter.NewSlogAdapter(slog)
+	logger := adapter.NewDefaultLogger()
 	sut := usecase.
 		NewAuthenticate(repository, logger, token)
 	sut.Execute(ctx, cpf, password)

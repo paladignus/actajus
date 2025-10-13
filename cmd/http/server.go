@@ -4,7 +4,6 @@ package main
 import (
 	"context"
 	"log"
-	"log/slog"
 	"net/http"
 	"os"
 
@@ -20,11 +19,7 @@ import (
 func main() {
 	config := config.Load()
 	ctx := context.Background()
-	slog := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level:     slog.LevelDebug,
-		AddSource: false,
-	}))
-	logger := adapter.NewSlogAdapter(slog)
+	logger := adapter.NewDefaultLogger()
 	db, err := postgres.NewConnection(ctx, &config.Database, logger)
 	if err != nil {
 		log.Fatal(err)
