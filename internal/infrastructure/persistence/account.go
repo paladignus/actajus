@@ -7,7 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/domain"
+	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
 
@@ -35,7 +35,7 @@ func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenti
 			&IDAccount,
 		); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return dto.AuthenticatedResponse{}, domain.ErrUserNotFound
+			return dto.AuthenticatedResponse{}, exception.ErrUserNotFound
 		}
 		return dto.AuthenticatedResponse{}, err
 	}
@@ -56,7 +56,7 @@ func (a Account) ValidatePassword(ctx context.Context, IDPeople, password string
 	if err := a.db.Pool.QueryRow(ctx, sql, IDPeople, password).
 		Scan(&ok); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.ErrInvalidCredentials
+			return exception.ErrInvalidCredentials
 		}
 		return err
 	}

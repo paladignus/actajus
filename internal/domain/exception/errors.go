@@ -1,5 +1,5 @@
-// Package domain
-package domain
+// Package exception
+package exception
 
 import "errors"
 

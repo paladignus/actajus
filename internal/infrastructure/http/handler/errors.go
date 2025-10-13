@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/domain"
+	"github.com/paladignus/actajus/internal/domain/exception"
 )
 
 type ErrorResponse struct {
@@ -15,22 +15,22 @@ type ErrorResponse struct {
 
 func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 	switch {
-	case errors.Is(err, domain.ErrUserNotFound):
+	case errors.Is(err, exception.ErrUserNotFound):
 		return http.StatusNotFound, ErrorResponse{
 			Code:    "USER_NOT_FOUND",
 			Message: "user not found",
 		}
-	case errors.Is(err, domain.ErrInvalidCredentials):
+	case errors.Is(err, exception.ErrInvalidCredentials):
 		return http.StatusUnauthorized, ErrorResponse{
 			Code:    "INVALID_CREDENTIALS",
 			Message: "invalid credentials",
 		}
-	case errors.Is(err, domain.ErrUserAlreadyExists):
+	case errors.Is(err, exception.ErrUserAlreadyExists):
 		return http.StatusConflict, ErrorResponse{
 			Code:    "USER_ALREADY_EXISTS",
 			Message: "user already exists",
 		}
-	case errors.Is(err, domain.ErrUnauthorized):
+	case errors.Is(err, exception.ErrUnauthorized):
 		return http.StatusUnauthorized, ErrorResponse{
 			Code:    "UNAUTHORIZED",
 			Message: "unauthorized access",
