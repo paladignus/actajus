@@ -5,8 +5,10 @@ import (
 	"context"
 
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
+	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
 type Authenticate struct {
@@ -29,7 +31,14 @@ func NewAuthenticate(
 
 func (a Authenticate) Execute(ctx context.Context, req dto.AuthenticateInput) (dto.AuthenticateOutput, error) {
 	a.Info(ctx, "authenticate user", "cpf", req.CPF)
-	person, err := a.FindUserAccountByCPF(ctx, req.CPF)
+	cpf := vo.CPF(req.CPF)
+	if !cpf.IsValid() {
+		a.Warn(ctx, "invalid cpf format provided",
+			"cpf", req.CPF,
+		)
+		return dto.AuthenticateOutput{}, exception.ErrInvalidCPF
+	}
+	person, err := a.FindUserAccountByCPF(ctx, cpf.OnlyDigits())
 	if err != nil {
 		a.Warn(ctx, "user not found during authentication",
 			"cpf", req.CPF,
