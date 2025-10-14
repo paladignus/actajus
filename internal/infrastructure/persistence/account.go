@@ -51,14 +51,14 @@ func (a Account) ValidatePassword(ctx context.Context, IDPeople, password string
 	var ok bool
 	sql := `SELECT EXISTS (
       SELECT 1 FROM accounts a
-      WHERE a.deleted_at IS NULL AND a.id_people = $1 AND a.password = crypt($2, password)
+      WHERE a.id_people = $1 AND a.password = crypt($2, password)
     ) AS valid`
 	if err := a.db.Pool.QueryRow(ctx, sql, IDPeople, password).
 		Scan(&ok); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return exception.ErrInvalidCredentials
-		}
 		return err
+	}
+	if !ok {
+		return exception.ErrInvalidCredentials
 	}
 	return nil
 }

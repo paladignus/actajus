@@ -38,7 +38,7 @@ func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 	case errors.Is(err, exception.ErrInvalidCPF):
 		return http.StatusBadRequest, ErrorResponse{
 			Code:    "INVALID_CPF",
-			Message: "invalid cpf format",
+			Message: "invalid cpf",
 		}
 	default:
 		return http.StatusInternalServerError, ErrorResponse{
