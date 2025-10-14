@@ -2,7 +2,7 @@ POST http://localhost:8080/signin
 content-type: application/json
 
 {
-    "cpf": "11122233344",
+    "cpf": "987.654.321-00",
     "password": "admin1238"
 }
 
@@ -12,7 +12,7 @@ POST https://api.actajus.com.br/signin
 content-type: application/json
 
 {
-    "cpf": "11122233344",
+    "cpf": "111.444.777-35",
     "password": "admin123"
 }
 
@@ -21,7 +21,7 @@ POST https://api.actajus.com.br/signin
 content-type: application/json
 
 {
-    "cpf": "22233344455",
+    "cpf": "123.456.789-09",
     "password": "admin123"
 }
 
@@ -30,7 +30,7 @@ POST https://api.actajus.com.br/signin
 content-type: application/json
 
 {
-    "cpf": "33344455566",
+    "cpf": "987.654.321-00",
     "password": "admin123"
 }
 
@@ -39,7 +39,7 @@ POST https://api.actajus.com.br/signin
 content-type: application/json
 
 {
-    "cpf": "44455566677",
+    "cpf": "012.345.678-90",
     "password": "admin123"
 }
 
@@ -48,6 +48,6 @@ POST https://api.actajus.com.br/signin
 content-type: application/json
 
 {
-    "cpf": "55566677788",
+    "cpf": "714.602.380-01",
     "password": "admin123"
 }
