@@ -13,14 +13,12 @@ func (c CPF) Value() string {
 	return string(c)
 }
 
-func (c CPF) Clean() string {
-	re := regexp.MustCompile("[^0-9]+")
-	newCPF := re.ReplaceAllString(c.Value(), "")
-	return newCPF
+func (c CPF) OnlyDigits() string {
+	return clear(string(c))
 }
 
 func (c CPF) IsValid() bool {
-	re := regexp.MustCompile(`^\d{3}\.\d{3}\.\d{3}-\d{2}$`)
+	re := regexp.MustCompile(`^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$`)
 	if !re.MatchString(c.Value()) {
 		return false
 	}

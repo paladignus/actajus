@@ -23,12 +23,22 @@ func TestCPF(t *testing.T) {
 	t.Run("should return true if cpf is valid", func(t *testing.T) {
 		validCpfs := []valueobject.CPF{
 			"529.982.247-25",
-			"727.753.511-15",
-			"932.272.131-68",
+			"72775351115",
 		}
 		for _, cpf := range validCpfs {
 			if !cpf.IsValid() {
 				t.Errorf("Expected CPF to be valid, but got invalid")
+			}
+		}
+	})
+	t.Run("", func(t *testing.T) {
+		validCpfs := []valueobject.CPF{
+			"529.982.247-25",
+		}
+		for _, cpf := range validCpfs {
+			expect := cpf.OnlyDigits()
+			if expect != "52998224725" {
+				t.Errorf("Expected only digits to be '52998224725', but got %s", expect)
 			}
 		}
 	})
