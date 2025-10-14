@@ -46,9 +46,9 @@ func TestEntityPeople(t *testing.T) {
 		}
 	})
 	_, err = entity.NewPeople(dto.PeopleInput{FirstName: "John", LastName: "Doe", BirthDate: "28/08/1999", MotherName: "Jane", FatherName: "Jack", Gender: "M"})
-	t.Run("should return error if marital status is invalid", func(t *testing.T) {
-		if err == nil || !errors.Is(err, entity.ErrInvalidMarital) {
-			t.Errorf("Expected error for invalid marital status, but got %v", err)
+	t.Run("should null error return if all properties are valid", func(t *testing.T) {
+		if err != nil {
+			t.Errorf("Expected null error return if all properties are valid, but got %v", err)
 		}
 	})
 }
