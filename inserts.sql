@@ -47,11 +47,11 @@ SELECT v.cpf,
 FROM people p
 CROSS JOIN (
     VALUES
-        ('11122233344', 'root'),
-        ('22233344455', 'admin'),
-        ('33344455566', 'manager'),
-        ('44455566677', 'editor'),
-        ('55566677788', 'customer')
+        ('11144477735', 'root'),
+        ('12345678909', 'admin'),
+        ('98765432100', 'manager'),
+        ('01234567890', 'editor'),
+        ('71460238001', 'customer')
 ) AS v(cpf, role) RETURNING *;
 
 WITH people AS (
