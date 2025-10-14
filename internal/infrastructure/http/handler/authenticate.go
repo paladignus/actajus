@@ -10,16 +10,16 @@ import (
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
-type SignIn struct {
+type Authenticate struct {
 	service service.Authenticate
 	logger  repository.Logger
 }
 
-func NewSignIn(service service.Authenticate, logger repository.Logger) SignIn {
-	return SignIn{service, logger}
+func NewAuthenticate(service service.Authenticate, logger repository.Logger) Authenticate {
+	return Authenticate{service, logger}
 }
 
-func (s SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
+func (s Authenticate) Authenticate(w http.ResponseWriter, r *http.Request) {
 	s.logger.Info(r.Context(), "processing sign_in request")
 	var req dto.AuthenticateInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

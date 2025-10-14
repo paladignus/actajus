@@ -37,9 +37,9 @@ func main() {
 		token,
 	)
 	service := controller.NewAuthenticate(usecase)
-	authHandler := handler.NewSignIn(service, logger)
+	authHandler := handler.NewAuthenticate(service, logger)
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /signin", authHandler.SignIn)
+	mux.HandleFunc("POST /signin", authHandler.Authenticate)
 	handler := middleware.LoggerMiddleware(logger)(mux)
 	srv := &http.Server{
 		Addr:         ":" + config.Server.Port,
