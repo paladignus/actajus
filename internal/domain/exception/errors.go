@@ -12,4 +12,6 @@ var (
 	ErrForbidden          = errors.New("forbidden")
 	ErrInvalidUserData    = errors.New("invalid user data")
 	ErrUserAlreadyExists  = errors.New("user already exists")
+
+	ErrInvalidCPF = errors.New("invalid cpf")
 )

@@ -35,6 +35,11 @@ func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 			Code:    "UNAUTHORIZED",
 			Message: "unauthorized access",
 		}
+	case errors.Is(err, exception.ErrInvalidCPF):
+		return http.StatusBadRequest, ErrorResponse{
+			Code:    "INVALID_CPF",
+			Message: "invalid cpf format",
+		}
 	default:
 		return http.StatusInternalServerError, ErrorResponse{
 			Code:    "INTERNAL_ERROR",
