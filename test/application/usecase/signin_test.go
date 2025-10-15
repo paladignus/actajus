@@ -40,4 +40,16 @@ func TestAuthenticate(t *testing.T) {
 			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
 		}
 	})
+
+	t.Run("should return error ErrInvalidPassword", func(t *testing.T) {
+		wantErr := errors.New("invalid credentials")
+		account.FindResult.IDUser = "user-1"
+		account.ValidateError = wantErr
+		account.FindError = nil
+		sut := usecase.NewAuthenticate(account, logger, token)
+		_, err := sut.Execute(ctx, input)
+		if !errors.Is(err, wantErr) {
+			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
+		}
+	})
 }
