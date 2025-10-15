@@ -65,4 +65,27 @@ func TestAuthenticate(t *testing.T) {
 			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
 		}
 	})
+
+	t.Run("should return all correct values", func(t *testing.T) {
+		token.Pair.AccessToken = "access-token-xyz"
+		token.Pair.RefreshToken = "refresh-token-abc"
+		token.Err = nil
+		sut := usecase.NewAuthenticate(account, logger, token)
+		output, err := sut.Execute(ctx, input)
+		if err != nil {
+			t.Fatalf("should not return error, got: %v", err)
+		}
+		if output.IDUser != account.FindResult.IDUser {
+			t.Errorf("expected IDUser to be '%s', but got '%s'", account.FindResult.IDUser, output.IDUser)
+		}
+		if output.AccessToken != token.Pair.AccessToken {
+			t.Errorf("expected AccessToken to be '%s', but got '%s'", token.Pair.AccessToken, output.AccessToken)
+		}
+		if output.RefreshToken != token.Pair.RefreshToken {
+			t.Errorf("expected RefreshToken to be '%s', but got '%s'", token.Pair.RefreshToken, output.RefreshToken)
+		}
+		if token.CalledWithID != account.FindResult.IDUser {
+			t.Errorf("expected CalledWithID to be '%s', but got '%s'", account.FindResult.IDUser, token.CalledWithID)
+		}
+	})
 }
