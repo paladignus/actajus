@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 	"net/http"
 	"os"
@@ -40,13 +41,15 @@ func main() {
 	authHandler := handler.NewAuthenticate(service, logger)
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signin", authHandler.Authenticate)
-	handler := middleware.LoggerMiddleware(logger)(mux)
+	handler := middleware.EnableCORS(middleware.LoggerMiddleware(logger)(mux))
+	// handler := middleware.LoggerMiddleware(logger)(mux)
 	srv := &http.Server{
 		Addr:         ":" + config.Server.Port,
 		Handler:      handler,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
 	}
 	go func() {
 		logger.Info(ctx, "🚀 Servidor HTTP rodando na porta", "porta", config.Server.Port)
