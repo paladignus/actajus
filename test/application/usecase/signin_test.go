@@ -18,7 +18,7 @@ func TestAuthenticate(t *testing.T) {
 		CPF:      "123",
 		Password: "whatever",
 	}
-	account := &spy.AuthenticateSpy{}
+	account := spy.NewAuthenticateSpy()
 	logger := &spy.MockLogger{}
 	token := &spy.MockToken{}
 
