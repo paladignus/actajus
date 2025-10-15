@@ -1,14 +1,11 @@
 mode: set
-github.com/paladignus/actajus/internal/domain/entity/person.go:31.56,40.28 2 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:40.28,42.3 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:43.2,43.27 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:43.27,45.3 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:46.2,46.28 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:46.28,48.3 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:49.2,49.25 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:49.25,51.3 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:52.2,52.25 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:52.25,54.3 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:55.2,55.25 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:55.25,57.3 1 1
-github.com/paladignus/actajus/internal/domain/entity/person.go:58.2,58.15 1 1
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:24.16,30.2 1 1
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:32.111,35.20 3 1
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:35.20,40.3 2 1
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:41.2,42.16 2 0
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:42.16,48.3 2 0
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:49.2,50.16 2 0
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:50.16,56.3 2 0
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:57.2,62.16 3 0
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:62.16,64.3 1 0
+github.com/paladignus/actajus/internal/application/usecase/authenticate.go:65.2,68.20 4 0
