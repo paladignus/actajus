@@ -90,3 +90,70 @@ func TestToken_SaveRevokedToken(t *testing.T) {
 		}
 	})
 }
+
+func TestToken_IsTokenRevoked(t *testing.T) {
+	t.Run("success - esnure token is revoked", func(t *testing.T) {
+		mockCache := new(spy.MockCache)
+		tokenRepo := Token{repository: mockCache}
+		token := "revoked-token"
+		expectedKey := "revoked_token:revoked-token"
+		mockCache.On("Exists", expectedKey).Return(int64(1), nil)
+		isRevoked, err := tokenRepo.IsTokenRevoked(token)
+		assert.NoError(t, err)
+		assert.True(t, isRevoked)
+		mockCache.AssertExpectations(t)
+	})
+
+	t.Run("success - should token is not revoked", func(t *testing.T) {
+		mockCache := new(spy.MockCache)
+		tokenRepo := Token{repository: mockCache}
+		token := "valid-token"
+		expectedKey := "revoked_token:valid-token"
+		mockCache.On("Exists", expectedKey).Return(int64(0), nil)
+		isRevoked, err := tokenRepo.IsTokenRevoked(token)
+		assert.NoError(t, err)
+		assert.False(t, isRevoked)
+		mockCache.AssertExpectations(t)
+	})
+
+	t.Run("error - should cache exists check fails", func(t *testing.T) {
+		mockCache := new(spy.MockCache)
+		tokenRepo := Token{repository: mockCache}
+		token := "test-token"
+		expectedKey := "revoked_token:test-token"
+		expectedErr := errors.New("redis timeout error")
+		mockCache.On("Exists", expectedKey).Return(int64(0), expectedErr)
+		isRevoked, err := tokenRepo.IsTokenRevoked(token)
+		assert.Error(t, err)
+		assert.False(t, isRevoked)
+		assert.Contains(t, err.Error(), "failed to check if token is revoked")
+		assert.Contains(t, err.Error(), "redis timeout error")
+		mockCache.AssertExpectations(t)
+	})
+
+	t.Run("success - should multiple tokens with different states", func(t *testing.T) {
+		testCases := []struct {
+			name      string
+			token     string
+			exists    int64
+			isRevoked bool
+		}{
+			{"revoked token 1", "token-1", 1, true},
+			{"valid token 1", "token-2", 0, false},
+			{"revoked token 2", "token-3", 1, true},
+			{"valid token 2", "token-4", 0, false},
+		}
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				mockCache := new(spy.MockCache)
+				tokenRepo := Token{repository: mockCache}
+				expectedKey := "revoked_token:" + tc.token
+				mockCache.On("Exists", expectedKey).Return(tc.exists, nil)
+				isRevoked, err := tokenRepo.IsTokenRevoked(tc.token)
+				assert.NoError(t, err)
+				assert.Equal(t, tc.isRevoked, isRevoked)
+				mockCache.AssertExpectations(t)
+			})
+		}
+	})
+}
