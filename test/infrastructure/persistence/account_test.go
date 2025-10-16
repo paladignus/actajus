@@ -245,3 +245,86 @@ func TestAccount_GetRolesByAccountID(t *testing.T) {
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
+
+func TestAccount_GetPermissionsByRoleID(t *testing.T) {
+	ctx := context.Background()
+	t.Run("should return permissions", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		roleID := 1
+		expectedPermissions := []dto.Permission{
+			{Resource: "users", Action: "create"},
+			{Resource: "users", Action: "read"},
+			{Resource: "posts", Action: "delete"},
+		}
+		rows := pgxmock.NewRows([]string{"resource", "action"}).
+			AddRow("users", "create").
+			AddRow("users", "read").
+			AddRow("posts", "delete")
+		mock.ExpectQuery(`SELECT p.resource, p.action FROM permissions p`).
+			WithArgs(roleID).
+			WillReturnRows(rows)
+		permissions, err := repo.GetPermissionsByRoleID(ctx, roleID)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedPermissions, permissions)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return empty permissions", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		roleID := 1
+		rows := pgxmock.NewRows([]string{"resource", "action"})
+		mock.ExpectQuery(`SELECT p.resource, p.action FROM permissions p`).
+			WithArgs(roleID).
+			WillReturnRows(rows)
+		permissions, err := repo.GetPermissionsByRoleID(ctx, roleID)
+		assert.NoError(t, err)
+		assert.Nil(t, permissions)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error to query", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		roleID := 1
+		expectedErr := errors.New("query error")
+		mock.ExpectQuery(`SELECT p.resource, p.action FROM permissions p`).
+			WithArgs(roleID).
+			WillReturnError(expectedErr)
+		permissions, err := repo.GetPermissionsByRoleID(ctx, roleID)
+		assert.Error(t, err)
+		assert.Equal(t, expectedErr, err)
+		assert.Nil(t, permissions)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error to scan", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		roleID := 1
+		rows := pgxmock.NewRows([]string{"resource", "action"}).
+			AddRow("users", "create").
+			AddRow(nil, nil).
+			RowError(1, errors.New("scan error"))
+		mock.ExpectQuery(`SELECT p.resource, p.action FROM permissions p`).
+			WithArgs(roleID).
+			WillReturnRows(rows)
+		permissions, err := repo.GetPermissionsByRoleID(ctx, roleID)
+		assert.Error(t, err)
+		assert.Nil(t, permissions)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
