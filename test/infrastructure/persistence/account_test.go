@@ -166,3 +166,82 @@ func TestAccount_ValidatePassword(t *testing.T) {
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
+
+func TestAccount_GetRolesByAccountID(t *testing.T) {
+	ctx := context.Background()
+	t.Run("should return roles", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idAccount := "account-123"
+		expectedRoles := []string{"admin", "manager", "user"}
+		rows := pgxmock.NewRows([]string{"name"}).
+			AddRow("admin").
+			AddRow("manager").
+			AddRow("user")
+		mock.ExpectQuery(`SELECT r.name FROM roles r`).
+			WithArgs(idAccount).
+			WillReturnRows(rows)
+		roles, err := repo.GetRolesByAccountID(ctx, idAccount)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedRoles, roles)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should empty roles", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idAccount := "account-123"
+		rows := pgxmock.NewRows([]string{"name"})
+		mock.ExpectQuery(`SELECT r.name FROM roles r`).
+			WithArgs(idAccount).
+			WillReturnRows(rows)
+		roles, err := repo.GetRolesByAccountID(ctx, idAccount)
+		assert.NoError(t, err)
+		assert.Nil(t, roles)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idAccount := "account-123"
+		expectedErr := errors.New("query error")
+		mock.ExpectQuery(`SELECT r.name FROM roles r`).
+			WithArgs(idAccount).
+			WillReturnError(expectedErr)
+		roles, err := repo.GetRolesByAccountID(ctx, idAccount)
+		assert.Error(t, err)
+		assert.Equal(t, expectedErr, err)
+		assert.Nil(t, roles)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should error from database", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idAccount := "account-123"
+		rows := pgxmock.NewRows([]string{"name"}).
+			AddRow("admin").
+			AddRow(nil).
+			RowError(1, errors.New("scan error"))
+		mock.ExpectQuery(`SELECT r.name FROM roles r`).
+			WithArgs(idAccount).
+			WillReturnRows(rows)
+		roles, err := repo.GetRolesByAccountID(ctx, idAccount)
+		assert.Error(t, err)
+		assert.Nil(t, roles)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
