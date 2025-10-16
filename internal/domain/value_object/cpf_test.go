@@ -1,14 +1,13 @@
+// Package valueobject
 package valueobject
 
 import (
 	"testing"
-
-	valueobject "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
 func TestCPF(t *testing.T) {
 	t.Run("should return false if cpf is invalid", func(t *testing.T) {
-		invalidCpfs := []valueobject.CPF{
+		invalidCpfs := []CPF{
 			"111.111.111-11", // Inválido (todos dígitos iguais)
 			"123.456.789-00", // Inválido
 			"529982247",      // Inválido (menos de 11 dígitos)
@@ -21,7 +20,7 @@ func TestCPF(t *testing.T) {
 		}
 	})
 	t.Run("should return true if cpf is valid", func(t *testing.T) {
-		validCpfs := []valueobject.CPF{
+		validCpfs := []CPF{
 			"529.982.247-25",
 			"72775351115",
 		}
@@ -32,7 +31,7 @@ func TestCPF(t *testing.T) {
 		}
 	})
 	t.Run("", func(t *testing.T) {
-		validCpfs := []valueobject.CPF{
+		validCpfs := []CPF{
 			"529.982.247-25",
 		}
 		for _, cpf := range validCpfs {

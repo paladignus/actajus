@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/infrastructure/persistence/spy"
 )
@@ -23,7 +22,7 @@ func TestAuthenticate(t *testing.T) {
 	token := &spy.MockToken{}
 
 	t.Run("should return error ErrInvalidCPF", func(t *testing.T) {
-		sut := usecase.NewAuthenticate(account, logger, token)
+		sut := NewAuthenticate(account, logger, token)
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, exception.ErrInvalidCPF) {
 			t.Errorf("expected to be '%v', but got '%v'", exception.ErrInvalidCPF, err)
@@ -34,7 +33,7 @@ func TestAuthenticate(t *testing.T) {
 		wantErr := errors.New("not found from repo")
 		input.CPF = validCPF
 		account.FindError = wantErr
-		sut := usecase.NewAuthenticate(account, logger, token)
+		sut := NewAuthenticate(account, logger, token)
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, wantErr) {
 			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
@@ -46,7 +45,7 @@ func TestAuthenticate(t *testing.T) {
 		account.FindResult.IDUser = "user-1"
 		account.ValidateError = wantErr
 		account.FindError = nil
-		sut := usecase.NewAuthenticate(account, logger, token)
+		sut := NewAuthenticate(account, logger, token)
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, wantErr) {
 			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
@@ -59,7 +58,7 @@ func TestAuthenticate(t *testing.T) {
 		account.FindResult.IDUser = "user-123"
 		account.ValidateError = nil
 		token.Err = wantErr
-		sut := usecase.NewAuthenticate(account, logger, token)
+		sut := NewAuthenticate(account, logger, token)
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, wantErr) {
 			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
@@ -70,7 +69,7 @@ func TestAuthenticate(t *testing.T) {
 		token.Pair.AccessToken = "access-token-xyz"
 		token.Pair.RefreshToken = "refresh-token-abc"
 		token.Err = nil
-		sut := usecase.NewAuthenticate(account, logger, token)
+		sut := NewAuthenticate(account, logger, token)
 		output, err := sut.Execute(ctx, input)
 		if err != nil {
 			t.Fatalf("should not return error, got: %v", err)
