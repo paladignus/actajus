@@ -193,3 +193,33 @@ func TestToken_Integration(t *testing.T) {
 		mockCache.AssertExpectations(t)
 	})
 }
+
+func TestToken_KeyFormat(t *testing.T) {
+	t.Run("verify key format consistency", func(t *testing.T) {
+		mockCache := new(spy.MockCache)
+		tokenRepo := Token{repository: mockCache}
+		tokens := []string{
+			"simple-token",
+			"token.with.dots",
+			"token-with-dashes",
+			"token_with_underscores",
+			"UPPERCASE-TOKEN",
+			"MixedCase-Token",
+		}
+		for _, token := range tokens {
+			expectedKey := "revoked_token:" + token
+			expiresAt := time.Now().Add(1 * time.Hour)
+			mockCache.On("Set", expectedKey, "1", mock.AnythingOfType("time.Duration")).
+				Return(nil).Once()
+			mockCache.On("Exists", expectedKey).Return(int64(1), nil).Once()
+			// Testa save
+			err := tokenRepo.SaveRevokedToken(token, expiresAt)
+			assert.NoError(t, err)
+			// Testa check
+			isRevoked, err := tokenRepo.IsTokenRevoked(token)
+			assert.NoError(t, err)
+			assert.True(t, isRevoked)
+		}
+		mockCache.AssertExpectations(t)
+	})
+}
