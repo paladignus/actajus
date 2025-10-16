@@ -57,7 +57,7 @@ func TestPersistence_Account(t *testing.T) {
 		assert.NotNil(t, account2)
 	})
 
-	t.Run("shloud account repository shares same db connection", func(t *testing.T) {
+	t.Run("should account repository shares same db connection", func(t *testing.T) {
 		mock, err := pgxmock.NewPool()
 		require.NoError(t, err)
 		defer mock.Close()
