@@ -110,3 +110,59 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
+
+func TestAccount_ValidatePassword(t *testing.T) {
+	ctx := context.Background()
+	t.Run("should validate password", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idPeople := "user-123"
+		password := "correct-password"
+		rows := pgxmock.NewRows([]string{"valid"}).AddRow(true)
+		mock.ExpectQuery(`SELECT EXISTS`).
+			WithArgs(idPeople, password).
+			WillReturnRows(rows)
+		err = repo.ValidatePassword(ctx, idPeople, password)
+		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should error of invalid credentials", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idPeople := "user-123"
+		password := "wrong-password"
+		rows := pgxmock.NewRows([]string{"valid"}).AddRow(false)
+		mock.ExpectQuery(`SELECT EXISTS`).
+			WithArgs(idPeople, password).
+			WillReturnRows(rows)
+		err = repo.ValidatePassword(ctx, idPeople, password)
+		assert.Error(t, err)
+		assert.Equal(t, exception.ErrInvalidCredentials, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error from database", func(t *testing.T) {
+		mock, err := pgxmock.NewPool()
+		require.NoError(t, err)
+		defer mock.Close()
+		db := &database.DB{Pool: mock}
+		repo := persistence.NewAccount(db)
+		idPeople := "user-123"
+		password := "any-password"
+		expectedErr := errors.New("database error")
+		mock.ExpectQuery(`SELECT EXISTS`).
+			WithArgs(idPeople, password).
+			WillReturnError(expectedErr)
+		err = repo.ValidatePassword(ctx, idPeople, password)
+		assert.Error(t, err)
+		assert.Equal(t, expectedErr, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
