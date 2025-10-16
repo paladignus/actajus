@@ -157,3 +157,39 @@ func TestToken_IsTokenRevoked(t *testing.T) {
 		}
 	})
 }
+
+func TestToken_Integration(t *testing.T) {
+	t.Run("full flow - should save and check revoked token", func(t *testing.T) {
+		mockCache := new(spy.MockCache)
+		tokenRepo := Token{repository: mockCache}
+		token := "integration-test-token"
+		expiresAt := time.Now().Add(1 * time.Hour)
+		expectedKey := "revoked_token:integration-test-token"
+		// Configura mock para salvar
+		mockCache.On("Set", expectedKey, "1", mock.AnythingOfType("time.Duration")).
+			Return(nil)
+		// Configura mock para verificar
+		mockCache.On("Exists", expectedKey).Return(int64(1), nil)
+		// Salva o token
+		err := tokenRepo.SaveRevokedToken(token, expiresAt)
+		assert.NoError(t, err)
+		// Verifica se está revogado
+		isRevoked, err := tokenRepo.IsTokenRevoked(token)
+		assert.NoError(t, err)
+		assert.True(t, isRevoked)
+		mockCache.AssertExpectations(t)
+	})
+
+	t.Run("full flow - should token not saved should not be revoked", func(t *testing.T) {
+		mockCache := new(spy.MockCache)
+		tokenRepo := Token{repository: mockCache}
+		token := "non-revoked-token"
+		expectedKey := "revoked_token:non-revoked-token"
+		// Apenas verifica se está revogado (sem salvar)
+		mockCache.On("Exists", expectedKey).Return(int64(0), nil)
+		isRevoked, err := tokenRepo.IsTokenRevoked(token)
+		assert.NoError(t, err)
+		assert.False(t, isRevoked)
+		mockCache.AssertExpectations(t)
+	})
+}
