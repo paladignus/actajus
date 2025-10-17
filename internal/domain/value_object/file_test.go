@@ -3,6 +3,8 @@ package valueobject
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFile(t *testing.T) {
@@ -14,9 +16,7 @@ func TestFile(t *testing.T) {
 	}
 	t.Run("should return false if file is invalid", func(t *testing.T) {
 		for _, file := range invalidFiles {
-			if file.IsValid() {
-				t.Errorf("Expected File to be invalid, but got valid")
-			}
+			assert.Falsef(t, file.IsValid(), "Expected File to be invalid, but got valid: %s", file.Value())
 		}
 	})
 	validFiles := []File{
@@ -28,9 +28,7 @@ func TestFile(t *testing.T) {
 	}
 	t.Run("should return true if file is valid", func(t *testing.T) {
 		for _, file := range validFiles {
-			if !file.IsValid() {
-				t.Errorf("Expected File to be valid, but got invalid")
-			}
+			assert.Truef(t, file.IsValid(), "Expected File to be valid, but got invalid: %s", file.Value())
 		}
 	})
 }

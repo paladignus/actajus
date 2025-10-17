@@ -3,6 +3,8 @@ package valueobject
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCPF(t *testing.T) {
@@ -14,9 +16,7 @@ func TestCPF(t *testing.T) {
 			"529.982.247-XX", // Inválido (contém letras)
 		}
 		for _, cpf := range invalidCpfs {
-			if cpf.IsValid() {
-				t.Errorf("Expected CPF to be invalid, but got valid")
-			}
+			assert.Falsef(t, cpf.IsValid(), "Expected CPF to be invalid, but got valid: %s", cpf.Value())
 		}
 	})
 	t.Run("should return true if cpf is valid", func(t *testing.T) {
@@ -25,9 +25,7 @@ func TestCPF(t *testing.T) {
 			"72775351115",
 		}
 		for _, cpf := range validCpfs {
-			if !cpf.IsValid() {
-				t.Errorf("Expected CPF to be valid, but got invalid")
-			}
+			assert.Truef(t, cpf.IsValid(), "Expected CPF to be valid, but got invalid: %s", cpf.Value())
 		}
 	})
 	t.Run("", func(t *testing.T) {
@@ -36,9 +34,7 @@ func TestCPF(t *testing.T) {
 		}
 		for _, cpf := range validCpfs {
 			expect := cpf.OnlyDigits()
-			if expect != "52998224725" {
-				t.Errorf("Expected only digits to be '52998224725', but got %s", expect)
-			}
+			assert.Equal(t, "52998224725", expect, "Expected only digits to be '52998224725', but got %s", expect)
 		}
 	})
 }

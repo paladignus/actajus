@@ -3,6 +3,8 @@ package valueobject
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDate(t *testing.T) {
@@ -17,9 +19,7 @@ func TestDate(t *testing.T) {
 			"15012020",   // Formato inválido
 		}
 		for _, date := range datesInvalids {
-			if date.IsValid() {
-				t.Errorf("Expected Date to be invalid, but got valid")
-			}
+			assert.Falsef(t, date.IsValid(), "Expected Date to be invalid, but got valid: %s", date.Value())
 		}
 	})
 	t.Run("should return true if date is valid", func(t *testing.T) {
@@ -29,9 +29,7 @@ func TestDate(t *testing.T) {
 			"31/12/2023",
 		}
 		for _, date := range datesValids {
-			if !date.IsValid() {
-				t.Errorf("Expected Date to be valid, but got invalid")
-			}
+			assert.Truef(t, date.IsValid(), "Expected Date to be valid, but got invalid: %s", date.Value())
 		}
 	})
 }
