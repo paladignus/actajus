@@ -3,7 +3,7 @@ content-type: application/json
 
 {
     "cpf": "987.654.321-00",
-    "password": "admin1238"
+    "password": "admin123"
 }
 
 

@@ -14,6 +14,7 @@ import (
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
+	"github.com/paladignus/actajus/internal/infrastructure/controller"
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
@@ -36,11 +37,11 @@ func main() {
 		logger,
 		token,
 	)
-	authHandler := handler.NewAuthenticate(usecase, logger)
+	service := controller.NewAuthenticate(usecase)
+	authHandler := handler.NewAuthenticate(service, logger)
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signin", authHandler.Authenticate)
 	handler := middleware.EnableCORS(middleware.LoggerMiddleware(logger)(mux))
-	// handler := middleware.LoggerMiddleware(logger)(mux)
 	srv := &http.Server{
 		Addr:         ":" + config.Server.Port,
 		Handler:      handler,

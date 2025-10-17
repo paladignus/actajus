@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/application/usecase"
+	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
 type Authenticate struct {
-	usecase usecase.Authenticate
+	service service.Authenticate
 	logger  repository.Logger
 }
 
-func NewAuthenticate(usecase usecase.Authenticate, logger repository.Logger) Authenticate {
-	return Authenticate{usecase, logger}
+func NewAuthenticate(service service.Authenticate, logger repository.Logger) Authenticate {
+	return Authenticate{service, logger}
 }
 
 func (a Authenticate) Authenticate(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func (a Authenticate) Authenticate(w http.ResponseWriter, r *http.Request) {
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	resp, err := a.usecase.Execute(r.Context(), req)
+	resp, err := a.service.Authenticate(r.Context(), req)
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {
