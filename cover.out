@@ -5,11 +5,11 @@ mode: set
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:29.2,30.16 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:30.16,32.24 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:32.24,34.4 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:34.9,36.4 1 0
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:34.9,36.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:37.3,38.9 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/authenticate.go:40.2,41.37 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:16.59,17.9 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:18.49,22.4 1 0
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:18.49,22.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:23.55,27.4 1 0
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:28.54,32.4 1 0
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:33.49,37.4 1 0
