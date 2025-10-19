@@ -113,8 +113,20 @@ func TestAuthenticateHandler(t *testing.T) {
 		spyUseCase.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
-}
 
-// func TestAuthenticate_Authenticate_ServiceError_ClientError(t *testing.T) {
-//
-// }
+	t.Run("should return a invlid credentials error with status code 404", func(t *testing.T) {
+		expectedErr := exception.ErrInvalidCredentials
+		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
+		spyUseCase.On("Authenticate", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyLogger.On("Warn", mock.Anything, "authentication failed",
+			"error", expectedErr, "cpf", input.CPF, "status_code", 401).Once()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.Authenticate(w, req)
+		assert.NotEqual(t, http.StatusOK, w.Code)
+		spyUseCase.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
+	})
+}
