@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -76,6 +77,22 @@ func TestAuthenticateHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.Authenticate(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		spyUseCase.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
+	})
+
+	t.Run("should return an HTTP error greater than or equal to 500", func(t *testing.T) {
+		expectedErr := errors.New("database connection failed")
+		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
+		spyUseCase.On("Authenticate", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyLogger.On("Error", mock.Anything, "authentication failed with server error",
+			"error", expectedErr, "cpf", input.CPF).Once()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.Authenticate(w, req)
+		assert.NotEqual(t, http.StatusOK, w.Code)
 		spyUseCase.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
