@@ -13,7 +13,7 @@ mode: set
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:23.55,27.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:28.54,32.4 1 0
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:33.49,37.4 1 0
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:38.47,42.4 1 0
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:38.47,42.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:43.10,47.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/reponse.go:9.59,13.2 3 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/reponse.go:15.78,19.2 3 1
