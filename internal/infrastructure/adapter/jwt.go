@@ -2,13 +2,12 @@
 package adapter
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
@@ -63,7 +62,7 @@ func (j jwtAdapter) GenerateTokenPair(IDUser string) (dto.TokenPair, error) {
 
 func (j jwtAdapter) generateToken(IDUser, tokenType, secret string, expiresIn time.Duration) (string, error) {
 	now := time.Now()
-	jti, err := j.generateJTI()
+	jti, err := uuid.NewV7()
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +73,7 @@ func (j jwtAdapter) generateToken(IDUser, tokenType, secret string, expiresIn ti
 			ExpiresAt: jwt.NewNumericDate(now.Add(expiresIn)),
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
-			ID:        jti,
+			ID:        jti.String(),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -152,11 +151,3 @@ func (j jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, erro
 // 	return true, nil
 // 	// return j.repository.IsTokenRevoked(token)
 // }
-
-func (j jwtAdapter) generateJTI() (string, error) {
-	b := make([]byte, 32)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(b), nil
-}
