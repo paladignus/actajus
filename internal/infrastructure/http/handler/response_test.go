@@ -133,3 +133,46 @@ func TestRespondJSONError(t *testing.T) {
 		assert.Equal(t, "application/json", resp.Header().Get("Content-Type"))
 	})
 }
+
+func TestRespondError(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		message    string
+	}{
+		{
+			name:       "should return bad request",
+			statusCode: http.StatusBadRequest,
+			message:    "Invalid input",
+		},
+		{
+			name:       "should return not found",
+			statusCode: http.StatusNotFound,
+			message:    "Resource not found",
+		},
+		{
+			name:       "should return internal server error",
+			statusCode: http.StatusInternalServerError,
+			message:    "Something went wrong",
+		},
+		{
+			name:       "should return unauthorized",
+			statusCode: http.StatusUnauthorized,
+			message:    "Access denied",
+		},
+		{
+			name:       "should return empty message",
+			statusCode: http.StatusBadRequest,
+			message:    "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := httptest.NewRecorder()
+			RespondError(resp, tt.statusCode, tt.message)
+			assert.Equal(t, tt.statusCode, resp.Code)
+			assert.Equal(t, tt.message+"\n", resp.Body.String())
+			assert.Equal(t, "text/plain; charset=utf-8", resp.Header().Get("Content-Type"))
+		})
+	}
+}
