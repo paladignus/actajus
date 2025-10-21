@@ -82,7 +82,7 @@ func TestJWTAdapter_GenerateTokenPair_Error(t *testing.T) {
 			AccessExpiry:  15 * time.Minute,
 			RefreshExpiry: 7 * 24 * time.Hour,
 		}
-		adapter := NewJWTAdapter(cfg)
+		adapter := NewJWTAdapter(cfg).(jwtAdapter)
 		tokenPair, err := adapter.GenerateTokenPair("user-123")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to generate access token")
