@@ -101,3 +101,9 @@ func TestNewLogger(t *testing.T) {
 		})
 	}
 }
+
+func TestNewDefaultLogger(t *testing.T) {
+	logger := NewDefaultLogger()
+	assert.NotNil(t, logger)
+	assert.IsType(t, &slogAdapter{}, logger)
+}
