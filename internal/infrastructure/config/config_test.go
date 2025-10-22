@@ -183,3 +183,62 @@ func TestGetEnv(t *testing.T) {
 		})
 	}
 }
+
+func TestGetEnvAsInt(t *testing.T) {
+	tests := []struct {
+		name         string
+		envValue     string
+		defaultValue int
+		expected     int
+	}{
+		{
+			name:         "should return a valid integer when valid integer in environment",
+			envValue:     "42",
+			defaultValue: 100,
+			expected:     42,
+		},
+		{
+			name:         "should return default value when environment variable not set",
+			envValue:     "",
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "should return default value when invalid integer in environment",
+			envValue:     "not-a-number",
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "should return a valid integer when negative integer",
+			envValue:     "-10",
+			defaultValue: 100,
+			expected:     -10,
+		},
+		{
+			name:         "should return a valid integer when zero value",
+			envValue:     "0",
+			defaultValue: 100,
+			expected:     0,
+		},
+		{
+			name:         "should return a valid integer when large integer",
+			envValue:     "999999",
+			defaultValue: 100,
+			expected:     999999,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			originalValue := os.Getenv("TEST_INT_VAR")
+			defer os.Setenv("TEST_INT_VAR", originalValue)
+			if tt.envValue != "" {
+				os.Setenv("TEST_INT_VAR", tt.envValue)
+			} else {
+				os.Unsetenv("TEST_INT_VAR")
+			}
+			result := getEnvAsInt("TEST_INT_VAR", tt.defaultValue)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
