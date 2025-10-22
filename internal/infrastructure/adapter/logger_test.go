@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // MockLogger implements repository.Logger for testing
@@ -161,4 +162,22 @@ func TestSlogAdapter_Error(t *testing.T) {
 	assert.Contains(t, output, "code")
 	assert.Contains(t, output, "500")
 	assert.Contains(t, output, `"level":"ERROR"`)
+}
+
+func TestSlogAdapter_With(t *testing.T) {
+	ctx := context.Background()
+	buf := &bytes.Buffer{}
+	handler := slog.NewJSONHandler(buf, &slog.HandlerOptions{Level: slog.LevelInfo})
+	adapter := &slogAdapter{logger: slog.New(handler)}
+	// Create logger with additional fields
+	childLogger := adapter.With("service", "auth", "version", "1.0")
+	require.NotNil(t, childLogger)
+	// Log with child logger
+	childLogger.Info(ctx, "operation completed")
+	output := buf.String()
+	assert.Contains(t, output, "operation completed")
+	assert.Contains(t, output, "service")
+	assert.Contains(t, output, "auth")
+	assert.Contains(t, output, "version")
+	assert.Contains(t, output, "1.0")
 }
