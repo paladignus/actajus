@@ -95,3 +95,70 @@ func TestValidateAccessToken(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateRefreshToken(t *testing.T) {
+	cfg := getTestConfig()
+	adapter := NewJWTAdapter(cfg)
+	validTokenPair, _ := adapter.GenerateTokenPair("user-456")
+	expiredCfg := getTestConfig()
+	expiredCfg.RefreshExpiry = -1 * time.Hour
+	expiredAdapter := NewJWTAdapter(expiredCfg)
+	expiredTokenPair, _ := expiredAdapter.GenerateTokenPair("user-456")
+	wrongSecretCfg := getTestConfig()
+	wrongSecretCfg.AccessSecret = "wrong-secret"
+	wrongSecretToken, _ := NewJWTAdapter(wrongSecretCfg).GenerateTokenPair("user-123")
+	invalidClaimsToken := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
+		"sub": "user-123",
+		"exp": time.Now().Add(time.Hour).Unix(),
+	})
+	invalidClaimsTokenString, _ := invalidClaimsToken.SignedString([]byte(cfg.RefreshSecret))
+	tests := []struct {
+		name     string
+		token    string
+		wantErr  error
+		wantUser string
+	}{
+		{
+			name:     "should return valid access token",
+			token:    validTokenPair.RefreshToken,
+			wantUser: "user-456",
+		},
+		{
+			name:    "should return invalid token error to token invalid",
+			token:   "invalid-token",
+			wantErr: ErrInvalidToken,
+		},
+		{
+			name:    "should return invalid token error to empty token",
+			token:   "",
+			wantErr: ErrInvalidToken,
+		},
+		{
+			name:    "should return expired token error",
+			token:   expiredTokenPair.RefreshToken,
+			wantErr: ErrExpiredToken,
+		},
+		{
+			name:    "should return invalid token error to wrong secret token",
+			token:   wrongSecretToken.AccessToken,
+			wantErr: ErrInvalidToken,
+		},
+		{
+			name:    "should return invalid token type error",
+			token:   invalidClaimsTokenString,
+			wantErr: ErrInvalidTokenType,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			claims, err := adapter.ValidateRefreshToken(tt.token)
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantUser, claims.IDUser)
+			assert.Equal(t, "refresh", claims.TokenType)
+		})
+	}
+}
