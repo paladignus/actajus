@@ -21,7 +21,7 @@ type ServerConfig struct {
 
 type DatabaseConfig struct {
 	Host     string
-	Port     int
+	Port     string
 	User     string
 	Password string
 	DBName   string
@@ -44,7 +44,7 @@ func Load() Config {
 		},
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
-			Port:     getEnvAsInt("DB_PORT", 5432),
+			Port:     getEnv("DB_PORT", "5432"),
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", "M4rc3l0"),
 			DBName:   getEnv("DB_NAME", "actajus"),
