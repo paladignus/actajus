@@ -4,6 +4,7 @@ package adapter
 import (
 	"bytes"
 	"context"
+	"errors"
 	"log/slog"
 	"testing"
 
@@ -180,4 +181,19 @@ func TestSlogAdapter_With(t *testing.T) {
 	assert.Contains(t, output, "auth")
 	assert.Contains(t, output, "version")
 	assert.Contains(t, output, "1.0")
+}
+
+func TestSlogAdapter_WithError(t *testing.T) {
+	ctx := context.Background()
+	buf := &bytes.Buffer{}
+	handler := slog.NewJSONHandler(buf, &slog.HandlerOptions{Level: slog.LevelInfo})
+	adapter := &slogAdapter{logger: slog.New(handler)}
+	testErr := errors.New("something went wrong")
+	childLogger := adapter.WithError(testErr)
+	require.NotNil(t, childLogger)
+	childLogger.Error(ctx, "operation failed")
+	output := buf.String()
+	assert.Contains(t, output, "operation failed")
+	assert.Contains(t, output, "error")
+	assert.Contains(t, output, "something went wrong")
 }
