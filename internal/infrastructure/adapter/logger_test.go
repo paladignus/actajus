@@ -2,6 +2,9 @@
 package adapter
 
 import (
+	"bytes"
+	"context"
+	"log/slog"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -106,4 +109,17 @@ func TestNewDefaultLogger(t *testing.T) {
 	logger := NewDefaultLogger()
 	assert.NotNil(t, logger)
 	assert.IsType(t, &slogAdapter{}, logger)
+}
+
+func TestSlogAdapter_Debug(t *testing.T) {
+	ctx := context.Background()
+	buf := &bytes.Buffer{}
+	handler := slog.NewJSONHandler(buf, &slog.HandlerOptions{Level: slog.LevelDebug})
+	adapter := &slogAdapter{logger: slog.New(handler)}
+	adapter.Debug(ctx, "debug message", "key", "value")
+	output := buf.String()
+	assert.Contains(t, output, "debug message")
+	assert.Contains(t, output, "key")
+	assert.Contains(t, output, "value")
+	assert.Contains(t, output, `"level":"DEBUG"`)
 }
