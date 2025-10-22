@@ -179,3 +179,48 @@ func TestRedisCache_Exists(t *testing.T) {
 		})
 	}
 }
+
+func TestRedisCache_Delete(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test")
+	}
+	ctx := context.Background()
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+		DB:   15,
+	})
+	if err := client.Ping(ctx).Err(); err != nil {
+		t.Skip("Redis not available:", err)
+	}
+	cache := NewRedisCache(ctx, client)
+	defer client.Close()
+	tests := []struct {
+		name  string
+		key   string
+		setup bool
+	}{
+		{
+			name:  "should be successful when delete existing key",
+			key:   "test:delete:1",
+			setup: true,
+		},
+		{
+			name:  "should be successful when delete non-existent key",
+			key:   "test:delete:nonexistent",
+			setup: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setup {
+				err := cache.Set(tt.key, "value", 10*time.Second)
+				require.NoError(t, err)
+			}
+			err := cache.Delete(tt.key)
+			assert.NoError(t, err)
+			exists, err := cache.Exists(tt.key)
+			assert.NoError(t, err)
+			assert.Equal(t, int64(0), exists)
+		})
+	}
+}
