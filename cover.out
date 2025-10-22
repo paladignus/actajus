@@ -1,6 +1,9 @@
 mode: set
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/adapter/redis.go:17.80,19.2 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/adapter/redis.go:21.69,23.2 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/adapter/redis.go:25.53,27.2 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/adapter/redis.go:29.55,31.2 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/adapter/redis.go:33.46,35.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:38.20,61.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:63.46,64.42 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:64.42,66.3 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:70.2,70.21 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:73.52,74.42 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:74.42,75.55 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:75.55,77.4 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/config/config.go:79.2,79.21 1 1
