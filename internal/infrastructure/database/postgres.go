@@ -24,7 +24,7 @@ type DB struct {
 }
 
 func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repository.Logger) (*DB, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 	poolConfig, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
