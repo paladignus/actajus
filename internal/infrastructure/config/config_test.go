@@ -45,7 +45,7 @@ func TestLoad(t *testing.T) {
 				},
 				Database: DatabaseConfig{
 					Host:     "localhost",
-					Port:     5432,
+					Port:     "5432",
 					User:     "postgres",
 					Password: "M4rc3l0",
 					DBName:   "actajus",
@@ -84,7 +84,7 @@ func TestLoad(t *testing.T) {
 				},
 				Database: DatabaseConfig{
 					Host:     "db.example.com",
-					Port:     5433,
+					Port:     "5433",
 					User:     "myuser",
 					Password: "mypassword",
 					DBName:   "mydatabase",
@@ -114,7 +114,7 @@ func TestLoad(t *testing.T) {
 				},
 				Database: DatabaseConfig{
 					Host:     "127.0.0.1",
-					Port:     5432,
+					Port:     "5432",
 					User:     "testuser",
 					Password: "M4rc3l0",
 					DBName:   "actajus",
@@ -139,6 +139,47 @@ func TestLoad(t *testing.T) {
 			for key := range tt.envVars {
 				os.Unsetenv(key)
 			}
+		})
+	}
+}
+
+func TestGetEnv(t *testing.T) {
+	tests := []struct {
+		name         string
+		envValue     string
+		defaultValue string
+		expected     string
+	}{
+		{
+			name:         "should return value from environment variable set",
+			envValue:     "custom-value",
+			defaultValue: "default-value",
+			expected:     "custom-value",
+		},
+		{
+			name:         "should return default value when environment variable not set",
+			envValue:     "",
+			defaultValue: "default-value",
+			expected:     "default-value",
+		},
+		{
+			name:         "should return default value when environment variable empty",
+			envValue:     "",
+			defaultValue: "fallback",
+			expected:     "fallback",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			originalValue := os.Getenv("TEST_ENV_VAR")
+			defer os.Setenv("TEST_ENV_VAR", originalValue)
+			if tt.envValue != "" {
+				os.Setenv("TEST_ENV_VAR", tt.envValue)
+			} else {
+				os.Unsetenv("TEST_ENV_VAR")
+			}
+			result := getEnv("TEST_ENV_VAR", tt.defaultValue)
+			assert.Equal(t, tt.expected, result)
 		})
 	}
 }
