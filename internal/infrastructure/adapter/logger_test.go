@@ -149,3 +149,16 @@ func TestSlogAdapter_Warn(t *testing.T) {
 	assert.Contains(t, output, "degraded")
 	assert.Contains(t, output, `"level":"WARN"`)
 }
+
+func TestSlogAdapter_Error(t *testing.T) {
+	ctx := context.Background()
+	buf := &bytes.Buffer{}
+	handler := slog.NewJSONHandler(buf, &slog.HandlerOptions{Level: slog.LevelError})
+	adapter := &slogAdapter{logger: slog.New(handler)}
+	adapter.Error(ctx, "error message", "code", 500)
+	output := buf.String()
+	assert.Contains(t, output, "error message")
+	assert.Contains(t, output, "code")
+	assert.Contains(t, output, "500")
+	assert.Contains(t, output, `"level":"ERROR"`)
+}
