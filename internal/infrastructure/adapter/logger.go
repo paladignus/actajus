@@ -12,7 +12,7 @@ import (
 type Level int
 
 const (
-	LevelDebug = iota
+	LevelDebug = iota + 1
 	LevelInfo
 	LevelWarn
 	LevelError
@@ -31,14 +31,14 @@ type Config struct {
 
 func NewLogger(config Config) repository.Logger {
 	var level slog.Level
-	switch level {
-	case slog.LevelDebug:
+	switch config.Level {
+	case LevelDebug:
 		level = slog.LevelDebug
-	case slog.LevelInfo:
+	case LevelInfo:
 		level = slog.LevelInfo
-	case slog.LevelWarn:
+	case LevelWarn:
 		level = slog.LevelWarn
-	case slog.LevelError:
+	case LevelError:
 		level = slog.LevelError
 	default:
 		level = slog.LevelInfo
