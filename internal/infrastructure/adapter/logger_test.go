@@ -123,3 +123,16 @@ func TestSlogAdapter_Debug(t *testing.T) {
 	assert.Contains(t, output, "value")
 	assert.Contains(t, output, `"level":"DEBUG"`)
 }
+
+func TestSlogAdapter_Info(t *testing.T) {
+	ctx := context.Background()
+	buf := &bytes.Buffer{}
+	handler := slog.NewJSONHandler(buf, &slog.HandlerOptions{Level: slog.LevelInfo})
+	adapter := &slogAdapter{logger: slog.New(handler)}
+	adapter.Info(ctx, "info message", "user", "john")
+	output := buf.String()
+	assert.Contains(t, output, "info message")
+	assert.Contains(t, output, "user")
+	assert.Contains(t, output, "john")
+	assert.Contains(t, output, `"level":"INFO"`)
+}
