@@ -1,10 +1,10 @@
 mode: set
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:18.55,21.2 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:23.56,27.2 3 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:29.81,30.46 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:30.46,31.72 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:31.72,48.51 7 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:48.51,50.5 1 0
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:50.10,50.35 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:50.35,52.5 1 0
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:53.4,59.5 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:17.55,20.2 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:22.56,26.2 3 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:28.81,29.46 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:29.46,30.72 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:30.72,46.51 6 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:46.51,48.5 1 0
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:48.10,48.35 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:48.35,50.5 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/middleware/logger.go:51.4,57.5 1 1
