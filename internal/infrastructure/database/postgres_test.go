@@ -3,6 +3,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/jackc/pgx/v5"
@@ -98,6 +99,42 @@ func containsAny(s string, substrs ...string) bool {
 
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && (s[0:len(substr)] == substr || contains(s[1:], substr)))
+}
+
+func TestNewConnection_PingError(t *testing.T) {
+	originalParseConfig := pgxpoolParseConfig
+	originalNewWithConfig := pgxpoolNewWithConfig
+	defer func() {
+		pgxpoolParseConfig = originalParseConfig
+		pgxpoolNewWithConfig = originalNewWithConfig
+	}()
+	ctx := context.Background()
+	mockLogger := spy.SpyLogger{}
+	validConfig := &config.DatabaseConfig{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "user",
+		Password: "pass",
+		DBName:   "db",
+		SSLMode:  "disable",
+	}
+	mockPool := &MockPgxPool{}
+	mockPool.On("Ping", mock.Anything).Return(errors.New("forced ping error"))
+	// ParseConfig funciona
+	pgxpoolParseConfig = func(connString string) (*pgxpool.Config, error) {
+		return &pgxpool.Config{}, nil
+	}
+	// NewWithConfig retorna pool mockado
+	pgxpoolNewWithConfig = func(ctx context.Context, config *pgxpool.Config) (*pgxpool.Pool, error) {
+		// Precisamos converter nosso mock para *pgxpool.Pool
+		// Como não podemos fazer isso diretamente, vamos criar um pool real que vai falhar
+		// usando uma configuração inválida
+		return pgxpool.New(ctx, "postgres://invalid:invalid@invalid:9999/invalid")
+	}
+	db, err := NewConnection(ctx, validConfig, &mockLogger)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unable to connect to database")
+	assert.Nil(t, db)
 }
 
 func TestCloseDB(t *testing.T) {
