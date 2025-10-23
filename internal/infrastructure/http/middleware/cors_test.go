@@ -88,3 +88,22 @@ func TestEnableCORS_NonOptionsRequestContinues(t *testing.T) {
 	assert.True(t, called, "Next handler should be called for non-OPTIONS requests")
 	assert.Equal(t, http.StatusOK, rr.Code)
 }
+
+func TestEnableCORS_HeadersAlwaysSet(t *testing.T) {
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	handler := EnableCORS(nextHandler)
+	methods := []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"}
+	for _, method := range methods {
+		t.Run(method, func(t *testing.T) {
+			req := httptest.NewRequest(method, "/", nil)
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+			// Headers CORS devem estar sempre presentes
+			assert.Equal(t, "*", rr.Header().Get("Access-Control-Allow-Origin"))
+			assert.Equal(t, "GET, POST, PUT, PATCH, DELETE, OPTIONS", rr.Header().Get("Access-Control-Allow-Methods"))
+			assert.Equal(t, "Content-Type, Authorization", rr.Header().Get("Access-Control-Allow-Headers"))
+		})
+	}
+}
