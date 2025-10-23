@@ -66,7 +66,7 @@ func TestLoggerMiddleware_ErrorStatus(t *testing.T) {
 }
 
 func TestLoggerMiddleware_WarningStatus(t *testing.T) {
-	spyLogger := new(spy.SpyLogger)
+	spyLogger := &spy.SpyLogger{}
 	spyLogger.On("Info",
 		mock.Anything,
 		"http request started",
@@ -111,7 +111,7 @@ func TestLoggerMiddleware_DifferentMethods(t *testing.T) {
 	methods := []string{"GET", "POST", "PUT", "DELETE", "PATCH"}
 	for _, method := range methods {
 		t.Run(method, func(t *testing.T) {
-			spyLogger := new(spy.SpyLogger)
+			spyLogger := &spy.SpyLogger{}
 			spyLogger.On("Info",
 				mock.Anything,
 				"http request started",
@@ -135,4 +135,32 @@ func TestLoggerMiddleware_DifferentMethods(t *testing.T) {
 			spyLogger.AssertExpectations(t)
 		})
 	}
+}
+
+func TestLoggerMiddleware_WithResponseBody(t *testing.T) {
+	spyLogger := &spy.SpyLogger{}
+	spyLogger.On("Info",
+		mock.Anything,
+		"http request started",
+		"method", "POST", "path", "/create", "remote_addr", "192.0.2.1:1234", "user_agent", "",
+	).Once()
+
+	spyLogger.On("Info",
+		mock.Anything,
+		"http request completed",
+		"method", "POST", "path", "/create", "status_code", 201, "duration_ms", mock.MatchedBy(func(duration int64) bool {
+			return duration >= 0
+		}), "bytes_written", 25,
+	).Once()
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte("User created successfully"))
+	})
+	handler := LoggerMiddleware(spyLogger)(nextHandler)
+	req := httptest.NewRequest("POST", "/create", nil)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusCreated, rr.Code)
+	assert.Equal(t, "User created successfully", rr.Body.String())
+	spyLogger.AssertExpectations(t)
 }
