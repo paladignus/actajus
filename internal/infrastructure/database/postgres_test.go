@@ -64,3 +64,15 @@ func TestNewConnection_Success(t *testing.T) {
 	db.Close(ctx, &mockLogger)
 	mockLogger.AssertExpectations(t)
 }
+
+func TestCloseDB(t *testing.T) {
+	ctx := context.Background()
+	mockPool := MockPgxPool{}
+	mockLogger := spy.SpyLogger{}
+	db := &DB{Pool: &mockPool}
+	mockPool.On("Close").Once()
+	mockLogger.On("Info", mock.Anything, "database connection closed").Once()
+	db.Close(ctx, &mockLogger)
+	mockPool.AssertExpectations(t)
+	mockLogger.AssertExpectations(t)
+}
