@@ -18,14 +18,17 @@ func TestLoad(t *testing.T) {
 	}
 	for _, envVar := range envVars {
 		originalEnv[envVar] = os.Getenv(envVar)
-		os.Unsetenv(envVar)
+		err := os.Unsetenv(envVar)
+		assert.NoError(t, err)
 	}
 	defer func() {
 		for key, value := range originalEnv {
 			if value != "" {
-				os.Setenv(key, value)
+				err := os.Setenv(key, value)
+				assert.NoError(t, err)
 			} else {
-				os.Unsetenv(key)
+				err := os.Unsetenv(key)
+				assert.NoError(t, err)
 			}
 		}
 	}()
@@ -132,12 +135,14 @@ func TestLoad(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			for key, value := range tt.envVars {
-				os.Setenv(key, value)
+				err := os.Setenv(key, value)
+				assert.NoError(t, err)
 			}
 			config := Load()
 			assert.Equal(t, tt.expected, config)
 			for key := range tt.envVars {
-				os.Unsetenv(key)
+				err := os.Unsetenv(key)
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -172,11 +177,14 @@ func TestGetEnv(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			originalValue := os.Getenv("TEST_ENV_VAR")
-			defer os.Setenv("TEST_ENV_VAR", originalValue)
+			err := os.Setenv("TEST_ENV_VAR", originalValue)
+			assert.NoError(t, err)
 			if tt.envValue != "" {
-				os.Setenv("TEST_ENV_VAR", tt.envValue)
+				err := os.Setenv("TEST_ENV_VAR", tt.envValue)
+				assert.NoError(t, err)
 			} else {
-				os.Unsetenv("TEST_ENV_VAR")
+				err := os.Unsetenv("TEST_ENV_VAR")
+				assert.NoError(t, err)
 			}
 			result := getEnv("TEST_ENV_VAR", tt.defaultValue)
 			assert.Equal(t, tt.expected, result)
@@ -231,11 +239,14 @@ func TestGetEnvAsInt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			originalValue := os.Getenv("TEST_INT_VAR")
-			defer os.Setenv("TEST_INT_VAR", originalValue)
+			err := os.Setenv("TEST_INT_VAR", originalValue)
+			assert.NoError(t, err)
 			if tt.envValue != "" {
-				os.Setenv("TEST_INT_VAR", tt.envValue)
+				err := os.Setenv("TEST_INT_VAR", tt.envValue)
+				assert.NoError(t, err)
 			} else {
-				os.Unsetenv("TEST_INT_VAR")
+				err := os.Unsetenv("TEST_INT_VAR")
+				assert.NoError(t, err)
 			}
 			result := getEnvAsInt("TEST_INT_VAR", tt.defaultValue)
 			assert.Equal(t, tt.expected, result)
