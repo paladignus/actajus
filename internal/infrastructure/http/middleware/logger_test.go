@@ -89,3 +89,20 @@ func TestLoggerMiddleware_WarningStatus(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rr.Code)
 	spyLogger.AssertExpectations(t)
 }
+
+func TestResponseWriter(t *testing.T) {
+	rr := httptest.NewRecorder()
+	rw := &responseWriter{
+		ResponseWriter: rr,
+		statusCode:     http.StatusOK,
+	}
+	rw.WriteHeader(http.StatusCreated)
+	assert.Equal(t, http.StatusCreated, rw.statusCode)
+	assert.Equal(t, http.StatusCreated, rr.Code)
+	data := []byte("test data")
+	n, err := rw.Write(data)
+	assert.NoError(t, err)
+	assert.Equal(t, len(data), n)
+	assert.Equal(t, len(data), rw.bytesWritten)
+	assert.Equal(t, "test data", rr.Body.String())
+}
