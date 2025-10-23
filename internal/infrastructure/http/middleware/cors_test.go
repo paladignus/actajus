@@ -60,3 +60,17 @@ func TestEnableCORS(t *testing.T) {
 		})
 	}
 }
+
+func TestEnableCORS_OptionsRequestStopsPropagation(t *testing.T) {
+	called := false
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		w.WriteHeader(http.StatusOK)
+	})
+	handler := EnableCORS(nextHandler)
+	req := httptest.NewRequest("OPTIONS", "/", nil)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.False(t, called, "Next handler should not be called for OPTIONS requests")
+	assert.Equal(t, http.StatusOK, rr.Code)
+}
