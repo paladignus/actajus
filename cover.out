@@ -1,6 +1,6 @@
 mode: set
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/database/postgres.go:26.108,30.16 3 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/database/postgres.go:30.16,32.3 1 0
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/database/postgres.go:30.16,32.3 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/database/postgres.go:33.2,36.16 4 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/database/postgres.go:36.16,38.3 1 0
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/database/postgres.go:39.2,39.39 1 1
