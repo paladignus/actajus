@@ -64,3 +64,28 @@ func TestLoggerMiddleware_ErrorStatus(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 	spyLogger.AssertExpectations(t)
 }
+
+func TestLoggerMiddleware_WarningStatus(t *testing.T) {
+	spyLogger := new(spy.SpyLogger)
+	spyLogger.On("Info",
+		mock.Anything,
+		"http request started",
+		"method", "GET", "path", "/not-found", "remote_addr", "192.0.2.1:1234", "user_agent", "",
+	).Once()
+	spyLogger.On("Warn",
+		mock.Anything,
+		"http request completed",
+		"method", "GET", "path", "/not-found", "status_code", 404, "duration_ms", mock.MatchedBy(func(duration int64) bool {
+			return duration >= 0
+		}), "bytes_written", 0,
+	).Once()
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	handler := LoggerMiddleware(spyLogger)(nextHandler)
+	req := httptest.NewRequest("GET", "/not-found", nil)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusNotFound, rr.Code)
+	spyLogger.AssertExpectations(t)
+}
