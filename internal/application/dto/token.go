@@ -2,8 +2,7 @@
 package dto
 
 type TokenClaims struct {
-	IDUser    string `json:"id_user"`
-	TokenType string `json:"token_type"`
+	IDUser string `json:"id_user"`
 }
 
 type TokenPair struct {
