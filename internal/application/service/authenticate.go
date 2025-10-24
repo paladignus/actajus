@@ -8,5 +8,5 @@ import (
 )
 
 type Authenticate interface {
-	Authenticate(context.Context, dto.AuthenticateInput) (dto.AuthenticateOutput, error)
+	Execute(context.Context, dto.AuthenticateInput) (dto.AuthenticateOutput, error)
 }

@@ -26,7 +26,7 @@ func (a Authenticate) Authenticate(w http.ResponseWriter, r *http.Request) {
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	resp, err := a.service.Authenticate(r.Context(), req)
+	resp, err := a.service.Execute(r.Context(), req)
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {

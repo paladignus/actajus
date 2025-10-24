@@ -21,7 +21,7 @@ type SpyAuthenticateService struct {
 	mock.Mock
 }
 
-func (s *SpyAuthenticateService) Authenticate(ctx context.Context, input dto.AuthenticateInput) (dto.AuthenticateOutput, error) {
+func (s *SpyAuthenticateService) Execute(ctx context.Context, input dto.AuthenticateInput) (dto.AuthenticateOutput, error) {
 	args := s.Called(ctx, input)
 	if args.Get(0) == nil {
 		return dto.AuthenticateOutput{}, args.Error(1)
@@ -53,7 +53,7 @@ func TestAuthenticateHandler(t *testing.T) {
 
 	t.Run("should authentication be successful", func(t *testing.T) {
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Authenticate", mock.Anything, input).Return(expectedOutput, nil).Once()
+		spyUseCase.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
 		spyLogger.On("Info", mock.Anything, "authentication successful", "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
 		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
@@ -85,7 +85,7 @@ func TestAuthenticateHandler(t *testing.T) {
 	t.Run("should return an HTTP error greater than or equal to 500", func(t *testing.T) {
 		expectedErr := errors.New("database connection failed")
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Authenticate", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Error", mock.Anything, "authentication failed with server error",
 			"error", expectedErr, "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
@@ -101,7 +101,7 @@ func TestAuthenticateHandler(t *testing.T) {
 	t.Run("should return a user not found error with status code 404", func(t *testing.T) {
 		expectedErr := exception.ErrUserNotFound
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Authenticate", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Warn", mock.Anything, "authentication failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 404).Once()
 		body, _ := json.Marshal(input)
@@ -117,7 +117,7 @@ func TestAuthenticateHandler(t *testing.T) {
 	t.Run("should return a invalid credentials error with status code 404", func(t *testing.T) {
 		expectedErr := exception.ErrInvalidCredentials
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Authenticate", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Warn", mock.Anything, "authentication failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 401).Once()
 		body, _ := json.Marshal(input)
@@ -133,7 +133,7 @@ func TestAuthenticateHandler(t *testing.T) {
 	t.Run("should return a invalid cpf error with status code 404", func(t *testing.T) {
 		expectedErr := exception.ErrInvalidCPF
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Authenticate", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Warn", mock.Anything, "authentication failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 400).Once()
 		body, _ := json.Marshal(input)
