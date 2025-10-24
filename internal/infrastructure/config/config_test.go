@@ -58,8 +58,8 @@ func TestLoad(t *testing.T) {
 					AccessSecret:  "your-secret-key-change-in-production",
 					RefreshSecret: "your-secret-key-change-in-production",
 					Issuer:        "prod.example.com.br",
-					AccessExpiry:  15 * time.Minute,
-					RefreshExpiry: 168 * time.Hour, // 7 * 24
+					AccessExpire:  15 * time.Minute,
+					RefreshExpire: 168 * time.Hour, // 7 * 24
 				},
 			},
 		},
@@ -99,8 +99,8 @@ func TestLoad(t *testing.T) {
 					AccessSecret:  "custom-access-secret",
 					RefreshSecret: "custom-refresh-secret",
 					Issuer:        "example.com.br",
-					AccessExpiry:  30 * time.Minute,
-					RefreshExpiry: 720 * time.Hour,
+					AccessExpire:  30 * time.Minute,
+					RefreshExpire: 720 * time.Hour,
 				},
 			},
 		},
@@ -130,8 +130,8 @@ func TestLoad(t *testing.T) {
 					AccessSecret:  "your-secret-key-change-in-production",
 					RefreshSecret: "your-secret-key-change-in-production",
 					Issuer:        "prod.example.com.br",
-					AccessExpiry:  5 * time.Minute,
-					RefreshExpiry: 168 * time.Hour, // default
+					AccessExpire:  5 * time.Minute,
+					RefreshExpire: 168 * time.Hour, // default
 				},
 			},
 		},
