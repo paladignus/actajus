@@ -5,121 +5,93 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/lestrrat-go/jwx/v3/jwa"
+	"github.com/lestrrat-go/jwx/v3/jwt"
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
 var (
-	ErrInvalidToken     = errors.New("invalid token")
-	ErrExpiredToken     = errors.New("token has expired")
-	ErrRevokedToken     = errors.New("token has been revoked")
-	ErrInvalidTokenType = errors.New("invalid token type")
+	ErrInvalidToken = errors.New("invalid token")
+	ErrExpiredToken = errors.New("token has expired")
+	ErrBuildToken   = errors.New("failed to build token")
 )
-
-type customClaims struct {
-	IDUser    string
-	TokenType string
-	jwt.RegisteredClaims
-}
 
 type jwtAdapter struct {
 	config config.JWTConfig
 }
 
-func NewJWTAdapter(config config.JWTConfig) gateway.Token {
-	return jwtAdapter{config}
+func NewJWTAdapter(config config.JWTConfig) jwtAdapter {
+	return jwtAdapter{config: config}
 }
 
 func (j jwtAdapter) GenerateTokenPair(IDUser string) (dto.TokenPair, error) {
-	accessToken, err := j.generateToken(
-		IDUser,
-		"access",
-		j.config.AccessSecret,
-		j.config.AccessExpiry,
-	)
+	accessToken, err := j.generateToken(IDUser, j.config.AccessSecret, j.config.AccessExpire)
 	if err != nil {
 		return dto.TokenPair{}, err
 	}
-	refreshToken, err := j.generateToken(
-		IDUser,
-		"refresh",
-		j.config.RefreshSecret,
-		j.config.RefreshExpiry,
-	)
+	refreshToken, err := j.generateToken(IDUser, j.config.RefreshSecret, j.config.RefreshExpire)
 	if err != nil {
 		return dto.TokenPair{}, err
 	}
 	return dto.TokenPair{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}, nil
+		AccessToken:  string(accessToken),
+		RefreshToken: string(refreshToken),
+	}, err
 }
 
-func (j jwtAdapter) generateToken(IDUser, tokenType, secret string, expiresIn time.Duration) (string, error) {
-	now := time.Now()
-	jti := j.generateJTI()
-	claims := customClaims{
-		IDUser:    IDUser,
-		TokenType: tokenType,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(now.Add(expiresIn)),
-			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
-			ID:        jti,
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secret))
+func (j jwtAdapter) ValidateAccessToken(token string) (dto.TokenClaims, error) {
+	return j.validateToken(token, j.config.AccessSecret)
 }
 
-func (j jwtAdapter) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
-	return j.validateToken(tokenString, "access", j.config.AccessSecret)
+func (j jwtAdapter) ValidateRefreshToken(token string) (dto.TokenClaims, error) {
+	return j.validateToken(token, j.config.RefreshSecret)
 }
 
-func (j jwtAdapter) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
-	return j.validateToken(tokenString, "refresh", j.config.RefreshSecret)
-}
-
-func (j jwtAdapter) validateToken(tokenString, expectedType, secret string) (dto.TokenClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &customClaims{}, func(t *jwt.Token) (any, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
-	if err != nil {
-		if errors.Is(err, jwt.ErrTokenExpired) {
-			return dto.TokenClaims{}, ErrExpiredToken
-		}
-		return dto.TokenClaims{}, ErrInvalidToken
-	}
-	claims, ok := token.Claims.(*customClaims)
-	if !ok || !token.Valid {
-		return dto.TokenClaims{}, ErrInvalidToken
-	}
-	if claims.TokenType != expectedType {
-		return dto.TokenClaims{}, ErrInvalidTokenType
-	}
-	return dto.TokenClaims{
-		IDUser:    claims.IDUser,
-		TokenType: claims.TokenType,
-	}, nil
-}
-
-func (j jwtAdapter) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
-	claims, err := j.ValidateRefreshToken(refreshToken)
+func (j jwtAdapter) RefreshAccessToken(token string) (dto.TokenPair, error) {
+	claims, err := j.ValidateRefreshToken(token)
 	if err != nil {
 		return dto.TokenPair{}, err
 	}
 	return j.GenerateTokenPair(claims.IDUser)
 }
 
-func (j jwtAdapter) generateJTI() string {
+func (j jwtAdapter) generateToken(IDUser string, secret string, expire time.Duration) ([]byte, error) {
+	now := time.Now()
+	token, err := jwt.NewBuilder().
+		Subject(IDUser).
+		IssuedAt(now).
+		Expiration(now.Add(expire)).
+		Issuer(j.config.Issuer).
+		JwtID(generateJTI()).
+		NotBefore(now).
+		Build()
+	if err != nil {
+		return nil, ErrBuildToken
+	}
+	return jwt.Sign(token, jwt.WithKey(jwa.HS256(), []byte(secret)))
+}
+
+func (j jwtAdapter) validateToken(tokenString, secret string) (dto.TokenClaims, error) {
+	token, err := jwt.ParseString(tokenString, jwt.WithKey(jwa.HS256(), []byte(secret)))
+	if err != nil {
+		if errors.Is(err, jwt.TokenExpiredError()) {
+			return dto.TokenClaims{}, ErrExpiredToken
+		}
+		return dto.TokenClaims{}, ErrInvalidToken
+	}
+	subject, ok := token.Subject()
+	if !ok || subject == "" {
+		return dto.TokenClaims{}, ErrInvalidToken
+	}
+	return dto.TokenClaims{
+		IDUser: subject,
+	}, nil
+}
+
+func generateJTI() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return base64.URLEncoding.EncodeToString(b)

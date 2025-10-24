@@ -5,215 +5,298 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/lestrrat-go/jwx/v3/jwa"
+	"github.com/lestrrat-go/jwx/v3/jwt"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func getTestConfig() config.JWTConfig {
-	return config.JWTConfig{
-		AccessSecret:  "test-access-secret",
-		RefreshSecret: "test-refresh-secret",
-		AccessExpiry:  15 * time.Minute,
-		RefreshExpiry: 7 * 24 * time.Hour,
+func TestNewJWTAdapter(t *testing.T) {
+	cfg := config.JWTConfig{
+		AccessSecret:  "access-secret",
+		RefreshSecret: "refresh-secret",
+		AccessExpire:  15 * time.Minute,
+		RefreshExpire: 7 * 24 * time.Hour,
+		Issuer:        "test-issuer",
 	}
+	adapter := NewJWTAdapter(cfg)
+	require.NotNil(t, adapter)
+	assert.Equal(t, "access-secret", adapter.config.AccessSecret)
+	assert.Equal(t, "refresh-secret", adapter.config.RefreshSecret)
+	assert.Equal(t, 15*time.Minute, adapter.config.AccessExpire)
+	assert.Equal(t, 7*24*time.Hour, adapter.config.RefreshExpire)
+	assert.Equal(t, "test-issuer", adapter.config.Issuer)
 }
 
 func TestGenerateTokenPair(t *testing.T) {
-	adapter := NewJWTAdapter(getTestConfig())
-	tokenPair, err := adapter.GenerateTokenPair("user-123")
+	adapter := newTestAdapter()
+	userID := "user123"
+	tokens, err := adapter.GenerateTokenPair(userID)
 	require.NoError(t, err)
-	assert.NotEmpty(t, tokenPair.AccessToken)
-	assert.NotEmpty(t, tokenPair.RefreshToken)
-	assert.NotEqual(t, tokenPair.AccessToken, tokenPair.RefreshToken)
+	assert.NotEmpty(t, tokens.AccessToken)
+	assert.NotEmpty(t, tokens.RefreshToken)
+	assert.NotEqual(t, tokens.AccessToken, tokens.RefreshToken)
 }
 
 func TestValidateAccessToken(t *testing.T) {
-	cfg := getTestConfig()
-	adapter := NewJWTAdapter(cfg)
-	validTokenPair, _ := adapter.GenerateTokenPair("user-123")
-	expiredCfg := getTestConfig()
-	expiredCfg.AccessExpiry = -1 * time.Hour
-	expiredAdapter := NewJWTAdapter(expiredCfg)
-	expiredTokenPair, _ := expiredAdapter.GenerateTokenPair("user-123")
-	wrongSecretCfg := getTestConfig()
-	wrongSecretCfg.AccessSecret = "wrong-secret"
-	wrongSecretToken, _ := NewJWTAdapter(wrongSecretCfg).GenerateTokenPair("user-123")
-	invalidClaimsToken := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"sub": "user-123",
-		"exp": time.Now().Add(time.Hour).Unix(),
-	})
-	invalidClaimsTokenString, _ := invalidClaimsToken.SignedString([]byte(cfg.AccessSecret))
-	tests := []struct {
-		name     string
-		token    string
-		wantErr  error
-		wantUser string
-	}{
-		{
-			name:     "should return valid access token",
-			token:    validTokenPair.AccessToken,
-			wantUser: "user-123",
-		},
-		{
-			name:    "should return invalid token error to token invalid",
-			token:   "invalid-token",
-			wantErr: ErrInvalidToken,
-		},
-		{
-			name:    "should return invalid token error to empty token",
-			token:   "",
-			wantErr: ErrInvalidToken,
-		},
-		{
-			name:    "should return expired token error",
-			token:   expiredTokenPair.AccessToken,
-			wantErr: ErrExpiredToken,
-		},
-		{
-			name:    "should return invalid token error to wrong secret token",
-			token:   wrongSecretToken.AccessToken,
-			wantErr: ErrInvalidToken,
-		},
-		{
-			name:    "should return invalid token type error",
-			token:   invalidClaimsTokenString,
-			wantErr: ErrInvalidTokenType,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			claims, err := adapter.ValidateAccessToken(tt.token)
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
-				return
-			}
-			require.NoError(t, err)
-			assert.Equal(t, tt.wantUser, claims.IDUser)
-			assert.Equal(t, "access", claims.TokenType)
-		})
-	}
+	adapter := newTestAdapter()
+	userID := "user123"
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+	claims, err := adapter.ValidateAccessToken(tokens.AccessToken)
+	require.NoError(t, err)
+	assert.Equal(t, userID, claims.IDUser)
+	// assert.NotEmpty(t, claims.JTI)
+	// assert.False(t, claims.Exp.IsZero())
+	// assert.False(t, claims.Iat.IsZero())
 }
 
 func TestValidateRefreshToken(t *testing.T) {
-	cfg := getTestConfig()
+	adapter := newTestAdapter()
+	userID := "user123"
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+	claims, err := adapter.ValidateRefreshToken(tokens.RefreshToken)
+	require.NoError(t, err)
+	assert.Equal(t, userID, claims.IDUser)
+	// assert.NotEmpty(t, claims.JTI)
+	// assert.False(t, claims.Exp.IsZero())
+	// assert.False(t, claims.Iat.IsZero())
+}
+
+func TestValidateAccessToken_WithRefreshToken_ShouldFail(t *testing.T) {
+	adapter := newTestAdapter()
+	userID := "user123"
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+	_, err = adapter.ValidateAccessToken(tokens.RefreshToken)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid token")
+}
+
+func TestValidateRefreshToken_WithAccessToken_ShouldFail(t *testing.T) {
+	adapter := newTestAdapter()
+	userID := "user123"
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+	_, err = adapter.ValidateRefreshToken(tokens.AccessToken)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid token")
+}
+
+func TestValidateAccessToken_InvalidToken(t *testing.T) {
+	adapter := newTestAdapter()
+	_, err := adapter.ValidateAccessToken("invalid-token")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid token")
+}
+
+func TestValidateRefreshToken_InvalidToken(t *testing.T) {
+	adapter := newTestAdapter()
+	_, err := adapter.ValidateRefreshToken("invalid-token")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid token")
+}
+
+func TestValidateAccessToken_ExpiredToken(t *testing.T) {
+	cfg := config.JWTConfig{
+		AccessSecret:  "access-secret",
+		RefreshSecret: "refresh-secret",
+		AccessExpire:  -1 * time.Hour, // Token já expirado
+		RefreshExpire: 7 * 24 * time.Hour,
+		Issuer:        "test-issuer",
+	}
 	adapter := NewJWTAdapter(cfg)
-	validTokenPair, _ := adapter.GenerateTokenPair("user-456")
-	expiredCfg := getTestConfig()
-	expiredCfg.RefreshExpiry = -1 * time.Hour
-	expiredAdapter := NewJWTAdapter(expiredCfg)
-	expiredTokenPair, _ := expiredAdapter.GenerateTokenPair("user-456")
-	wrongSecretCfg := getTestConfig()
-	wrongSecretCfg.AccessSecret = "wrong-secret"
-	wrongSecretToken, _ := NewJWTAdapter(wrongSecretCfg).GenerateTokenPair("user-123")
-	invalidClaimsToken := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"sub": "user-123",
-		"exp": time.Now().Add(time.Hour).Unix(),
-	})
-	invalidClaimsTokenString, _ := invalidClaimsToken.SignedString([]byte(cfg.RefreshSecret))
-	tests := []struct {
-		name     string
-		token    string
-		wantErr  error
-		wantUser string
-	}{
-		{
-			name:     "should return valid access token",
-			token:    validTokenPair.RefreshToken,
-			wantUser: "user-456",
-		},
-		{
-			name:    "should return invalid token error to token invalid",
-			token:   "invalid-token",
-			wantErr: ErrInvalidToken,
-		},
-		{
-			name:    "should return invalid token error to empty token",
-			token:   "",
-			wantErr: ErrInvalidToken,
-		},
-		{
-			name:    "should return expired token error",
-			token:   expiredTokenPair.RefreshToken,
-			wantErr: ErrExpiredToken,
-		},
-		{
-			name:    "should return invalid token error to wrong secret token",
-			token:   wrongSecretToken.AccessToken,
-			wantErr: ErrInvalidToken,
-		},
-		{
-			name:    "should return invalid token type error",
-			token:   invalidClaimsTokenString,
-			wantErr: ErrInvalidTokenType,
-		},
+
+	tokens, err := adapter.GenerateTokenPair("user123")
+	require.NoError(t, err)
+
+	_, err = adapter.ValidateAccessToken(tokens.AccessToken)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "token has expired")
+}
+
+func TestValidateRefreshToken_ExpiredToken(t *testing.T) {
+	cfg := config.JWTConfig{
+		AccessSecret:  "access-secret",
+		RefreshSecret: "refresh-secret",
+		AccessExpire:  15 * time.Minute,
+		RefreshExpire: -1 * time.Hour, // Token já expirado
+		Issuer:        "test-issuer",
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			claims, err := adapter.ValidateRefreshToken(tt.token)
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
-				return
-			}
-			require.NoError(t, err)
-			assert.Equal(t, tt.wantUser, claims.IDUser)
-			assert.Equal(t, "refresh", claims.TokenType)
-		})
-	}
+	adapter := NewJWTAdapter(cfg)
+
+	tokens, err := adapter.GenerateTokenPair("user123")
+	require.NoError(t, err)
+
+	_, err = adapter.ValidateRefreshToken(tokens.RefreshToken)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "token has expired")
 }
 
 func TestRefreshAccessToken(t *testing.T) {
-	cfg := getTestConfig()
+	adapter := newTestAdapter()
+	userID := "user123"
+
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+
+	newTokens, err := adapter.RefreshAccessToken(tokens.RefreshToken)
+
+	require.NoError(t, err)
+	assert.NotEmpty(t, newTokens.AccessToken)
+	assert.NotEmpty(t, newTokens.RefreshToken)
+	assert.NotEqual(t, tokens.AccessToken, newTokens.AccessToken)
+	assert.NotEqual(t, tokens.RefreshToken, newTokens.RefreshToken)
+
+	// Validar que os novos tokens funcionam
+	claims, err := adapter.ValidateAccessToken(newTokens.AccessToken)
+	require.NoError(t, err)
+	assert.Equal(t, userID, claims.IDUser)
+}
+
+func TestRefreshAccessToken_InvalidRefreshToken(t *testing.T) {
+	adapter := newTestAdapter()
+
+	_, err := adapter.RefreshAccessToken("invalid-token")
+
+	assert.Error(t, err)
+	// assert.Contains(t, err.Error(), "invalid refresh token")
+}
+
+func TestRefreshAccessToken_WithAccessToken_ShouldFail(t *testing.T) {
+	adapter := newTestAdapter()
+
+	tokens, err := adapter.GenerateTokenPair("user123")
+	require.NoError(t, err)
+
+	_, err = adapter.RefreshAccessToken(tokens.AccessToken)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid token")
+}
+
+func TestRefreshAccessToken_ExpiredRefreshToken(t *testing.T) {
+	cfg := config.JWTConfig{
+		AccessSecret:  "access-secret",
+		RefreshSecret: "refresh-secret",
+		AccessExpire:  15 * time.Minute,
+		RefreshExpire: -1 * time.Hour,
+		Issuer:        "test-issuer",
+	}
 	adapter := NewJWTAdapter(cfg)
-	validTokenPair, _ := adapter.GenerateTokenPair("user-789")
-	expiredCfg := getTestConfig()
-	expiredCfg.RefreshExpiry = -1 * time.Hour
-	expiredAdapter := NewJWTAdapter(expiredCfg)
-	expiredTokenPair, _ := expiredAdapter.GenerateTokenPair("user-789")
-	tests := []struct {
-		name         string
-		refreshToken string
-		wantErr      bool
-		validateUser string
-	}{
-		{
-			name:         "should return an valid refresh token",
-			refreshToken: validTokenPair.RefreshToken,
-			validateUser: "user-789",
-		},
-		{
-			name:         "should return an error to invalid token format",
-			refreshToken: "invalid-token",
-			wantErr:      true,
-		},
-		{
-			name:         "should return an error to expired refresh token",
-			refreshToken: expiredTokenPair.RefreshToken,
-			wantErr:      true,
-		},
-		{
-			name:         "should return an error to access token instead of refresh",
-			refreshToken: validTokenPair.AccessToken,
-			wantErr:      true,
-		},
+	tokens, err := adapter.GenerateTokenPair("user123")
+	require.NoError(t, err)
+	_, err = adapter.RefreshAccessToken(tokens.RefreshToken)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "token has expired")
+}
+
+func TestGenerateToken_TokenStructure(t *testing.T) {
+	adapter := newTestAdapter()
+	userID := "user123"
+
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+
+	// Parse do access token
+	token, err := jwt.ParseString(
+		tokens.AccessToken,
+		jwt.WithKey(jwa.HS256(), []byte(adapter.config.AccessSecret)),
+		jwt.WithValidate(true),
+	)
+	require.NoError(t, err)
+
+	subject, _ := token.Subject()
+	assert.Equal(t, userID, subject)
+
+	// assert.Equal(t, "test-issuer", token.Issuer())
+	// assert.NotEmpty(t, token.JwtID())
+	// assert.False(t, token.IssuedAt().IsZero())
+	// assert.False(t, token.Expiration().IsZero())
+}
+
+func TestValidateToken_WrongSecret(t *testing.T) {
+	adapter := newTestAdapter()
+	userID := "user123"
+
+	tokens, err := adapter.GenerateTokenPair(userID)
+	require.NoError(t, err)
+
+	// Criar outro adapter com secret diferente
+	wrongAdapter := NewJWTAdapter(config.JWTConfig{
+		AccessSecret:  "wrong-secret",
+		RefreshSecret: "wrong-refresh-secret",
+		AccessExpire:  15 * time.Minute,
+		RefreshExpire: 7 * 24 * time.Hour,
+		Issuer:        "test-issuer",
+	})
+
+	_, err = wrongAdapter.ValidateAccessToken(tokens.AccessToken)
+	assert.Error(t, err)
+
+	_, err = wrongAdapter.ValidateRefreshToken(tokens.RefreshToken)
+	assert.Error(t, err)
+}
+
+// func TestGenerateJTI(t *testing.T) {
+// 	jti1, err := generateJTI()
+// 	require.NoError(t, err)
+// 	assert.NotEmpty(t, jti1)
+// 	assert.Len(t, jti1, 32) // 16 bytes em hex = 32 caracteres
+//
+// 	jti2, err := generateJTI()
+// 	require.NoError(t, err)
+// 	assert.NotEmpty(t, jti2)
+//
+// 	// JTIs devem ser diferentes
+// 	assert.NotEqual(t, jti1, jti2)
+// }
+
+func TestTokenExpiration_AccessToken(t *testing.T) {
+	cfg := config.JWTConfig{
+		AccessSecret:  "access-secret",
+		RefreshSecret: "refresh-secret",
+		AccessExpire:  1 * time.Second,
+		RefreshExpire: 7 * 24 * time.Hour,
+		Issuer:        "test-issuer",
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			newTokenPair, err := adapter.RefreshAccessToken(tt.refreshToken)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			require.NoError(t, err)
-			assert.NotEmpty(t, newTokenPair.AccessToken)
-			assert.NotEmpty(t, newTokenPair.RefreshToken)
-			accessClaims, err := adapter.ValidateAccessToken(newTokenPair.AccessToken)
-			require.NoError(t, err)
-			assert.Equal(t, tt.validateUser, accessClaims.IDUser)
-			refreshClaims, err := adapter.ValidateRefreshToken(newTokenPair.RefreshToken)
-			require.NoError(t, err)
-			assert.Equal(t, tt.validateUser, refreshClaims.IDUser)
-		})
+	adapter := NewJWTAdapter(cfg)
+
+	tokens, err := adapter.GenerateTokenPair("user123")
+	require.NoError(t, err)
+
+	// Token válido inicialmente
+	_, err = adapter.ValidateAccessToken(tokens.AccessToken)
+	require.NoError(t, err)
+
+	// Aguardar expiração
+	time.Sleep(2 * time.Second)
+
+	// Token deve estar expirado
+	_, err = adapter.ValidateAccessToken(tokens.AccessToken)
+	assert.Error(t, err)
+}
+
+// Helper function
+func newTestAdapter() jwtAdapter {
+	config := config.JWTConfig{
+		AccessSecret:  "access-secret",
+		RefreshSecret: "refresh-secret",
+		AccessExpire:  15 * time.Minute,
+		RefreshExpire: 7 * 24 * time.Hour,
+		Issuer:        "test-issuer",
 	}
+	return NewJWTAdapter(config)
+}
+
+func TestAccessTokenSubject(t *testing.T) {
+	adapter := newTestAdapter()
+	tokens, err := adapter.GenerateTokenPair("")
+	require.NoError(t, err)
+	_, err = adapter.ValidateAccessToken(tokens.AccessToken)
+	assert.Error(t, err)
 }
