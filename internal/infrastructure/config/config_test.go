@@ -14,7 +14,7 @@ func TestLoad(t *testing.T) {
 	envVars := []string{
 		"SERVER_PORT", "GRPC_PORT", "ENV",
 		"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_SSLMODE",
-		"ACCESS_SECRET", "REFRESH_SECRET", "ACCESS_EXPIRY", "REFRESH_EXPIRE",
+		"ACCESS_SECRET", "REFRESH_SECRET", "JWT_ISSUER", "ACCESS_EXPIRE", "REFRESH_EXPIRE",
 	}
 	for _, envVar := range envVars {
 		originalEnv[envVar] = os.Getenv(envVar)
@@ -57,6 +57,7 @@ func TestLoad(t *testing.T) {
 				JWT: JWTConfig{
 					AccessSecret:  "your-secret-key-change-in-production",
 					RefreshSecret: "your-secret-key-change-in-production",
+					Issuer:        "prod.example.com.br",
 					AccessExpiry:  15 * time.Minute,
 					RefreshExpiry: 168 * time.Hour, // 7 * 24
 				},
@@ -76,7 +77,8 @@ func TestLoad(t *testing.T) {
 				"DB_SSLMODE":     "require",
 				"ACCESS_SECRET":  "custom-access-secret",
 				"REFRESH_SECRET": "custom-refresh-secret",
-				"ACCESS_EXPIRY":  "30",
+				"JWT_ISSUER":     "example.com.br",
+				"ACCESS_EXPIRE":  "30",
 				"REFRESH_EXPIRE": "720", // 30 days in hours
 			},
 			expected: Config{
@@ -96,6 +98,7 @@ func TestLoad(t *testing.T) {
 				JWT: JWTConfig{
 					AccessSecret:  "custom-access-secret",
 					RefreshSecret: "custom-refresh-secret",
+					Issuer:        "example.com.br",
 					AccessExpiry:  30 * time.Minute,
 					RefreshExpiry: 720 * time.Hour,
 				},
@@ -107,7 +110,7 @@ func TestLoad(t *testing.T) {
 				"SERVER_PORT":   "3000",
 				"DB_HOST":       "127.0.0.1",
 				"DB_USER":       "testuser",
-				"ACCESS_EXPIRY": "5",
+				"ACCESS_EXPIRE": "5",
 			},
 			expected: Config{
 				Server: ServerConfig{
@@ -126,6 +129,7 @@ func TestLoad(t *testing.T) {
 				JWT: JWTConfig{
 					AccessSecret:  "your-secret-key-change-in-production",
 					RefreshSecret: "your-secret-key-change-in-production",
+					Issuer:        "prod.example.com.br",
 					AccessExpiry:  5 * time.Minute,
 					RefreshExpiry: 168 * time.Hour, // default
 				},
