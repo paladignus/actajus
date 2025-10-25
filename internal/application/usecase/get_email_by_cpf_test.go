@@ -24,8 +24,10 @@ func TestGetEmailByCPF(t *testing.T) {
 	t.Run("should return of an email when the CPF is valid", func(t *testing.T) {
 		email, err := sut.Execute("111.444.777-35")
 		assert.NoError(t, err)
-		assert.Equal(t, "email@examplo.com.br")
-
-	// t.Run("should return an error when the CPF is invalid", func(t *testing.T) {
-	// })
+		assert.Equal(t, "email@examplo.com.br", email)
+	})
+	t.Run("should return an error when the CPF is invalid", func(t *testing.T) {
+		_, err := sut.Execute("123.456.789-00")
+		assert.ErrorIs(t, err, exception.ErrInvalidCPF)
+	})
 }
