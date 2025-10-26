@@ -13,5 +13,6 @@ var (
 	ErrInvalidUserData    = errors.New("invalid user data")
 	ErrUserAlreadyExists  = errors.New("user already exists")
 
-	ErrInvalidCPF = errors.New("invalid cpf")
+	ErrInvalidCPF    = errors.New("invalid cpf")
+	ErrEmailNotFound = errors.New("email not found")
 )
