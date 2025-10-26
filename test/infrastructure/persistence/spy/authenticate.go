@@ -27,6 +27,10 @@ func (a *AuthenticateSpy) ValidatePassword(ctx context.Context, IDPeople, passwo
 	return a.ValidateError
 }
 
+func (a *AuthenticateSpy) GetEmailByCPF(ctx context.Context, cpf string) (string, error) {
+	return a.FindResult.Email, a.FindError
+}
+
 type MockLogger struct{}
 
 func (l *MockLogger) Info(ctx context.Context, msg string, keyvals ...any)  {}

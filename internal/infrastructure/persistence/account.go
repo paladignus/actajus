@@ -100,3 +100,7 @@ func (a Account) GetPermissionsByRoleID(ctx context.Context, idrole int) (permis
 	}
 	return permissions, nil
 }
+
+func (a Account) GetEmailByCPF(ctx context.Context, cpf string) (email string, err error) {
+	return "", nil
+}
