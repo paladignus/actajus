@@ -140,4 +140,20 @@ func TestGetEmailByCPF(t *testing.T) {
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
+
+	t.Run("should return a invalid cpf error with status code 404", func(t *testing.T) {
+		expectedErr := exception.ErrInvalidCPF
+		spyLogger.On("Info", mock.Anything, "processing get_email_by_cpf request").Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyLogger.On("Warn", mock.Anything, "get email failed",
+			"error", expectedErr, "cpf", input.CPF, "status_code", 400).Once()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.GetEmailByCPF(w, req)
+		assert.NotEqual(t, http.StatusOK, w.Code)
+		sut.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
+	})
 }
