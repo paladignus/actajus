@@ -25,3 +25,11 @@ type Permission struct {
 	Resource string `json:"resource"`
 	Action   string `json:"action"`
 }
+
+type GetEmailByCPFInput struct {
+	CPF string `json:"cpf"`
+}
+
+type GetEmailByCPFOutput struct {
+	Email string `json:"email"`
+}
