@@ -31,14 +31,22 @@ func main() {
 	defer db.Close(ctx, logger)
 	persistence := persistence.NewPersistence(db)
 	token := adapter.NewJWTAdapter(config.JWT)
-	usecase := usecase.NewAuthenticate(
+	usecaseAuth := usecase.NewAuthenticate(
 		persistence.Account(),
 		logger,
 		token,
 	)
-	authHandler := handler.NewAuthenticate(usecase, logger)
+	usecaseGetEmail := usecase.NewGetEmailByCPF(persistence.Account(), logger)
+
+	authHandler := handler.NewAuthenticate(usecaseAuth, logger)
+
+	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
+
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("POST /signin", authHandler.Authenticate)
+	mux.HandleFunc("POST /authenticate/email", getEmailByCPF.GetEmailByCPF)
+
 	handler := middleware.EnableCORS(middleware.LoggerMiddleware(logger)(mux))
 	srv := &http.Server{
 		Addr:         ":" + config.Server.Port,
