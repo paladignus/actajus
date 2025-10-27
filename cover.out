@@ -16,6 +16,15 @@ mode: set
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:38.47,42.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:43.50,47.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/errors.go:48.10,52.4 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:17.94,19.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:21.79,24.16 3 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:24.16,28.3 3 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:29.2,30.16 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:30.16,32.24 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:32.24,34.4 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:34.9,36.4 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:37.3,38.9 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/get_email_by_cpf.go:40.2,41.37 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/response.go:9.59,13.2 3 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/response.go:15.78,19.2 3 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/http/handler/response.go:21.74,23.2 1 1
