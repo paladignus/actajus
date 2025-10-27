@@ -94,4 +94,16 @@ func TestGetEmailByCPF(t *testing.T) {
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
+
+	t.Run("the request parameters should be valid", func(t *testing.T) {
+		spyLogger.On("Info", mock.Anything, "processing get_email_by_cpf request", mock.Anything).Once()
+		spyLogger.On("Warn", mock.Anything, "invalid request body", "error", mock.Anything).Once()
+		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader([]byte("invalid json")))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.GetEmailByCPF(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		sut.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
+	})
 }
