@@ -27,7 +27,7 @@ mode: set
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:99.3,99.48 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:101.2,101.25 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:104.91,109.70 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:109.70,110.36 1 0
-/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:110.36,112.4 1 0
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:109.70,110.36 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:110.36,112.4 1 1
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:113.3,113.17 1 0
 /home/marcelo/Workspace/go/projects/actajus/internal/infrastructure/persistence/account.go:115.2,115.19 1 1

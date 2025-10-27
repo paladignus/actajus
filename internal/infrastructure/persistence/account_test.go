@@ -34,6 +34,18 @@ func TestAccount_GetEmailByCPF(t *testing.T) {
 		assert.Equal(t, expectedEmail, email)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
+
+	t.Run("should return error when email not found", func(t *testing.T) {
+		cpf := "00000000000"
+		mock.ExpectQuery(`SELECT e.address FROM emails e`).
+			WithArgs(cpf).
+			WillReturnError(pgx.ErrNoRows)
+		email, err := repo.GetEmailByCPF(ctx, cpf)
+		assert.Error(t, err)
+		assert.Equal(t, exception.ErrEmailNotFound, err)
+		assert.Equal(t, "", email)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
 }
 
 func TestAccount_FindUserAccountByCPF(t *testing.T) {
