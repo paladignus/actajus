@@ -15,14 +15,35 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestAccount_GetEmailByCPF(t *testing.T) {
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAccount(db)
+	t.Run("should return email by cpf", func(t *testing.T) {
+		cpf := "11144477735"
+		expectedEmail := "email@example.com.br"
+		rows := pgxmock.NewRows([]string{"address"}).AddRow(expectedEmail)
+		mock.ExpectQuery(`SELECT e.address FROM emails e`).
+			WithArgs(cpf).
+			WillReturnRows(rows)
+		email, err := repo.GetEmailByCPF(ctx, cpf)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedEmail, email)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
+
 func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAccount(db)
 	t.Run("should return user account with roles", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		cpf := "12345678900"
 		expectedIDUser := "user-123"
 		expectedIDAccount := "account-456"
@@ -52,11 +73,6 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	})
 
 	t.Run("should return user account not found", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		cpf := "99999999999"
 		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
@@ -69,11 +85,6 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	})
 
 	t.Run("should return error from database", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		cpf := "12345678900"
 		expectedErr := errors.New("database connection error")
 		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
@@ -87,11 +98,6 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	})
 
 	t.Run("should error from roles query", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		cpf := "12345678900"
 		expectedErr := errors.New("roles query error")
 		rows := pgxmock.NewRows([]string{"idpeople", "first_name", "last_name", "address", "idaccounts"}).
@@ -112,12 +118,12 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 
 func TestAccount_ValidatePassword(t *testing.T) {
 	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAccount(db)
 	t.Run("should validate password", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idPeople := "user-123"
 		password := "correct-password"
 		rows := pgxmock.NewRows([]string{"valid"}).AddRow(true)
@@ -130,11 +136,6 @@ func TestAccount_ValidatePassword(t *testing.T) {
 	})
 
 	t.Run("should error of invalid credentials", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idPeople := "user-123"
 		password := "wrong-password"
 		rows := pgxmock.NewRows([]string{"valid"}).AddRow(false)
@@ -148,11 +149,6 @@ func TestAccount_ValidatePassword(t *testing.T) {
 	})
 
 	t.Run("should return error from database", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idPeople := "user-123"
 		password := "any-password"
 		expectedErr := errors.New("database error")
@@ -168,12 +164,12 @@ func TestAccount_ValidatePassword(t *testing.T) {
 
 func TestAccount_GetRolesByAccountID(t *testing.T) {
 	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAccount(db)
 	t.Run("should return roles", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idAccount := "account-123"
 		expectedRoles := []string{"admin", "manager", "user"}
 		rows := pgxmock.NewRows([]string{"name"}).
@@ -190,11 +186,6 @@ func TestAccount_GetRolesByAccountID(t *testing.T) {
 	})
 
 	t.Run("should empty roles", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idAccount := "account-123"
 		rows := pgxmock.NewRows([]string{"name"})
 		mock.ExpectQuery(`SELECT r.name FROM roles r`).
@@ -207,11 +198,6 @@ func TestAccount_GetRolesByAccountID(t *testing.T) {
 	})
 
 	t.Run("should return error", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idAccount := "account-123"
 		expectedErr := errors.New("query error")
 		mock.ExpectQuery(`SELECT r.name FROM roles r`).
@@ -225,11 +211,6 @@ func TestAccount_GetRolesByAccountID(t *testing.T) {
 	})
 
 	t.Run("should error from database", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		idAccount := "account-123"
 		rows := pgxmock.NewRows([]string{"name"}).
 			AddRow("admin").
@@ -247,12 +228,12 @@ func TestAccount_GetRolesByAccountID(t *testing.T) {
 
 func TestAccount_GetPermissionsByRoleID(t *testing.T) {
 	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAccount(db)
 	t.Run("should return permissions", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		roleID := 1
 		expectedPermissions := []dto.Permission{
 			{Resource: "users", Action: "create"},
@@ -273,11 +254,6 @@ func TestAccount_GetPermissionsByRoleID(t *testing.T) {
 	})
 
 	t.Run("should return empty permissions", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		roleID := 1
 		rows := pgxmock.NewRows([]string{"resource", "action"})
 		mock.ExpectQuery(`SELECT p.resource, p.action FROM permissions p`).
@@ -290,11 +266,6 @@ func TestAccount_GetPermissionsByRoleID(t *testing.T) {
 	})
 
 	t.Run("should return error to query", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		roleID := 1
 		expectedErr := errors.New("query error")
 		mock.ExpectQuery(`SELECT p.resource, p.action FROM permissions p`).
@@ -308,11 +279,6 @@ func TestAccount_GetPermissionsByRoleID(t *testing.T) {
 	})
 
 	t.Run("should return error to scan", func(t *testing.T) {
-		mock, err := pgxmock.NewPool()
-		require.NoError(t, err)
-		defer mock.Close()
-		db := &database.DB{Pool: mock}
-		repo := NewAccount(db)
 		roleID := 1
 		rows := pgxmock.NewRows([]string{"resource", "action"}).
 			AddRow("users", "create").

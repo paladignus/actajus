@@ -102,5 +102,15 @@ func (a Account) GetPermissionsByRoleID(ctx context.Context, idrole int) (permis
 }
 
 func (a Account) GetEmailByCPF(ctx context.Context, cpf string) (email string, err error) {
-	return "", nil
+	sql := `SELECT e.address FROM emails e
+		INNER JOIN people p ON e.id_people = p.idpeople
+		INNER JOIN documents d ON d.id_people = p.idpeople
+		WHERE e.deleted_at IS NULL AND p.deleted_at IS NULL AND d.cpf = $1;`
+	if err = a.db.Pool.QueryRow(ctx, sql, cpf).Scan(&email); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", exception.ErrEmailNotFound
+		}
+		return "", err
+	}
+	return email, nil
 }
