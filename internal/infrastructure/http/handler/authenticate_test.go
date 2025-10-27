@@ -30,9 +30,9 @@ func (s *SpyAuthenticateService) Execute(ctx context.Context, input dto.Authenti
 }
 
 func TestAuthenticateHandler(t *testing.T) {
-	spyUseCase := SpyAuthenticateService{}
+	sut := SpyAuthenticateService{}
 	spyLogger := spy.SpyLogger{}
-	handler := NewAuthenticate(&spyUseCase, &spyLogger)
+	handler := NewAuthenticate(&sut, &spyLogger)
 	input := dto.AuthenticateInput{
 		CPF: "123.456.789-00",
 	}
@@ -47,13 +47,13 @@ func TestAuthenticateHandler(t *testing.T) {
 	}
 	t.Run("should initialize the constructor with its valid parameters", func(t *testing.T) {
 		assert.NotNil(t, handler)
-		assert.Equal(t, &spyUseCase, handler.service)
+		assert.Equal(t, &sut, handler.service)
 		assert.Equal(t, &spyLogger, handler.logger)
 	})
 
 	t.Run("should authentication be successful", func(t *testing.T) {
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
+		sut.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
 		spyLogger.On("Info", mock.Anything, "authentication successful", "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
 		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
@@ -66,7 +66,7 @@ func TestAuthenticateHandler(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expectedOutput.AccessToken, response.AccessToken)
 		assert.Equal(t, expectedOutput.RefreshToken, response.RefreshToken)
-		spyUseCase.AssertExpectations(t)
+		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
 
@@ -78,14 +78,14 @@ func TestAuthenticateHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.Authenticate(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		spyUseCase.AssertExpectations(t)
+		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
 
 	t.Run("should return an HTTP error greater than or equal to 500", func(t *testing.T) {
 		expectedErr := errors.New("database connection failed")
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Error", mock.Anything, "authentication failed with server error",
 			"error", expectedErr, "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
@@ -94,14 +94,14 @@ func TestAuthenticateHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.Authenticate(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
-		spyUseCase.AssertExpectations(t)
+		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
 
 	t.Run("should return a user not found error with status code 404", func(t *testing.T) {
 		expectedErr := exception.ErrUserNotFound
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Warn", mock.Anything, "authentication failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 404).Once()
 		body, _ := json.Marshal(input)
@@ -110,14 +110,14 @@ func TestAuthenticateHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.Authenticate(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
-		spyUseCase.AssertExpectations(t)
+		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
 
 	t.Run("should return a invalid credentials error with status code 404", func(t *testing.T) {
 		expectedErr := exception.ErrInvalidCredentials
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Warn", mock.Anything, "authentication failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 401).Once()
 		body, _ := json.Marshal(input)
@@ -126,14 +126,14 @@ func TestAuthenticateHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.Authenticate(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
-		spyUseCase.AssertExpectations(t)
+		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
 
 	t.Run("should return a invalid cpf error with status code 404", func(t *testing.T) {
 		expectedErr := exception.ErrInvalidCPF
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		spyUseCase.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Warn", mock.Anything, "authentication failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 400).Once()
 		body, _ := json.Marshal(input)
@@ -142,7 +142,7 @@ func TestAuthenticateHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.Authenticate(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
-		spyUseCase.AssertExpectations(t)
+		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
 }
