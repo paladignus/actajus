@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -103,6 +104,22 @@ func TestGetEmailByCPF(t *testing.T) {
 		w := httptest.NewRecorder()
 		handler.GetEmailByCPF(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		sut.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
+	})
+
+	t.Run("should return an HTTP error greater than or equal to 500", func(t *testing.T) {
+		expectedErr := errors.New("database connection failed")
+		spyLogger.On("Info", mock.Anything, "processing get_email_by_cpf request").Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyLogger.On("Error", mock.Anything, "get email failed with server error",
+			"error", expectedErr, "cpf", input.CPF).Once()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.GetEmailByCPF(w, req)
+		assert.NotEqual(t, http.StatusOK, w.Code)
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
 	})
