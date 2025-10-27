@@ -12,6 +12,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/application/service"
+	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/paladignus/actajus/test/infrastructure/adapter/spy"
 	"github.com/stretchr/testify/assert"
@@ -114,6 +115,22 @@ func TestGetEmailByCPF(t *testing.T) {
 		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
 		spyLogger.On("Error", mock.Anything, "get email failed with server error",
 			"error", expectedErr, "cpf", input.CPF).Once()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.GetEmailByCPF(w, req)
+		assert.NotEqual(t, http.StatusOK, w.Code)
+		sut.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
+	})
+
+	t.Run("should return a user not found error with status code 404", func(t *testing.T) {
+		expectedErr := exception.ErrEmailNotFound
+		spyLogger.On("Info", mock.Anything, "processing get_email_by_cpf request").Once()
+		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
+		spyLogger.On("Warn", mock.Anything, "get email failed",
+			"error", expectedErr, "cpf", input.CPF, "status_code", 404).Once()
 		body, _ := json.Marshal(input)
 		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
