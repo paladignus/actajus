@@ -11,7 +11,7 @@ POST http://localhost:8080/authenticate/email
 content-type: application/json
 
 {
-    "cpf": "987.654.321-10"
+    "cpf": "987.654.321-00"
 }
 
 

@@ -50,7 +50,7 @@ func TestGetEmailByCPF(t *testing.T) {
 		sut.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
 		spyLogger.On("Info", mock.Anything, "get email successful", "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/auth/email", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		handler.GetEmailByCPF(w, req)
@@ -66,7 +66,7 @@ func TestGetEmailByCPF(t *testing.T) {
 	t.Run("the request parameters should be valid", func(t *testing.T) {
 		spyLogger.On("Info", mock.Anything, "processing get_email_by_cpf request", mock.Anything).Once()
 		spyLogger.On("Warn", mock.Anything, "invalid request body", "error", mock.Anything).Once()
-		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader([]byte("invalid json")))
+		req := httptest.NewRequest("POST", "/auth/email", bytes.NewReader([]byte("invalid json")))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		handler.GetEmailByCPF(w, req)
@@ -82,7 +82,7 @@ func TestGetEmailByCPF(t *testing.T) {
 		spyLogger.On("Error", mock.Anything, "get email failed with server error",
 			"error", expectedErr, "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/auth/email", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		handler.GetEmailByCPF(w, req)
@@ -98,7 +98,7 @@ func TestGetEmailByCPF(t *testing.T) {
 		spyLogger.On("Warn", mock.Anything, "get email failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 404).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/auth/email", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		handler.GetEmailByCPF(w, req)
@@ -114,7 +114,7 @@ func TestGetEmailByCPF(t *testing.T) {
 		spyLogger.On("Warn", mock.Anything, "get email failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 400).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/auth/email", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		handler.GetEmailByCPF(w, req)

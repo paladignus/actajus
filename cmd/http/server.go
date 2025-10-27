@@ -45,7 +45,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /signin", authHandler.Authenticate)
-	mux.HandleFunc("POST /authenticate/email", getEmailByCPF.GetEmailByCPF)
+	mux.HandleFunc("POST /auth/email", getEmailByCPF.GetEmailByCPF)
 
 	handler := middleware.EnableCORS(middleware.LoggerMiddleware(logger)(mux))
 	srv := &http.Server{
