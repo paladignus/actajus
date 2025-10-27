@@ -2,8 +2,11 @@
 package handler
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/dto"
@@ -62,10 +65,33 @@ func TestGetEmailByCPF(t *testing.T) {
 	sut := SpyGetEmailByCPFService{}
 	spyLogger := spy.SpyLogger{}
 	handler := NewGetEmailByCPF(&sut, &spyLogger)
-
+	input := dto.GetEmailByCPFInput{
+		CPF: "123.456.789-00",
+	}
+	expectedOutput := dto.GetEmailByCPFOutput{
+		Email: "EmPdI@example.com",
+	}
 	t.Run("should initialize the constructor with its valid parameters", func(t *testing.T) {
 		assert.NotNil(t, handler)
 		assert.Equal(t, &sut, handler.service)
 		assert.Equal(t, &spyLogger, handler.logger)
+	})
+
+	t.Run("should get email be successful", func(t *testing.T) {
+		spyLogger.On("Info", mock.Anything, "processing get_email_by_cpf request").Once()
+		sut.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
+		spyLogger.On("Info", mock.Anything, "get email successful", "cpf", input.CPF).Once()
+		body, _ := json.Marshal(input)
+		req := httptest.NewRequest("POST", "/authenticate/email", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		handler.GetEmailByCPF(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+		var response dto.GetEmailByCPFOutput
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedOutput.Email, response.Email)
+		sut.AssertExpectations(t)
+		spyLogger.AssertExpectations(t)
 	})
 }
