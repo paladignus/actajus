@@ -40,6 +40,11 @@ func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 			Code:    "INVALID_CPF",
 			Message: "invalid cpf",
 		}
+	case errors.Is(err, exception.ErrEmailNotFound):
+		return http.StatusNotFound, ErrorResponse{
+			Code:    "EMAIL_NOT_FOUND",
+			Message: "email not found",
+		}
 	default:
 		return http.StatusInternalServerError, ErrorResponse{
 			Code:    "INTERNAL_ERROR",
