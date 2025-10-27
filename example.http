@@ -6,6 +6,14 @@ content-type: application/json
     "password": "admin123"
 }
 
+###
+POST http://localhost:8080/authenticate/email
+content-type: application/json
+
+{
+    "cpf": "987.654.321-10"
+}
+
 
 ###
 POST https://api.actajus.com.br/signin
