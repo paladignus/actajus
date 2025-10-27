@@ -71,6 +71,15 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 				Message: "internal server error",
 			},
 		},
+		{
+			name:               "should return status code 404 and error response for email not found",
+			inputError:         errors.New("internal server error"),
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedResponse: ErrorResponse{
+				Code:    "EMAIL_NOT_FOUND",
+				Message: "email not found",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
