@@ -33,3 +33,13 @@ type GetEmailByCPFInput struct {
 type GetEmailByCPFOutput struct {
 	Email string `json:"email"`
 }
+
+type RecoverPasswordInput struct {
+	CPF      string `json:"cpf"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type RecoverPasswordOutput struct {
+	RecoverToken string `json:"recover_token"`
+}

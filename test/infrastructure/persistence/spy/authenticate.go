@@ -42,8 +42,9 @@ func (l *MockLogger) WithError(err error) repository.Logger                 { re
 
 // MockToken implementa gateway.Token
 type MockToken struct {
-	Pair dto.TokenPair
-	Err  error
+	Pair       dto.TokenPair
+	TokenReset dto.TokenRecoverPassword
+	Err        error
 
 	CalledWithID string
 }
@@ -62,5 +63,13 @@ func (m *MockToken) ValidateAccessToken(tokenString string) (dto.TokenClaims, er
 }
 
 func (m *MockToken) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
+	return dto.TokenClaims{}, nil
+}
+
+func (m *MockToken) GenerateRecoverPasswordToken(idUser string) (dto.TokenRecoverPassword, error) {
+	return m.TokenReset, m.Err
+}
+
+func (m *MockToken) ValidateRecoverPasswordToken(tokenString string) (dto.TokenClaims, error) {
 	return dto.TokenClaims{}, nil
 }
