@@ -2,21 +2,11 @@
 package entity
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
-)
-
-var (
-	ErrInvalidFirstName = errors.New("first name is invalid")
-	ErrInvalidLastName  = errors.New("last name is invalid")
-	ErrInvalidBirthDate = errors.New("birth date is invalid")
-	ErrInvalidMother    = errors.New("mother is invalid")
-	ErrInvalidFather    = errors.New("father is invalid")
-	ErrInvalidGender    = errors.New("gender is invalid")
-	ErrInvalidMarital   = errors.New("marital status is invalid")
 )
 
 type People struct {
@@ -38,22 +28,22 @@ func NewPeople(people dto.PeopleInput) (People, error) {
 		Gender:    vo.Text(strings.TrimSpace(people.Gender)),
 	}
 	if !p.FirstName.IsValid() {
-		return p, ErrInvalidFirstName
+		return p, exception.ErrInvalidFirstName
 	}
 	if !p.LastName.IsValid() {
-		return p, ErrInvalidLastName
+		return p, exception.ErrInvalidLastName
 	}
 	if !p.BirthDate.IsValid() {
-		return p, ErrInvalidBirthDate
+		return p, exception.ErrInvalidBirthDate
 	}
 	if !p.Mother.IsValid() {
-		return p, ErrInvalidMother
+		return p, exception.ErrInvalidMother
 	}
 	if !p.Father.IsValid() {
-		return p, ErrInvalidFather
+		return p, exception.ErrInvalidFather
 	}
 	if !p.Gender.IsValid() {
-		return p, ErrInvalidGender
+		return p, exception.ErrInvalidGender
 	}
 	return p, nil
 }
