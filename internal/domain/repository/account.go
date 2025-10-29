@@ -10,5 +10,5 @@ import (
 type Account interface {
 	FindUserAccountByCPF(context.Context, string) (dto.AuthenticateOutput, error)
 	ValidatePassword(context.Context, string, string) error
-	FindEmailByCPF(context.Context, dto.GetEmailByCPFInput) (dto.GetEmailByCPFOutput, error)
+	FindEmailByCPF(context.Context, string) (dto.GetEmailByCPFOutput, error)
 }

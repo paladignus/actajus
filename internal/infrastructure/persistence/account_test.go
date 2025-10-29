@@ -23,20 +23,20 @@ func TestAccount_FindEmailByCPF(t *testing.T) {
 	db := &database.DB{Pool: mock}
 	repo := NewAccount(db)
 	t.Run("should return email by cpf", func(t *testing.T) {
-		cpf := dto.GetEmailByCPFInput{CPF: "11144477735"}
-		expectedEmail := "email@example.com.br"
-		rows := pgxmock.NewRows([]string{"address"}).AddRow(expectedEmail)
+		cpf := "11144477735"
+		expectedEmail := dto.GetEmailByCPFOutput{Email: "email@example.com.br"}
+		rows := pgxmock.NewRows([]string{"address"}).AddRow(expectedEmail.Email)
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).
 			WillReturnRows(rows)
 		email, err := repo.FindEmailByCPF(ctx, cpf)
 		assert.NoError(t, err)
-		assert.Equal(t, expectedEmail, email.Email)
+		assert.Equal(t, expectedEmail, email)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
 	t.Run("should return error when email not found", func(t *testing.T) {
-		cpf := dto.GetEmailByCPFInput{CPF: "00000000000"}
+		cpf := "00000000000"
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).
 			WillReturnError(pgx.ErrNoRows)
@@ -48,7 +48,7 @@ func TestAccount_FindEmailByCPF(t *testing.T) {
 	})
 
 	t.Run("should return database error", func(t *testing.T) {
-		cpf := dto.GetEmailByCPFInput{CPF: "12345678900"}
+		cpf := "12345678900"
 		mockErr := errors.New("database error")
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).

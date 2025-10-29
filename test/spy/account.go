@@ -32,6 +32,6 @@ func (a *AccountSpy) ValidatePassword(ctx context.Context, IDPeople, password st
 	return a.ValidateError
 }
 
-func (a *AccountSpy) FindEmailByCPF(ctx context.Context, cpf dto.GetEmailByCPFInput) (dto.GetEmailByCPFOutput, error) {
+func (a *AccountSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
 	return a.FindResult.FindEmail, a.FindError
 }

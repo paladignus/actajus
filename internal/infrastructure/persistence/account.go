@@ -101,13 +101,13 @@ func (a Account) GetPermissionsByRoleID(ctx context.Context, idrole int) (permis
 	return permissions, nil
 }
 
-func (a Account) FindEmailByCPF(ctx context.Context, input dto.GetEmailByCPFInput) (output dto.GetEmailByCPFOutput, err error) {
+func (a Account) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEmailByCPFOutput, err error) {
 	sql := `SELECT e.address FROM emails e
 		INNER JOIN people p ON e.id_people = p.idpeople
 		INNER JOIN accounts a ON p.idpeople = a.id_people
 		INNER JOIN documents d ON d.id_people = p.idpeople
 		WHERE a.deleted_at IS NULL AND e.deleted_at IS NULL AND p.deleted_at IS NULL AND d.cpf = $1;`
-	if err = a.db.Pool.QueryRow(ctx, sql, input.CPF).Scan(&output.Email); err != nil {
+	if err = a.db.Pool.QueryRow(ctx, sql, cpf).Scan(&output.Email); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return dto.GetEmailByCPFOutput{}, exception.ErrEmailNotFound
 		}
