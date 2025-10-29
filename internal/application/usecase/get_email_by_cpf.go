@@ -26,11 +26,11 @@ func (g GetEmailByCPF) Execute(ctx context.Context, req dto.GetEmailByCPFInput) 
 		g.logger.Warn(ctx, "invalid cpf format provided", "cpf", req.CPF)
 		return dto.GetEmailByCPFOutput{}, exception.ErrInvalidCPF
 	}
-	email, err := g.persistence.FindEmailByCPF(ctx, cpf.OnlyDigits())
+	email, err := g.persistence.FindEmailByCPF(ctx, dto.GetEmailByCPFInput{CPF: cpf.OnlyDigits()})
 	if err != nil {
 		g.logger.Warn(ctx, "email not found for provided cpf", "cpf", req.CPF, "error", err)
 		return dto.GetEmailByCPFOutput{}, exception.ErrEmailNotFound
 	}
-	g.logger.Info(ctx, "email found successfully", "cpf", req.CPF, "email", email)
-	return dto.GetEmailByCPFOutput{Email: email}, nil
+	g.logger.Info(ctx, "email found successfully", "cpf", req.CPF, "email", email.Email)
+	return email, nil
 }

@@ -18,9 +18,9 @@ func TestGetEmailByCPF(t *testing.T) {
 	input := dto.GetEmailByCPFInput{CPF: "111.444.777-35"}
 	sut := NewGetEmailByCPF(account, logger)
 	t.Run("should return of an email when the CPF is valid and found", func(t *testing.T) {
-		account.FindResult.Email = "email@example.com.br"
+		account.FindResult.FindEmail.Email = "email@example.com.br"
 		logger.On("Info", ctx, "getting email by CPF", "cpf", input.CPF).Once()
-		logger.On("Info", ctx, "email found successfully", "cpf", input.CPF, "email", account.FindResult.Email).Once()
+		logger.On("Info", ctx, "email found successfully", "cpf", input.CPF, "email", account.FindResult.FindEmail.Email).Once()
 		email, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, email)
