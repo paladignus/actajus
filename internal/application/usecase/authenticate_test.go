@@ -21,7 +21,7 @@ func TestAuthenticate(t *testing.T) {
 	}
 	account := spy.NewAuthenticateSpy()
 	logger := &spy.SpyLogger{}
-	token := &spy.MockToken{}
+	token := &spy.SpyToken{}
 
 	t.Run("should return error ErrInvalidCPF", func(t *testing.T) {
 		sut := NewAuthenticate(account, logger, token)
