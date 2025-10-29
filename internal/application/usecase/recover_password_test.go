@@ -47,7 +47,7 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 
 func TestRecoverPassword(t *testing.T) {
 	ctx := context.Background()
-	logger := &spy.MockLogger{}
+	logger := &spy.SpyLogger{}
 	sut := NewRecoverPassword(logger)
 	input := dto.RecoverPasswordInput{}
 
