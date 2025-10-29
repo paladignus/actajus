@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paladignus/actajus/test/infrastructure/spy"
+	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -10,7 +10,7 @@ import (
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/repository"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
-	"github.com/paladignus/actajus/test/infrastructure/persistence/spy"
+	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
 

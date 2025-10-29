@@ -7,7 +7,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
-	"github.com/paladignus/actajus/test/infrastructure/persistence/spy"
+	"github.com/paladignus/actajus/test/spy"
 )
 
 func TestAuthenticate(t *testing.T) {

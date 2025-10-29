@@ -12,7 +12,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
-	"github.com/paladignus/actajus/test/infrastructure/adapter/spy"
+	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

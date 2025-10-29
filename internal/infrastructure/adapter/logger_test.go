@@ -12,46 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// MockLogger implements repository.Logger for testing
-// type MockLogger struct {
-// 	mock.Mock
-// }
-//
-// func (m *MockLogger) Debug(ctx context.Context, msg string, args ...any) {
-// 	m.Called(ctx, msg, args)
-// }
-//
-// func (m *MockLogger) Info(ctx context.Context, msg string, args ...any) {
-// 	m.Called(ctx, msg, args)
-// }
-//
-// func (m *MockLogger) Warn(ctx context.Context, msg string, args ...any) {
-// 	m.Called(ctx, msg, args)
-// }
-//
-// func (m *MockLogger) Error(ctx context.Context, msg string, args ...any) {
-// 	m.Called(ctx, msg, args)
-// }
-//
-// func (m *MockLogger) With(args ...any) repository.Logger {
-// 	callArgs := m.Called(args)
-// 	return callArgs.Get(0).(repository.Logger)
-// }
-//
-// func (m *MockLogger) WithError(err error) repository.Logger {
-// 	callArgs := m.Called(err)
-// 	return callArgs.Get(0).(repository.Logger)
-// }
-
-// Helper to capture log output
-// type logCapture struct {
-// 	*bytes.Buffer
-// }
-//
-// func newLogCapture() *logCapture {
-// 	return &logCapture{Buffer: &bytes.Buffer{}}
-// }
-
 func TestNewLogger(t *testing.T) {
 	tests := []struct {
 		name   string

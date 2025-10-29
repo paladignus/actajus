@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
-	"github.com/paladignus/actajus/test/infrastructure/adapter/spy"
+	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

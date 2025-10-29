@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/lestrrat-go/jwx/v3/jwa"
@@ -81,7 +80,6 @@ func (j jwtAdapter) validateToken(tokenString, secret string) (dto.TokenClaims, 
 		if errors.Is(err, jwt.TokenExpiredError()) {
 			return dto.TokenClaims{}, ErrExpiredToken
 		}
-		fmt.Println(err)
 		return dto.TokenClaims{}, ErrInvalidToken
 	}
 	subject, ok := token.Subject()
