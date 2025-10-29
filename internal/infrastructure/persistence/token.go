@@ -10,9 +10,6 @@ import (
 
 type Token struct {
 	repository repository.Cache
-	// ShouldReturnError bool
-	// ShouldReturnToken string
-	// CallCount         int
 }
 
 func (t Token) SaveRevokedToken(token string, expiresAt time.Time) error {
@@ -35,7 +32,3 @@ func (t Token) IsTokenRevoked(token string) (bool, error) {
 	}
 	return exists > 0, nil
 }
-
-// func (t Token) ClearExpiredTokens() error {
-// 	return nil
-// }

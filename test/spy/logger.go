@@ -8,15 +8,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// type MockLogger struct{}
-//
-// func (l *MockLogger) Info(ctx context.Context, msg string, keyvals ...any)  {}
-// func (l *MockLogger) Warn(ctx context.Context, msg string, keyvals ...any)  {}
-// func (l *MockLogger) Error(ctx context.Context, msg string, keyvals ...any) {}
-// func (l *MockLogger) Debug(ctx context.Context, msg string, keyvals ...any) {}
-// func (l *MockLogger) With(...any) repository.Logger                         { return l }
-// func (l *MockLogger) WithError(err error) repository.Logger                 { return l }
-
 type SpyLogger struct {
 	mock.Mock
 }

@@ -5,7 +5,6 @@ import (
 	"context"
 
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
 type AuthenticateSpy struct {
@@ -30,15 +29,6 @@ func (a *AuthenticateSpy) ValidatePassword(ctx context.Context, IDPeople, passwo
 func (a *AuthenticateSpy) GetEmailByCPF(ctx context.Context, cpf string) (string, error) {
 	return a.FindResult.Email, a.FindError
 }
-
-type MockLogger struct{}
-
-func (l *MockLogger) Info(ctx context.Context, msg string, keyvals ...any)  {}
-func (l *MockLogger) Warn(ctx context.Context, msg string, keyvals ...any)  {}
-func (l *MockLogger) Error(ctx context.Context, msg string, keyvals ...any) {}
-func (l *MockLogger) Debug(ctx context.Context, msg string, keyvals ...any) {}
-func (l *MockLogger) With(...any) repository.Logger                         { return l }
-func (l *MockLogger) WithError(err error) repository.Logger                 { return l }
 
 // MockToken implementa gateway.Token
 type MockToken struct {
