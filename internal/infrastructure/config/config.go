@@ -31,9 +31,11 @@ type DatabaseConfig struct {
 type JWTConfig struct {
 	AccessSecret  string
 	RefreshSecret string
+	ResetSecret   string
 	Issuer        string
 	AccessExpire  time.Duration
 	RefreshExpire time.Duration
+	ResetExpire   time.Duration
 }
 
 func Load() Config {
@@ -54,9 +56,11 @@ func Load() Config {
 		JWT: JWTConfig{
 			AccessSecret:  getEnv("ACCESS_SECRET", "your-secret-key-change-in-production"),
 			RefreshSecret: getEnv("REFRESH_SECRET", "your-secret-key-change-in-production"),
+			ResetSecret:   getEnv("RESET_SECRET", "your-secret-key-change-in-production"),
 			Issuer:        getEnv("JWT_ISSUER", "prod.example.com.br"),
 			AccessExpire:  time.Duration(getEnvAsInt("ACCESS_EXPIRE", 15)) * time.Minute,
 			RefreshExpire: time.Duration(getEnvAsInt("REFRESH_EXPIRE", 7*24)) * time.Hour,
+			ResetExpire:   time.Duration(getEnvAsInt("RESET_EXPIRE", 30)) * time.Minute,
 		},
 	}
 }

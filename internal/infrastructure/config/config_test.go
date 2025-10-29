@@ -14,7 +14,7 @@ func TestLoad(t *testing.T) {
 	envVars := []string{
 		"SERVER_PORT", "GRPC_PORT", "ENV",
 		"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_SSLMODE",
-		"ACCESS_SECRET", "REFRESH_SECRET", "JWT_ISSUER", "ACCESS_EXPIRE", "REFRESH_EXPIRE",
+		"ACCESS_SECRET", "REFRESH_SECRET", "RESET_SECRET", "JWT_ISSUER", "ACCESS_EXPIRE", "REFRESH_EXPIRE", "RESET_EXPIRE",
 	}
 	for _, envVar := range envVars {
 		originalEnv[envVar] = os.Getenv(envVar)
@@ -57,9 +57,11 @@ func TestLoad(t *testing.T) {
 				JWT: JWTConfig{
 					AccessSecret:  "your-secret-key-change-in-production",
 					RefreshSecret: "your-secret-key-change-in-production",
+					ResetSecret:   "your-secret-key-change-in-production",
 					Issuer:        "prod.example.com.br",
 					AccessExpire:  15 * time.Minute,
 					RefreshExpire: 168 * time.Hour, // 7 * 24
+					ResetExpire:   30 * time.Minute,
 				},
 			},
 		},
@@ -77,9 +79,11 @@ func TestLoad(t *testing.T) {
 				"DB_SSLMODE":     "require",
 				"ACCESS_SECRET":  "custom-access-secret",
 				"REFRESH_SECRET": "custom-refresh-secret",
+				"RESET_SECRET":   "custom-reset-secret",
 				"JWT_ISSUER":     "example.com.br",
-				"ACCESS_EXPIRE":  "30",
+				"ACCESS_EXPIRE":  "15",
 				"REFRESH_EXPIRE": "720", // 30 days in hours
+				"RESET_EXPIRE":   "30",
 			},
 			expected: Config{
 				Server: ServerConfig{
@@ -98,9 +102,11 @@ func TestLoad(t *testing.T) {
 				JWT: JWTConfig{
 					AccessSecret:  "custom-access-secret",
 					RefreshSecret: "custom-refresh-secret",
+					ResetSecret:   "custom-reset-secret",
 					Issuer:        "example.com.br",
-					AccessExpire:  30 * time.Minute,
+					AccessExpire:  15 * time.Minute,
 					RefreshExpire: 720 * time.Hour,
+					ResetExpire:   30 * time.Minute,
 				},
 			},
 		},
@@ -129,9 +135,11 @@ func TestLoad(t *testing.T) {
 				JWT: JWTConfig{
 					AccessSecret:  "your-secret-key-change-in-production",
 					RefreshSecret: "your-secret-key-change-in-production",
+					ResetSecret:   "your-secret-key-change-in-production",
 					Issuer:        "prod.example.com.br",
 					AccessExpire:  5 * time.Minute,
 					RefreshExpire: 168 * time.Hour, // default
+					ResetExpire:   30 * time.Minute,
 				},
 			},
 		},
