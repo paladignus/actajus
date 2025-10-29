@@ -101,7 +101,7 @@ func (a Account) GetPermissionsByRoleID(ctx context.Context, idrole int) (permis
 	return permissions, nil
 }
 
-func (a Account) GetEmailByCPF(ctx context.Context, cpf string) (email string, err error) {
+func (a Account) FindEmailByCPF(ctx context.Context, cpf string) (email string, err error) {
 	sql := `SELECT e.address FROM emails e
 		INNER JOIN people p ON e.id_people = p.idpeople
 		INNER JOIN documents d ON d.id_people = p.idpeople

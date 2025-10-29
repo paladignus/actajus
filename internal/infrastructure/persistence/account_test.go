@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAccount_GetEmailByCPF(t *testing.T) {
+func TestAccount_FindEmailByCPF(t *testing.T) {
 	ctx := context.Background()
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
@@ -29,7 +29,7 @@ func TestAccount_GetEmailByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).
 			WillReturnRows(rows)
-		email, err := repo.GetEmailByCPF(ctx, cpf)
+		email, err := repo.FindEmailByCPF(ctx, cpf)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedEmail, email)
 		assert.NoError(t, mock.ExpectationsWereMet())
@@ -40,7 +40,7 @@ func TestAccount_GetEmailByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).
 			WillReturnError(pgx.ErrNoRows)
-		email, err := repo.GetEmailByCPF(ctx, cpf)
+		email, err := repo.FindEmailByCPF(ctx, cpf)
 		assert.Error(t, err)
 		assert.Equal(t, exception.ErrEmailNotFound, err)
 		assert.Equal(t, "", email)
@@ -53,7 +53,7 @@ func TestAccount_GetEmailByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).
 			WillReturnError(mockErr)
-		email, err := repo.GetEmailByCPF(ctx, cpf)
+		email, err := repo.FindEmailByCPF(ctx, cpf)
 		assert.Error(t, err)
 		assert.Equal(t, mockErr, err)
 		assert.Equal(t, "", email)
