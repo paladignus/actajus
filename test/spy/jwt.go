@@ -2,28 +2,39 @@
 package spy
 
 import (
-	"errors"
-	"time"
+	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-var (
-	ErrInvalidToken   = errors.New("invalid token")
-	ErrExpiredToken   = errors.New("token has expired")
-	ErrWrongTokenType = errors.New("wrong token type")
-)
+// MockToken implementa gateway.Token
+type SpyToken struct {
+	Pair       dto.TokenPair
+	TokenReset dto.TokenRecoverPassword
+	Err        error
 
-type JWTAdapter struct {
-	SecretKey        string
-	ExpiresIn        time.Duration
-	CallsCount       int
-	ErrGenerateToken error
+	CalledWithID string
 }
 
-func NewJWTAdapter(secretKey string, expiresIn time.Duration) JWTAdapter {
-	return JWTAdapter{SecretKey: secretKey, ExpiresIn: expiresIn}
+func (s *SpyToken) GenerateTokenPair(idUser string) (dto.TokenPair, error) {
+	s.CalledWithID = idUser
+	return s.Pair, s.Err
 }
 
-func (j *JWTAdapter) NewToken() (string, error) {
-	j.CallsCount++
-	return "valid_token", j.ErrGenerateToken
+func (s *SpyToken) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
+	return s.Pair, s.Err
+}
+
+func (s *SpyToken) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
+	return dto.TokenClaims{}, nil
+}
+
+func (s *SpyToken) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
+	return dto.TokenClaims{}, nil
+}
+
+func (s *SpyToken) GenerateRecoverPasswordToken(idUser string) (dto.TokenRecoverPassword, error) {
+	return s.TokenReset, s.Err
+}
+
+func (s *SpyToken) ValidateRecoverPasswordToken(tokenString string) (dto.TokenClaims, error) {
+	return dto.TokenClaims{}, nil
 }

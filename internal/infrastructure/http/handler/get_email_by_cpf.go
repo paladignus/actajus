@@ -18,7 +18,7 @@ func NewGetEmailByCPF(service service.GetEmailByCPF, logger repository.Logger) G
 	return GetEmailByCPF{service, logger}
 }
 
-func (g *GetEmailByCPF) GetEmailByCPF(w http.ResponseWriter, r *http.Request) {
+func (g GetEmailByCPF) GetEmailByCPF(w http.ResponseWriter, r *http.Request) {
 	g.logger.Info(r.Context(), "processing get_email_by_cpf request")
 	req, err := DecodeJSONRequest[dto.GetEmailByCPFInput](r)
 	if err != nil {
