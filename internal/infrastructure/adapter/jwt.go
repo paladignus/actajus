@@ -42,12 +42,24 @@ func (j jwtAdapter) GenerateTokenPair(IDUser string) (dto.TokenPair, error) {
 	}, err
 }
 
+func (j jwtAdapter) GenerateResetToken(IDUser string) (dto.TokenRecover, error) {
+	token, err := j.generateToken(IDUser, j.config.ResetSecret, j.config.ResetExpire)
+	if err != nil {
+		return dto.TokenRecover{}, err
+	}
+	return dto.TokenRecover{ResetToken: string(token)}, nil
+}
+
 func (j jwtAdapter) ValidateAccessToken(token string) (dto.TokenClaims, error) {
 	return j.validateToken(token, j.config.AccessSecret)
 }
 
 func (j jwtAdapter) ValidateRefreshToken(token string) (dto.TokenClaims, error) {
 	return j.validateToken(token, j.config.RefreshSecret)
+}
+
+func (j jwtAdapter) ValidateResetToken(token string) (dto.TokenClaims, error) {
+	return j.validateToken(token, j.config.ResetSecret)
 }
 
 func (j jwtAdapter) RefreshAccessToken(token string) (dto.TokenPair, error) {

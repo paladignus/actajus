@@ -5,10 +5,10 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-// MockToken implementa gateway.Token
+// SpyToken implementa gateway.Token
 type SpyToken struct {
 	Pair       dto.TokenPair
-	TokenReset dto.TokenRecoverPassword
+	ResetToken dto.TokenRecover
 	Err        error
 
 	CalledWithID string
@@ -31,10 +31,10 @@ func (s *SpyToken) ValidateRefreshToken(tokenString string) (dto.TokenClaims, er
 	return dto.TokenClaims{}, nil
 }
 
-func (s *SpyToken) GenerateRecoverPasswordToken(idUser string) (dto.TokenRecoverPassword, error) {
-	return s.TokenReset, s.Err
+func (s *SpyToken) GenerateResetToken(idUser string) (dto.TokenRecover, error) {
+	return s.ResetToken, s.Err
 }
 
-func (s *SpyToken) ValidateRecoverPasswordToken(tokenString string) (dto.TokenClaims, error) {
+func (s *SpyToken) ValidateResetToken(tokenString string) (dto.TokenClaims, error) {
 	return dto.TokenClaims{}, nil
 }

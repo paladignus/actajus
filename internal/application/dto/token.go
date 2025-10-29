@@ -10,6 +10,6 @@ type TokenPair struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type TokenRecoverPassword struct {
-	TokenRecoverPassword string `json:"recover_token"`
+type TokenRecover struct {
+	ResetToken string `json:"recover_token"`
 }
