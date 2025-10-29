@@ -47,8 +47,8 @@ func TestAuthenticateHandler(t *testing.T) {
 	}
 	t.Run("should initialize the constructor with its valid parameters", func(t *testing.T) {
 		assert.NotNil(t, handler)
-		assert.Equal(t, &sut, handler.service)
-		assert.Equal(t, &spyLogger, handler.logger)
+		assert.Equal(t, sut, handler.service)
+		assert.Equal(t, spyLogger, handler.logger)
 	})
 
 	t.Run("should authentication be successful", func(t *testing.T) {
