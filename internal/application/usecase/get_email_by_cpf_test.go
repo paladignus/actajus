@@ -13,7 +13,7 @@ import (
 
 func TestGetEmailByCPF(t *testing.T) {
 	ctx := context.Background()
-	account := &spy.AuthenticateSpy{}
+	account := &spy.AccountSpy{}
 	logger := &spy.SpyLogger{}
 	input := dto.GetEmailByCPFInput{CPF: "111.444.777-35"}
 	sut := NewGetEmailByCPF(account, logger)
