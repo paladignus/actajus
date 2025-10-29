@@ -30,9 +30,9 @@ func (s *SpyAuthenticateService) Execute(ctx context.Context, input dto.Authenti
 }
 
 func TestAuthenticateHandler(t *testing.T) {
-	sut := SpyAuthenticateService{}
-	spyLogger := spy.SpyLogger{}
-	handler := NewAuthenticate(&sut, &spyLogger)
+	sut := &SpyAuthenticateService{}
+	spyLogger := &spy.SpyLogger{}
+	handler := NewAuthenticate(sut, spyLogger)
 	input := dto.AuthenticateInput{
 		CPF: "123.456.789-00",
 	}

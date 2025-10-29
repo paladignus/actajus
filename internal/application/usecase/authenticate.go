@@ -9,6 +9,7 @@ import (
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
+	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 )
 
 type Authenticate struct {
@@ -61,9 +62,10 @@ func (a Authenticate) Execute(ctx context.Context, req dto.AuthenticateInput) (d
 	tokenPair, err := a.gateway.GenerateTokenPair(person.IDUser)
 	if err != nil {
 		a.logger.Error(ctx, "failed to generate token pair", "error", err)
+		return dto.AuthenticateOutput{}, adapter.ErrBuildToken
 	}
 	person.AccessToken = tokenPair.AccessToken
 	person.RefreshToken = tokenPair.RefreshToken
-	a.logger.Info(ctx, "token pair generated successfully", "cpf", req.CPF)
+	// a.logger.Info(ctx, "token pair generated successfully", "cpf", req.CPF)
 	return person, err
 }
