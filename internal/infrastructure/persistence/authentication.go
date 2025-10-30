@@ -11,15 +11,15 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
 
-type Account struct {
+type Authentication struct {
 	db *database.DB
 }
 
-func NewAccount(db *database.DB) Account {
-	return Account{db}
+func NewAuthentication(db *database.DB) Authentication {
+	return Authentication{db}
 }
 
-func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenticated dto.AuthenticateOutput, err error) {
+func (a Authentication) SignIn(ctx context.Context, cpf string) (output dto.SignInOutput, err error) {
 	var IDAccount string
 	sql := `SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p
 	INNER JOIN documents d ON p.idpeople = d.id_people
@@ -28,26 +28,26 @@ func (a Account) FindUserAccountByCPF(ctx context.Context, cpf string) (authenti
 	WHERE p.deleted_at IS NULL AND a.deleted_at IS NULL AND d.cpf = $1;`
 	if err = a.db.Pool.QueryRow(ctx, sql, cpf).
 		Scan(
-			&authenticated.IDUser,
-			&authenticated.FirstName,
-			&authenticated.LastName,
-			&authenticated.Email,
+			&output.IDUser,
+			&output.FirstName,
+			&output.LastName,
+			&output.Email,
 			&IDAccount,
 		); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return dto.AuthenticateOutput{}, exception.ErrUserNotFound
+			return dto.SignInOutput{}, exception.ErrUserNotFound
 		}
-		return dto.AuthenticateOutput{}, err
+		return dto.SignInOutput{}, err
 	}
 	roles, err := a.GetRolesByAccountID(ctx, IDAccount)
 	if err != nil {
-		return dto.AuthenticateOutput{}, err
+		return dto.SignInOutput{}, err
 	}
-	authenticated.Roles = roles
-	return authenticated, nil
+	output.Roles = roles
+	return output, nil
 }
 
-func (a Account) ValidatePassword(ctx context.Context, IDPeople, password string) (err error) {
+func (a Authentication) ValidatePassword(ctx context.Context, IDPeople, password string) (err error) {
 	var ok bool
 	sql := `SELECT EXISTS (
       SELECT 1 FROM accounts a
@@ -63,7 +63,7 @@ func (a Account) ValidatePassword(ctx context.Context, IDPeople, password string
 	return nil
 }
 
-func (a Account) GetRolesByAccountID(ctx context.Context, idaccount string) (roles []string, err error) {
+func (a Authentication) GetRolesByAccountID(ctx context.Context, idaccount string) (roles []string, err error) {
 	sql := `SELECT r.name FROM roles r
 		INNER JOIN account_role ar ON r.idroles = ar.id_roles
 		WHERE ar.id_accounts = $1 ORDER BY r.name;`
@@ -82,7 +82,7 @@ func (a Account) GetRolesByAccountID(ctx context.Context, idaccount string) (rol
 	return roles, nil
 }
 
-func (a Account) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissions []dto.Permission, err error) {
+func (a Authentication) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissions []dto.Permission, err error) {
 	sql := `SELECT p.resource, p.action FROM permissions p
 		INNER JOIN role_permission rp ON p.idpermissions = rp.id_permissions
 		WHERE rp.id_roles = $1 ORDER BY p.resource, p.action;`
@@ -101,7 +101,7 @@ func (a Account) GetPermissionsByRoleID(ctx context.Context, idrole int) (permis
 	return permissions, nil
 }
 
-func (a Account) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEmailByCPFOutput, err error) {
+func (a Authentication) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEmailByCPFOutput, err error) {
 	sql := `SELECT e.address FROM emails e
 		INNER JOIN people p ON e.id_people = p.idpeople
 		INNER JOIN accounts a ON p.idpeople = a.id_people

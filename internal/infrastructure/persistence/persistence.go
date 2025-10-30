@@ -13,6 +13,6 @@ func NewPersistence(db *database.DB) Persistence {
 	return Persistence{db}
 }
 
-func (p Persistence) Account() Account {
-	return NewAccount(p.db)
+func (p Persistence) Authentication() Authentication {
+	return NewAuthentication(p.db)
 }

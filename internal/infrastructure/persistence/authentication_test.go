@@ -21,7 +21,7 @@ func TestAccount_FindEmailByCPF(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 	db := &database.DB{Pool: mock}
-	repo := NewAccount(db)
+	repo := NewAuthentication(db)
 	t.Run("should return email by cpf", func(t *testing.T) {
 		cpf := "11144477735"
 		expectedEmail := dto.GetEmailByCPFOutput{Email: "email@example.com.br"}
@@ -67,7 +67,7 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 	db := &database.DB{Pool: mock}
-	repo := NewAccount(db)
+	repo := NewAuthentication(db)
 	t.Run("should return user account with roles", func(t *testing.T) {
 		cpf := "12345678900"
 		expectedIDUser := "user-123"
@@ -87,7 +87,7 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT r.name FROM roles r`).
 			WithArgs(expectedIDAccount).
 			WillReturnRows(rolesRows)
-		result, err := repo.FindUserAccountByCPF(ctx, cpf)
+		result, err := repo.SignIn(ctx, cpf)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedIDUser, result.IDUser)
 		assert.Equal(t, expectedFirstName, result.FirstName)
@@ -102,10 +102,10 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
 			WillReturnError(pgx.ErrNoRows)
-		result, err := repo.FindUserAccountByCPF(ctx, cpf)
+		result, err := repo.SignIn(ctx, cpf)
 		assert.Error(t, err)
 		assert.Equal(t, exception.ErrUserNotFound, err)
-		assert.Equal(t, dto.AuthenticateOutput{}, result)
+		assert.Equal(t, dto.SignInOutput{}, result)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -115,10 +115,10 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
 			WillReturnError(expectedErr)
-		result, err := repo.FindUserAccountByCPF(ctx, cpf)
+		result, err := repo.SignIn(ctx, cpf)
 		assert.Error(t, err)
 		assert.Equal(t, expectedErr, err)
-		assert.Equal(t, dto.AuthenticateOutput{}, result)
+		assert.Equal(t, dto.SignInOutput{}, result)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -133,10 +133,10 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		mock.ExpectQuery(`SELECT r.name FROM roles r`).
 			WithArgs("account-456").
 			WillReturnError(expectedErr)
-		result, err := repo.FindUserAccountByCPF(ctx, cpf)
+		result, err := repo.SignIn(ctx, cpf)
 		assert.Error(t, err)
 		assert.Equal(t, expectedErr, err)
-		assert.Equal(t, dto.AuthenticateOutput{}, result)
+		assert.Equal(t, dto.SignInOutput{}, result)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
@@ -147,7 +147,7 @@ func TestAccount_ValidatePassword(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 	db := &database.DB{Pool: mock}
-	repo := NewAccount(db)
+	repo := NewAuthentication(db)
 	t.Run("should validate password", func(t *testing.T) {
 		idPeople := "user-123"
 		password := "correct-password"
@@ -193,7 +193,7 @@ func TestAccount_GetRolesByAccountID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 	db := &database.DB{Pool: mock}
-	repo := NewAccount(db)
+	repo := NewAuthentication(db)
 	t.Run("should return roles", func(t *testing.T) {
 		idAccount := "account-123"
 		expectedRoles := []string{"admin", "manager", "user"}
@@ -257,7 +257,7 @@ func TestAccount_GetPermissionsByRoleID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 	db := &database.DB{Pool: mock}
-	repo := NewAccount(db)
+	repo := NewAuthentication(db)
 	t.Run("should return permissions", func(t *testing.T) {
 		roleID := 1
 		expectedPermissions := []dto.Permission{

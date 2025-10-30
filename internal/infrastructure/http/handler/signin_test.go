@@ -17,26 +17,26 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type SpyAuthenticateService struct {
+type SpySignInService struct {
 	mock.Mock
 }
 
-func (s *SpyAuthenticateService) Execute(ctx context.Context, input dto.AuthenticateInput) (dto.AuthenticateOutput, error) {
+func (s *SpySignInService) Execute(ctx context.Context, input dto.SignInInput) (dto.SignInOutput, error) {
 	args := s.Called(ctx, input)
 	if args.Get(0) == nil {
-		return dto.AuthenticateOutput{}, args.Error(1)
+		return dto.SignInOutput{}, args.Error(1)
 	}
-	return args.Get(0).(dto.AuthenticateOutput), args.Error(1)
+	return args.Get(0).(dto.SignInOutput), args.Error(1)
 }
 
-func TestAuthenticateHandler(t *testing.T) {
-	sut := &SpyAuthenticateService{}
+func TestSignInHandler(t *testing.T) {
+	sut := &SpySignInService{}
 	spyLogger := &spy.SpyLogger{}
-	handler := NewAuthenticate(sut, spyLogger)
-	input := dto.AuthenticateInput{
+	handler := NewSignIn(sut, spyLogger)
+	input := dto.SignInInput{
 		CPF: "123.456.789-00",
 	}
-	expectedOutput := dto.AuthenticateOutput{
+	expectedOutput := dto.SignInOutput{
 		AccessToken:  "AccessToken",
 		RefreshToken: "RefreshToken",
 		IDUser:       "user-123",
@@ -51,17 +51,17 @@ func TestAuthenticateHandler(t *testing.T) {
 		assert.Equal(t, spyLogger, handler.logger)
 	})
 
-	t.Run("should authentication be successful", func(t *testing.T) {
+	t.Run("should signin be successful", func(t *testing.T) {
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
 		sut.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
-		spyLogger.On("Info", mock.Anything, "authentication successful", "cpf", input.CPF).Once()
+		spyLogger.On("Info", mock.Anything, "signin successful", "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		handler.Authenticate(w, req)
+		handler.SignIn(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
-		var response dto.AuthenticateOutput
+		var response dto.SignInOutput
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedOutput.AccessToken, response.AccessToken)
@@ -73,10 +73,10 @@ func TestAuthenticateHandler(t *testing.T) {
 	t.Run("the request parameters should be valid", func(t *testing.T) {
 		spyLogger.On("Info", mock.Anything, "processing sign_in request", mock.Anything).Once()
 		spyLogger.On("Warn", mock.Anything, "invalid request body", "error", mock.Anything).Once()
-		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader([]byte("invalid json")))
+		req := httptest.NewRequest("POST", "/signin", bytes.NewReader([]byte("invalid json")))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		handler.Authenticate(w, req)
+		handler.SignIn(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
@@ -86,13 +86,13 @@ func TestAuthenticateHandler(t *testing.T) {
 		expectedErr := errors.New("database connection failed")
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
 		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Error", mock.Anything, "authentication failed with server error",
+		spyLogger.On("Error", mock.Anything, "signin failed with server error",
 			"error", expectedErr, "cpf", input.CPF).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		handler.Authenticate(w, req)
+		handler.SignIn(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
@@ -102,13 +102,13 @@ func TestAuthenticateHandler(t *testing.T) {
 		expectedErr := exception.ErrUserNotFound
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
 		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Warn", mock.Anything, "authentication failed",
+		spyLogger.On("Warn", mock.Anything, "signin failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 404).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		handler.Authenticate(w, req)
+		handler.SignIn(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
@@ -118,13 +118,13 @@ func TestAuthenticateHandler(t *testing.T) {
 		expectedErr := exception.ErrInvalidCredentials
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
 		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Warn", mock.Anything, "authentication failed",
+		spyLogger.On("Warn", mock.Anything, "signin failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 401).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		handler.Authenticate(w, req)
+		handler.SignIn(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)
@@ -134,13 +134,13 @@ func TestAuthenticateHandler(t *testing.T) {
 		expectedErr := exception.ErrInvalidCPF
 		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
 		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Warn", mock.Anything, "authentication failed",
+		spyLogger.On("Warn", mock.Anything, "signin failed",
 			"error", expectedErr, "cpf", input.CPF, "status_code", 400).Once()
 		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/authenticate", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		handler.Authenticate(w, req)
+		handler.SignIn(w, req)
 		assert.NotEqual(t, http.StatusOK, w.Code)
 		sut.AssertExpectations(t)
 		spyLogger.AssertExpectations(t)

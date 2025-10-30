@@ -12,40 +12,40 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 )
 
-type Authenticate struct {
+type SignIn struct {
 	persistence repository.Account
 	logger      repository.Logger
 	gateway     gateway.Token
 }
 
-func NewAuthenticate(
+func NewSignIn(
 	persistence repository.Account,
 	logger repository.Logger,
 	token gateway.Token,
-) Authenticate {
-	return Authenticate{
+) SignIn {
+	return SignIn{
 		persistence,
 		logger,
 		token,
 	}
 }
 
-func (a Authenticate) Execute(ctx context.Context, req dto.AuthenticateInput) (dto.AuthenticateOutput, error) {
+func (a SignIn) Execute(ctx context.Context, req dto.SignInInput) (dto.SignInOutput, error) {
 	a.logger.Info(ctx, "authenticate user", "cpf", req.CPF)
 	cpf := vo.CPF(req.CPF)
 	if !cpf.IsValid() {
 		a.logger.Warn(ctx, "invalid cpf format provided",
 			"cpf", req.CPF,
 		)
-		return dto.AuthenticateOutput{}, exception.ErrInvalidCPF
+		return dto.SignInOutput{}, exception.ErrInvalidCPF
 	}
-	person, err := a.persistence.FindUserAccountByCPF(ctx, cpf.OnlyDigits())
+	person, err := a.persistence.SignIn(ctx, cpf.OnlyDigits())
 	if err != nil {
 		a.logger.Warn(ctx, "user not found during authentication",
 			"cpf", req.CPF,
 			"error", err,
 		)
-		return dto.AuthenticateOutput{}, err
+		return dto.SignInOutput{}, err
 	}
 	err = a.persistence.ValidatePassword(ctx, person.IDUser, req.Password)
 	if err != nil {
@@ -53,7 +53,7 @@ func (a Authenticate) Execute(ctx context.Context, req dto.AuthenticateInput) (d
 			"cpf", req.CPF,
 			"id_person", person.IDUser,
 		)
-		return dto.AuthenticateOutput{}, err
+		return dto.SignInOutput{}, err
 	}
 	a.logger.Info(ctx, "person authenticated successfully",
 		"cpf", req.CPF,
@@ -62,7 +62,7 @@ func (a Authenticate) Execute(ctx context.Context, req dto.AuthenticateInput) (d
 	tokenPair, err := a.gateway.GenerateTokenPair(person.IDUser)
 	if err != nil {
 		a.logger.Error(ctx, "failed to generate token pair", "error", err)
-		return dto.AuthenticateOutput{}, adapter.ErrBuildToken
+		return dto.SignInOutput{}, adapter.ErrBuildToken
 	}
 	person.AccessToken = tokenPair.AccessToken
 	person.RefreshToken = tokenPair.RefreshToken

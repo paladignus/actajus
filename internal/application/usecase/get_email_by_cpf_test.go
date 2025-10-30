@@ -13,14 +13,14 @@ import (
 
 func TestGetEmailByCPF(t *testing.T) {
 	ctx := context.Background()
-	account := &spy.AccountSpy{}
+	authentication := &spy.AuthenticationSpy{}
 	logger := &spy.SpyLogger{}
 	input := dto.GetEmailByCPFInput{CPF: "111.444.777-35"}
-	sut := NewGetEmailByCPF(account, logger)
+	sut := NewGetEmailByCPF(authentication, logger)
 	t.Run("should return of an email when the CPF is valid and found", func(t *testing.T) {
-		account.FindResult.FindEmail.Email = "email@example.com.br"
+		authentication.FindResult.FindEmail.Email = "email@example.com.br"
 		logger.On("Info", ctx, "getting email by CPF", "cpf", input.CPF).Once()
-		logger.On("Info", ctx, "email found successfully", "cpf", input.CPF, "email", account.FindResult.FindEmail.Email).Once()
+		logger.On("Info", ctx, "email found successfully", "cpf", input.CPF, "email", authentication.FindResult.FindEmail.Email).Once()
 		email, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, email)
@@ -37,7 +37,7 @@ func TestGetEmailByCPF(t *testing.T) {
 	t.Run("should return an error if the CPF is not found", func(t *testing.T) {
 		input.CPF = "123.456.789-09"
 		wantErr := exception.ErrEmailNotFound
-		account.FindError = wantErr
+		authentication.FindError = wantErr
 		logger.On("Info", ctx, "getting email by CPF", "cpf", input.CPF).Once()
 		logger.On("Warn", ctx, "email not found for provided cpf", "cpf", input.CPF, "error", wantErr).Once()
 		_, err := sut.Execute(ctx, input)

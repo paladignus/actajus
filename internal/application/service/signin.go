@@ -7,6 +7,6 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-type Authenticate interface {
-	Execute(context.Context, dto.AuthenticateInput) (dto.AuthenticateOutput, error)
+type SignIn interface {
+	Execute(context.Context, dto.SignInInput) (dto.SignInOutput, error)
 }

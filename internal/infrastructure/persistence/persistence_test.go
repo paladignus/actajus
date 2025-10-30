@@ -28,14 +28,14 @@ func TestNewPersistence(t *testing.T) {
 	})
 }
 
-func TestPersistence_Account(t *testing.T) {
+func TestPersistence_Authentication(t *testing.T) {
 	t.Run("should returns account repository instance", func(t *testing.T) {
 		mock, err := pgxmock.NewPool()
 		require.NoError(t, err)
 		defer mock.Close()
 		db := &database.DB{Pool: mock}
 		persistence := NewPersistence(db)
-		accountRepo := persistence.Account()
+		accountRepo := persistence.Authentication()
 		assert.NotNil(t, accountRepo)
 		assert.Equal(t, db, accountRepo.db)
 	})
@@ -46,11 +46,11 @@ func TestPersistence_Account(t *testing.T) {
 		defer mock.Close()
 		db := &database.DB{Pool: mock}
 		persistence := NewPersistence(db)
-		account1 := persistence.Account()
-		account2 := persistence.Account()
+		account1 := persistence.Authentication()
+		account2 := persistence.Authentication()
 		// Verifica que ambas instâncias usam o mesmo db
 		assert.Equal(t, account1.db, account2.db)
-		// Note: Como Account é um struct (não ponteiro), cada chamada
+		// Note: Como Authentication é um struct (não ponteiro), cada chamada
 		// retorna uma nova cópia, mas isso não é um problema pois
 		// compartilham a mesma referência de db
 		assert.NotNil(t, account1)
@@ -63,7 +63,7 @@ func TestPersistence_Account(t *testing.T) {
 		defer mock.Close()
 		db := &database.DB{Pool: mock}
 		persistence := NewPersistence(db)
-		account := persistence.Account()
+		account := persistence.Authentication()
 		// Verifica que o repositório de account tem acesso ao mesmo pool de conexões
 		assert.Same(t, persistence.db, account.db)
 		assert.Same(t, db.Pool, account.db.Pool)
