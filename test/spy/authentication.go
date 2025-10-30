@@ -35,3 +35,11 @@ func (a *AuthenticationSpy) ValidatePassword(ctx context.Context, IDPeople, pass
 func (a *AuthenticationSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
 	return a.FindResult.FindEmail, a.FindError
 }
+
+func (a *AuthenticationSpy) AccountIsActive(context.Context, string) (string, error) {
+	return a.FindResult.Authentication.IDUser, a.FindError
+}
+
+// func (a *AuthenticationSpy) CreateRecoverPassword(context.Context, string) (dto.RecoverPasswordOutput, error) {
+// 	return a.FindResult.RecoverPassword, a.FindError
+// }

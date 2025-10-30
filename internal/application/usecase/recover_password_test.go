@@ -3,6 +3,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/dto"
@@ -13,10 +14,6 @@ import (
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
-
-type IRecoverPassword interface {
-	Execute(ctx context.Context, req dto.RecoverPasswordInput) (dto.RecoverPasswordOutput, error)
-}
 
 type RecoverPassword struct {
 	persistence repository.Authentication
@@ -41,12 +38,21 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 		)
 		return dto.RecoverPasswordOutput{}, exception.ErrInvalidEmail
 	}
-	token, err := r.persistence.NewResetToken(ctx, req.Email)
+	IDUser, err := r.persistence.AccountIsActive(ctx, req.Email)
+	if err != nil {
+		r.logger.Error(ctx, "failed to create recover password", "error", err, "email", req.Email)
+		return dto.RecoverPasswordOutput{}, err
+	}
+	r.logger.Info(ctx, "account is ative to email", "email", req.Email)
 
-	// if r.ErrorToken != nil {
-	// 	r.logger.Warn(ctx, "failed to generate token", "error", r.ErrorToken)
-	// 	return dto.RecoverPasswordOutput{}, r.ErrorToken
-	// }
+	token, err := r.gateway.GenerateResetToken(IDUser)
+	if err != nil {
+		r.logger.Error(ctx, "failed to create recover password", "error", err, "email", req.Email)
+		return dto.RecoverPasswordOutput{}, err
+	}
+
+	r.repository.CreateRecoverPassword(ctx, IDUser, token)
+
 	r.logger.Info(ctx, "recover password successful", "email", req.Email)
 	return dto.RecoverPasswordOutput{
 		RecoverToken: "token",
@@ -70,23 +76,25 @@ func TestRecoverPassword(t *testing.T) {
 		assert.ErrorIs(t, err, exception.ErrInvalidEmail)
 	})
 
-	// t.Run("should return an error if it fails to generate the token", func(t *testing.T) {
-	// 	input.Email = "email@example.com.br"
-	// 	ErrGenerateToken := errors.New("failed to generate token")
-	// 	sut.ErrorToken = ErrGenerateToken
-	// 	logger.On("Info", ctx, "recover password", "email", input.Email).Once()
-	// 	logger.On("Warn", ctx, "failed to generate token", "error", sut.ErrorToken).Once()
-	// 	token, err := sut.Execute(ctx, input)
-	// 	assert.Error(t, err)
-	// 	assert.Empty(t, token.RecoverToken)
-	// 	assert.ErrorIs(t, err, ErrGenerateToken)
-	// })
+	t.Run("should return an error if it fails to find the id user", func(t *testing.T) {
+		wantErr := errors.New("failed to find id user")
+		authentication.FindError = wantErr
+		input.Email = "email@example.com.br"
+		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
+		logger.On("Error", ctx, "failed to create recover password", "error", authentication.FindError, "email", input.Email).Once()
+		_, err := sut.Execute(ctx, input)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, wantErr)
+		assert.Empty(t, token.ResetToken)
+	})
 
-	// t.Run("should return recover token", func(t *testing.T) {
-	// 	logger.On("Info", ctx, "recover password", "email", input.Email).Once()
-	// 	logger.On("Info", ctx, "recover password successful", "email", input.Email).Once()
-	// 	token, err := sut.Execute(ctx, input)
-	// 	assert.NoError(t, err)
-	// 	assert.NotEmpty(t, token.RecoverToken)
-	// })
+	t.Run("should successful to recover password", func(t *testing.T) {
+		authentication.FindError = nil
+		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
+		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
+		logger.On("Info", ctx, "recover password successful", "email", input.Email)
+		token, err := sut.Execute(ctx, input)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, token.RecoverToken)
+	})
 }

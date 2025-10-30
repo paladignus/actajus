@@ -15,52 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAccount_FindEmailByCPF(t *testing.T) {
-	ctx := context.Background()
-	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
-	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewAuthentication(db)
-	t.Run("should return email by cpf", func(t *testing.T) {
-		cpf := "11144477735"
-		expectedEmail := dto.GetEmailByCPFOutput{Email: "email@example.com.br"}
-		rows := pgxmock.NewRows([]string{"address"}).AddRow(expectedEmail.Email)
-		mock.ExpectQuery(`SELECT e.address FROM emails e`).
-			WithArgs(cpf).
-			WillReturnRows(rows)
-		email, err := repo.FindEmailByCPF(ctx, cpf)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedEmail, email)
-		assert.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("should return error when email not found", func(t *testing.T) {
-		cpf := "00000000000"
-		mock.ExpectQuery(`SELECT e.address FROM emails e`).
-			WithArgs(cpf).
-			WillReturnError(pgx.ErrNoRows)
-		email, err := repo.FindEmailByCPF(ctx, cpf)
-		assert.Error(t, err)
-		assert.Equal(t, exception.ErrEmailNotFound, err)
-		assert.Equal(t, "", email.Email)
-		assert.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("should return database error", func(t *testing.T) {
-		cpf := "12345678900"
-		mockErr := errors.New("database error")
-		mock.ExpectQuery(`SELECT e.address FROM emails e`).
-			WithArgs(cpf).
-			WillReturnError(mockErr)
-		email, err := repo.FindEmailByCPF(ctx, cpf)
-		assert.Error(t, err)
-		assert.Equal(t, mockErr, err)
-		assert.Equal(t, "", email.Email)
-		assert.NoError(t, mock.ExpectationsWereMet())
-	})
-}
-
 func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	ctx := context.Background()
 	mock, err := pgxmock.NewPool()
@@ -78,7 +32,7 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		expectedRoles := []string{"admin", "user"}
 		rows := pgxmock.NewRows([]string{"idpeople", "first_name", "last_name", "address", "idaccounts"}).
 			AddRow(expectedIDUser, expectedFirstName, expectedLastName, expectedEmail, expectedIDAccount)
-		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
+		mock.ExpectQuery(`SELECT DISTINCT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
 			WillReturnRows(rows)
 		rolesRows := pgxmock.NewRows([]string{"name"}).
@@ -99,7 +53,7 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 
 	t.Run("should return user account not found", func(t *testing.T) {
 		cpf := "99999999999"
-		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
+		mock.ExpectQuery(`SELECT DISTINCT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
 			WillReturnError(pgx.ErrNoRows)
 		result, err := repo.SignIn(ctx, cpf)
@@ -112,7 +66,7 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 	t.Run("should return error from database", func(t *testing.T) {
 		cpf := "12345678900"
 		expectedErr := errors.New("database connection error")
-		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
+		mock.ExpectQuery(`SELECT DISTINCT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
 			WillReturnError(expectedErr)
 		result, err := repo.SignIn(ctx, cpf)
@@ -127,7 +81,7 @@ func TestAccount_FindUserAccountByCPF(t *testing.T) {
 		expectedErr := errors.New("roles query error")
 		rows := pgxmock.NewRows([]string{"idpeople", "first_name", "last_name", "address", "idaccounts"}).
 			AddRow("user-123", "John", "Doe", "john@example.com", "account-456")
-		mock.ExpectQuery(`SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
+		mock.ExpectQuery(`SELECT DISTINCT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p`).
 			WithArgs(cpf).
 			WillReturnRows(rows)
 		mock.ExpectQuery(`SELECT r.name FROM roles r`).
@@ -315,6 +269,52 @@ func TestAccount_GetPermissionsByRoleID(t *testing.T) {
 		permissions, err := repo.GetPermissionsByRoleID(ctx, roleID)
 		assert.Error(t, err)
 		assert.Nil(t, permissions)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
+
+func TestAccount_FindEmailByCPF(t *testing.T) {
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAuthentication(db)
+	t.Run("should return email by cpf", func(t *testing.T) {
+		cpf := "11144477735"
+		expectedEmail := dto.GetEmailByCPFOutput{Email: "email@example.com.br"}
+		rows := pgxmock.NewRows([]string{"address"}).AddRow(expectedEmail.Email)
+		mock.ExpectQuery(`SELECT e.address FROM emails e`).
+			WithArgs(cpf).
+			WillReturnRows(rows)
+		email, err := repo.FindEmailByCPF(ctx, cpf)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedEmail, email)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error when email not found", func(t *testing.T) {
+		cpf := "00000000000"
+		mock.ExpectQuery(`SELECT e.address FROM emails e`).
+			WithArgs(cpf).
+			WillReturnError(pgx.ErrNoRows)
+		email, err := repo.FindEmailByCPF(ctx, cpf)
+		assert.Error(t, err)
+		assert.Equal(t, exception.ErrCPFNotFound, err)
+		assert.Equal(t, "", email.Email)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return database error", func(t *testing.T) {
+		cpf := "12345678900"
+		mockErr := errors.New("database error")
+		mock.ExpectQuery(`SELECT e.address FROM emails e`).
+			WithArgs(cpf).
+			WillReturnError(mockErr)
+		email, err := repo.FindEmailByCPF(ctx, cpf)
+		assert.Error(t, err)
+		assert.Equal(t, mockErr, err)
+		assert.Equal(t, "", email.Email)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }

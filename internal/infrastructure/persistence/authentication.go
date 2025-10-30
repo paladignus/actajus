@@ -21,11 +21,12 @@ func NewAuthentication(db *database.DB) Authentication {
 
 func (a Authentication) SignIn(ctx context.Context, cpf string) (output dto.SignInOutput, err error) {
 	var IDAccount string
-	sql := `SELECT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts FROM people p
-	INNER JOIN documents d ON p.idpeople = d.id_people
-	INNER JOIN accounts a ON p.idpeople = a.id_people
-	INNER JOIN emails e ON p.idpeople = e.id_people
-	WHERE p.deleted_at IS NULL AND a.deleted_at IS NULL AND d.cpf = $1;`
+	sql := `SELECT DISTINCT p.idpeople, p.first_name, p.last_name, e.address, a.idaccounts
+		FROM people p
+		INNER JOIN documents d ON p.idpeople = d.id_people
+		INNER JOIN accounts a ON p.idpeople = a.id_people AND a.deleted_at IS NULL
+		INNER JOIN emails e ON p.idpeople = e.id_people AND e.deleted_at IS NULL
+		WHERE p.deleted_at IS NULL AND d.cpf = $1;`
 	if err = a.db.Pool.QueryRow(ctx, sql, cpf).
 		Scan(
 			&output.IDUser,
@@ -109,9 +110,24 @@ func (a Authentication) FindEmailByCPF(ctx context.Context, cpf string) (output 
 		WHERE a.deleted_at IS NULL AND e.deleted_at IS NULL AND p.deleted_at IS NULL AND d.cpf = $1;`
 	if err = a.db.Pool.QueryRow(ctx, sql, cpf).Scan(&output.Email); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return dto.GetEmailByCPFOutput{}, exception.ErrEmailNotFound
+			return dto.GetEmailByCPFOutput{}, exception.ErrCPFNotFound
 		}
 		return dto.GetEmailByCPFOutput{}, err
 	}
 	return output, nil
+}
+
+func (a Authentication) AccountIsAtive(ctx context.Context, email string) (IDUser string, err error) {
+	sql := `SELECT id_people
+		FROM emails e
+		INNER JOIN people p ON e.id_people = p.idpeople AND p.deleted_at IS NULL
+		INNER JOIN accounts a ON p.idpeople = a.id_people AND a.deleted_at IS NULL
+		WHERE e.deleted_at IS NULL AND e.address = $1;`
+	if err := a.db.Pool.QueryRow(ctx, sql, email).Scan(&IDUser); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", exception.ErrEmailNotFound
+		}
+		return "", err
+	}
+	return IDUser, nil
 }
