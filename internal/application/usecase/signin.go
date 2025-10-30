@@ -13,13 +13,13 @@ import (
 )
 
 type SignIn struct {
-	persistence repository.Account
+	persistence repository.Authentication
 	logger      repository.Logger
 	gateway     gateway.Token
 }
 
 func NewSignIn(
-	persistence repository.Account,
+	persistence repository.Authentication,
 	logger repository.Logger,
 	token gateway.Token,
 ) SignIn {

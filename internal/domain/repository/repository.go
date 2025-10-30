@@ -2,7 +2,7 @@
 package repository
 
 type Repository interface {
-	Account() Account
+	Authentication() Authentication
 	Logger() Logger
 	Cache() Cache
 }

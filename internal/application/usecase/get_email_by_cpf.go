@@ -11,11 +11,11 @@ import (
 )
 
 type GetEmailByCPF struct {
-	persistence repository.Account
+	persistence repository.Authentication
 	logger      repository.Logger
 }
 
-func NewGetEmailByCPF(persistence repository.Account, logger repository.Logger) GetEmailByCPF {
+func NewGetEmailByCPF(persistence repository.Authentication, logger repository.Logger) GetEmailByCPF {
 	return GetEmailByCPF{persistence, logger}
 }
 
