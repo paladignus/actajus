@@ -4,6 +4,7 @@ package persistence
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
@@ -130,4 +131,10 @@ func (a Authentication) AccountIsAtive(ctx context.Context, email string) (IDUse
 		return "", err
 	}
 	return IDUser, nil
+}
+
+func (a Authentication) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
+	sql := `INSERT INTO password_reset (id_accounts, token, expires_at) VALUES ($1, $2, $3);`
+	_, err = a.db.Pool.Exec(ctx, sql, IDUser, token, time.Now().Add(time.Minute*30))
+	return err
 }

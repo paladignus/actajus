@@ -11,6 +11,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	SMTP     SMTPConfig
 }
 
 type ServerConfig struct {
@@ -38,6 +39,14 @@ type JWTConfig struct {
 	ResetExpire   time.Duration
 }
 
+type SMTPConfig struct {
+	Host string
+	Port string
+	User string
+	Pass string
+	From string
+}
+
 func Load() Config {
 	return Config{
 		Server: ServerConfig{
@@ -61,6 +70,13 @@ func Load() Config {
 			AccessExpire:  time.Duration(getEnvAsInt("ACCESS_EXPIRE", 15)) * time.Minute,
 			RefreshExpire: time.Duration(getEnvAsInt("REFRESH_EXPIRE", 7*24)) * time.Hour,
 			ResetExpire:   time.Duration(getEnvAsInt("RESET_EXPIRE", 30)) * time.Minute,
+		},
+		SMTP: SMTPConfig{
+			Host: getEnv("SMTP_HOST", "smtp.gmail.com"),
+			Port: getEnv("SMTP_PORT", "587"),
+			User: getEnv("SMTP_USER", "your-email"),
+			Pass: getEnv("SMTP_PASS", "your-password"),
+			From: getEnv("SMTP_FROM", "ActaJus <your-email>"),
 		},
 	}
 }

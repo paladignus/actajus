@@ -40,6 +40,10 @@ func (a *AuthenticationSpy) AccountIsActive(context.Context, string) (string, er
 	return a.FindResult.Authentication.IDUser, a.FindError
 }
 
+func (a *AuthenticationSpy) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
+	return a.ValidateError
+}
+
 // func (a *AuthenticationSpy) CreateRecoverPassword(context.Context, string) (dto.RecoverPasswordOutput, error) {
 // 	return a.FindResult.RecoverPassword, a.FindError
 // }

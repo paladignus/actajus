@@ -12,5 +12,5 @@ type Authentication interface {
 	ValidatePassword(context.Context, string, string) error
 	FindEmailByCPF(context.Context, string) (dto.GetEmailByCPFOutput, error)
 	AccountIsActive(context.Context, string) (string, error)
-	// CreateRecoverPassword(context.Context, string) (dto.RecoverPasswordOutput, error)
+	CreateRecoverPassword(context.Context, string, string) error
 }

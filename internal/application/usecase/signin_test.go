@@ -50,7 +50,6 @@ func TestSignIn(t *testing.T) {
 
 	t.Run("should return error ErrInvalidPassword", func(t *testing.T) {
 		wantErr := errors.New("invalid credentials")
-		authentication.FindResult.Authentication.IDUser = "user-123"
 		authentication.ValidateError = wantErr
 		authentication.FindError = nil
 		sut := NewSignIn(authentication, logger, token)
@@ -67,7 +66,6 @@ func TestSignIn(t *testing.T) {
 	t.Run("should return error if fails generating tokens", func(t *testing.T) {
 		wantErr := adapter.ErrBuildToken
 		input.Password = "!M@r1L0$n4"
-		authentication.FindResult.Authentication.IDUser = "user-123"
 		authentication.ValidateError = nil
 		token.Err = wantErr
 		sut := NewSignIn(authentication, logger, token)
