@@ -128,8 +128,21 @@ func TestRecoverPassword(t *testing.T) {
 		assert.Empty(t, token.ResetToken)
 	})
 
-	t.Run("should successful to recover password", func(t *testing.T) {
+	t.Run("should return an error if it fails to send email", func(t *testing.T) {
+		wantErr := errors.New("failed to send email")
+		smtp.Err = wantErr
 		authentication.ValidateError = nil
+		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
+		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
+		logger.On("Error", ctx, "failed to send email", "error", smtp.Err, "email", input.Email).Once()
+		_, err := sut.Execute(ctx, input)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, wantErr)
+		assert.Empty(t, token.ResetToken)
+	})
+
+	t.Run("should successful to recover password", func(t *testing.T) {
+		smtp.Err = nil
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
 		logger.On("Info", ctx, "recover password successful", "email", input.Email)
