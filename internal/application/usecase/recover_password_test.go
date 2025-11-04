@@ -8,69 +8,10 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
-	"github.com/paladignus/actajus/internal/domain/gateway"
-	"github.com/paladignus/actajus/internal/domain/repository"
-	vo "github.com/paladignus/actajus/internal/domain/value_object"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
-
-type RecoverPassword struct {
-	persistence repository.Authentication
-	logger      repository.Logger
-	token       gateway.Token
-	smtp        gateway.SMTP
-}
-
-func NewRecoverPassword(
-	persistence repository.Authentication,
-	logger repository.Logger,
-	token gateway.Token,
-	smtp gateway.SMTP,
-) RecoverPassword {
-	return RecoverPassword{persistence, logger, token, smtp}
-}
-
-func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInput) (dto.RecoverPasswordOutput, error) {
-	r.logger.Info(ctx, "recover password", "email", req.Email)
-	email := vo.Email(req.Email)
-	if !email.IsValid() {
-		r.logger.Warn(ctx, "invalid email format provided",
-			"email", req.Email,
-		)
-		return dto.RecoverPasswordOutput{}, exception.ErrInvalidEmail
-	}
-
-	IDUser, err := r.persistence.AccountIsActive(ctx, req.Email)
-	if err != nil {
-		r.logger.Error(ctx, "account not found or is inactive", "error", err, "email", req.Email)
-		return dto.RecoverPasswordOutput{}, err
-	}
-
-	r.logger.Info(ctx, "account is ative to email", "email", req.Email)
-
-	token, err := r.token.GenerateResetToken(IDUser)
-	if err != nil {
-		r.logger.Error(ctx, "failed to generate reset token", "error", err, "email", req.Email)
-		return dto.RecoverPasswordOutput{}, err
-	}
-
-	if err = r.persistence.CreateRecoverPassword(ctx, IDUser, token.ResetToken); err != nil {
-		r.logger.Error(ctx, "failed to create reset token record", "error", err, "email", req.Email)
-		return dto.RecoverPasswordOutput{}, err
-	}
-
-	if err = r.smtp.SendEmail(ctx, email.Value(), token.ResetToken); err != nil {
-		r.logger.Error(ctx, "failed to send email", "error", err, "email", req.Email)
-		return dto.RecoverPasswordOutput{}, err
-	}
-
-	r.logger.Info(ctx, "recover password successful", "email", req.Email)
-	return dto.RecoverPasswordOutput{
-		RecoverToken: "token",
-	}, nil
-}
 
 func TestRecoverPassword(t *testing.T) {
 	ctx := context.Background()
@@ -121,6 +62,7 @@ func TestRecoverPassword(t *testing.T) {
 		token.Err = nil
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
+		logger.On("Info", ctx, "generated reset token", "email", input.Email).Once()
 		logger.On("Error", ctx, "failed to create reset token record", "error", authentication.ValidateError, "email", input.Email).Once()
 		_, err := sut.Execute(ctx, input)
 		assert.Error(t, err)
@@ -134,6 +76,8 @@ func TestRecoverPassword(t *testing.T) {
 		authentication.ValidateError = nil
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
+		logger.On("Info", ctx, "generated reset token", "email", input.Email).Once()
+		logger.On("Info", ctx, "created reset token record", "email", input.Email).Once()
 		logger.On("Error", ctx, "failed to send email", "error", smtp.Err, "email", input.Email).Once()
 		_, err := sut.Execute(ctx, input)
 		assert.Error(t, err)
@@ -145,6 +89,8 @@ func TestRecoverPassword(t *testing.T) {
 		smtp.Err = nil
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
+		logger.On("Info", ctx, "generated reset token", "email", input.Email).Once()
+		logger.On("Info", ctx, "created reset token record", "email", input.Email).Once()
 		logger.On("Info", ctx, "recover password successful", "email", input.Email)
 		token, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
