@@ -42,15 +42,15 @@ func (s *SMTPEmail) SendEmail(ctx context.Context, to string, resetURL string) e
 				</head>
 				<body>
     			<div class="container">
-        		<h2>Password Reset Request</h2>
-        		<p>You have requested to reset your password. Click the button below to proceed:</p>
-        		<a href="%s" class="button">Reset Password</a>
-        		<p>Or copy and paste this link into your browser:</p>
+        		<h2>Requisição de Recuperação de Senha</h2>
+        		<p>Você solicitou a redefinição da sua senha. Clique no botão abaixo para continuar:</p>
+        		<a href="%s" class="button">Recuperar Senha</a>
+        		<p>Ou copie e cole este link no seu navegador:</p>
         		<p><a href="%s">%s</a></p>
-        		<p><strong>This link will expire in 30 minutes.</strong></p>
-        		<p>If you did not request this password reset, please ignore this email.</p>
+        		<p><strong>Este link expirará em 30 minutos.</strong></p>
+        		<p>Se você não solicitou a redefinição de senha, ignore este e-mail.</p>
         		<div class="footer">
-            	<p>This is an automated message, please do not reply.</p>
+            	<p>Esta é uma mensagem automática, por favor, não responda.</p>
         		</div>
     			</div>
 				</body>
@@ -68,24 +68,4 @@ func (s *SMTPEmail) SendEmail(ctx context.Context, to string, resetURL string) e
 	auth := smtp.PlainAuth("", s.config.User, s.config.Pass, s.config.Host)
 	addr := fmt.Sprintf("%s:%s", s.config.Host, s.config.Port)
 	return smtp.SendMail(addr, auth, s.config.From, []string{to}, []byte(message))
-
-	// from := "tidofsejuspms@gmail.com"
-	// pass := "vrea ubpt gwxs oirw"
-	// to = "marcelo@marcelo.eti.br"
-
-	// msg := "From: " + from + "\n" +
-	// 	"To: " + to + "\n" +
-	// 	"Subject: Hello there\n\n" +
-	// 	body
-
-	// err := smtp.SendMail("smtp.gmail.com:587",
-	// 	smtp.PlainAuth("", from, pass, "smtp.gmail.com"),
-	// 	from, []string{to}, []byte(message))
-
-	// if err != nil {
-	// 	log.Printf("smtp error: %s", err)
-	// 	return err
-	// }
-	// log.Println("Successfully sended to " + to)
-	// return nil
 }

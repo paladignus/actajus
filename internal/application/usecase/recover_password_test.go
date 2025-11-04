@@ -25,9 +25,8 @@ func TestRecoverPassword(t *testing.T) {
 	t.Run("should return error if email is invalid", func(t *testing.T) {
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Warn", ctx, "invalid email format provided", "email", input.Email).Once()
-		token, err := sut.Execute(ctx, input)
+		err := sut.Execute(ctx, input)
 		assert.Error(t, err)
-		assert.Empty(t, token.RecoverToken)
 		assert.ErrorIs(t, err, exception.ErrInvalidEmail)
 	})
 
@@ -37,10 +36,9 @@ func TestRecoverPassword(t *testing.T) {
 		input.Email = "email@example.com.br"
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Error", ctx, "account not found or is inactive", "error", authentication.FindError, "email", input.Email).Once()
-		_, err := sut.Execute(ctx, input)
+		err := sut.Execute(ctx, input)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, wantErr)
-		assert.Empty(t, token.ResetToken)
 	})
 
 	t.Run("should return an errors if generate token its failed", func(t *testing.T) {
@@ -50,10 +48,9 @@ func TestRecoverPassword(t *testing.T) {
 		logger.On("Info", ctx, "recover password", "email", input.Email).Once()
 		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
 		logger.On("Error", ctx, "failed to generate reset token", "error", token.Err, "email", input.Email).Once()
-		_, err := sut.Execute(ctx, input)
+		err := sut.Execute(ctx, input)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, wantErr)
-		assert.Empty(t, token.ResetToken)
 	})
 
 	t.Run("should return an error if it fails to create recover password", func(t *testing.T) {
@@ -64,10 +61,9 @@ func TestRecoverPassword(t *testing.T) {
 		logger.On("Info", ctx, "account is ative to email", "email", input.Email).Once()
 		logger.On("Info", ctx, "generated reset token", "email", input.Email).Once()
 		logger.On("Error", ctx, "failed to create reset token record", "error", authentication.ValidateError, "email", input.Email).Once()
-		_, err := sut.Execute(ctx, input)
+		err := sut.Execute(ctx, input)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, wantErr)
-		assert.Empty(t, token.ResetToken)
 	})
 
 	t.Run("should return an error if it fails to send email", func(t *testing.T) {
@@ -79,10 +75,9 @@ func TestRecoverPassword(t *testing.T) {
 		logger.On("Info", ctx, "generated reset token", "email", input.Email).Once()
 		logger.On("Info", ctx, "created reset token record", "email", input.Email).Once()
 		logger.On("Error", ctx, "failed to send email", "error", smtp.Err, "email", input.Email).Once()
-		_, err := sut.Execute(ctx, input)
+		err := sut.Execute(ctx, input)
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, wantErr)
-		assert.Empty(t, token.ResetToken)
 	})
 
 	t.Run("should successful to recover password", func(t *testing.T) {
@@ -92,8 +87,7 @@ func TestRecoverPassword(t *testing.T) {
 		logger.On("Info", ctx, "generated reset token", "email", input.Email).Once()
 		logger.On("Info", ctx, "created reset token record", "email", input.Email).Once()
 		logger.On("Info", ctx, "recover password successful", "email", input.Email)
-		token, err := sut.Execute(ctx, input)
+		err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, token.RecoverToken)
 	})
 }

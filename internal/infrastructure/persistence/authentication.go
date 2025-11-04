@@ -133,6 +133,12 @@ func (a Authentication) AccountIsActive(ctx context.Context, email string) (IDUs
 	return IDUser, nil
 }
 
+func (a Authentication) InvalidAllTokensByIDUser(ctx context.Context, IDUser string) (err error) {
+	sql := `UPDATE password_reset SET used_at = now() WHERE id_people = $1;`
+	_, err = a.db.Pool.Exec(ctx, sql, IDUser)
+	return err
+}
+
 func (a Authentication) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
 	sql := `INSERT INTO password_reset (id_people, token, expires_at) VALUES ($1, $2, $3);`
 	_, err = a.db.Pool.Exec(ctx, sql, IDUser, token, time.Now().Add(time.Minute*30))

@@ -8,15 +8,15 @@ import (
 )
 
 type Result struct {
-	Authentication  dto.SignInOutput
-	FindEmail       dto.GetEmailByCPFOutput
-	RecoverPassword dto.RecoverPasswordOutput
+	Authentication dto.SignInOutput
+	FindEmail      dto.GetEmailByCPFOutput
 }
 
 type AuthenticationSpy struct {
 	CallCount     int
 	FindResult    Result
 	FindError     error
+	InvalidError  error
 	ValidateError error
 }
 
@@ -40,10 +40,10 @@ func (a *AuthenticationSpy) AccountIsActive(context.Context, string) (string, er
 	return a.FindResult.Authentication.IDUser, a.FindError
 }
 
+func (a *AuthenticationSpy) InvalidAllTokensByIDUser(context.Context, string) error {
+	return a.InvalidError
+}
+
 func (a *AuthenticationSpy) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
 	return a.ValidateError
 }
-
-// func (a *AuthenticationSpy) CreateRecoverPassword(context.Context, string) (dto.RecoverPasswordOutput, error) {
-// 	return a.FindResult.RecoverPassword, a.FindError
-// }

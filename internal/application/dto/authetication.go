@@ -37,7 +37,3 @@ type GetEmailByCPFOutput struct {
 type RecoverPasswordInput struct {
 	Email string `json:"email"`
 }
-
-type RecoverPasswordOutput struct {
-	RecoverToken string `json:"recover_token"`
-}

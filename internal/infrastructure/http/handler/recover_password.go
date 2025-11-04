@@ -28,8 +28,7 @@ func (rp RecoverPassword) RecoverPassword(w http.ResponseWriter, r *http.Request
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	output, err := rp.service.Execute(ctx, req)
-	// const statusCode = http.StatusOK
+	err = rp.service.Execute(ctx, req)
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {
@@ -41,5 +40,6 @@ func (rp RecoverPassword) RecoverPassword(w http.ResponseWriter, r *http.Request
 		return
 	}
 	rp.logger.Info(ctx, "recover password successful", "email", req.Email)
-	RespondJSON(w, http.StatusOK, output)
+	return
+	// RespondJSON(w, http.StatusOK, {})
 }
