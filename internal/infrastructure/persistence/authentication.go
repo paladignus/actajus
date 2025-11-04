@@ -118,8 +118,8 @@ func (a Authentication) FindEmailByCPF(ctx context.Context, cpf string) (output 
 	return output, nil
 }
 
-func (a Authentication) AccountIsAtive(ctx context.Context, email string) (IDUser string, err error) {
-	sql := `SELECT id_people
+func (a Authentication) AccountIsActive(ctx context.Context, email string) (IDUser string, err error) {
+	sql := `SELECT a.id_people
 		FROM emails e
 		INNER JOIN people p ON e.id_people = p.idpeople AND p.deleted_at IS NULL
 		INNER JOIN accounts a ON p.idpeople = a.id_people AND a.deleted_at IS NULL
@@ -134,7 +134,7 @@ func (a Authentication) AccountIsAtive(ctx context.Context, email string) (IDUse
 }
 
 func (a Authentication) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
-	sql := `INSERT INTO password_reset (id_accounts, token, expires_at) VALUES ($1, $2, $3);`
+	sql := `INSERT INTO password_reset (id_people, token, expires_at) VALUES ($1, $2, $3);`
 	_, err = a.db.Pool.Exec(ctx, sql, IDUser, token, time.Now().Add(time.Minute*30))
 	return err
 }

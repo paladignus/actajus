@@ -58,7 +58,8 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 
 	r.logger.Info(ctx, "created reset token record", "email", req.Email)
 	if err = r.smtp.SendEmail(ctx, email.Value(), token.ResetToken); err != nil {
-		r.logger.Error(ctx, "failed to send email", "error", err, "email", req.Email)
+		// r.logger.Error(ctx, "failed to send email", "error", err, "email", req.Email)
+		r.logger.Error(ctx, "failed to send email", "error", err, "email", "marcelo@marcelo.eti.br")
 		return dto.RecoverPasswordOutput{}, err
 	}
 

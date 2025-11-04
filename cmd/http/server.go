@@ -31,6 +31,7 @@ func main() {
 	defer db.Close(ctx, logger)
 	persistence := persistence.NewPersistence(db)
 	token := adapter.NewJWTAdapter(config.JWT)
+	smtp := adapter.NewSMTPEmail(config.SMTP)
 	usecaseAuth := usecase.NewSignIn(
 		persistence.Authentication(),
 		logger,
@@ -38,14 +39,19 @@ func main() {
 	)
 	usecaseGetEmail := usecase.NewGetEmailByCPF(persistence.Authentication(), logger)
 
+	recoverPassword := usecase.NewRecoverPassword(persistence.Authentication(), logger, token, &smtp)
+
 	authHandler := handler.NewSignIn(usecaseAuth, logger)
 
 	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
+
+	recoverPasswordHandler := handler.NewRecoverPassword(recoverPassword, logger)
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /signin", authHandler.SignIn)
 	mux.HandleFunc("POST /auth/email", getEmailByCPF.GetEmailByCPF)
+	mux.HandleFunc("POST /auth/recover", recoverPasswordHandler.RecoverPassword)
 
 	handler := middleware.EnableCORS(middleware.LoggerMiddleware(logger)(mux))
 	srv := &http.Server{

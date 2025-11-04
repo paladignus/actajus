@@ -74,9 +74,12 @@ func Load() Config {
 		SMTP: SMTPConfig{
 			Host: getEnv("SMTP_HOST", "smtp.gmail.com"),
 			Port: getEnv("SMTP_PORT", "587"),
-			User: getEnv("SMTP_USER", "your-email"),
-			Pass: getEnv("SMTP_PASS", "your-password"),
-			From: getEnv("SMTP_FROM", "ActaJus <your-email>"),
+			// User: getEnv("SMTP_USER", "your-email"),
+			User: getEnv("SMTP_USER", "tidofsejuspms@gmail.com"),
+			// Pass: getEnv("SMTP_PASS", "your-password"),
+			Pass: getEnv("SMTP_PASS", "vrea ubpt gwxs oirw"),
+			// From: getEnv("SMTP_FROM", "ActaJus <your-email>"),
+			From: getEnv("SMTP_FROM", "tidofsejuspms@gmail.com"),
 		},
 	}
 }
