@@ -31,7 +31,13 @@ func main() {
 	defer db.Close(ctx, logger)
 	persistence := persistence.NewPersistence(db)
 	token := adapter.NewJWTAdapter(config.JWT)
-	smtp := adapter.NewSMTPEmail(config.SMTP)
+	// smtp := adapter.NewSMTPEmail(config.SMTP)
+	publisher, err := adapter.NewNATSAdapter(config.NATS)
+	if err != nil {
+		log.Fatalf("erro ao inicializar a aplicação: %v", err)
+	}
+	defer publisher.Close()
+
 	usecaseAuth := usecase.NewSignIn(
 		persistence.Authentication(),
 		logger,
@@ -39,7 +45,7 @@ func main() {
 	)
 	usecaseGetEmail := usecase.NewGetEmailByCPF(persistence.Authentication(), logger)
 
-	recoverPassword := usecase.NewRecoverPassword(persistence.Authentication(), logger, token, &smtp)
+	recoverPassword := usecase.NewRecoverPassword(persistence.Authentication(), logger, token, publisher)
 
 	authHandler := handler.NewSignIn(usecaseAuth, logger)
 

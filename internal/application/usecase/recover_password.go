@@ -15,16 +15,18 @@ type RecoverPassword struct {
 	persistence repository.Authentication
 	logger      repository.Logger
 	token       gateway.Token
-	smtp        gateway.SMTP
+	// smtp        gateway.SMTP
+	publisher gateway.Publisher
 }
 
 func NewRecoverPassword(
 	persistence repository.Authentication,
 	logger repository.Logger,
 	token gateway.Token,
-	smtp gateway.SMTP,
+	// smtp gateway.SMTP,
+	publisher gateway.Publisher,
 ) RecoverPassword {
-	return RecoverPassword{persistence, logger, token, smtp}
+	return RecoverPassword{persistence, logger, token, publisher}
 }
 
 func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInput) error {
@@ -57,12 +59,26 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 		r.logger.Error(ctx, "failed to create reset token record", "error", err, "email", req.Email)
 		return err
 	}
-	URL := "https://api.actajus.com.br/recover-password?token=" + token.ResetToken
-	r.logger.Info(ctx, "created reset token record", "email", req.Email)
-	if err = r.smtp.SendEmail(ctx, email.Value(), URL); err != nil {
-		r.logger.Error(ctx, "failed to send email", "error", err, "email", req.Email)
+	// URL := "https://api.actajus.com.br/recover-password?token=" + token.ResetToken
+	// event := map[string]interface{}{
+	// 	"id_user": IDUser,
+	// 	"email":   email.Value(),
+	// 	"name":    "marcelo",
+	// 	"url":     "https://api.actajus.com.br/recover-password?token=" + token.ResetToken,
+	// 	"event":   "user.created",
+	// }
+	// payload, _ := json.Marshal(event)
+	URL := "htps://api.actajus.com.br/recover-password?token=" + token.ResetToken
+	if err = r.publisher.Publish(ctx, "user.created", []byte(URL)); err != nil {
+		r.logger.Error(ctx, "failed to publish recover password event", "error", err, "email", req.Email)
 		return err
 	}
+	// URL := "https://api.actajus.com.br/recover-password?token=" + token.ResetToken
+	// r.logger.Info(ctx, "created reset token record", "email", req.Email)
+	// if err = r.smtp.SendEmail(ctx, email.Value(), URL); err != nil {
+	// 	r.logger.Error(ctx, "failed to send email", "error", err, "email", req.Email)
+	// 	return err
+	// }
 	r.logger.Info(ctx, "recover password successful", "email", req.Email)
 	return nil
 }

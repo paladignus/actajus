@@ -12,6 +12,7 @@ type Config struct {
 	Database DatabaseConfig
 	JWT      JWTConfig
 	SMTP     SMTPConfig
+	NATS     NATSConfig
 }
 
 type ServerConfig struct {
@@ -47,6 +48,10 @@ type SMTPConfig struct {
 	From string
 }
 
+type NATSConfig struct {
+	URL string
+}
+
 func Load() Config {
 	return Config{
 		Server: ServerConfig{
@@ -80,6 +85,9 @@ func Load() Config {
 			Pass: getEnv("SMTP_PASS", "vrea ubpt gwxs oirw"),
 			// From: getEnv("SMTP_FROM", "ActaJus <your-email>"),
 			From: getEnv("SMTP_FROM", "tidofsejuspms@gmail.com"),
+		},
+		NATS: NATSConfig{
+			URL: getEnv("NATS_URL", "nats://localhost:4222"),
 		},
 	}
 }

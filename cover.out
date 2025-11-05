@@ -1,13 +1,13 @@
 mode: set
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:26.19,28.2 1 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:30.120,33.22 3 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:33.22,38.3 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:40.2,41.16 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:41.16,44.3 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:28.19,30.2 1 1
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:32.91,35.22 3 1
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:35.22,40.3 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:41.2,42.16 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:42.16,45.3 2 1
 /home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:46.2,48.16 3 1
 /home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:48.16,51.3 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:53.2,54.90 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:54.90,57.3 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:59.2,60.78 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:60.78,63.3 2 1
-/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:65.2,68.8 2 1
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:52.2,53.76 2 0
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:53.76,56.3 2 0
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:57.2,58.90 2 0
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:58.90,61.3 2 0
+/home/marcelo/Workspace/go/projects/actajus/internal/application/usecase/recover_password.go:68.2,69.12 2 0
