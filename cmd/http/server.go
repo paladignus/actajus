@@ -13,6 +13,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/usecase"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
+	"github.com/paladignus/actajus/internal/infrastructure/adapter/nats"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
@@ -32,12 +33,16 @@ func main() {
 	persistence := persistence.NewPersistence(db)
 	token := adapter.NewJWTAdapter(config.JWT)
 	// smtp := adapter.NewSMTPEmail(config.SMTP)
-	publisher, err := adapter.NewNATSAdapter(config.NATS)
+	// publisher, err := adapter.NewNATSAdapter(config.NATS)
+	nc, js, err := nats.ConnectAndSetup(config.NATS)
 	if err != nil {
 		log.Fatalf("erro ao inicializar a aplicação: %v", err)
 	}
-	defer publisher.Close()
-
+	defer nc.Close()
+	publisher := nats.NewPublisher(js, 5*time.Second, config.NATS.DLQSubject)
+	if err != nil {
+		log.Fatalf("erro ao inicializar a aplicação: %v", err)
+	}
 	usecaseAuth := usecase.NewSignIn(
 		persistence.Authentication(),
 		logger,

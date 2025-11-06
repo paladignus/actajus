@@ -1,9 +1,12 @@
 // Package gateway
 package gateway
 
-import "context"
+import (
+	"context"
 
-// Publisher publica mensagens em um "subject" (ex: "user.created")
+	"github.com/paladignus/actajus/internal/domain/event"
+)
+
 type Publisher interface {
-	Publish(ctx context.Context, subject string, msg []byte) error
+	Publish(ctx context.Context, event event.DomainEvent) error
 }

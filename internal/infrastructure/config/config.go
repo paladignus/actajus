@@ -4,6 +4,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -49,7 +50,12 @@ type SMTPConfig struct {
 }
 
 type NATSConfig struct {
-	URL string
+	URL           string
+	StreamName    string
+	Subjects      []string
+	DLQSubject    string
+	MaxReconnects int
+	ReconnectWait time.Duration
 }
 
 func Load() Config {
@@ -87,7 +93,12 @@ func Load() Config {
 			From: getEnv("SMTP_FROM", "tidofsejuspms@gmail.com"),
 		},
 		NATS: NATSConfig{
-			URL: getEnv("NATS_URL", "nats://localhost:4222"),
+			URL:           getEnv("NATS_URL", "nats://localhost:4222"),
+			StreamName:    getEnv("NATS_STREAM_NAME", "EVENTS"),
+			Subjects:      strings.Split(getEnv("NATS_SUBJECTS", "auth.>,user.>"), ","),
+			MaxReconnects: getEnvAsInt("NATS_MAX_RECONNECTS", 5),
+			ReconnectWait: time.Duration(getEnvAsInt("NATS_RECONNECT_WAIT", 2)) * time.Second,
+			DLQSubject:    getEnv("NATS_DLQ_SUBJECT", "events.dlq"),
 		},
 	}
 }

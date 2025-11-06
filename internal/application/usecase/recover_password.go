@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
@@ -68,8 +69,11 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 	// 	"event":   "user.created",
 	// }
 	// payload, _ := json.Marshal(event)
-	URL := "htps://api.actajus.com.br/recover-password?token=" + token.ResetToken
-	if err = r.publisher.Publish(ctx, "user.created", []byte(URL)); err != nil {
+	event := event.RecoveredPassword{
+		Email: email.Value(),
+		URL:   "https://api.actajus.com.br/recover-password?token=" + token.ResetToken,
+	}
+	if err = r.publisher.Publish(ctx, event); err != nil {
 		r.logger.Error(ctx, "failed to publish recover password event", "error", err, "email", req.Email)
 		return err
 	}

@@ -9,41 +9,70 @@ import (
 	"syscall"
 
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
+	"github.com/paladignus/actajus/internal/infrastructure/adapter/nats"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
 func main() {
+	// 	cfg := config.Load()
+	// 	nc, js, err := nats.ConnectAndSetup(cfg.NATS)
+	// 	if err != nil {
+	// 		log.Fatal("NATS setup failed:", err)
+	// 	}
+	// 	defer nc.Close()
+	//
+	// 	subscriber := nats.NewSubscriber(js, cfg.NATS.DLQSubject)
+	//
+	// 	ctx, cancel := context.WithCancel(context.Background())
+	// 	defer cancel()
+	//
+	// 	// Handler simples para debug
+	// 	handler := func(data []byte) error {
+	// 		log.Printf("📧 EMAIL HANDLER RECEIVED: %s", string(data))
+	// 		return nil
+	// 	}
+	//
+	// 	// Nome único para evitar conflito
+	// 	durableName := fmt.Sprintf("debug-consumer-%d", time.Now().Unix())
+	//
+	// 	log.Printf("🔧 Subscribing with durable: %s", durableName)
+	//
+	// 	err = subscriber.Subscribe(ctx, "user.created", handler)
+	// 	if err != nil {
+	// 		log.Fatal("❌ Subscribe failed:", err)
+	// 	}
+	//
+	// 	log.Println("✅ Consumer ready. Waiting for messages...")
+	// 	// Manter vivo
+	// 	<-ctx.Done()
+	// }
+
 	config := config.Load()
-	natsAdapter, err := adapter.NewNATSAdapter(config.NATS)
+	nc, js, err := nats.ConnectAndSetup(config.NATS)
 	if err != nil {
 		log.Fatal("NATS connection failed:", err)
 	}
-	defer natsAdapter.Close()
-
-	// smtp := &spy.SpySMTP{}
-	// emailUC := usecase.NewSendWelcomeEmailUsecase(smtp)
+	defer nc.Close()
+	subscriber := nats.NewSubscriber(js, config.NATS.DLQSubject)
+	if err != nil {
+		log.Fatal("NATS connection failed:", err)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	smtp := adapter.NewSMTPEmail(config.SMTP)
 
-	err = natsAdapter.SubscribeWithRetry(
+	err = subscriber.Subscribe(
 		ctx,
 		"user.created",
-		"welcome-email-consumer", // nome durável
+		"email-service",
 		func(msg []byte) error {
+			log.Printf("📧 EMAIL HANDLER RECEIVED: %s", string(msg))
+			// return nil
 			return smtp.SendEmail(ctx, "marcelo@marcelo.eti.br", string(msg))
 		},
 	)
-	// err = natsAdapter.SubscribeWithRetry(
-	// 	ctx,
-	// 	"user.created",
-	// 	"welcome-email-consumer", // nome durável
-	// 	func(msg []byte) error {
-	// 		return emailUC.Handle(ctx, msg)
-	// 	},
-	// )
 	if err != nil {
 		log.Fatal("Failed to subscribe:", err)
 	}

@@ -1,14 +1,17 @@
 // Package event
 package event
 
+import "encoding/json"
+
 type RecoveredPassword struct {
 	Email string
+	URL   string
 }
 
 func (r RecoveredPassword) Subject() string {
-	return "user.recovered_password"
+	return "user.created"
 }
 
 func (r RecoveredPassword) Serialize() ([]byte, error) {
-	return []byte(r.Email), nil
+	return json.Marshal(r)
 }
