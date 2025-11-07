@@ -25,7 +25,7 @@ func ConnectAndSetup(cfg config.NATSConfig) (*nats.Conn, nats.JetStreamContext, 
 	}
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:      cfg.StreamName,
-		Subjects:  []string{"users.>"},
+		Subjects:  cfg.Subjects,
 		Retention: nats.WorkQueuePolicy,
 		MaxAge:    7 * 24 * time.Hour, // 7 dias
 		Storage:   nats.FileStorage,
@@ -37,7 +37,7 @@ func ConnectAndSetup(cfg config.NATSConfig) (*nats.Conn, nats.JetStreamContext, 
 
 	_, err = js.AddStream(&nats.StreamConfig{
 		Name:      "EVENT_DLQ",
-		Subjects:  []string{"user.>"},
+		Subjects:  []string{"users.>"},
 		Retention: nats.LimitsPolicy,
 		MaxAge:    30 * 24 * time.Hour, // 30 dias
 		Storage:   nats.FileStorage,

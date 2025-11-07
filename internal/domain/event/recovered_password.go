@@ -15,3 +15,10 @@ func (r RecoveredPassword) Subject() string {
 func (r RecoveredPassword) Serialize() ([]byte, error) {
 	return json.Marshal(r)
 }
+
+func (r RecoveredPassword) Deserialize(data []byte) (RecoveredPassword, error) {
+	if err := json.Unmarshal(data, &r); err != nil {
+		return RecoveredPassword{}, err
+	}
+	return r, nil
+}

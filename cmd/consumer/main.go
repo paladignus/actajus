@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter/nats"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
@@ -68,9 +69,13 @@ func main() {
 		"user.created",
 		"email-service",
 		func(msg []byte) error {
-			log.Printf("📧 EMAIL HANDLER RECEIVED: %s", string(msg))
-			// return nil
-			return smtp.SendEmail(ctx, "marcelo@marcelo.eti.br", string(msg))
+			event := event.RecoveredPassword{}
+			evt, err := event.Deserialize(msg)
+			if err != nil {
+				log.Printf("❌ Failed to deserialize event: %v", err)
+			}
+			log.Printf("📧 EMAIL HANDLER RECEIVED: %s", evt.Email)
+			return smtp.SendEmail(ctx, evt.Email, evt.URL)
 		},
 	)
 	if err != nil {
