@@ -13,7 +13,6 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/event"
 	"github.com/paladignus/actajus/internal/application/usecase"
-	evt "github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter/nats"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
@@ -54,19 +53,19 @@ func main() {
 	// =================================================================
 	// CRIA EVENT REGISTRY E REGISTRA TIPOS DE EVENTOS
 	// =================================================================
-	eventRegistry := evt.NewEventRegistry()
+	// eventRegistry := evt.NewEventRegistry()
 	// Registra os tipos de eventos conhecidos explicitamente aqui.
 	// Isso substitui o uso de init() e torna o processo explícito.
-	err = eventRegistry.Register("user.password_reset_requested", func() evt.Event { return &evt.PasswordResetRequestedEvent{} })
-	if err != nil {
-		log.Fatalf("❌ Failed to register event type: %v", err)
-	}
+	// err = eventRegistry.Register("user.password_reset_requested", func() evt.Event { return &evt.PasswordResetRequestedEvent{} })
+	// if err != nil {
+	// 	log.Fatalf("❌ Failed to register event type: %v", err)
+	// }
 	// Futuramente, ao adicionar um novo evento:
 	// err = eventRegistry.Register("user.created", func() event.Event { return &event.UserCreatedEvent{} })
 	// if err != nil { ... }
 
 	// Log de eventos registrados (opcional)
-	log.Println("Registered Events:", eventRegistry.GetRegisteredEventNames())
+	// log.Println("Registered Events:", eventRegistry.GetRegisteredEventNames())
 	// =================================================================
 
 	// =================================================================
@@ -82,7 +81,7 @@ func main() {
 	// =================================================================
 	// 3. CRIA SUBSCRIBER
 	// =================================================================
-	subscriber, err := nats.NewSubscriber(natsConfig, eventRegistry)
+	subscriber, err := nats.NewSubscriber(natsConfig)
 	if err != nil {
 		log.Fatalf("❌ Failed to create NATS subscriber: %v", err)
 	}
