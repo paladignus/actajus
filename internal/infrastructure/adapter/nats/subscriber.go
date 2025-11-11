@@ -4,129 +4,211 @@ package nats
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/paladignus/actajus/internal/domain/event"
 )
 
 type Subscriber struct {
-	js      nats.JetStreamContext
-	dlqSubl string
+	conn          *nats.Conn
+	js            nats.JetStreamContext
+	config        *Config
+	subscriptions map[string]*nats.Subscription // Mapeia eventName -> subscription
+	mu            sync.RWMutex                  // Protege acesso ao map de subscriptions
+	cancelFuncs   map[string]context.CancelFunc // Para cancelar goroutines
+	wg            sync.WaitGroup                // Aguarda goroutines terminarem
+	eventRegistry *event.EventRegistry
 }
 
-type DLQMessage struct {
-	OriginalSubject string    `json:"original_subject"`
-	Data            []byte    `json:"data"`
-	Error           string    `json:"error"`
-	Attempts        uint64    `json:"attempts"`
-	FailedAt        time.Time `json:"failed_at"`
+// var _ gateway.EventSubscriber = (*Subscriber)(nil)
+func NewSubscriber(config *Config, registry *event.EventRegistry) (*Subscriber, error) { // Adicionado registry
+	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+	conn, err := nats.Connect(
+		config.URL,
+		nats.Timeout(config.ConnectionTimeout),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.ReconnectWait(2*time.Second),
+	)
+	if err != nil {
+		return nil, ErrConnectionFailed(err)
+	}
+	js, err := conn.JetStream()
+	if err != nil {
+		conn.Close()
+		return nil, ErrConnectionFailed(err)
+	}
+	return &Subscriber{
+		conn:          conn,
+		js:            js,
+		config:        config,
+		subscriptions: make(map[string]*nats.Subscription),
+		cancelFuncs:   make(map[string]context.CancelFunc),
+		eventRegistry: registry,
+	}, nil
 }
 
-func NewSubscriber(js nats.JetStreamContext, dlqSubj string) *Subscriber {
-	return &Subscriber{js, dlqSubj}
-}
-
-// func (s *Subscriber) Subscribe(ctx context.Context, subject string, handler func([]byte) error) error {
-// 	_, err := s.js.Subscribe(
-// 		subject,
-// 		func(m *nats.Msg) {
-// 			log.Printf("📥 Message received: %s", string(m.Data))
-// 			if err := handler(m.Data); err != nil {
-// 				log.Printf("❌ Handler error: %v", err)
-// 				m.NakWithDelay(5 * time.Second)
-// 			} else {
-// 				m.Ack()
-// 			}
-// 		},
-// 		nats.ManualAck(),
-// 		nats.AckExplicit(),
-// 		nats.MaxDeliver(3),
-// 		nats.AckWait(30*time.Second),
-// 	)
-// 	return err
-// }
-
-func (s *Subscriber) Subscribe(
-	ctx context.Context,
-	subject,
-	durable string,
-	handler func(msg []byte) error,
-) error {
-	_, err := s.js.Subscribe(
+func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler event.Handler) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if _, exists := p.subscriptions[eventName]; exists {
+		return fmt.Errorf("already subscribed to event: %s", eventName)
+	}
+	subject := fmt.Sprintf("events.%s", eventName)
+	consumerName := fmt.Sprintf("%s-%s", p.config.ConsumerName, strings.ReplaceAll(eventName, ".", "_"))
+	consumerConfig := &nats.ConsumerConfig{
+		Durable:       consumerName,
+		DeliverPolicy: nats.DeliverAllPolicy,
+		AckPolicy:     nats.AckExplicitPolicy,
+		AckWait:       p.config.AckWait,
+		MaxDeliver:    p.config.MaxDeliver,
+		MaxAckPending: p.config.MaxAckPending,
+		ReplayPolicy:  nats.ReplayInstantPolicy,
+	}
+	_, err := p.js.AddConsumer(p.config.StreamName, consumerConfig)
+	if err != nil {
+		log.Printf("[NATS] Failed to create consumer: %s", consumerName)
+		return ErrConsumerCreationFailed(err)
+	}
+	sub, err := p.js.PullSubscribe(
 		subject,
-		func(m *nats.Msg) {
-			log.Printf("📥 Message received on subject '%s' (size: %d)", m.Subject, len(m.Data))
-			meta, err := m.Metadata()
+		consumerName,
+		nats.ManualAck(),
+	)
+	if err != nil {
+		return ErrSubscribeFailed(err)
+	}
+	p.subscriptions[eventName] = sub
+	subCtx, cancel := context.WithCancel(ctx)
+	p.cancelFuncs[eventName] = cancel
+	p.wg.Add(1)
+	go p.processMessages(subCtx, eventName, sub, handler)
+	log.Printf("[NATS] Subscribed to event: %s (consumer: %s)", eventName, consumerName)
+	return nil
+}
+
+func (p *Subscriber) processMessages(
+	ctx context.Context,
+	eventName string,
+	sub *nats.Subscription,
+	handler event.Handler,
+) {
+	defer p.wg.Done()
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("[NATS] Stopping message processing for event: %s", eventName)
+			return
+		default:
+			msgs, err := sub.Fetch(10, nats.Context(ctx))
 			if err != nil {
-				log.Printf("failed to get message metadata: %v", err)
-				m.Nak()
-				return
-			}
-			log.Printf("📋 Delivery attempt: %d", meta.NumDelivered)
-			if err := handler(m.Data); err != nil {
-				log.Printf("❌ Handler failed: %v", err)
-				attempts := meta.NumDelivered
-				log.Printf("handler failed (attempt %d): failed %v", attempts, err)
-				if attempts >= 3 {
-					log.Printf("moving message to DLQ after %d attempts", attempts)
-					s.sendToDLQ(m, err, attempts)
-					m.Ack()
-				} else {
-					// Exponential backoff: 10s, 20s, 40s...
-					delay := time.Duration(10<<attempts) * time.Second
-					if delay > 60*time.Second {
-						delay = 60 * time.Second
-					}
-					m.NakWithDelay(delay)
+				if ctx.Err() != nil {
+					return
 				}
-			} else {
-				log.Printf("✅ Handler succeeded")
-				m.Ack() // ack na fila original para nao reprocessar
+				time.Sleep(1 * time.Second)
+				continue
 			}
-		},
-		nats.Durable(durable),
-		nats.ManualAck(),
-		nats.AckExplicit(),
-		nats.MaxDeliver(10),
-		nats.AckWait(20*time.Second),
-	)
-	return err
-}
-
-func (s *Subscriber) sendToDLQ(msg *nats.Msg, err error, attempts uint64) {
-	dlq := DLQMessage{
-		OriginalSubject: msg.Subject,
-		Data:            msg.Data,
-		Error:           err.Error(),
-		Attempts:        attempts,
-		FailedAt:        time.Now(),
-	}
-	payload, _ := json.Marshal(dlq)
-	if _, err := s.js.Publish(s.dlqSubl, payload); err != nil {
-		log.Printf("critical: failed to publish to DLQ: %v", err)
+			for _, msg := range msgs {
+				p.handleMessage(ctx, msg, handler)
+			}
+		}
 	}
 }
 
-func (s *Subscriber) ProcessDLQ(ctx context.Context, handler func(DLQMessage) error) error {
-	_, err := s.js.Subscribe(
-		s.dlqSubl,
-		func(m *nats.Msg) {
-			var dlq DLQMessage
-			if err := json.Unmarshal(m.Data, &dlq); err != nil {
-				log.Printf("invalid DLQ message: %v", err)
-				m.Ack()
-				return
-			}
-			if err := handler(dlq); err != nil {
-				log.Printf("DLQ handler failed (will retry): %v", err)
-				m.NakWithDelay(30 * time.Second)
-				return
-			}
-			m.Ack()
-		},
-		nats.Durable("dlq-processor"),
-		nats.ManualAck(),
-	)
-	return err
+func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler event.Handler) {
+	processCtx, cancel := context.WithTimeout(ctx, p.config.AckWait-5*time.Second)
+	defer cancel()
+	meta, err := msg.Metadata()
+	if err != nil {
+		log.Printf("[NATS] Failed to get message metadata: %v", err)
+		msg.Nak()
+		return
+	}
+	log.Printf("[NATS] Processing message (attempt %d): %s", meta.NumDelivered, msg.Subject)
+	var tempEvent map[string]interface{}
+	if err := json.Unmarshal(msg.Data, &tempEvent); err != nil {
+		log.Printf("[NATS] Failed to deserialize event header: %v", err)
+		msg.Term()
+		return
+	}
+	eventNameRaw, ok := tempEvent["Name"].(string)
+	if !ok {
+		log.Printf("[NATS] Failed to extract event name from message: %v", tempEvent)
+		msg.Term()
+		return
+	}
+	eventInstance, err := p.eventRegistry.CreateEventByName(eventNameRaw) // Usando p.eventRegistry
+	if err != nil {
+		log.Printf("[NATS] Failed to create event instance for name '%s': %v", eventNameRaw, err)
+		msg.Term() // Descarta mensagem de evento desconhecido
+		return
+	}
+	if err := json.Unmarshal(msg.Data, eventInstance); err != nil {
+		log.Printf("[NATS] Failed to deserialize full event data for type '%s': %v", eventNameRaw, err)
+		msg.Term()
+		return
+	}
+	if !handler.CanHandle(eventInstance) {
+		log.Printf("[NATS] Handler cannot process event: %s", eventInstance.EventName())
+		msg.Ack()
+		return
+	}
+	if err := handler.Handle(processCtx, eventInstance); err != nil {
+		log.Printf("[NATS] Handler failed (attempt %d): %v", meta.NumDelivered, err)
+		backoff := time.Duration(1<<(meta.NumDelivered-1)) * time.Second
+		if backoff > 30*time.Second {
+			backoff = 30 * time.Second
+		}
+		log.Printf("[NATS] Retrying in %v...", backoff)
+		msg.NakWithDelay(backoff)
+		return
+	}
+	if err := msg.Ack(); err != nil {
+		log.Printf("[NATS] Failed to ACK message: %v", err)
+	} else {
+		log.Printf("[NATS] Message processed successfully: %s", msg.Subject)
+	}
+}
+
+func (p *Subscriber) Unsubscribe(eventName string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	sub, exists := p.subscriptions[eventName]
+	if !exists {
+		return fmt.Errorf("not subscribed to event: %s", eventName)
+	}
+	if cancel, ok := p.cancelFuncs[eventName]; ok {
+		cancel()
+		delete(p.cancelFuncs, eventName)
+	}
+	if err := sub.Unsubscribe(); err != nil {
+		return err
+	}
+	delete(p.subscriptions, eventName)
+	log.Printf("[NATS] Unsubscribed from event: %s", eventName)
+	return nil
+}
+
+func (p *Subscriber) Close() error {
+	p.mu.Lock()
+	for _, cancel := range p.cancelFuncs {
+		cancel()
+	}
+	for _, sub := range p.subscriptions {
+		sub.Unsubscribe()
+	}
+	p.mu.Unlock()
+	p.wg.Wait()
+	if p.conn != nil {
+		p.conn.Close()
+	}
+	log.Println("[NATS] Subscriber closed")
+	return nil
 }

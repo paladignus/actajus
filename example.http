@@ -14,6 +14,14 @@ content-type: application/json
     "cpf": "987.654.321-00"
 }
 
+###
+POST http://localhost:8080/auth/recover
+content-type: application/json
+
+{
+    "email": "marcelo@marcelo.eti.br"
+}
+
 
 ###
 POST https://api.actajus.com.br/signin

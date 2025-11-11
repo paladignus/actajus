@@ -2,56 +2,60 @@
 package nats
 
 import (
-	"fmt"
 	"time"
-
-	"github.com/nats-io/nats.go"
-	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
-func ConnectAndSetup(cfg config.NATSConfig) (*nats.Conn, nats.JetStreamContext, error) {
-	nc, err := nats.Connect(
-		cfg.URL,
-		nats.MaxReconnects(cfg.MaxReconnects),
-		nats.ReconnectWait(cfg.ReconnectWait),
-	)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to NATS: %w", err)
-	}
-	js, err := nc.JetStream()
-	if err != nil {
-		nc.Close()
-		return nil, nil, fmt.Errorf("failed to get JetStream context: %w", err)
-	}
-	_, err = js.AddStream(&nats.StreamConfig{
-		Name:      cfg.StreamName,
-		Subjects:  cfg.Subjects,
-		Retention: nats.WorkQueuePolicy,
-		MaxAge:    7 * 24 * time.Hour, // 7 dias
-		Storage:   nats.FileStorage,
-	})
-	if err != nil && !isStreamExistsError(err) {
-		nc.Close()
-		return nil, nil, fmt.Errorf("failed to setup main stream: %w", err)
-	}
-
-	_, err = js.AddStream(&nats.StreamConfig{
-		Name:      "EVENT_DLQ",
-		Subjects:  []string{"users.>"},
-		Retention: nats.LimitsPolicy,
-		MaxAge:    30 * 24 * time.Hour, // 30 dias
-		Storage:   nats.FileStorage,
-	})
-	if err != nil && !isStreamExistsError(err) {
-		nc.Close()
-		return nil, nil, fmt.Errorf("failed to setup DLQ stream: %w", err)
-	}
-	return nc, js, nil
+type Config struct {
+	URL               string
+	StreamName        string
+	Subjects          []string
+	MaxAge            time.Duration
+	MaxBytes          int64
+	Replicas          int
+	ConsumerName      string
+	DurableName       string
+	AckWait           time.Duration
+	MaxDeliver        int
+	MaxAckPending     int
+	ReplayPolicy      string
+	ConnectionTimeout time.Duration
+	RequestTimeout    time.Duration
 }
 
-func isStreamExistsError(err error) bool {
-	if err, ok := err.(*nats.APIError); ok {
-		return err.ErrorCode == 10058
+func NewDefaultConfig() *Config {
+	return &Config{
+		URL:               "nats://localhost:4222",
+		StreamName:        "EVENTS",
+		Subjects:          []string{"events.>"}, // Aceita todos os eventos
+		MaxAge:            7 * 24 * time.Hour,   // Mantém por 1 semana
+		MaxBytes:          100 * 1024 * 1024,    // 100 MB
+		Replicas:          1,                    // Sem replicação (dev)
+		ConsumerName:      "default-consumer",
+		DurableName:       "default-durable",
+		AckWait:           30 * time.Second,
+		MaxDeliver:        3,
+		MaxAckPending:     100,
+		ReplayPolicy:      "instant",
+		ConnectionTimeout: 10 * time.Second,
+		RequestTimeout:    5 * time.Second,
 	}
-	return false
+}
+
+func (c *Config) Validate() error {
+	if c.URL == "" {
+		return ErrInvalidConfig("URL is required")
+	}
+	if c.StreamName == "" {
+		return ErrInvalidConfig("StreamName is required")
+	}
+	if len(c.Subjects) == 0 {
+		return ErrInvalidConfig("at least one Subject is required")
+	}
+	if c.MaxDeliver < 1 {
+		return ErrInvalidConfig("MaxDeliver must be >= 1")
+	}
+	if c.MaxAckPending < 1 {
+		return ErrInvalidConfig("MaxAckPending must be >= 1")
+	}
+	return nil
 }
