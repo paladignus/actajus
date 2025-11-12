@@ -13,6 +13,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/application/event"
 	"github.com/paladignus/actajus/internal/application/usecase"
+	evt "github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter/nats"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
@@ -53,7 +54,9 @@ func main() {
 	// =================================================================
 	// CRIA EVENT REGISTRY E REGISTRA TIPOS DE EVENTOS
 	// =================================================================
-	// eventRegistry := evt.NewEventRegistry()
+	registry := evt.NewRegistry()
+	evt.RegisterAll(registry)
+
 	// Registra os tipos de eventos conhecidos explicitamente aqui.
 	// Isso substitui o uso de init() e torna o processo explícito.
 	// err = eventRegistry.Register("user.password_reset_requested", func() evt.Event { return &evt.PasswordResetRequestedEvent{} })
@@ -81,7 +84,7 @@ func main() {
 	// =================================================================
 	// 3. CRIA SUBSCRIBER
 	// =================================================================
-	subscriber, err := nats.NewSubscriber(natsConfig)
+	subscriber, err := nats.NewSubscriber(natsConfig, registry)
 	if err != nil {
 		log.Fatalf("❌ Failed to create NATS subscriber: %v", err)
 	}

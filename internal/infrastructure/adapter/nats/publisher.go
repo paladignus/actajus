@@ -107,9 +107,7 @@ func (p *Publisher) PublishBatch(ctx context.Context, events []event.Event) erro
 
 func (p *Publisher) Close() error {
 	if p.conn != nil {
-		// Aguarda mensagens pendentes serem enviadas
 		p.conn.Flush()
-		// Fecha a conexão
 		p.conn.Close()
 	}
 	return nil
