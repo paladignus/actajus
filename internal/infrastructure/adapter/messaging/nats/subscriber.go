@@ -11,12 +11,13 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/paladignus/actajus/internal/domain/event"
+	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
 type Subscriber struct {
 	conn          *nats.Conn
 	js            nats.JetStreamContext
-	config        *Config
+	config        *config.NATSConfig
 	registry      *event.Registry               // Registry para deserializar eventos
 	subscriptions map[string]*nats.Subscription // Mapeia eventName -> subscription
 	mu            sync.RWMutex                  // Protege acesso ao map de subscriptions
@@ -24,10 +25,7 @@ type Subscriber struct {
 	wg            sync.WaitGroup                // Aguarda goroutines terminarem
 }
 
-func NewSubscriber(config *Config, registry *event.Registry) (*Subscriber, error) { // Adicionado registry
-	if err := config.Validate(); err != nil {
-		return nil, err
-	}
+func NewSubscriber(config *config.NATSConfig, registry *event.Registry) (*Subscriber, error) { // Adicionado registry
 	conn, err := nats.Connect(
 		config.URL,
 		nats.Timeout(config.ConnectionTimeout),
@@ -146,9 +144,10 @@ func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler e
 		log.Printf("[NATS] Handler failed (attempt %d): %v",
 			meta.NumDelivered, err)
 		backoff := time.Duration(1<<(meta.NumDelivered-1)) * time.Second
-		if backoff > 30*time.Second {
-			backoff = 30 * time.Second // Máximo de 30s
-		}
+		backoff = min(backoff, 30*time.Second)
+		// if backoff > 30*time.Second {
+		// 	backoff = 30 * time.Second // Máximo de 30s
+		// }
 		log.Printf("[NATS] Retrying in %v...", backoff)
 		msg.NakWithDelay(backoff)
 		return

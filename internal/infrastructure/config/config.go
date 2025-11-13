@@ -50,12 +50,20 @@ type SMTPConfig struct {
 }
 
 type NATSConfig struct {
-	URL           string
-	StreamName    string
-	Subjects      []string
-	DLQSubject    string
-	MaxReconnects int
-	ReconnectWait time.Duration
+	Subjects          []string
+	URL               string
+	StreamName        string
+	ConsumerName      string
+	DurableName       string
+	ReplayPolicy      string
+	MaxBytes          int64
+	Replicas          int
+	MaxDeliver        int
+	MaxAckPending     int
+	MaxAge            time.Duration
+	AckWait           time.Duration
+	ConnectionTimeout time.Duration
+	RequestTimeout    time.Duration
 }
 
 func Load() Config {
@@ -93,12 +101,20 @@ func Load() Config {
 			From: getEnv("SMTP_FROM", "tidofsejuspms@gmail.com"),
 		},
 		NATS: NATSConfig{
-			URL:           getEnv("NATS_URL", "nats://localhost:4222"),
-			StreamName:    getEnv("NATS_STREAM_NAME", "EVENTS"),
-			Subjects:      strings.Split(getEnv("NATS_SUBJECTS", "auth.>,user.>"), ","),
-			MaxReconnects: getEnvAsInt("NATS_MAX_RECONNECTS", 5),
-			ReconnectWait: time.Duration(getEnvAsInt("NATS_RECONNECT_WAIT", 2)) * time.Second,
-			DLQSubject:    getEnv("NATS_DLQ_SUBJECT", "events.dlq"),
+			Subjects:          strings.Split(getEnv("NATS_SUBJECTS", "events.>"), ","),
+			URL:               getEnv("NATS_URL", "nats://localhost:4222"),
+			StreamName:        getEnv("NATS_STREAM_NAME", "EVENTS"),
+			ConsumerName:      getEnv("NATS_CONSUMER_NAME", "actajus-consumer"),
+			DurableName:       getEnv("NATS_DURABLE_NAME", "actajus-durable"),
+			ReplayPolicy:      getEnv("NATS_REPLAY_POLICY", "last"),
+			MaxBytes:          int64(getEnvAsInt("NATS_MAX_BYTES", 1024*1024*1024)),
+			Replicas:          getEnvAsInt("NATS_REPLICAS", 1),
+			MaxDeliver:        getEnvAsInt("NATS_MAX_DELIVER", 3),
+			MaxAckPending:     getEnvAsInt("NATS_MAX_ACK_PENDING", 100),
+			MaxAge:            time.Duration(getEnvAsInt("NATS_MAX_AGE", 7*24)) * time.Hour,
+			AckWait:           time.Duration(getEnvAsInt("NATS_ACK_WAIT", 30)) * time.Second,
+			ConnectionTimeout: time.Duration(getEnvAsInt("NATS_CONNECTION_TIMEOUT", 10)) * time.Second,
+			RequestTimeout:    time.Duration(getEnvAsInt("NATS_REQUEST_TIMEOUT", 5)) * time.Second,
 		},
 	}
 }
@@ -107,9 +123,6 @@ func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
-	// if value, exists := syscall.Getenv(key); exists {
-	// 	return value
-	// }
 	return defaultValue
 }
 

@@ -10,25 +10,22 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/paladignus/actajus/internal/domain/event"
+	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
 type Publisher struct {
 	conn   *nats.Conn
 	js     nats.JetStreamContext
-	config *Config
+	config *config.NATSConfig
 }
 
-func NewPublisher(config *Config) (*Publisher, error) {
-	if err := config.Validate(); err != nil {
-		return nil, err
-	}
+func NewPublisher(config *config.NATSConfig) (*Publisher, error) {
 	conn, err := nats.Connect(
 		config.URL,
 		nats.Timeout(config.ConnectionTimeout),
 		nats.RetryOnFailedConnect(true),
 		nats.MaxReconnects(-1), // Reconecta infinitamente
 		nats.ReconnectWait(2*time.Second),
-		// Callbacks para observabilidade
 		nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
 			if err != nil {
 				fmt.Printf("[NATS] Disconnected: %v\n", err)
@@ -69,7 +66,6 @@ func (p *Publisher) ensureStream() error {
 	}
 	_, err := p.js.AddStream(streamConfig)
 	if err != nil {
-		// Se o stream já existe, tenta atualizar
 		_, err = p.js.UpdateStream(streamConfig)
 		if err != nil {
 			return ErrStreamCreationFailed(err)

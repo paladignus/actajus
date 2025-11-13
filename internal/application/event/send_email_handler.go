@@ -14,8 +14,6 @@ type SendEmailHandler struct {
 	smtpGateway gateway.SMTP
 }
 
-// var _ event.Handler = (*SendEmailHandler)(nil)
-
 func NewSendEmailHandler(smtpGateway gateway.SMTP) *SendEmailHandler {
 	return &SendEmailHandler{
 		smtpGateway: smtpGateway,

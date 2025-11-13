@@ -16,14 +16,14 @@ type RecoverPassword struct {
 	persistence repository.Authentication
 	logger      repository.Logger
 	token       gateway.Token
-	publisher   gateway.EventPublisher
+	publisher   gateway.Publisher
 }
 
 func NewRecoverPassword(
 	persistence repository.Authentication,
 	logger repository.Logger,
 	token gateway.Token,
-	publisher gateway.EventPublisher,
+	publisher gateway.Publisher,
 ) RecoverPassword {
 	return RecoverPassword{persistence, logger, token, publisher}
 }

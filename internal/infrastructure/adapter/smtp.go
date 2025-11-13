@@ -63,8 +63,7 @@ func (s *SMTPEmail) SendEmail(ctx context.Context, to string, resetURL string) e
 		"MIME-Version: 1.0\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n"+
 		"\r\n"+
-		// "%s\r\n", s.config.From, to, subject, body)
-		"%s\r\n", from.String(), "marcelo@marcelo.eti.br", subject, body)
+		"%s\r\n", from.String(), to, subject, body)
 	auth := smtp.PlainAuth("", s.config.User, s.config.Pass, s.config.Host)
 	addr := fmt.Sprintf("%s:%s", s.config.Host, s.config.Port)
 	return smtp.SendMail(addr, auth, s.config.From, []string{to}, []byte(message))

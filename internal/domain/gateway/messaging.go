@@ -7,13 +7,13 @@ import (
 	"github.com/paladignus/actajus/internal/domain/event"
 )
 
-type EventPublisher interface {
+type Publisher interface {
 	Publish(ctx context.Context, event event.Event) error
 	PublishBatch(ctx context.Context, events []event.Event) error
 	Close() error
 }
 
-type EventSubscriber interface {
+type Subscriber interface {
 	Subscribe(ctx context.Context, eventName string, handler event.Handler) error
 	Unsubscribe(eventName string) error
 	Close() error
