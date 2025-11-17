@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/event"
 	"github.com/paladignus/actajus/internal/application/usecase"
 	evt "github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
@@ -63,18 +62,19 @@ func main() {
 	// =================================================================
 	// 4. CRIA ADAPTERS (suas implementações existentes)
 	// =================================================================
-	smtpGateway := adapter.NewSMTPEmail(config.SMTP)
+	// smtp := adapter.NewSMTPEmail(config.SMTP)
 	logger.Info(ctx, "✅ SMTP gateway configured")
 
 	// =================================================================
 	// 5. CRIA E REGISTRA HANDLERS
 	// =================================================================
-	emailHandler := event.NewSendEmailHandler(&smtpGateway)
-	err = subscriber.Subscribe(
-		context.Background(), // Use context.Background() para Subscribe
-		"user.password_reset_requested",
-		emailHandler,
-	)
+	// emailHandler := event.NewSendEmailHandler(&smtp)
+	// emailHandler := messaging.NewRecoverPassword(logger, smtp)
+	// err = subscriber.Subscribe(
+	// 	context.Background(), // Use context.Background() para Subscribe
+	// 	"user.password_reset_requested",
+	// 	emailHandler,
+	// )
 	if err != nil {
 		logger.Error(ctx, "❌ failed to subscribe to events", "error", err)
 		os.Exit(1)

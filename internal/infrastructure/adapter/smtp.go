@@ -18,7 +18,7 @@ func NewSMTPEmail(config config.SMTPConfig) SMTPEmail {
 	return SMTPEmail{config}
 }
 
-func (s *SMTPEmail) SendEmail(ctx context.Context, to string, resetURL string) error {
+func (s SMTPEmail) SendEmail(ctx context.Context, to string, resetURL string) error {
 	subject := "Password Reset Request"
 	body := fmt.Sprintf(`
 		<!DOCTYPE html>

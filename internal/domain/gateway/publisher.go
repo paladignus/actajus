@@ -12,9 +12,3 @@ type Publisher interface {
 	PublishBatch(ctx context.Context, events []event.Event) error
 	Close() error
 }
-
-type Subscriber interface {
-	Subscribe(ctx context.Context, eventName string, handler event.Handler) error
-	Unsubscribe(eventName string) error
-	Close() error
-}
