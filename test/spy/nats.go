@@ -8,16 +8,16 @@ import (
 )
 
 type SpyPublisher struct {
-	event event.Event
+	event event.IEvent
 	Err   error
 }
 
-func (s *SpyPublisher) Publish(ctx context.Context, event event.Event) error {
+func (s *SpyPublisher) Publish(ctx context.Context, event event.IEvent) error {
 	s.event = event
 	return s.Err
 }
 
-func (s *SpyPublisher) PublishBatch(ctx context.Context, events []event.Event) error {
+func (s *SpyPublisher) PublishBatch(ctx context.Context, events []event.IEvent) error {
 	return s.Err
 }
 

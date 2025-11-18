@@ -74,7 +74,7 @@ func (p *Publisher) ensureStream() error {
 	return nil
 }
 
-func (p *Publisher) Publish(ctx context.Context, evt event.Event) error {
+func (p *Publisher) Publish(ctx context.Context, evt event.IEvent) error {
 	data, err := json.Marshal(evt)
 	if err != nil {
 		return ErrSerializationFailed(err)
@@ -88,7 +88,7 @@ func (p *Publisher) Publish(ctx context.Context, evt event.Event) error {
 	return nil
 }
 
-func (p *Publisher) PublishBatch(ctx context.Context, events []event.Event) error {
+func (p *Publisher) PublishBatch(ctx context.Context, events []event.IEvent) error {
 	var errors []error
 	for _, evt := range events {
 		if err := p.Publish(ctx, evt); err != nil {

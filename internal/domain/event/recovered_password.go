@@ -2,7 +2,7 @@
 package event
 
 type PasswordResetRequestedEvent struct {
-	BaseEvent
+	Event
 	UserEmail  string
 	ResetToken string
 	ResetURL   string
@@ -17,10 +17,10 @@ func NewPasswordResetRequestedEvent(
 	userName string,
 ) PasswordResetRequestedEvent {
 	return PasswordResetRequestedEvent{
-		BaseEvent: NewBaseEvent(
-			"user.password_reset_requested", // Nome do evento
-			userID,                          // ID da entidade (usuário)
-			"v1",                            // Versão do schema
+		Event: NewEvent(
+			"user.password_reset_requested",
+			userID,
+			"v1",
 		),
 		UserEmail:  email,
 		ResetToken: resetToken,

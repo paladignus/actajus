@@ -119,8 +119,8 @@ func (p *Subscriber) processMessages(
 }
 
 func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler event.Handler) {
-	processCtx, cancel := context.WithTimeout(ctx, p.config.AckWait-5*time.Second)
-	defer cancel()
+	// processCtx, cancel := context.WithTimeout(ctx, p.config.AckWait-5*time.Second)
+	// defer cancel()
 	meta, err := msg.Metadata()
 	if err != nil {
 		log.Printf("[NATS] Failed to get message metadata: %v", err)
@@ -135,12 +135,12 @@ func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler e
 		msg.Term()
 		return
 	}
-	if !handler.CanHandle(evt) {
-		log.Printf("[NATS] Handler cannot process event: %s", evt.EventName())
-		msg.Ack() // ACK para não reprocessar
-		return
-	}
-	if err := handler.Handle(processCtx, evt); err != nil {
+	// if !handler.CanHandle(evt) {
+	// 	log.Printf("[NATS] Handler cannot process event: %s", evt.EventName())
+	// 	msg.Ack() // ACK para não reprocessar
+	// 	return
+	// }
+	if err := handler.Handle(ctx, evt); err != nil {
 		log.Printf("[NATS] Handler failed (attempt %d): %v",
 			meta.NumDelivered, err)
 		backoff := time.Duration(1<<(meta.NumDelivered-1)) * time.Second

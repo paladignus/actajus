@@ -8,7 +8,7 @@ import (
 )
 
 type Publisher interface {
-	Publish(ctx context.Context, event event.Event) error
-	PublishBatch(ctx context.Context, events []event.Event) error
+	Publish(ctx context.Context, event event.IEvent) error
+	PublishBatch(ctx context.Context, events []event.IEvent) error
 	Close() error
 }

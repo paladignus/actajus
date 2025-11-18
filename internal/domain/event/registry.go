@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-type EventFactory func() Event
+type EventFactory func() IEvent
 
 type Registry struct {
 	factories map[string]EventFactory
@@ -32,7 +32,7 @@ func (r *Registry) Register(eventName string, factory EventFactory) {
 	r.factories[eventName] = factory
 }
 
-func (r *Registry) Unmarshal(data []byte) (Event, error) {
+func (r *Registry) Unmarshal(data []byte) (IEvent, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var partial struct {
@@ -79,7 +79,7 @@ func (r *Registry) Clear() {
 }
 
 func RegisterAll(registry *Registry) {
-	registry.Register("user.password_reset_requested", func() Event {
+	registry.Register("user.password_reset_requested", func() IEvent {
 		return &PasswordResetRequestedEvent{}
 	})
 }

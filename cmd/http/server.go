@@ -18,6 +18,7 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
+	"github.com/paladignus/actajus/internal/infrastructure/messaging"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence"
 )
 
@@ -62,14 +63,14 @@ func main() {
 	// =================================================================
 	// 4. CRIA ADAPTERS (suas implementações existentes)
 	// =================================================================
-	// smtp := adapter.NewSMTPEmail(config.SMTP)
+	smtp := adapter.NewSMTPEmail(config.SMTP)
 	logger.Info(ctx, "✅ SMTP gateway configured")
 
 	// =================================================================
 	// 5. CRIA E REGISTRA HANDLERS
 	// =================================================================
 	// emailHandler := event.NewSendEmailHandler(&smtp)
-	// emailHandler := messaging.NewRecoverPassword(logger, smtp)
+	emailHandler := messaging.NewRecoverPassword(logger, smtp)
 	// err = subscriber.Subscribe(
 	// 	context.Background(), // Use context.Background() para Subscribe
 	// 	"user.password_reset_requested",
@@ -90,6 +91,14 @@ func main() {
 	)
 	usecaseGetEmail := usecase.NewGetEmailByCPF(persistence.Authentication(), logger)
 	recoverPassword := usecase.NewRecoverPassword(persistence.Authentication(), logger, token, publisher)
+	sendEmailRecoverPassword := usecase.NewSendEmailRecoverPassword(
+		logger,
+		emailHandler,
+		subscriber,
+	)
+	if err := sendEmailRecoverPassword.Execute(ctx); err != nil {
+		logger.Error(ctx, "❌ failed to send email recover password", "error", err)
+	}
 	authHandler := handler.NewSignIn(usecaseAuth, logger)
 	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
 	recoverPasswordHandler := handler.NewRecoverPassword(recoverPassword, logger)

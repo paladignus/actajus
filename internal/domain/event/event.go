@@ -3,7 +3,7 @@ package event
 
 import "time"
 
-type Event interface {
+type IEvent interface {
 	EventName() string
 	OccurredAt() time.Time
 	EventVersion() string
@@ -11,7 +11,7 @@ type Event interface {
 	Metadata() map[string]any
 }
 
-type BaseEvent struct {
+type Event struct {
 	Name        string
 	Timestamp   time.Time
 	Version     string
@@ -19,31 +19,31 @@ type BaseEvent struct {
 	Meta        map[string]any
 }
 
-func (e BaseEvent) EventName() string {
+func (e Event) EventName() string {
 	return e.Name
 }
 
-func (e BaseEvent) OccurredAt() time.Time {
+func (e Event) OccurredAt() time.Time {
 	return e.Timestamp
 }
 
-func (e BaseEvent) EventVersion() string {
+func (e Event) EventVersion() string {
 	return e.Version
 }
 
-func (e BaseEvent) GetAggregateID() string {
+func (e Event) GetAggregateID() string {
 	return e.AggregateID
 }
 
-func (e BaseEvent) Metadata() map[string]any {
+func (e Event) Metadata() map[string]any {
 	if e.Meta == nil {
 		return make(map[string]any)
 	}
 	return e.Meta
 }
 
-func NewBaseEvent(name, aggregateID, version string) BaseEvent {
-	return BaseEvent{
+func NewEvent(name, aggregateID, version string) Event {
+	return Event{
 		Name:        name,
 		Timestamp:   time.Now().UTC(),
 		Version:     version,
