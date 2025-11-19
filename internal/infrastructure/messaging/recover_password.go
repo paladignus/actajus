@@ -28,7 +28,7 @@ func (r RecoverPassword) Handle(
 	ctx context.Context,
 	evt event.IEvent,
 ) error {
-	r.logger.Info(ctx, "processing", "event", evt.EventName(), "aggregate", evt.GetAggregateID())
+	r.logger.Info(ctx, "processing", "event", evt.EventName(), "aggregate", evt.AggregateID())
 	resetEvt, ok := evt.(*event.PasswordResetRequestedEvent)
 	if !ok {
 		return fmt.Errorf("expected *PasswordResetRequestedEvent, got %T", evt)

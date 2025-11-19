@@ -5,20 +5,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
 type SendEmailRecoverPassword struct {
 	logger     repository.Logger
-	handler    event.Handler
+	handler    repository.IHandler
 	subscriber gateway.Subscriber
 }
 
 func NewSendEmailRecoverPassword(
 	repository repository.Logger,
-	handler event.Handler,
+	handler repository.IHandler,
 	subscriber gateway.Subscriber,
 ) SendEmailRecoverPassword {
 	return SendEmailRecoverPassword{

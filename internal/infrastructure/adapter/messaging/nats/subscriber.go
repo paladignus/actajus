@@ -11,6 +11,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/paladignus/actajus/internal/domain/event"
+	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
@@ -51,7 +52,7 @@ func NewSubscriber(config *config.NATSConfig, registry *event.Registry) (*Subscr
 	}, nil
 }
 
-func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler event.Handler) error {
+func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler repository.IHandler) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if _, exists := p.subscriptions[eventName]; exists {
@@ -94,7 +95,7 @@ func (p *Subscriber) processMessages(
 	ctx context.Context,
 	eventName string,
 	sub *nats.Subscription,
-	handler event.Handler,
+	handler repository.IHandler,
 ) {
 	defer p.wg.Done()
 	for {
@@ -118,7 +119,7 @@ func (p *Subscriber) processMessages(
 	}
 }
 
-func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler event.Handler) {
+func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler repository.IHandler) {
 	// processCtx, cancel := context.WithTimeout(ctx, p.config.AckWait-5*time.Second)
 	// defer cancel()
 	meta, err := msg.Metadata()
