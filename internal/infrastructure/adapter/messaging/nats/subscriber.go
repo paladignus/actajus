@@ -11,7 +11,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/paladignus/actajus/internal/domain/event"
-	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
@@ -52,7 +52,7 @@ func NewSubscriber(config *config.NATSConfig, registry *event.Registry) (*Subscr
 	}, nil
 }
 
-func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler repository.IHandler) error {
+func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler gateway.MessageHandler) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if _, exists := p.subscriptions[eventName]; exists {
@@ -95,7 +95,7 @@ func (p *Subscriber) processMessages(
 	ctx context.Context,
 	eventName string,
 	sub *nats.Subscription,
-	handler repository.IHandler,
+	handler gateway.MessageHandler,
 ) {
 	defer p.wg.Done()
 	for {
@@ -119,7 +119,7 @@ func (p *Subscriber) processMessages(
 	}
 }
 
-func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler repository.IHandler) {
+func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler gateway.MessageHandler) {
 	// processCtx, cancel := context.WithTimeout(ctx, p.config.AckWait-5*time.Second)
 	// defer cancel()
 	meta, err := msg.Metadata()
@@ -141,7 +141,7 @@ func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler r
 	// 	msg.Ack() // ACK para não reprocessar
 	// 	return
 	// }
-	if err := handler.Handle(ctx, evt); err != nil {
+	if err := handler(ctx, evt); err != nil {
 		log.Printf("[NATS] Handler failed (attempt %d): %v",
 			meta.NumDelivered, err)
 		backoff := time.Duration(1<<(meta.NumDelivered-1)) * time.Second
