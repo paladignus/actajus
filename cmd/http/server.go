@@ -18,6 +18,7 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
+	"github.com/paladignus/actajus/internal/infrastructure/messaging"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence"
 )
 
@@ -66,7 +67,22 @@ func main() {
 	logger.Info(ctx, "✅ SMTP gateway configured")
 
 	// =================================================================
-	// 5. CRIA USECASES
+	// 5. CRIA E REGISTRA HANDLERS
+	// =================================================================
+	// emailHandler := event.NewSendEmailHandler(&smtp)
+	emailHandler := messaging.NewRecoverPassword(logger, smtp)
+	// err = subscriber.Subscribe(
+	// 	context.Background(), // Use context.Background() para Subscribe
+	// 	"user.password_reset_requested",
+	// 	emailHandler,
+	// )
+	if err != nil {
+		logger.Error(ctx, "❌ failed to subscribe to events", "error", err)
+		os.Exit(1)
+	}
+	logger.Info(ctx, "✅ email handler subscribed to password reset events")
+	// =================================================================
+	// 6. CRIA USECASES
 	// =================================================================
 	usecaseAuth := usecase.NewSignIn(
 		persistence.Authentication(),
@@ -77,7 +93,7 @@ func main() {
 	recoverPassword := usecase.NewRecoverPassword(persistence.Authentication(), logger, token, publisher)
 	sendEmailRecoverPassword := usecase.NewSendEmailRecoverPassword(
 		logger,
-		smtp,
+		emailHandler,
 		subscriber,
 	)
 	if err := sendEmailRecoverPassword.Execute(ctx); err != nil {

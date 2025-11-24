@@ -57,13 +57,12 @@ func NewPublisher(config *config.NATSConfig) (*Publisher, error) {
 
 func (p *Publisher) ensureStream() error {
 	streamConfig := &nats.StreamConfig{
-		Name:        p.config.StreamName,
-		Description: "Stream for all application events",
-		Subjects:    p.config.Subjects,
-		MaxAge:      p.config.MaxAge,
-		MaxBytes:    p.config.MaxBytes,
-		Replicas:    p.config.Replicas,
-		Storage:     nats.FileStorage,
+		Name:     p.config.StreamName,
+		Subjects: p.config.Subjects,
+		MaxAge:   p.config.MaxAge,
+		MaxBytes: p.config.MaxBytes,
+		Replicas: p.config.Replicas,
+		Storage:  nats.FileStorage,
 	}
 	_, err := p.js.AddStream(streamConfig)
 	if err != nil {
