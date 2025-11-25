@@ -29,7 +29,6 @@ func NewRecoverPassword(
 }
 
 func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInput) error {
-	r.logger.Info(ctx, "recover password", "email", req.Email)
 	email := vo.Email(req.Email)
 	if !email.IsValid() {
 		r.logger.Warn(ctx, "invalid email format provided",
@@ -37,38 +36,32 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 		)
 		return exception.ErrInvalidEmail
 	}
-	IDUser, err := r.persistence.AccountIsActive(ctx, req.Email)
+	idUser, err := r.persistence.AccountIsActive(ctx, req.Email)
 	if err != nil {
 		r.logger.Error(ctx, "account not found or is inactive", "error", err, "email", req.Email)
 		return err
 	}
-	r.logger.Info(ctx, "account is ative to email", "email", req.Email)
-	token, err := r.token.GenerateResetToken(IDUser)
+	token, err := r.token.GenerateResetToken(idUser)
 	if err != nil {
 		r.logger.Error(ctx, "failed to generate reset token", "error", err, "email", req.Email)
 		return err
 	}
-	r.logger.Info(ctx, "invalidating previous token", "id_user", IDUser)
-	if err := r.persistence.InvalidAllTokensByIDUser(ctx, IDUser); err != nil {
-		r.logger.Error(ctx, "failed to invalidate previous token", "error", err, "id_user", IDUser)
+	if err := r.persistence.InvalidAllTokensByIDUser(ctx, idUser); err != nil {
+		r.logger.Error(ctx, "failed to invalidate previous token", "error", err, "id_user", idUser)
 		return err
 	}
-	r.logger.Info(ctx, "generated reset token", "email", req.Email)
-	if err = r.persistence.CreateRecoverPassword(ctx, IDUser, token.ResetToken); err != nil {
+	if err = r.persistence.CreateRecoverPassword(ctx, idUser, token.ResetToken); err != nil {
 		r.logger.Error(ctx, "failed to create reset token record", "error", err, "email", req.Email)
 		return err
 	}
-	evt := event.NewPasswordResetRequestedEvent(
-		IDUser,
+	if err := r.publisher.Publish(ctx, event.NewPasswordResetRequestedEvent(
+		idUser,
 		req.Email,
-		token.ResetToken,
 		"https://api.actajus.com.br/recover-password?token="+token.ResetToken,
-		"Marcelo Marretado",
-		// user.Name,
-	)
-	if err := r.publisher.Publish(ctx, evt); err != nil {
+	)); err != nil {
 		r.logger.Error(ctx, "failed to publish recover password event", "error", err, "email", req.Email)
 		return err
 	}
+	r.logger.Info(ctx, "recover password successfully", "email", req.Email)
 	return nil
 }
