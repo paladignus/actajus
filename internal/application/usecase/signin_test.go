@@ -9,7 +9,6 @@ import (
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/test/spy"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestSignIn(t *testing.T) {
@@ -25,8 +24,8 @@ func TestSignIn(t *testing.T) {
 
 	t.Run("should return error ErrInvalidCPF", func(t *testing.T) {
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", mock.Anything, "authenticate user", "cpf", input.CPF).Once()
-		logger.On("Warn", mock.Anything, "invalid cpf format provided", "cpf", input.CPF).Once()
+		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
+		logger.On("Warn", ctx, "invalid cpf format provided", "cpf", input.CPF).Once()
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, exception.ErrInvalidCPF) {
 			t.Errorf("expected to be '%v', but got '%v'", exception.ErrInvalidCPF, err)
@@ -38,8 +37,8 @@ func TestSignIn(t *testing.T) {
 		input.CPF = validCPF
 		authentication.FindError = wantErr
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", mock.Anything, "authenticate user", "cpf", input.CPF).Once()
-		logger.On("Warn", mock.Anything, "user not found during authentication",
+		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
+		logger.On("Warn", ctx, "user not found during authentication",
 			"cpf", input.CPF,
 			"error", wantErr).Once()
 		_, err := sut.Execute(ctx, input)
@@ -53,8 +52,8 @@ func TestSignIn(t *testing.T) {
 		authentication.ValidateError = wantErr
 		authentication.FindError = nil
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", mock.Anything, "authenticate user", "cpf", input.CPF).Once()
-		logger.On("Warn", mock.Anything, "invalid credentials provided",
+		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
+		logger.On("Warn", ctx, "invalid credentials provided",
 			"cpf", input.CPF,
 			"id_person", authentication.FindResult.Authentication.IDUser).Once()
 		_, err := sut.Execute(ctx, input)
@@ -69,11 +68,11 @@ func TestSignIn(t *testing.T) {
 		authentication.ValidateError = nil
 		token.Err = wantErr
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", mock.Anything, "authenticate user", "cpf", input.CPF).Once()
-		logger.On("Info", mock.Anything, "person authenticated successfully",
+		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
+		logger.On("Info", ctx, "person authenticated successfully",
 			"cpf", input.CPF,
 			"id_person", authentication.FindResult.Authentication.IDUser).Once()
-		logger.On("Error", mock.Anything, "failed to generate token pair", "error", wantErr).Once()
+		logger.On("Error", ctx, "failed to generate token pair", "error", wantErr).Once()
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, wantErr) {
 			t.Errorf("expected to be '%v', but got '%v'", wantErr, err)
@@ -85,8 +84,8 @@ func TestSignIn(t *testing.T) {
 		token.Pair.RefreshToken = "refresh-token-abc"
 		token.Err = nil
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", mock.Anything, "authenticate user", "cpf", input.CPF).Once()
-		logger.On("Info", mock.Anything, "person authenticated successfully",
+		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
+		logger.On("Info", ctx, "person authenticated successfully",
 			"cpf", input.CPF,
 			"id_person", authentication.FindResult.Authentication.IDUser).Once()
 		output, err := sut.Execute(ctx, input)
