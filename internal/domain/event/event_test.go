@@ -1,3 +1,4 @@
+// Package event
 package event
 
 import (
@@ -7,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestEventInterface ensures that our interface is correctly defined
 func TestEventInterface(t *testing.T) {
 	event := NewEvent("test.event", "aggregate-id", "1.0")
 	name := event.EventName()
@@ -22,8 +22,4 @@ func TestEventInterface(t *testing.T) {
 	assert.Equal(t, "another-aggregate", event.AggregateID())
 	now := time.Now().UTC()
 	assert.True(t, event.OccurredAt().Before(now), "Expected occurred at time to be recent")
-	// if now.Sub(anotherEvent.OccurredAt()) > time.Second {
-	// 	t.Error("Expected occurred at time to be recent")
-	// }
 }
-
