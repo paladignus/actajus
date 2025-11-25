@@ -24,7 +24,6 @@ func TestSignIn(t *testing.T) {
 
 	t.Run("should return error ErrInvalidCPF", func(t *testing.T) {
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
 		logger.On("Warn", ctx, "invalid cpf format provided", "cpf", input.CPF).Once()
 		_, err := sut.Execute(ctx, input)
 		if !errors.Is(err, exception.ErrInvalidCPF) {
@@ -37,7 +36,6 @@ func TestSignIn(t *testing.T) {
 		input.CPF = validCPF
 		authentication.FindError = wantErr
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
 		logger.On("Warn", ctx, "user not found during authentication",
 			"cpf", input.CPF,
 			"error", wantErr).Once()
@@ -52,7 +50,6 @@ func TestSignIn(t *testing.T) {
 		authentication.ValidateError = wantErr
 		authentication.FindError = nil
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
 		logger.On("Warn", ctx, "invalid credentials provided",
 			"cpf", input.CPF,
 			"id_person", authentication.FindResult.Authentication.IDUser).Once()
@@ -68,7 +65,6 @@ func TestSignIn(t *testing.T) {
 		authentication.ValidateError = nil
 		token.Err = wantErr
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
 		logger.On("Info", ctx, "person authenticated successfully",
 			"cpf", input.CPF,
 			"id_person", authentication.FindResult.Authentication.IDUser).Once()
@@ -84,7 +80,6 @@ func TestSignIn(t *testing.T) {
 		token.Pair.RefreshToken = "refresh-token-abc"
 		token.Err = nil
 		sut := NewSignIn(authentication, logger, token)
-		logger.On("Info", ctx, "authenticate user", "cpf", input.CPF).Once()
 		logger.On("Info", ctx, "person authenticated successfully",
 			"cpf", input.CPF,
 			"id_person", authentication.FindResult.Authentication.IDUser).Once()

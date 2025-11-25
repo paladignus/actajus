@@ -31,7 +31,6 @@ func NewSignIn(
 }
 
 func (a SignIn) Execute(ctx context.Context, req dto.SignInInput) (dto.SignInOutput, error) {
-	a.logger.Info(ctx, "authenticate user", "cpf", req.CPF)
 	cpf := vo.CPF(req.CPF)
 	if !cpf.IsValid() {
 		a.logger.Warn(ctx, "invalid cpf format provided",
@@ -55,10 +54,6 @@ func (a SignIn) Execute(ctx context.Context, req dto.SignInInput) (dto.SignInOut
 		)
 		return dto.SignInOutput{}, err
 	}
-	a.logger.Info(ctx, "person authenticated successfully",
-		"cpf", req.CPF,
-		"id_person", person.IDUser,
-	)
 	tokenPair, err := a.gateway.GenerateTokenPair(person.IDUser)
 	if err != nil {
 		a.logger.Error(ctx, "failed to generate token pair", "error", err)
@@ -66,6 +61,6 @@ func (a SignIn) Execute(ctx context.Context, req dto.SignInInput) (dto.SignInOut
 	}
 	person.AccessToken = tokenPair.AccessToken
 	person.RefreshToken = tokenPair.RefreshToken
-	// a.logger.Info(ctx, "token pair generated successfully", "cpf", req.CPF)
+	a.logger.Info(ctx, "person authenticated successfully", "cpf", req.CPF, "id_person", person.IDUser)
 	return person, err
 }
