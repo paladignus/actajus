@@ -3,18 +3,14 @@ package event
 
 type PasswordResetRequestedEvent struct {
 	Event
-	UserEmail  string
-	ResetToken string
-	ResetURL   string
-	UserName   string
+	UserEmail string
+	ResetURL  string
 }
 
 func NewPasswordResetRequestedEvent(
 	userID string,
 	email string,
-	resetToken string,
 	resetURL string,
-	userName string,
 ) PasswordResetRequestedEvent {
 	return PasswordResetRequestedEvent{
 		Event: NewEvent(
@@ -22,9 +18,7 @@ func NewPasswordResetRequestedEvent(
 			userID,
 			"v1",
 		),
-		UserEmail:  email,
-		ResetToken: resetToken,
-		ResetURL:   resetURL,
-		UserName:   userName,
+		UserEmail: email,
+		ResetURL:  resetURL,
 	}
 }
