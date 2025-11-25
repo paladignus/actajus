@@ -8,7 +8,6 @@ type IEvent interface {
 	OccurredAt() time.Time
 	EventVersion() string
 	AggregateID() string
-	// Metadata() map[string]any
 }
 
 type Event struct {
@@ -35,19 +34,11 @@ func (e Event) AggregateID() string {
 	return e.IDAggregate
 }
 
-// func (e Event) Metadata() map[string]any {
-// 	if e.Meta == nil {
-// 		return make(map[string]any)
-// 	}
-// 	return e.Meta
-// }
-
 func NewEvent(name, aggregateID, version string) Event {
 	return Event{
 		Name:        name,
 		Timestamp:   time.Now().UTC(),
 		Version:     version,
 		IDAggregate: aggregateID,
-		// Meta:        make(map[string]any),
 	}
 }
