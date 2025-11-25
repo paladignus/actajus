@@ -8,5 +8,5 @@ import (
 )
 
 type RecoverPassword interface {
-	Execute(context.Context, dto.RecoverPasswordInput) error
+	Execute(ctx context.Context, input dto.RecoverPasswordInput) error
 }

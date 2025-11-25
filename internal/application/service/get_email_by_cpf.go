@@ -8,5 +8,5 @@ import (
 )
 
 type GetEmailByCPF interface {
-	Execute(context.Context, dto.GetEmailByCPFInput) (dto.GetEmailByCPFOutput, error)
+	Execute(dto context.Context, input dto.GetEmailByCPFInput) (output dto.GetEmailByCPFOutput, err error)
 }

@@ -8,5 +8,5 @@ import (
 )
 
 type SignIn interface {
-	Execute(context.Context, dto.SignInInput) (dto.SignInOutput, error)
+	Execute(ctx context.Context, input dto.SignInInput) (output dto.SignInOutput, err error)
 }
