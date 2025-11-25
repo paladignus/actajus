@@ -28,7 +28,6 @@ func NewSendEmailRecoverPassword(
 }
 
 func (s SendEmailRecoverPassword) Execute(ctx context.Context) error {
-	s.logger.Info(ctx, "send email recover password")
 	eventName := "user.password_reset_requested"
 	err := s.subscriber.Subscribe(ctx, eventName, s.handler)
 	if err != nil {
