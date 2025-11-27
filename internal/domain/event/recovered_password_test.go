@@ -35,4 +35,3 @@ func TestPasswordResetRequestedEventImplementsIEvent(t *testing.T) {
 	assert.Equal(t, "v1", iEvent.EventVersion())
 	assert.Equal(t, "test@example.com", event.UserEmail)
 }
-
