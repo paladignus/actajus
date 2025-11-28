@@ -10,27 +10,27 @@ import (
 
 type AuthenticationSpy struct{}
 
-func (m *AuthenticationSpy) SignIn(ctx context.Context, email string) (dto.SignInOutput, error) {
+func (a *AuthenticationSpy) SignIn(ctx context.Context, email string) (dto.SignInOutput, error) {
 	return dto.SignInOutput{}, nil
 }
 
-func (m *AuthenticationSpy) ValidatePassword(ctx context.Context, email, password string) error {
+func (a *AuthenticationSpy) ValidatePassword(ctx context.Context, email, password string) error {
 	return nil
 }
 
-func (m *AuthenticationSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
+func (a *AuthenticationSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
 	return dto.GetEmailByCPFOutput{}, nil
 }
 
-func (m *AuthenticationSpy) AccountIsActive(ctx context.Context, email string) (string, error) {
+func (a *AuthenticationSpy) AccountIsActive(ctx context.Context, email string) (string, error) {
 	return "active", nil
 }
 
-func (m *AuthenticationSpy) InvalidAllTokensByIDUser(ctx context.Context, id string) error {
+func (a *AuthenticationSpy) InvalidAllTokensByIDUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (m *AuthenticationSpy) CreateRecoverPassword(ctx context.Context, email, id string) error {
+func (a *AuthenticationSpy) CreateRecoverPassword(ctx context.Context, email, id string) error {
 	return nil
 }
 
@@ -52,4 +52,3 @@ func TestAuthenticationInterface(t *testing.T) {
 	assert.Empty(t, signInOutput)
 	assert.Empty(t, emailOutput)
 }
-
