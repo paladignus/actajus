@@ -4,5 +4,5 @@ package gateway
 import "context"
 
 type SMTP interface {
-	SendEmail(context.Context, string, string) error
+	SendEmail(ctx context.Context, to, subject, body string) error
 }
