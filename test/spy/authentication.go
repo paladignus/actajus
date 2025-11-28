@@ -12,38 +12,38 @@ type Result struct {
 	FindEmail      dto.GetEmailByCPFOutput
 }
 
-type AuthenticationSpy struct {
-	CallCount     int
-	FindResult    Result
-	FindError     error
-	InvalidError  error
-	ValidateError error
+type Authentication struct {
+	CallCount             int
+	FindResult            Result
+	FindError             error
+	InvalidAllTokensError error
+	ValidateError         error
 }
 
-func NewAuthenticationSpy() *AuthenticationSpy {
-	return &AuthenticationSpy{}
+func NewAuthentication() *Authentication {
+	return &Authentication{}
 }
 
-func (a *AuthenticationSpy) SignIn(ctx context.Context, cpf string) (authentication dto.SignInOutput, err error) {
+func (a *Authentication) SignIn(ctx context.Context, cpf string) (authentication dto.SignInOutput, err error) {
 	return a.FindResult.Authentication, a.FindError
 }
 
-func (a *AuthenticationSpy) ValidatePassword(ctx context.Context, IDPeople, password string) (err error) {
+func (a *Authentication) ValidatePassword(ctx context.Context, IDPeople, password string) (err error) {
 	return a.ValidateError
 }
 
-func (a *AuthenticationSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
+func (a *Authentication) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
 	return a.FindResult.FindEmail, a.FindError
 }
 
-func (a *AuthenticationSpy) AccountIsActive(context.Context, string) (string, error) {
+func (a *Authentication) AccountIsActive(context.Context, string) (string, error) {
 	return a.FindResult.Authentication.IDUser, a.FindError
 }
 
-func (a *AuthenticationSpy) InvalidAllTokensByIDUser(context.Context, string) error {
-	return a.InvalidError
+func (a *Authentication) InvalidAllTokensByIDUser(context.Context, string) error {
+	return a.InvalidAllTokensError
 }
 
-func (a *AuthenticationSpy) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
+func (a *Authentication) CreateRecoverPassword(ctx context.Context, IDUser, token string) (err error) {
 	return a.ValidateError
 }

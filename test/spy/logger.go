@@ -8,30 +8,30 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type SpyLogger struct {
+type Logger struct {
 	mock.Mock
 }
 
-func (m *SpyLogger) Debug(ctx context.Context, msg string, keysAndValues ...any) {
+func (m *Logger) Debug(ctx context.Context, msg string, keysAndValues ...any) {
 	m.Called(append([]any{ctx, msg}, keysAndValues...)...)
 }
 
-func (m *SpyLogger) Info(ctx context.Context, msg string, keysAndValues ...any) {
+func (m *Logger) Info(ctx context.Context, msg string, keysAndValues ...any) {
 	m.Called(append([]any{ctx, msg}, keysAndValues...)...)
 }
 
-func (m *SpyLogger) Warn(ctx context.Context, msg string, keysAndValues ...any) {
+func (m *Logger) Warn(ctx context.Context, msg string, keysAndValues ...any) {
 	m.Called(append([]any{ctx, msg}, keysAndValues...)...)
 }
 
-func (m *SpyLogger) Error(ctx context.Context, msg string, keysAndValues ...any) {
+func (m *Logger) Error(ctx context.Context, msg string, keysAndValues ...any) {
 	m.Called(append([]any{ctx, msg}, keysAndValues...)...)
 }
 
-func (m *SpyLogger) With(keysAndValues ...any) repository.Logger {
+func (m *Logger) With(keysAndValues ...any) repository.Logger {
 	return m
 }
 
-func (m *SpyLogger) WithError(err error) repository.Logger {
+func (m *Logger) WithError(err error) repository.Logger {
 	return m
 }

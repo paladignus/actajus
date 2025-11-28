@@ -3,7 +3,7 @@ package spy
 
 import "context"
 
-type SpySMTP struct {
+type SMTP struct {
 	Email string
 	Err   error
 	// To     []string
@@ -12,7 +12,7 @@ type SpySMTP struct {
 	// Subject string
 }
 
-func (s *SpySMTP) SendEmail(ctx context.Context, to string, resetURL string) error {
+func (s *SMTP) SendEmail(ctx context.Context, to, subject, body string) error {
 	s.Email = to
 	return s.Err
 }

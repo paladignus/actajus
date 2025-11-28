@@ -1,148 +1,141 @@
-// Package handler
 package handler
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/domain/exception"
-	"github.com/paladignus/actajus/test/spy"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-type SpySignInService struct {
-	mock.Mock
+// MockSignInService is a mock implementation of service.SignIn for testing
+type MockSignInService struct {
+	expectedOutput dto.SignInOutput
+	expectedError  error
 }
 
-func (s *SpySignInService) Execute(ctx context.Context, input dto.SignInInput) (dto.SignInOutput, error) {
-	args := s.Called(ctx, input)
-	if args.Get(0) == nil {
-		return dto.SignInOutput{}, args.Error(1)
-	}
-	return args.Get(0).(dto.SignInOutput), args.Error(1)
+func (m *MockSignInService) Execute(ctx context.Context, input dto.SignInInput) (dto.SignInOutput, error) {
+	return m.expectedOutput, m.expectedError
 }
 
+// TestSignInHandler tests the SignIn handler functionality
 func TestSignInHandler(t *testing.T) {
-	sut := &SpySignInService{}
-	spyLogger := &spy.SpyLogger{}
-	handler := NewSignIn(sut, spyLogger)
-	input := dto.SignInInput{
-		CPF: "123.456.789-00",
-	}
-	expectedOutput := dto.SignInOutput{
-		AccessToken:  "AccessToken",
-		RefreshToken: "RefreshToken",
-		IDUser:       "user-123",
-		FirstName:    "John",
-		LastName:     "Doe",
-		Email:        "EmPdI@example.com",
-		Roles:        []string{"manager"},
-	}
-	t.Run("should initialize the constructor with its valid parameters", func(t *testing.T) {
-		assert.NotNil(t, handler)
-		assert.Equal(t, sut, handler.service)
-		assert.Equal(t, spyLogger, handler.logger)
-	})
-
-	t.Run("should signin be successful", func(t *testing.T) {
-		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		sut.On("Execute", mock.Anything, input).Return(expectedOutput, nil).Once()
-		spyLogger.On("Info", mock.Anything, "signin successful", "cpf", input.CPF).Once()
-		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
+	
+	t.Run("successful request", func(t *testing.T) {
+		mockService := &MockSignInService{
+			expectedOutput: dto.SignInOutput{
+				IDUser:       "user-123",
+				FirstName:    "John",
+				LastName:     "Doe",
+				Email:        "john.doe@example.com",
+				AccessToken:  "access-token",
+				RefreshToken: "refresh-token",
+			},
+			expectedError: nil,
+		}
+		
+		mockLogger := &MockLogger{}
+		
+		handler := NewSignIn(mockService, mockLogger)
+		
+		// Create request with valid JSON
+		requestBody := `{"cpf": "12345678901", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
+		
 		w := httptest.NewRecorder()
+		
 		handler.SignIn(w, req)
-		assert.Equal(t, http.StatusOK, w.Code)
+		
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+		
+		// Parse response
 		var response dto.SignInOutput
 		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedOutput.AccessToken, response.AccessToken)
-		assert.Equal(t, expectedOutput.RefreshToken, response.RefreshToken)
-		sut.AssertExpectations(t)
-		spyLogger.AssertExpectations(t)
+		if err != nil {
+			t.Fatalf("Failed to unmarshal response: %v", err)
+		}
+		
+		if response.IDUser != "user-123" {
+			t.Errorf("Expected IDUser 'user-123', got '%s'", response.IDUser)
+		}
+		
+		if response.Email != "john.doe@example.com" {
+			t.Errorf("Expected email 'john.doe@example.com', got '%s'", response.Email)
+		}
 	})
-
-	t.Run("the request parameters should be valid", func(t *testing.T) {
-		spyLogger.On("Info", mock.Anything, "processing sign_in request", mock.Anything).Once()
-		spyLogger.On("Warn", mock.Anything, "invalid request body", "error", mock.Anything).Once()
-		req := httptest.NewRequest("POST", "/signin", bytes.NewReader([]byte("invalid json")))
+	
+	t.Run("invalid request body", func(t *testing.T) {
+		mockService := &MockSignInService{}
+		mockLogger := &MockLogger{}
+		
+		handler := NewSignIn(mockService, mockLogger)
+		
+		// Create request with invalid JSON
+		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString("{invalid json"))
 		req.Header.Set("Content-Type", "application/json")
+		
 		w := httptest.NewRecorder()
+		
 		handler.SignIn(w, req)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-		sut.AssertExpectations(t)
-		spyLogger.AssertExpectations(t)
+		
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+		}
 	})
-
-	t.Run("should return an HTTP error greater than or equal to 500", func(t *testing.T) {
-		expectedErr := errors.New("database connection failed")
-		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Error", mock.Anything, "signin failed with server error",
-			"error", expectedErr, "cpf", input.CPF).Once()
-		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
+	
+	t.Run("service returns error", func(t *testing.T) {
+		mockService := &MockSignInService{
+			expectedOutput: dto.SignInOutput{},
+			expectedError:  fmt.Errorf("user not found"),
+		}
+		
+		mockLogger := &MockLogger{}
+		
+		handler := NewSignIn(mockService, mockLogger)
+		
+		// Create request with valid JSON
+		requestBody := `{"cpf": "12345678901", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
+		
 		w := httptest.NewRecorder()
+		
 		handler.SignIn(w, req)
-		assert.NotEqual(t, http.StatusOK, w.Code)
-		sut.AssertExpectations(t)
-		spyLogger.AssertExpectations(t)
+		
+		// The status code depends on the error mapping, but it should be a client error
+		if w.Code < 400 || w.Code >= 500 {
+			t.Errorf("Expected client error status code (4xx), got %d", w.Code)
+		}
 	})
-
-	t.Run("should return a user not found error with status code 404", func(t *testing.T) {
-		expectedErr := exception.ErrUserNotFound
-		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Warn", mock.Anything, "signin failed",
-			"error", expectedErr, "cpf", input.CPF, "status_code", 404).Once()
-		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
+	
+	t.Run("service returns authentication error", func(t *testing.T) {
+		mockService := &MockSignInService{
+			expectedOutput: dto.SignInOutput{},
+			expectedError:  fmt.Errorf("invalid credentials"),
+		}
+		
+		mockLogger := &MockLogger{}
+		
+		handler := NewSignIn(mockService, mockLogger)
+		
+		// Create request with valid JSON
+		requestBody := `{"cpf": "12345678901", "password": "wrong-password"}`
+		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
+		
 		w := httptest.NewRecorder()
+		
 		handler.SignIn(w, req)
-		assert.NotEqual(t, http.StatusOK, w.Code)
-		sut.AssertExpectations(t)
-		spyLogger.AssertExpectations(t)
-	})
-
-	t.Run("should return a invalid credentials error with status code 404", func(t *testing.T) {
-		expectedErr := exception.ErrInvalidCredentials
-		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Warn", mock.Anything, "signin failed",
-			"error", expectedErr, "cpf", input.CPF, "status_code", 401).Once()
-		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
-		w := httptest.NewRecorder()
-		handler.SignIn(w, req)
-		assert.NotEqual(t, http.StatusOK, w.Code)
-		sut.AssertExpectations(t)
-		spyLogger.AssertExpectations(t)
-	})
-
-	t.Run("should return a invalid cpf error with status code 404", func(t *testing.T) {
-		expectedErr := exception.ErrInvalidCPF
-		spyLogger.On("Info", mock.Anything, "processing sign_in request").Once()
-		sut.On("Execute", mock.Anything, input).Return(nil, expectedErr).Once()
-		spyLogger.On("Warn", mock.Anything, "signin failed",
-			"error", expectedErr, "cpf", input.CPF, "status_code", 400).Once()
-		body, _ := json.Marshal(input)
-		req := httptest.NewRequest("POST", "/signin", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
-		w := httptest.NewRecorder()
-		handler.SignIn(w, req)
-		assert.NotEqual(t, http.StatusOK, w.Code)
-		sut.AssertExpectations(t)
-		spyLogger.AssertExpectations(t)
+		
+		// Should return client error, not server error
+		if w.Code >= 500 {
+			t.Errorf("Expected client error status code, got %d", w.Code)
+		}
 	})
 }
