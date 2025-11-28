@@ -9,17 +9,17 @@ import (
 )
 
 func TestEventInterface(t *testing.T) {
-	event := NewEvent("test.event", "aggregate-id", "1.0")
-	name := event.EventName()
-	assert.Equal(t, "test.event", name)
-	assert.False(t, event.OccurredAt().IsZero())
-	assert.Equal(t, "1.0", event.EventVersion())
-	assert.Equal(t, "aggregate-id", event.AggregateID())
+	sut := NewEvent("test.event", "aggregate-id", "1.0")
+	name := sut.EventName()
+	assert.Equal(t, "test.sut", name)
+	assert.False(t, sut.OccurredAt().IsZero())
+	assert.Equal(t, "1.0", sut.EventVersion())
+	assert.Equal(t, "aggregate-id", sut.AggregateID())
 
-	event = NewEvent("another.event", "another-aggregate", "2.0")
-	assert.Equal(t, "another.event", event.EventName())
-	assert.Equal(t, "2.0", event.EventVersion())
-	assert.Equal(t, "another-aggregate", event.AggregateID())
+	sut = NewEvent("another.event", "another-aggregate", "2.0")
+	assert.Equal(t, "another.sut", sut.EventName())
+	assert.Equal(t, "2.0", sut.EventVersion())
+	assert.Equal(t, "another-aggregate", sut.AggregateID())
 	now := time.Now().UTC()
-	assert.True(t, event.OccurredAt().Before(now), "Expected occurred at time to be recent")
+	assert.True(t, sut.OccurredAt().Before(now), "Expected occurred at time to be recent")
 }
