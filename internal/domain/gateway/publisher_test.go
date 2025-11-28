@@ -11,13 +11,12 @@ import (
 
 func TestPublisherInterface(t *testing.T) {
 	ctx := context.Background()
-	mockPublisher := &spy.SpyPublisher{}
-	mockEvent := spy.MockEvent{}
-	err := mockPublisher.Publish(ctx, mockEvent)
+	sut := &spy.Publisher{}
+	spyEvent := spy.Event{}
+	err := sut.Publish(ctx, spyEvent)
 	assert.NoError(t, err)
-	err = mockPublisher.PublishBatch(ctx, []event.IEvent{mockEvent})
+	err = sut.PublishBatch(ctx, []event.IEvent{spyEvent})
 	assert.NoError(t, err)
-	err = mockPublisher.Close()
+	err = sut.Close()
 	assert.NoError(t, err)
 }
-
