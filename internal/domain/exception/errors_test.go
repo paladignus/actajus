@@ -33,9 +33,9 @@ func TestErrorVariables(t *testing.T) {
 		{ErrInvalidEmail, "invalid email"},
 		{ErrInvalidPassword, "invalid password"},
 	}
-	for _, test := range tests {
-		if test.err.Error() != test.expected {
-			t.Errorf("Expected error '%s', got '%s'", test.expected, test.err.Error())
+	for _, sut := range tests {
+		if sut.err.Error() != sut.expected {
+			t.Errorf("Expected error '%s', got '%s'", sut.expected, sut.err.Error())
 		}
 	}
 }
