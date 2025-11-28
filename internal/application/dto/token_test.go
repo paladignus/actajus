@@ -6,54 +6,54 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTokenClaims(t *testing.T) {
-	claims := TokenClaims{
+func TestTokensut(t *testing.T) {
+	sut := TokenClaims{
 		IDUser: "user-id-123",
 	}
 	t.Run("should return the same ID user", func(t *testing.T) {
-		assert.Equal(t, "user-id-123", claims.IDUser)
+		assert.Equal(t, "user-id-123", sut.IDUser)
 	})
 	t.Run("should return an empty ID user", func(t *testing.T) {
-		claims := TokenClaims{}
-		assert.Equal(t, "", claims.IDUser)
+		sut := TokenClaims{}
+		assert.Equal(t, "", sut.IDUser)
 	})
 }
 
 func TestTokenPair(t *testing.T) {
-	pair := TokenPair{
+	sut := TokenPair{
 		AccessToken:  "access-token-123",
 		RefreshToken: "refresh-token-456",
 	}
 	t.Run("should return the same access token and refresh token", func(t *testing.T) {
-		assert.Equal(t, "access-token-123", pair.AccessToken)
-		assert.Equal(t, "refresh-token-456", pair.RefreshToken)
+		assert.Equal(t, "access-token-123", sut.AccessToken)
+		assert.Equal(t, "refresh-token-456", sut.RefreshToken)
 	})
 	t.Run("should return an empty access token and refresh token", func(t *testing.T) {
-		pair := TokenPair{}
-		assert.Equal(t, "", pair.AccessToken)
-		assert.Equal(t, "", pair.RefreshToken)
+		sut := TokenPair{}
+		assert.Equal(t, "", sut.AccessToken)
+		assert.Equal(t, "", sut.RefreshToken)
 	})
 }
 
 func TestTokenRecover(t *testing.T) {
-	recoverToken := TokenRecover{
+	sut := TokenRecover{
 		ResetToken: "reset-token-789",
 	}
 	t.Run("should return the same reset token", func(t *testing.T) {
-		assert.Equal(t, "reset-token-789", recoverToken.ResetToken)
+		assert.Equal(t, "reset-token-789", sut.ResetToken)
 	})
 	t.Run("should return an empty reset token", func(t *testing.T) {
-		recoverToken := TokenRecover{}
-		assert.Equal(t, "", recoverToken.ResetToken)
+		sut := TokenRecover{}
+		assert.Equal(t, "", sut.ResetToken)
 	})
 }
 
 func TestTokenStructsEmptyValues(t *testing.T) {
-	emptyClaims := TokenClaims{}
+	emptysut := TokenClaims{}
 	emptyPair := TokenPair{}
 	emptyRecover := TokenRecover{}
-	t.Run("should return empty values for claims", func(t *testing.T) {
-		assert.Empty(t, emptyClaims.IDUser)
+	t.Run("should return empty values for sut", func(t *testing.T) {
+		assert.Empty(t, emptysut.IDUser)
 	})
 	t.Run("should return empty values for TokenPair", func(t *testing.T) {
 		assert.Empty(t, emptyPair.AccessToken)
@@ -63,4 +63,3 @@ func TestTokenStructsEmptyValues(t *testing.T) {
 		assert.Empty(t, emptyRecover.ResetToken)
 	})
 }
-
