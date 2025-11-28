@@ -12,7 +12,7 @@ import (
 
 func TestGetEmailByCPFInterface(t *testing.T) {
 	ctx := context.Background()
-	mockService := &spy.MockGetEmailByCPF{
+	sut := &spy.GetEmailByCPF{
 		ExpectedOutput: dto.GetEmailByCPFOutput{
 			Email: "test@example.com",
 		},
@@ -22,18 +22,17 @@ func TestGetEmailByCPFInterface(t *testing.T) {
 		CPF: "12345678901",
 	}
 	t.Run("should return the same email", func(t *testing.T) {
-		output, err := mockService.Execute(ctx, input)
+		output, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 		assert.Equal(t, "test@example.com", output.Email)
 	})
 	t.Run("should return an empty email", func(t *testing.T) {
-		mockService = &spy.MockGetEmailByCPF{
+		sut = &spy.GetEmailByCPF{
 			ExpectedOutput: dto.GetEmailByCPFOutput{},
 			ExpectedError:  errors.New("test error"),
 		}
-		_, err := mockService.Execute(ctx, input)
+		_, err := sut.Execute(ctx, input)
 		assert.Error(t, err)
 		assert.Equal(t, "test error", err.Error())
 	})
 }
-

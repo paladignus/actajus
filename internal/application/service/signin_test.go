@@ -12,7 +12,7 @@ import (
 
 func TestSignInInterface(t *testing.T) {
 	ctx := context.Background()
-	mockService := &spy.MockSignIn{
+	sut := &spy.SignIn{
 		ExpectedOutput: dto.SignInOutput{
 			IDUser:       "user-123",
 			FirstName:    "John",
@@ -28,7 +28,7 @@ func TestSignInInterface(t *testing.T) {
 		Password: "password123",
 	}
 	t.Run("should return the same IDUser, FirstName, Email, AccessToken and RefreshToken", func(t *testing.T) {
-		output, err := mockService.Execute(ctx, input)
+		output, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 		assert.Equal(t, "user-123", output.IDUser)
 		assert.Equal(t, "John", output.FirstName)
@@ -36,13 +36,12 @@ func TestSignInInterface(t *testing.T) {
 	})
 
 	t.Run("should return an empty IDUser, FirstName, Email, AccessToken and RefreshToken", func(t *testing.T) {
-		mockService := &spy.MockSignIn{
+		sut := &spy.SignIn{
 			ExpectedOutput: dto.SignInOutput{},
 			ExpectedError:  errors.New("authentication failed"),
 		}
-		_, err := mockService.Execute(ctx, input)
+		_, err := sut.Execute(ctx, input)
 		assert.Error(t, err)
 		assert.Equal(t, "authentication failed", err.Error())
 	})
 }
-
