@@ -18,9 +18,9 @@ func TestSignIn(t *testing.T) {
 		CPF:      "123",
 		Password: "whatever",
 	}
-	authentication := spy.NewAuthenticationSpy()
-	logger := &spy.SpyLogger{}
-	token := &spy.SpyToken{}
+	authentication := spy.NewAuthentication()
+	logger := &spy.Logger{}
+	token := &spy.Token{}
 
 	t.Run("should return error ErrInvalidCPF", func(t *testing.T) {
 		sut := NewSignIn(authentication, logger, token)

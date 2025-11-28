@@ -13,8 +13,8 @@ import (
 
 func TestGetEmailByCPF(t *testing.T) {
 	ctx := context.Background()
-	authentication := &spy.AuthenticationSpy{}
-	logger := &spy.SpyLogger{}
+	authentication := &spy.Authentication{}
+	logger := &spy.Logger{}
 	input := dto.GetEmailByCPFInput{CPF: "111.444.777-35"}
 	sut := NewGetEmailByCPF(authentication, logger)
 	t.Run("should return of an email when the CPF is valid and found", func(t *testing.T) {

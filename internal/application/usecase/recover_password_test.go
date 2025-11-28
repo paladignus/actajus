@@ -15,10 +15,10 @@ import (
 
 func TestRecoverPassword(t *testing.T) {
 	ctx := context.Background()
-	authentication := spy.NewAuthenticationSpy()
-	logger := &spy.SpyLogger{}
-	token := &spy.SpyToken{}
-	publisher := &spy.SpyPublisher{}
+	authentication := spy.NewAuthentication()
+	logger := &spy.Logger{}
+	token := &spy.Token{}
+	publisher := &spy.Publisher{}
 	sut := NewRecoverPassword(authentication, logger, token, publisher)
 	input := dto.RecoverPasswordInput{Email: "email"}
 
