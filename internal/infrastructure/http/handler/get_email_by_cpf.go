@@ -19,7 +19,6 @@ func NewGetEmailByCPF(service service.GetEmailByCPF, logger repository.Logger) G
 }
 
 func (g GetEmailByCPF) GetEmailByCPF(w http.ResponseWriter, r *http.Request) {
-	g.logger.Info(r.Context(), "processing get_email_by_cpf request")
 	req, err := DecodeJSONRequest[dto.GetEmailByCPFInput](r)
 	if err != nil {
 		g.logger.Warn(r.Context(), "invalid request body", "error", err)
