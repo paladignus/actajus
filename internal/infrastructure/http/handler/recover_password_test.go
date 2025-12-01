@@ -7,7 +7,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/exception"
+	"github.com/paladignus/actajus/test/spy"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // MockRecoverPasswordService is a mock implementation of service.RecoverPassword for testing
@@ -21,94 +26,68 @@ func (m *MockRecoverPasswordService) Execute(ctx context.Context, input dto.Reco
 
 // TestRecoverPasswordHandler tests the RecoverPassword handler functionality
 func TestRecoverPasswordHandler(t *testing.T) {
-	
-	t.Run("successful request", func(t *testing.T) {
-		mockService := &MockRecoverPasswordService{
-			expectedError: nil,
-		}
-		
-		mockLogger := &MockLogger{}
-		
-		handler := NewRecoverPassword(mockService, mockLogger)
-		
-		// Create request with valid JSON
+	mockService := &MockRecoverPasswordService{
+		expectedError: nil,
+	}
+	logger := &spy.Logger{}
+	t.Run("should successful request", func(t *testing.T) {
+		sut := NewRecoverPassword(mockService, logger)
 		requestBody := `{"email": "test@example.com"}`
 		req := httptest.NewRequest(http.MethodPost, "/recover-password", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
-		
 		w := httptest.NewRecorder()
-		
-		handler.RecoverPassword(w, req)
-		
-		// The handler returns without sending a response, so status code will be 200 by default
-		// but it should probably be 204 or similar for successful empty responses
-		// Currently, it returns without setting any status code, so it will be 200
+		logger.On("Info", req.Context(), "recover password successful", "email", "test@example.com")
+		sut.RecoverPassword(w, req)
 	})
-	
-	t.Run("invalid request body", func(t *testing.T) {
+
+	t.Run("should invalid request body", func(t *testing.T) {
 		mockService := &MockRecoverPasswordService{}
-		mockLogger := &MockLogger{}
-		
-		handler := NewRecoverPassword(mockService, mockLogger)
-		
-		// Create request with invalid JSON
+		logger := &spy.Logger{}
+		sut := NewRecoverPassword(mockService, logger)
 		req := httptest.NewRequest(http.MethodPost, "/recover-password", bytes.NewBufferString("{invalid json"))
 		req.Header.Set("Content-Type", "application/json")
-		
 		w := httptest.NewRecorder()
-		
-		handler.RecoverPassword(w, req)
-		
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
-		}
+		logger.On("Error", req.Context(), "failed to decode request body", "error", mock.Anything)
+		sut.RecoverPassword(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
-	
-	t.Run("service returns error", func(t *testing.T) {
+
+	t.Run("should returns error of internal server error", func(t *testing.T) {
 		mockService := &MockRecoverPasswordService{
-			expectedError: fmt.Errorf("user not found"),
+			expectedError: fmt.Errorf("internal server error"),
 		}
-		
-		mockLogger := &MockLogger{}
-		
-		handler := NewRecoverPassword(mockService, mockLogger)
-		
-		// Create request with valid JSON
+		logger := &spy.Logger{}
+		sut := NewRecoverPassword(mockService, logger)
 		requestBody := `{"email": "test@example.com"}`
 		req := httptest.NewRequest(http.MethodPost, "/recover-password", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
-		
 		w := httptest.NewRecorder()
-		
-		handler.RecoverPassword(w, req)
-		
-		// The status code depends on the error mapping, but it should be a client error
-		if w.Code < 400 || w.Code >= 500 {
-			t.Errorf("Expected client error status code (4xx), got %d", w.Code)
-		}
+		logger.On("Error", req.Context(), "recover password failed with server error", "error", mock.Anything, "email", "test@example.com")
+		sut.RecoverPassword(w, req)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
-	
-	t.Run("service returns authentication error", func(t *testing.T) {
+
+	t.Run("should returns error of email not found", func(t *testing.T) {
 		mockService := &MockRecoverPasswordService{
-			expectedError: fmt.Errorf("email not found"),
+			expectedError: exception.ErrEmailNotFound,
 		}
-		
-		mockLogger := &MockLogger{}
-		
-		handler := NewRecoverPassword(mockService, mockLogger)
-		
-		// Create request with valid JSON
+		logger := &spy.Logger{}
+		sut := NewRecoverPassword(mockService, logger)
 		requestBody := `{"email": "nonexistent@example.com"}`
 		req := httptest.NewRequest(http.MethodPost, "/recover-password", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
-		
 		w := httptest.NewRecorder()
-		
-		handler.RecoverPassword(w, req)
-		
-		// Should return client error, not server error
-		if w.Code >= 500 {
-			t.Errorf("Expected client error status code, got %d", w.Code)
-		}
+		logger.On(
+			"Warn",
+			req.Context(),
+			"recover password failed",
+			"error", mock.Anything,
+			"email", "nonexistent@example.com",
+			"status_code",
+			http.StatusNotFound,
+		)
+		sut.RecoverPassword(w, req)
+		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 }
+

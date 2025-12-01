@@ -40,6 +40,4 @@ func (rp RecoverPassword) RecoverPassword(w http.ResponseWriter, r *http.Request
 		return
 	}
 	rp.logger.Info(ctx, "recover password successful", "email", req.Email)
-	return
-	// RespondJSON(w, http.StatusOK, {})
 }
