@@ -1,4 +1,4 @@
-// Package handler_test
+// Package handler
 package handler
 
 import (

@@ -1,3 +1,4 @@
+// Package handler
 package handler
 
 import (
@@ -97,4 +98,3 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 }
-

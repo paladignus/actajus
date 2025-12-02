@@ -19,7 +19,6 @@ func NewSignIn(service service.SignIn, logger repository.Logger) SignIn {
 }
 
 func (a SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
-	a.logger.Info(r.Context(), "processing sign_in request")
 	req, err := DecodeJSONRequest[dto.SignInInput](r)
 	if err != nil {
 		a.logger.Warn(r.Context(), "invalid request body", "error", err)

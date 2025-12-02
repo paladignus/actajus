@@ -1,3 +1,4 @@
+// Package handler
 package handler
 
 import (
@@ -90,4 +91,3 @@ func TestRecoverPasswordHandler(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 }
-
