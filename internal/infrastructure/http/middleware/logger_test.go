@@ -6,71 +6,54 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
 	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/test/spy"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-// TestResponseWriter tests the responseWriter wrapper
 func TestResponseWriter(t *testing.T) {
-	// Create a mock response writer
 	recorder := httptest.NewRecorder()
-	
-	// Wrap it with our responseWriter
 	rw := &responseWriter{
 		ResponseWriter: recorder,
 		statusCode:     http.StatusOK,
 	}
-	
-	// Test WriteHeader
 	rw.WriteHeader(http.StatusCreated)
-	
-	if rw.statusCode != http.StatusCreated {
-		t.Errorf("Expected statusCode %d, got %d", http.StatusCreated, rw.statusCode)
-	}
-	
-	// Test Write
+	assert.Equal(t, http.StatusCreated, rw.statusCode)
 	data := []byte("test response")
 	n, err := rw.Write(data)
-	
-	if err != nil {
-		t.Errorf("Write returned error: %v", err)
-	}
-	
-	if n != len(data) {
-		t.Errorf("Expected to write %d bytes, wrote %d", len(data), n)
-	}
-	
-	if rw.bytesWritten != len(data) {
-		t.Errorf("Expected bytesWritten %d, got %d", len(data), rw.bytesWritten)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, len(data), n)
+	assert.Equal(t, len(data), rw.bytesWritten)
 }
 
-// MockLogger is a mock implementation of repository.Logger for testing
 type MockLogger struct {
 	logCalls []string
-	logArgs  []interface{}
+	logArgs  []any
 }
 
-func (m *MockLogger) Debug(ctx context.Context, msg string, args ...interface{}) {
+func (m *MockLogger) Debug(ctx context.Context, msg string, args ...any) {
 	m.logCalls = append(m.logCalls, "debug")
 	m.logArgs = append(m.logArgs, args)
 }
 
-func (m *MockLogger) Info(ctx context.Context, msg string, args ...interface{}) {
+func (m *MockLogger) Info(ctx context.Context, msg string, args ...any) {
 	m.logCalls = append(m.logCalls, "info")
 	m.logArgs = append(m.logArgs, args)
 }
 
-func (m *MockLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
+func (m *MockLogger) Warn(ctx context.Context, msg string, args ...any) {
 	m.logCalls = append(m.logCalls, "warn")
 	m.logArgs = append(m.logArgs, args)
 }
 
-func (m *MockLogger) Error(ctx context.Context, msg string, args ...interface{}) {
+func (m *MockLogger) Error(ctx context.Context, msg string, args ...any) {
 	m.logCalls = append(m.logCalls, "error")
 	m.logArgs = append(m.logArgs, args)
 }
 
-func (m *MockLogger) With(args ...interface{}) repository.Logger {
+func (m *MockLogger) With(args ...any) repository.Logger {
 	return m
 }
 
@@ -78,146 +61,65 @@ func (m *MockLogger) WithError(err error) repository.Logger {
 	return m
 }
 
-// TestLoggerMiddleware tests the LoggerMiddleware functionality
 func TestLoggerMiddleware(t *testing.T) {
-	
-	t.Run("successful request", func(t *testing.T) {
-		mockLogger := &MockLogger{
-			logCalls: []string{},
-			logArgs:  []interface{}{},
-		}
-		
-		middleware := LoggerMiddleware(mockLogger)
-		
-		// Create a simple handler that returns 200
+	logger := &spy.Logger{}
+	middleware := LoggerMiddleware(logger)
+	t.Run("should successful request", func(t *testing.T) {
 		nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("OK"))
 		})
-		
-		handler := middleware(nextHandler)
-		
-		// Create request
+		sut := middleware(nextHandler)
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		req.Header.Set("User-Agent", "test-agent")
-		
 		w := httptest.NewRecorder()
-		
-		handler.ServeHTTP(w, req)
-		
-		// Should have 2 log calls: one for request start, one for completion
-		if len(mockLogger.logCalls) < 2 {
-			t.Errorf("Expected at least 2 log calls, got %d", len(mockLogger.logCalls))
-		}
-		
-		// Check response
-		if w.Code != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-		}
-		
-		if w.Body.String() != "OK" {
-			t.Errorf("Expected body 'OK', got '%s'", w.Body.String())
-		}
+		logger.On("Info", req.Context(), "http request started", "method", "GET", "path", "/test", "remote_addr", "192.0.2.1:1234", "user_agent", "test-agent")
+		logger.On("Info", req.Context(), "http request completed", "method", "GET", "path", "/test", "status_code", http.StatusOK, "duration_ms", int64(0), "bytes_written", mock.Anything)
+		sut.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, http.StatusOK)
+		assert.Equal(t, w.Body.String(), "OK")
 	})
-	
-	t.Run("4xx error request", func(t *testing.T) {
-		mockLogger := &MockLogger{
-			logCalls: []string{},
-			logArgs:  []interface{}{},
-		}
-		
-		middleware := LoggerMiddleware(mockLogger)
-		
-		// Create a handler that returns 400
+
+	t.Run("should return an 4xx error request", func(t *testing.T) {
 		nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Bad Request"))
 		})
-		
-		handler := middleware(nextHandler)
-		
-		// Create request
+		sut := middleware(nextHandler)
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		req.Header.Set("User-Agent", "test-agent")
-		
 		w := httptest.NewRecorder()
-		
-		handler.ServeHTTP(w, req)
-		
-		// Should have at least 2 log calls
-		if len(mockLogger.logCalls) < 2 {
-			t.Errorf("Expected at least 2 log calls, got %d", len(mockLogger.logCalls))
-		}
-		
-		// Check response
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
-		}
+		logger.On("Warn", req.Context(), "http request completed", "method", "GET", "path", "/test", "status_code", http.StatusBadRequest, "duration_ms", int64(0), "bytes_written", mock.Anything)
+		sut.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, http.StatusBadRequest)
 	})
-	
-	t.Run("5xx error request", func(t *testing.T) {
-		mockLogger := &MockLogger{
-			logCalls: []string{},
-			logArgs:  []interface{}{},
-		}
-		
-		middleware := LoggerMiddleware(mockLogger)
-		
-		// Create a handler that returns 500
+
+	t.Run("should return an 5xx error request", func(t *testing.T) {
 		nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Internal Server Error"))
 		})
-		
-		handler := middleware(nextHandler)
-		
-		// Create request
+		sut := middleware(nextHandler)
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		req.Header.Set("User-Agent", "test-agent")
-		
 		w := httptest.NewRecorder()
-		
-		handler.ServeHTTP(w, req)
-		
-		// Should have at least 2 log calls
-		if len(mockLogger.logCalls) < 2 {
-			t.Errorf("Expected at least 2 log calls, got %d", len(mockLogger.logCalls))
-		}
-		
-		// Check response
-		if w.Code != http.StatusInternalServerError {
-			t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
-		}
+		logger.On("Error", req.Context(), "http request completed", "method", "GET", "path", "/test", "status_code", http.StatusInternalServerError, "duration_ms", int64(0), "bytes_written", mock.Anything)
+		sut.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, http.StatusInternalServerError)
 	})
-	
-	t.Run("request timing", func(t *testing.T) {
-		mockLogger := &MockLogger{
-			logCalls: []string{},
-			logArgs:  []interface{}{},
-		}
-		
-		middleware := LoggerMiddleware(mockLogger)
-		
-		// Create a handler that takes some time
+
+	t.Run("should request timing", func(t *testing.T) {
 		nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			time.Sleep(10 * time.Millisecond) // Small delay to ensure measurable time
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("Delayed response"))
 		})
-		
-		handler := middleware(nextHandler)
-		
-		// Create request
+		sut := middleware(nextHandler)
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		req.Header.Set("User-Agent", "test-agent")
-		
 		w := httptest.NewRecorder()
-		
-		handler.ServeHTTP(w, req)
-		
-		// Check that the response was processed
-		if w.Code != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-		}
+		logger.On("Info", req.Context(), "http request completed", "method", "GET", "path", "/test", "status_code", http.StatusOK, "duration_ms", int64(10), "bytes_written", mock.Anything)
+		sut.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, http.StatusOK)
 	})
 }

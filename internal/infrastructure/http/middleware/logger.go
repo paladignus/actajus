@@ -33,7 +33,6 @@ func LoggerMiddleware(logger repository.Logger) func(http.Handler) http.Handler 
 				ResponseWriter: w,
 				statusCode:     http.StatusOK,
 			}
-			// Log da requisição
 			logger.Info(r.Context(), "http request started",
 				"method", r.Method,
 				"path", r.URL.Path,
@@ -41,7 +40,6 @@ func LoggerMiddleware(logger repository.Logger) func(http.Handler) http.Handler 
 				"user_agent", r.UserAgent(),
 			)
 			next.ServeHTTP(rw, r)
-			// Log da resposta
 			logLevel := logger.Info
 			if rw.statusCode >= 400 && rw.statusCode < 500 {
 				logLevel = logger.Warn
