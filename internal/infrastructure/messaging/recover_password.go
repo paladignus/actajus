@@ -28,13 +28,12 @@ func (r RecoverPassword) Handle(
 	ctx context.Context,
 	evt event.IEvent,
 ) error {
-	r.logger.Info(ctx, "processing", "event", evt.EventName(), "aggregate", evt.AggregateID())
 	resetEvt, ok := evt.(*event.PasswordResetRequestedEvent)
 	if !ok {
+		r.logger.Error(ctx, "invalid event type", "expected", "*PasswordResetRequestedEvent", "got", fmt.Sprintf("%T", evt))
 		return fmt.Errorf("expected *PasswordResetRequestedEvent, got %T", evt)
 	}
 	userEmail := resetEvt.UserEmail
-	r.logger.Info(ctx, "sending email", "to", userEmail)
 	err := r.smtp.SendEmail(ctx, userEmail, "Recuperação de senha", body(resetEvt.ResetURL))
 	if err != nil {
 		r.logger.Error(ctx, "failed to send email", "to", userEmail, "error", err)

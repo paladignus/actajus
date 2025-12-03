@@ -3,14 +3,14 @@ package messaging
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/paladignus/actajus/internal/domain/event"
-	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/test/spy"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-// MockSMTP is a mock implementation of gateway.SMTP for testing
 type MockSMTP struct {
 	sendEmailError error
 }
@@ -19,158 +19,93 @@ func (m *MockSMTP) SendEmail(ctx context.Context, to, subject, body string) erro
 	return m.sendEmailError
 }
 
-// MockLogger is a mock implementation of repository.Logger for testing
-type MockLogger struct {
-	logCalls []string
-}
+// type MockLogger struct {
+// 	logCalls []string
+// }
+//
+// func (m *MockLogger) Debug(ctx context.Context, msg string, args ...any) {
+// 	m.logCalls = append(m.logCalls, "debug")
+// }
+//
+// func (m *MockLogger) Info(ctx context.Context, msg string, args ...any) {
+// 	m.logCalls = append(m.logCalls, "info")
+// }
+//
+// func (m *MockLogger) Warn(ctx context.Context, msg string, args ...any) {
+// 	m.logCalls = append(m.logCalls, "warn")
+// }
+//
+// func (m *MockLogger) Error(ctx context.Context, msg string, args ...any) {
+// 	m.logCalls = append(m.logCalls, "error")
+// }
+//
+// func (m *MockLogger) With(args ...any) repository.Logger {
+// 	return m
+// }
+//
+// func (m *MockLogger) WithError(err error) repository.Logger {
+// 	return m
+// }
 
-func (m *MockLogger) Debug(ctx context.Context, msg string, args ...interface{}) {
-	m.logCalls = append(m.logCalls, "debug")
-}
-
-func (m *MockLogger) Info(ctx context.Context, msg string, args ...interface{}) {
-	m.logCalls = append(m.logCalls, "info")
-}
-
-func (m *MockLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
-	m.logCalls = append(m.logCalls, "warn")
-}
-
-func (m *MockLogger) Error(ctx context.Context, msg string, args ...interface{}) {
-	m.logCalls = append(m.logCalls, "error")
-}
-
-func (m *MockLogger) With(args ...interface{}) repository.Logger {
-	return m
-}
-
-func (m *MockLogger) WithError(err error) repository.Logger {
-	return m
-}
-
-// TestRecoverPassword tests the RecoverPassword messaging functionality
 func TestRecoverPassword(t *testing.T) {
 	ctx := context.Background()
-
-	t.Run("successful email sending", func(t *testing.T) {
-		mockLogger := &MockLogger{}
-		mockSMTP := &MockSMTP{}
-
-		recoverPassword := NewRecoverPassword(mockLogger, mockSMTP)
-
-		// Create a PasswordResetRequestedEvent
+	logger := &spy.Logger{}
+	mockSMTP := &MockSMTP{}
+	sut := NewRecoverPassword(logger, mockSMTP)
+	t.Run("should success email sending", func(t *testing.T) {
 		testEvent := event.NewPasswordResetRequestedEvent(
 			"user-123",
 			"test@example.com",
 			"https://example.com/reset",
 		)
-
-		err := recoverPassword.Handle(ctx, &testEvent)
-		if err != nil {
-			t.Errorf("Expected no error, got %v", err)
-		}
-
-		// Check if CanHandle works correctly
-		if !recoverPassword.CanHandle(&testEvent) {
-			t.Error("Expected CanHandle to return true for PasswordResetRequestedEvent")
-		}
+		logger.On("Info", ctx, "email sent successfully", "to", "test@example.com")
+		err := sut.Handle(ctx, &testEvent)
+		assert.NoError(t, err)
+		assert.True(t, sut.CanHandle(&testEvent))
 	})
 
-	t.Run("wrong event type", func(t *testing.T) {
-		mockLogger := &MockLogger{}
-		mockSMTP := &MockSMTP{}
-
-		recoverPassword := NewRecoverPassword(mockLogger, mockSMTP)
-
-		// Create a custom event with a different name - removing this problematic approach
-		// Instead, let's just test the PasswordResetRequestedEvent check directly
-
-		// Create a proper event that doesn't match the expected type
+	t.Run("should wrong event type", func(t *testing.T) {
 		differentEvent := event.NewEvent("different.event", "agg-id", "1.0")
-
-		err := recoverPassword.Handle(ctx, differentEvent)
-
-		// This should fail because it's not a *event.PasswordResetRequestedEvent
-		if err == nil {
-			t.Error("Expected error for wrong event type, got nil")
-		}
+		logger.On("Error", ctx, "invalid event type", "expected", "*PasswordResetRequestedEvent", "got", mock.Anything)
+		err := sut.Handle(ctx, differentEvent)
+		assert.Error(t, err)
 	})
 
-	t.Run("email sending fails", func(t *testing.T) {
-		mockLogger := &MockLogger{}
+	t.Run("should email sending fails", func(t *testing.T) {
 		mockSMTP := &MockSMTP{
-			sendEmailError: fmt.Errorf("SMTP error for testing"), // Using a generic error for testing
+			sendEmailError: fmt.Errorf("SMTP error for testing"),
 		}
-
-		recoverPassword := NewRecoverPassword(mockLogger, mockSMTP)
-
-		// Create a PasswordResetRequestedEvent
+		logger.On("Error", ctx, "failed to send email", "to", "test@example.com", "error", mock.Anything)
+		sut := NewRecoverPassword(logger, mockSMTP)
 		testEvent := event.NewPasswordResetRequestedEvent(
 			"user-123",
 			"test@example.com",
 			"https://example.com/reset",
 		)
-
-		err := recoverPassword.Handle(ctx, &testEvent)
-
-		if err == nil {
-			t.Error("Expected error when email sending fails, got nil")
-		}
+		err := sut.Handle(ctx, &testEvent)
+		assert.Error(t, err)
 	})
 
-	t.Run("CanHandle with correct event name", func(t *testing.T) {
-		mockLogger := &MockLogger{}
-		mockSMTP := &MockSMTP{}
-
-		recoverPassword := NewRecoverPassword(mockLogger, mockSMTP)
-
-		// Create a PasswordResetRequestedEvent
+	t.Run("should CanHandle with correct event name", func(t *testing.T) {
 		testEvent := event.NewPasswordResetRequestedEvent(
 			"user-123",
 			"test@example.com",
 			"https://example.com/reset",
 		)
-
-		if !recoverPassword.CanHandle(&testEvent) {
-			t.Error("Expected CanHandle to return true for PasswordResetRequestedEvent")
-		}
+		assert.True(t, sut.CanHandle(&testEvent))
 	})
 
-	t.Run("CanHandle with different event name", func(t *testing.T) {
-		mockLogger := &MockLogger{}
-		mockSMTP := &MockSMTP{}
-
-		recoverPassword := NewRecoverPassword(mockLogger, mockSMTP)
-
-		// Create a mock event with different name using the Event struct
+	t.Run("should CanHandle with different event name", func(t *testing.T) {
 		differentEvent := event.NewEvent("different.event", "agg-id", "1.0")
-
-		if recoverPassword.CanHandle(differentEvent) {
-			t.Error("Expected CanHandle to return false for different event name")
-		}
+		assert.False(t, sut.CanHandle(differentEvent))
 	})
 
-	// Test body function
-	t.Run("body function generates correct HTML", func(t *testing.T) {
+	t.Run("should body function generates correct HTML", func(t *testing.T) {
 		resetURL := "https://example.com/reset"
 		result := body(resetURL)
-
-		if result == "" {
-			t.Error("Expected body to not be empty")
-		}
-
-		// Check if the URL is properly included in the body
-		if len(result) < 100 { // Basic check for reasonable length
-			t.Error("Expected body to have reasonable length")
-		}
-
-		if !strings.Contains(result, resetURL) {
-			t.Error("Expected body to contain the reset URL")
-		}
-
-		if !strings.Contains(result, "Recuperar Senha") {
-			t.Error("Expected body to contain password recovery text")
-		}
+		assert.NotEmpty(t, result)
+		assert.GreaterOrEqual(t, len(result), 100)
+		assert.Contains(t, result, resetURL)
+		assert.Contains(t, result, "Recuperar Senha")
 	})
 }
-
