@@ -1,13 +1,11 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,39 +24,6 @@ func TestResponseWriter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(data), n)
 	assert.Equal(t, len(data), rw.bytesWritten)
-}
-
-type MockLogger struct {
-	logCalls []string
-	logArgs  []any
-}
-
-func (m *MockLogger) Debug(ctx context.Context, msg string, args ...any) {
-	m.logCalls = append(m.logCalls, "debug")
-	m.logArgs = append(m.logArgs, args)
-}
-
-func (m *MockLogger) Info(ctx context.Context, msg string, args ...any) {
-	m.logCalls = append(m.logCalls, "info")
-	m.logArgs = append(m.logArgs, args)
-}
-
-func (m *MockLogger) Warn(ctx context.Context, msg string, args ...any) {
-	m.logCalls = append(m.logCalls, "warn")
-	m.logArgs = append(m.logArgs, args)
-}
-
-func (m *MockLogger) Error(ctx context.Context, msg string, args ...any) {
-	m.logCalls = append(m.logCalls, "error")
-	m.logArgs = append(m.logArgs, args)
-}
-
-func (m *MockLogger) With(args ...any) repository.Logger {
-	return m
-}
-
-func (m *MockLogger) WithError(err error) repository.Logger {
-	return m
 }
 
 func TestLoggerMiddleware(t *testing.T) {

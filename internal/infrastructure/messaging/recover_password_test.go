@@ -19,34 +19,6 @@ func (m *MockSMTP) SendEmail(ctx context.Context, to, subject, body string) erro
 	return m.sendEmailError
 }
 
-// type MockLogger struct {
-// 	logCalls []string
-// }
-//
-// func (m *MockLogger) Debug(ctx context.Context, msg string, args ...any) {
-// 	m.logCalls = append(m.logCalls, "debug")
-// }
-//
-// func (m *MockLogger) Info(ctx context.Context, msg string, args ...any) {
-// 	m.logCalls = append(m.logCalls, "info")
-// }
-//
-// func (m *MockLogger) Warn(ctx context.Context, msg string, args ...any) {
-// 	m.logCalls = append(m.logCalls, "warn")
-// }
-//
-// func (m *MockLogger) Error(ctx context.Context, msg string, args ...any) {
-// 	m.logCalls = append(m.logCalls, "error")
-// }
-//
-// func (m *MockLogger) With(args ...any) repository.Logger {
-// 	return m
-// }
-//
-// func (m *MockLogger) WithError(err error) repository.Logger {
-// 	return m
-// }
-
 func TestRecoverPassword(t *testing.T) {
 	ctx := context.Background()
 	logger := &spy.Logger{}
