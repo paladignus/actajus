@@ -63,6 +63,15 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 			},
 		},
 		{
+			name:               "should return status code 400 and error response for invalid email",
+			inputError:         exception.ErrInvalidEmail,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse: ErrorResponse{
+				Code:    "INVALID_EMAIL",
+				Message: "invalid email",
+			},
+		},
+		{
 			name:               "should return status code 500 and error response for internal error",
 			inputError:         errors.New("internal server error"),
 			expectedStatusCode: http.StatusInternalServerError,
