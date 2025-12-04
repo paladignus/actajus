@@ -3,9 +3,7 @@ package adapter
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"time"
 
@@ -49,8 +47,7 @@ func (j jwtAdapter) GenerateResetToken(IDUser string) (dto.TokenRecover, error) 
 	if err != nil {
 		return dto.TokenRecover{}, err
 	}
-	hash := sha256.Sum256(token)
-	return dto.TokenRecover{ResetToken: hex.EncodeToString(hash[:])}, nil
+	return dto.TokenRecover{ResetToken: string(token)}, nil
 }
 
 func (j jwtAdapter) ValidateAccessToken(token string) (dto.TokenClaims, error) {
