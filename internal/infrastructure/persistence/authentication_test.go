@@ -318,3 +318,105 @@ func TestAccount_FindEmailByCPF(t *testing.T) {
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
+
+func TestAccount_AccountIsActive(t *testing.T) {
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAuthentication(db)
+	email := "marcelo@marcelo.eti.br"
+	t.Run("should return id_people is account is active", func(t *testing.T) {
+		IDUser := "user-123"
+		rows := pgxmock.NewRows([]string{"id_people"}).AddRow(IDUser)
+		mock.ExpectQuery(`SELECT e.id_people FROM emails e`).
+			WithArgs(email).
+			WillReturnRows(rows)
+		id, err := repo.AccountIsActive(ctx, email)
+		assert.NoError(t, err)
+		assert.Equal(t, IDUser, id)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error when id user found", func(t *testing.T) {
+		email := "invalid@invalid.com"
+		mock.ExpectQuery(`SELECT e.id_people FROM emails e`).
+			WithArgs(email).
+			WillReturnError(pgx.ErrNoRows)
+		id, err := repo.AccountIsActive(ctx, email)
+		assert.Error(t, err)
+		assert.Equal(t, exception.ErrEmailNotFound, err)
+		assert.Equal(t, "", id)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return database error", func(t *testing.T) {
+		mockErr := errors.New("database error")
+		mock.ExpectQuery(`SELECT e.id_people FROM emails e`).
+			WithArgs(email).
+			WillReturnError(mockErr)
+		id, err := repo.AccountIsActive(ctx, email)
+		assert.Error(t, err)
+		assert.Equal(t, mockErr, err)
+		assert.Equal(t, "", id)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
+
+func TestAccount_InvalidAllTokensByIDUser(t *testing.T) {
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAuthentication(db)
+	IDUser := "user-123"
+
+	t.Run("should successful", func(t *testing.T) {
+		mock.ExpectExec(`UPDATE password_reset SET used_at = now()`).
+			WithArgs(IDUser).WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+		err := repo.InvalidAllTokensByIDUser(ctx, IDUser)
+		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error", func(t *testing.T) {
+		expectedErr := errors.New("database error")
+		mock.ExpectExec(`UPDATE password_reset SET used_at = now()`).
+			WithArgs(IDUser).WillReturnError(expectedErr)
+		err := repo.InvalidAllTokensByIDUser(ctx, IDUser)
+		assert.Error(t, err)
+		assert.Equal(t, expectedErr, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}
+
+func TestAccount_CreateRecoverPassword(t *testing.T) {
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+	db := &database.DB{Pool: mock}
+	repo := NewAuthentication(db)
+
+	t.Run("should successful", func(t *testing.T) {
+		mock.ExpectExec(`INSERT INTO password_reset \(id_people, token, expires_at\) VALUES \(\$1, \$2, \$3\)`).
+			WithArgs("user-123", "token", pgxmock.AnyArg()).
+			WillReturnResult(pgxmock.NewResult("INSERT", 1))
+		err := repo.CreateRecoverPassword(ctx, "user-123", "token")
+		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error", func(t *testing.T) {
+		expectedErr := errors.New("database error")
+		mock.ExpectExec(`INSERT INTO password_reset \(id_people, token, expires_at\) VALUES \(\$1, \$2, \$3\)`).
+			WithArgs("user-123", "token", pgxmock.AnyArg()).
+			WillReturnError(expectedErr)
+		err := repo.CreateRecoverPassword(ctx, "user-123", "token")
+		assert.Error(t, err)
+		assert.Equal(t, expectedErr, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+}

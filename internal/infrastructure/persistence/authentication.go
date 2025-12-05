@@ -119,8 +119,7 @@ func (a Authentication) FindEmailByCPF(ctx context.Context, cpf string) (output 
 }
 
 func (a Authentication) AccountIsActive(ctx context.Context, email string) (IDUser string, err error) {
-	sql := `SELECT a.id_people
-		FROM emails e
+	sql := `SELECT e.id_people FROM emails e
 		INNER JOIN people p ON e.id_people = p.idpeople AND p.deleted_at IS NULL
 		INNER JOIN accounts a ON p.idpeople = a.id_people AND a.deleted_at IS NULL
 		WHERE e.deleted_at IS NULL AND e.address = $1;`
