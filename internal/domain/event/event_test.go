@@ -11,13 +11,13 @@ import (
 func TestEventInterface(t *testing.T) {
 	sut := NewEvent("test.event", "aggregate-id", "1.0")
 	name := sut.EventName()
-	assert.Equal(t, "test.sut", name)
+	assert.Equal(t, "test.event", name)
 	assert.False(t, sut.OccurredAt().IsZero())
 	assert.Equal(t, "1.0", sut.EventVersion())
 	assert.Equal(t, "aggregate-id", sut.AggregateID())
 
 	sut = NewEvent("another.event", "another-aggregate", "2.0")
-	assert.Equal(t, "another.sut", sut.EventName())
+	assert.Equal(t, "another.event", sut.EventName())
 	assert.Equal(t, "2.0", sut.EventVersion())
 	assert.Equal(t, "another-aggregate", sut.AggregateID())
 	now := time.Now().UTC()
