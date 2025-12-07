@@ -68,16 +68,16 @@ package nats
 //
 // 	// Create consumer config with proper configuration
 // 	consumerConfig := &nats.ConsumerConfig{
-// 		Durable:        consumerName,
-// 		DeliverPolicy:  nats.DeliverAllPolicy,
-// 		AckPolicy:      nats.AckExplicitPolicy,
-// 		AckWait:        s.config.AckWait,
-// 		MaxDeliver:     s.config.MaxDeliver,
-// 		MaxAckPending:  s.config.MaxAckPending,
-// 		ReplayPolicy:   nats.ReplayInstantPolicy,
-// 		FilterSubject:  subject,
+// 		Durable:           consumerName,
+// 		DeliverPolicy:     nats.DeliverAllPolicy,
+// 		AckPolicy:         nats.AckExplicitPolicy,
+// 		AckWait:           s.config.AckWait,
+// 		MaxDeliver:        s.config.MaxDeliver,
+// 		MaxAckPending:     s.config.MaxAckPending,
+// 		ReplayPolicy:      nats.ReplayInstantPolicy,
+// 		FilterSubject:     subject,
 // 		InactiveThreshold: 10 * time.Minute, // Clean up inactive consumers
-// 		MemoryStorage:  false,
+// 		MemoryStorage:     false,
 // 	}
 //
 // 	// Create consumer
@@ -99,7 +99,6 @@ package nats
 // 		nats.MaxDeliver(s.config.MaxDeliver), // Let NATS handle max deliveries
 // 		nats.AckWait(s.config.AckWait),
 // 	)
-//
 // 	if err != nil {
 // 		return ErrSubscribeFailed(err)
 // 	}
@@ -147,7 +146,7 @@ package nats
 // 			log.Printf("[NATS] Handler failed (attempt %d): %v", meta.NumDelivered, err)
 //
 // 			// Check if we've reached max delivery attempts
-// 			if meta.NumDelivered >= s.config.MaxDeliver {
+// 			if meta.NumDelivered >= uint64(s.config.MaxDeliver) {
 // 				log.Printf("[NATS] Max delivery attempts reached for subject: %s, moving to DLQ", msg.Subject)
 //
 // 				// Move to DLQ or terminate
@@ -162,7 +161,7 @@ package nats
 // 			}
 //
 // 			// Calculate backoff with jitter for better distribution
-// 			backoff := s.calculateBackoff(meta.NumDelivered)
+// 			backoff := s.calculateBackoff(int(meta.NumDelivered))
 // 			log.Printf("[NATS] Retrying in %v...", backoff)
 //
 // 			// Nack with delay for retry
@@ -273,4 +272,3 @@ package nats
 // 	}
 // 	return nil
 // }
-

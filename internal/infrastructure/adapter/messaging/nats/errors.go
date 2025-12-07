@@ -3,9 +3,9 @@ package nats
 import "fmt"
 
 type NATSError struct {
-	Op  string // Operação que causou o erro (ex: "Publish", "Subscribe")
-	Err error  // Erro original
-	Msg string // Mensagem adicional de contexto
+	Op  string
+	Err error
+	Msg string
 }
 
 func (e *NATSError) Error() string {

@@ -43,7 +43,7 @@ func main() {
 	// =================================================================
 	// 2. CRIA PUBLISHER
 	// =================================================================
-	publisher, err := nats.NewPublisher(&config.NATS)
+	publisher, err := nats.NewPublisher(&config.NATS, logger)
 	if err != nil {
 		logger.Error(ctx, "❌ failed to create NATS publisher", "error", err)
 		os.Exit(1)
@@ -53,7 +53,7 @@ func main() {
 	// =================================================================
 	// 3. CRIA SUBSCRIBER
 	// =================================================================
-	subscriber, err := nats.NewSubscriber(&config.NATS, registry)
+	subscriber, err := nats.NewSubscriber(&config.NATS, registry, logger)
 	if err != nil {
 		logger.Error(ctx, "❌ failed to create NATS subscriber", "error", err)
 		os.Exit(1)
@@ -102,6 +102,7 @@ func main() {
 	authHandler := handler.NewSignIn(usecaseAuth, logger)
 	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
 	recoverPasswordHandler := handler.NewRecoverPassword(recoverPassword, logger)
+	renewPassword := handler.NewRenewPassword()
 
 	// =================================================================
 	// 7. CRIA E INICIA O SERVIDOR HTTP
@@ -109,6 +110,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signin", authHandler.SignIn)
 	mux.HandleFunc("POST /auth/email", getEmailByCPF.GetEmailByCPF)
+	mux.HandleFunc("GET /auth/recover/{token}", renewPassword.RenewPassword)
 	mux.HandleFunc("POST /auth/recover", recoverPasswordHandler.RecoverPassword)
 	handler := middleware.EnableCORS(middleware.LoggerMiddleware(logger)(mux))
 	srv := &http.Server{

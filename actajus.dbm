@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="10"
+<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="12"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="626,-49" last-zoom="1" scene-rect="0,-48.9306,2447.16,1076.8"
+	 last-position="388,-24" last-zoom="0.9" scene-rect="0,-48.9306,2447.16,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -24,8 +24,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="540" y="120"/>
-	<column name="idpeople" not-null="true" default-value="uuidv7()">
-		<type name="uuid" length="0"/>
+	<column name="idpeople" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
 	</column>
 	<column name="first_name" not-null="true">
 		<type name="text" length="0"/>
@@ -37,10 +38,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="date" length="0"/>
 	</column>
 	<column name="id_mother">
-		<type name="uuid" length="0"/>
+		<type name="bigint" length="0"/>
 	</column>
 	<column name="id_father">
-		<type name="uuid" length="0"/>
+		<type name="bigint" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">
 		<type name="timestamptz" length="0"/>
@@ -82,8 +83,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="20" y="20"/>
-	<column name="iddocuments" not-null="true" default-value="uuidv7()">
-		<type name="uuid" length="0"/>
+	<column name="iddocuments" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
 	</column>
 	<column name="cpf">
 		<type name="text" length="0"/>
@@ -107,8 +109,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1040" y="-20"/>
-	<column name="idaccounts" not-null="true" default-value="uuidv7()">
-		<type name="uuid" length="0"/>
+	<column name="idaccounts" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
 	</column>
 	<column name="password" not-null="true">
 		<type name="text" length="0"/>
@@ -312,8 +315,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="940" y="520"/>
-	<column name="idemails" not-null="true" default-value="uuidv7()">
-		<type name="uuid" length="0"/>
+	<column name="idemails" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
 	</column>
 	<column name="address" not-null="true">
 		<type name="text" length="0"/>
@@ -350,6 +354,28 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.people"
 	 dst-table="public.emails"
 	 src-required="true" dst-required="false"/>
+
+<table name="password_reset" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1340" y="740"/>
+	<column name="idpassword_reset" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="id_people" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="token" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="expires_at" not-null="true">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="used_at">
+		<type name="timestamptz" length="0"/>
+	</column>
+</table>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">

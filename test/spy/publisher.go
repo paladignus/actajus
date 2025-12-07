@@ -8,12 +8,12 @@ import (
 )
 
 type Publisher struct {
-	event event.IEvent
+	Event event.IEvent
 	Err   error
 }
 
 func (s *Publisher) Publish(ctx context.Context, event event.IEvent) error {
-	s.event = event
+	s.Event = event
 	return s.Err
 }
 

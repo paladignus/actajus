@@ -4,7 +4,6 @@ package nats
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -24,9 +23,10 @@ type Subscriber struct {
 	mu            sync.RWMutex                  // Protege acesso ao map de subscriptions
 	cancelFuncs   map[string]context.CancelFunc // Para cancelar goroutines
 	wg            sync.WaitGroup                // Aguarda goroutines terminarem
+	logger        repository.Logger
 }
 
-func NewSubscriber(config *config.NATSConfig, registry *event.Registry) (*Subscriber, error) { // Adicionado registry
+func NewSubscriber(config *config.NATSConfig, registry *event.Registry, logger repository.Logger) (*Subscriber, error) { // Adicionado registry
 	conn, err := nats.Connect(
 		config.URL,
 		nats.Timeout(config.ConnectionTimeout),
@@ -49,6 +49,7 @@ func NewSubscriber(config *config.NATSConfig, registry *event.Registry) (*Subscr
 		registry:      registry,
 		subscriptions: make(map[string]*nats.Subscription),
 		cancelFuncs:   make(map[string]context.CancelFunc),
+		logger:        logger,
 	}, nil
 }
 
@@ -71,7 +72,7 @@ func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler re
 	}
 	_, err := p.js.AddConsumer(p.config.StreamName, consumerConfig)
 	if err != nil {
-		log.Printf("[NATS] Failed to create consumer: %s", consumerName)
+		p.logger.Error(ctx, "[NATS] Failed to create consumer", "consumer_name", consumerName, "error", err)
 		return ErrConsumerCreationFailed(err)
 	}
 	sub, err := p.js.PullSubscribe(
@@ -87,7 +88,7 @@ func (p *Subscriber) Subscribe(ctx context.Context, eventName string, handler re
 	p.cancelFuncs[eventName] = cancel
 	p.wg.Add(1)
 	go p.processMessages(subCtx, eventName, sub, handler)
-	log.Printf("[NATS] Subscribed to event: %s (consumer: %s)", eventName, consumerName)
+	p.logger.Info(ctx, "[NATS] Subscribed to event", "event_name", eventName, "consumer", consumerName)
 	return nil
 }
 
@@ -101,7 +102,7 @@ func (p *Subscriber) processMessages(
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("[NATS] Stopping message processing for event: %s", eventName)
+			p.logger.Info(ctx, "[NATS] Stopping message processing for event", "event_name", eventName)
 			return
 		default:
 			msgs, err := sub.Fetch(10, nats.Context(ctx))
@@ -124,15 +125,14 @@ func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler r
 	// defer cancel()
 	meta, err := msg.Metadata()
 	if err != nil {
-		log.Printf("[NATS] Failed to get message metadata: %v", err)
+		p.logger.Error(ctx, "[NATS] Failed to get message metadata", "error", err)
 		msg.Nak() // Reenvia a mensagem
 		return
 	}
-	log.Printf("[NATS] Processing message (attempt %d): %s",
-		meta.NumDelivered, msg.Subject)
+	p.logger.Info(ctx, "[NATS] Processing message", "num_delivered", meta.NumDelivered, "subject", msg.Subject)
 	evt, err := p.registry.Unmarshal(msg.Data)
 	if err != nil {
-		log.Printf("[NATS] Failed to deserialize event: %v", err)
+		p.logger.Error(ctx, "[NATS] Failed to deserialize event", "error", err)
 		msg.Term()
 		return
 	}
@@ -142,26 +142,26 @@ func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler r
 	// 	return
 	// }
 	if err := handler.Handle(ctx, evt); err != nil {
-		log.Printf("[NATS] Handler failed (attempt %d): %v",
-			meta.NumDelivered, err)
+		p.logger.Error(ctx, "[NATS] Handler failed", "num_delivered", meta.NumDelivered, "error", err)
 		backoff := time.Duration(1<<(meta.NumDelivered-1)) * time.Second
 		backoff = min(backoff, 30*time.Second)
 		// if backoff > 30*time.Second {
 		// 	backoff = 30 * time.Second // Máximo de 30s
 		// }
-		log.Printf("[NATS] Retrying in %v...", backoff)
+		p.logger.Info(ctx, "[NATS] Retrying", "delay", backoff)
 		msg.NakWithDelay(backoff)
 		return
 	}
 
 	if err := msg.Ack(); err != nil {
-		log.Printf("[NATS] Failed to ACK message: %v", err)
+		p.logger.Error(ctx, "[NATS] Failed to ACK message", "error", err)
 	} else {
-		log.Printf("[NATS] Message processed successfully: %s", msg.Subject)
+		p.logger.Info(ctx, "[NATS] Message processed successfully", "subject", msg.Subject)
 	}
 }
 
 func (p *Subscriber) Unsubscribe(eventName string) error {
+	ctx := context.Background()
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	sub, exists := p.subscriptions[eventName]
@@ -176,11 +176,12 @@ func (p *Subscriber) Unsubscribe(eventName string) error {
 		return err
 	}
 	delete(p.subscriptions, eventName)
-	log.Printf("[NATS] Unsubscribed from event: %s", eventName)
+	p.logger.Info(ctx, "[NATS] Unsubscribed from event", "event_name", eventName)
 	return nil
 }
 
 func (p *Subscriber) Close() error {
+	ctx := context.Background()
 	p.mu.Lock()
 	for _, cancel := range p.cancelFuncs {
 		cancel()
@@ -193,6 +194,6 @@ func (p *Subscriber) Close() error {
 	if p.conn != nil {
 		p.conn.Close()
 	}
-	log.Println("[NATS] Subscriber closed")
+	p.logger.Info(ctx, "[NATS] Subscriber closed")
 	return nil
 }

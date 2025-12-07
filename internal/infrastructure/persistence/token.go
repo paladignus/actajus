@@ -12,6 +12,9 @@ type Token struct {
 	repository repository.Cache
 }
 
+// hash := sha256.Sum256(token)
+// return dto.TokenRecover{ResetToken: hex.EncodeToString(hash[:])}, nil
+
 func (t Token) SaveRevokedToken(token string, expiresAt time.Time) error {
 	key := fmt.Sprintf("revoked_token:%s", token)
 	ttl := time.Until(expiresAt)

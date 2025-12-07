@@ -221,7 +221,7 @@ RETURNING *;
 -- -- Customer tem role de customer
 -- ('0199bc60-1e46-70da-a034-33bc4296f326', 5, '0199bc58-f61a-76c8-8837-6a273aa9b2d0');
 
-INSERT INTO account_role (id_accounts, id_roles, assigned_by) VALUES ('0199c522-5767-78b9-887c-a57d88d482ee', 5, '0199c521-9727-7889-b17d-f531f1185ce6') RETURNING *;
+INSERT INTO account_role (id_accounts, id_roles, assigned_by) VALUES ('3', 5, '1') RETURNING *;
 
 WITH people AS (
     SELECT

@@ -57,7 +57,7 @@ func (r RecoverPassword) Execute(ctx context.Context, req dto.RecoverPasswordInp
 	if err := r.publisher.Publish(ctx, event.NewPasswordResetRequestedEvent(
 		idUser,
 		req.Email,
-		"https://api.actajus.com.br/recover-password?token="+token.ResetToken,
+		"https://api.actajus.com.br/auth/recover/"+token.ResetToken,
 	)); err != nil {
 		r.logger.Error(ctx, "failed to publish recover password event", "error", err, "email", req.Email)
 		return err
