@@ -1,5 +1,5 @@
-// Package persistence
-package persistence
+// Package postgres
+package postgres
 
 import (
 	"context"

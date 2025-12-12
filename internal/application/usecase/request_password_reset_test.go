@@ -19,7 +19,7 @@ func TestRecoverPassword(t *testing.T) {
 	logger := &spy.Logger{}
 	token := &spy.Token{}
 	publisher := &spy.Publisher{}
-	sut := NewRecoverPassword(authentication, logger, token, publisher)
+	sut := NewRequestPasswordReset(authentication, logger, token, publisher)
 	input := dto.RecoverPasswordInput{Email: "email"}
 
 	t.Run("should return error if email is invalid", func(t *testing.T) {

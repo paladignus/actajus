@@ -24,6 +24,24 @@ content-type: application/json
 
 
 ###
+POST https://api.actajus.com.br/auth/email
+content-type: application/json
+
+{
+    "cpf": "987.654.321-00"
+}
+
+
+###
+POST https://api.actajus.com.br/auth/recover
+content-type: application/json
+
+{
+    "email": "wostemberg3@gmail.com"
+}
+
+
+###
 POST https://api.actajus.com.br/signin
 content-type: application/json
 

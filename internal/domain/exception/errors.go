@@ -30,5 +30,7 @@ var (
 	ErrEmailAlreadyVerified = errors.New("email already verified")
 	ErrInvalidEmail         = errors.New("invalid email")
 
-	ErrInvalidPassword = errors.New("invalid password")
+	ErrInvalidPassword    = errors.New("invalid password")
+	ErrInvalidAvatar      = errors.New("invalid avatar")
+	ErrInvalidLastLoginAt = errors.New("invalid last login at")
 )

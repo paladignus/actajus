@@ -19,7 +19,8 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
 	"github.com/paladignus/actajus/internal/infrastructure/messaging"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence"
+	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/infrastructure/security"
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close(ctx, logger)
-	persistence := persistence.NewPersistence(db)
+	persistence := postgres.NewPersistence(db)
 	token := adapter.NewJWTAdapter(config.JWT)
 
 	// CRIA EVENT REGISTRY E REGISTRA TIPOS DE EVENTOS
@@ -84,13 +85,16 @@ func main() {
 	// =================================================================
 	// 6. CRIA USECASES
 	// =================================================================
+
+	tokenService := security.NewHashToken()
+
 	usecaseAuth := usecase.NewSignIn(
 		persistence.Authentication(),
 		logger,
 		token,
 	)
 	usecaseGetEmail := usecase.NewGetEmailByCPF(persistence.Authentication(), logger)
-	recoverPassword := usecase.NewRecoverPassword(persistence.Authentication(), logger, token, publisher)
+	recoverPassword := usecase.NewRequestPasswordReset(persistence.Authentication(), persistence.Token(), tokenService, logger, publisher)
 	sendEmailRecoverPassword := usecase.NewSendEmailRecoverPassword(
 		logger,
 		emailHandler,

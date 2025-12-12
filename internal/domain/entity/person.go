@@ -3,23 +3,27 @@ package entity
 
 import (
 	"strings"
+	"time"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
-type People struct {
+type Person struct {
 	FirstName vo.Text
 	LastName  vo.Text
 	BirthDate vo.Date
 	Mother    vo.Text
 	Father    vo.Text
 	Gender    vo.Text
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
-func NewPeople(people dto.PeopleInput) (People, error) {
-	p := People{
+func NewPerson(people dto.PeopleInput) (Person, error) {
+	p := Person{
 		FirstName: vo.Text(strings.TrimSpace(people.FirstName)),
 		LastName:  vo.Text(strings.TrimSpace(people.LastName)),
 		BirthDate: vo.Date(strings.TrimSpace(people.BirthDate)),

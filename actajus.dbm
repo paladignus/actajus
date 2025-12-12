@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="12"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="388,-24" last-zoom="0.9" scene-rect="0,-48.9306,2447.16,1076.8"
+	 last-position="381,-27" last-zoom="0.9" scene-rect="0,-40,2442.33,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -239,7 +239,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 	<customidxs object-type="column">
 		<object name="assigned_by" index="2"/>
-		<object name="id_accounts" index="0"/>
+		<object name="id_accounts" index="3"/>
 		<object name="id_roles" index="1"/>
 	</customidxs>
 	<customidxs object-type="constraint">

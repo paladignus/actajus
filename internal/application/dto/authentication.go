@@ -1,6 +1,18 @@
 // Package dto
 package dto
 
+import "time"
+
+type AuthenticationInput struct {
+	IDPeople    int        `json:"id_people"`
+	Password    string     `json:"password"`
+	Avatar      string     `json:"avatar"`
+	LastLoginAt time.Time  `json:"last_login_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	DeletedAt   *time.Time `json:"deleted_at"`
+}
+
 type SignInInput struct {
 	CPF      string `json:"cpf"`
 	Password string `json:"password"`

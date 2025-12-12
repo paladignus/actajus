@@ -1,5 +1,5 @@
-// Package persistence
-package persistence
+// Package postgres
+package postgres
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/entity"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
@@ -142,4 +143,27 @@ func (a Authentication) CreateRecoverPassword(ctx context.Context, IDUser, token
 	sql := `INSERT INTO password_reset (id_people, token, expires_at) VALUES ($1, $2, $3);`
 	_, err = a.db.Pool.Exec(ctx, sql, IDUser, token, time.Now().Add(time.Minute*30))
 	return err
+}
+
+// FindByEmail(ctx context.Context, email string) (entity.Authentication, error)
+// 	FindById(ctx context.Context, idAuthentication int) (entity.Authentication, error)
+// 	UpdatePassword(ctx context.Context, idAuthentication int, hashedPassword string) error
+
+func (a Authentication) FindByEmail(ctx context.Context, email string) (auth entity.Authentication, err error) {
+	sql := `SELECT idaccounts FROM accounts WHERE id_people = (SELECT id_people FROM emails WHERE address = $1);`
+	if err := a.db.Pool.QueryRow(ctx, sql, email).Scan(&email); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entity.Authentication{}, exception.ErrEmailNotFound
+		}
+		return entity.Authentication{}, err
+	}
+	return entity.Authentication{}, nil
+}
+
+func (a Authentication) FindById(ctx context.Context, idAuthentication int) (auth entity.Authentication, err error) {
+	return entity.Authentication{}, nil
+}
+
+func (Authentication) UpdatePassword(ctx context.Context, idAuthentication int, hashedPassword string) error {
+	return nil
 }

@@ -1,4 +1,5 @@
-package persistence
+// Package postgres
+package postgres
 
 import (
 	"testing"

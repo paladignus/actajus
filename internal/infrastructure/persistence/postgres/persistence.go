@@ -1,5 +1,5 @@
-// Package persistence
-package persistence
+// Package postgres
+package postgres
 
 import (
 	"github.com/paladignus/actajus/internal/infrastructure/database"
@@ -15,4 +15,8 @@ func NewPersistence(db *database.DB) Persistence {
 
 func (p Persistence) Authentication() Authentication {
 	return NewAuthentication(p.db)
+}
+
+func (p Persistence) Token() Token {
+	return NewToken(p.db)
 }
