@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="12"
+<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="12"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="381,-27" last-zoom="0.9" scene-rect="0,-40,2442.33,1076.8"
+	 last-position="715,0" last-zoom="1.15" scene-rect="0,0,2442.33,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -105,14 +105,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="people_fk" index="2"/>
 	</customidxs></table>
 
-<table name="accounts" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
+<table name="users" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1040" y="-20"/>
-	<column name="idaccounts" not-null="true"
-	 identity-type="ALWAYS">
-		<type name="bigint" length="0"/>
-	</column>
+	<position x="1240" y="20"/>
 	<column name="password" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -131,16 +127,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="deleted_at">
 		<type name="timestamptz" length="0"/>
 	</column>
-	<constraint name="accounts_pk" type="pk-constr" table="public.accounts">
-		<columns names="idaccounts" ref-type="src-columns"/>
-	</constraint>
 
 	<customidxs object-type="column">
-		<object name="id_people" index="1"/>
+		<object name="idusers" index="0"/>
 	</customidxs>
 	<customidxs object-type="constraint">
-		<object name="accounts_uq" index="2"/>
-		<object name="people_fk" index="1"/>
+		<object name="people_fk" index="0"/>
+		<object name="users_pk" index="1"/>
 	</customidxs></table>
 
 <relationship name="gender_has_many_people" type="rel1n" layers="0"
@@ -151,16 +144,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 custom-color="#fa0816"
 	 src-table="public.gender"
 	 dst-table="public.people"
-	 src-required="true" dst-required="false"/>
-
-<relationship name="accounts_has_one_people" type="rel11" layers="0"
-	 src-col-pattern="id_{st}"
-	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
-	 src-fk-pattern="{st}_fk"
-	 fk-idx-pattern="{st}_idx"
-	 custom-color="#ccde04"
-	 src-table="public.people"
-	 dst-table="public.accounts"
 	 src-required="true" dst-required="false"/>
 
 <relationship name="documents_has_one_people" type="rel11" layers="0"
@@ -229,37 +212,25 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<position x="2140" y="200"/>
 </table>
 
-<table name="account_role" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="user_role" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1400" y="400"/>
+	<position x="1380" y="460"/>
 	<column name="created_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>
 
 	<customidxs object-type="column">
 		<object name="assigned_by" index="2"/>
-		<object name="id_accounts" index="3"/>
 		<object name="id_roles" index="1"/>
+		<object name="id_users" index="0"/>
 	</customidxs>
 	<customidxs object-type="constraint">
-		<object name="account_role_pk" index="0"/>
-		<object name="accounts_fk" index="1"/>
-		<object name="people_fk" index="3"/>
-		<object name="roles_fk" index="2"/>
+		<object name="people_fk" index="2"/>
+		<object name="roles_fk" index="1"/>
+		<object name="user_role_pk" index="0"/>
+		<object name="users_fk" index="3"/>
 	</customidxs></table>
-
-<relationship name="accounts_has_many_account_role" type="rel1n" layers="0"
-	 src-col-pattern="id_{st}"
-	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
-	 src-fk-pattern="{st}_fk"
-	 fk-idx-pattern="{st}_idx"
-	 custom-color="#e8ff78"
-	 src-table="public.accounts"
-	 dst-table="public.account_role"
-	 src-required="false" dst-required="false">
-	<special-pk-cols indexes="0"/>
-</relationship>
 
 <relationship name="roles_has_many_account_role" type="rel1n" layers="0"
 	 src-col-pattern="id_{st}"
@@ -268,10 +239,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#da1242"
 	 src-table="public.roles"
-	 dst-table="public.account_role"
+	 dst-table="public.user_role"
 	 src-required="true" dst-required="false">
-	<constraint name="account_role_pk" type="pk-constr" alias="account_role_pk" protected="true" table="public.account_role">
-		</constraint>
 	<special-pk-cols indexes="0"/>
 </relationship>
 
@@ -308,13 +277,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#44a213"
 	 src-table="public.people"
-	 dst-table="public.account_role"
+	 dst-table="public.user_role"
 	 src-required="true" dst-required="false"/>
 
 <table name="emails" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="940" y="520"/>
+	<position x="860" y="560"/>
 	<column name="idemails" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -355,15 +324,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.emails"
 	 src-required="true" dst-required="false"/>
 
-<table name="password_reset" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+<table name="password_reset" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1340" y="740"/>
+	<position x="1320" y="860"/>
 	<column name="idpassword_reset" not-null="true"
 	 identity-type="ALWAYS">
-		<type name="bigint" length="0"/>
-	</column>
-	<column name="id_people" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
 	<column name="token" not-null="true">
@@ -376,6 +342,32 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="timestamptz" length="0"/>
 	</column>
 </table>
+
+<relationship name="users_has_one_people" type="rel11" layers="0"
+	 src-col-pattern="id{dt}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#9631b1"
+	 src-table="public.people"
+	 dst-table="public.users"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<relationship name="users_has_many_users_role" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#e6c0d3"
+	 src-table="public.users"
+	 dst-table="public.user_role"
+	 src-required="true" dst-required="false">
+	<constraint name="user_role_pk" type="pk-constr" alias="user_role_pk" protected="true" table="public.user_role">
+		</constraint>
+	<special-pk-cols indexes="0"/>
+</relationship>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">

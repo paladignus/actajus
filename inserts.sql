@@ -62,7 +62,7 @@ WITH people AS (
         (SELECT idpeople FROM people WHERE first_name = 'Jane' AND last_name = 'Editor' LIMIT 1) AS id_editor,
         (SELECT idpeople FROM people WHERE first_name = 'Bob' AND last_name = 'Customer' LIMIT 1) AS id_customer
 )
-INSERT INTO accounts (id_people, password, avatar)
+INSERT INTO users (idusers, password, avatar)
 SELECT
     CASE v.role
         WHEN 'root' THEN p.id_root
@@ -182,11 +182,11 @@ role_ids AS (
   SELECT name AS role, idroles
   FROM roles
 ),
-account_map AS (
-  SELECT pm.role, a.idaccounts
+user_map AS (
+  SELECT pm.role, a.idusers
   FROM people_map pm
-  LEFT JOIN accounts a
-    ON a.id_people = pm.id_person
+  LEFT JOIN users a
+    ON a.idusers = pm.id_person
 ),
 root_person AS (
   SELECT idpeople AS assigned_by
@@ -194,18 +194,18 @@ root_person AS (
   WHERE first_name = 'Sofia' AND last_name = 'Jackson'
   LIMIT 1
 )
-INSERT INTO account_role (id_accounts, id_roles, assigned_by)
-SELECT am.idaccounts, ri.idroles, rp.assigned_by
-FROM account_map am
+INSERT INTO user_role (id_users, id_roles, assigned_by)
+SELECT am.idusers, ri.idroles, rp.assigned_by
+FROM user_map am
 JOIN role_ids ri ON ri.role = am.role
 CROSS JOIN root_person rp
-WHERE am.idaccounts IS NOT NULL
+WHERE am.idusers IS NOT NULL
   AND ri.idroles IS NOT NULL
-ON CONFLICT (id_accounts, id_roles) DO NOTHING
+ON CONFLICT (id_users, id_roles) DO NOTHING
 RETURNING *;
 
 -- 5. Associar Roles aos Usuários
--- INSERT INTO account_role (id_accounts, id_roles, assigned_by) VALUES 
+-- INSERT INTO user_role (id_users, id_roles, assigned_by) VALUES 
 -- --Super_Admin tem todas as roles
 -- ('0199bc5a-62a1-7ca3-994c-3c6493dd1375', 1, '0199bc58-f61a-76c8-8837-6a273aa9b2d0'),
 -- -- Admin tem role de admin
@@ -221,7 +221,7 @@ RETURNING *;
 -- -- Customer tem role de customer
 -- ('0199bc60-1e46-70da-a034-33bc4296f326', 5, '0199bc58-f61a-76c8-8837-6a273aa9b2d0');
 
-INSERT INTO account_role (id_accounts, id_roles, assigned_by) VALUES ('3', 5, '1') RETURNING *;
+INSERT INTO user_role (id_users, id_roles, assigned_by) VALUES ('3', 5, '1') RETURNING *;
 
 WITH people AS (
     SELECT
