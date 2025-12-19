@@ -244,9 +244,9 @@ SELECT
 FROM people p
 CROSS JOIN (
     VALUES
-        ('root',     'root@email.com.br'),
+        ('root',     'marcelo@marcelo.eti.br'),
         ('admin',    'admin@email.com.br'),
-        ('manager',  'manager@email.com.br'),
+        ('manager',  'wostemberg3@gmail.com'),
         ('editor',   'editor@email.com.br'),
         ('customer', 'customer@email.com.br')
 ) AS v(role, address) RETURNING *;

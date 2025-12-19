@@ -1,0 +1,12 @@
+# Namespace para observabilidade
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+# Service Account para observabilidade
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: observability
+  namespace: observability

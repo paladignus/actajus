@@ -1,7 +1,7 @@
 // Package dto provides the data transfer objects of the application
 package dto
 
-type PeopleInput struct {
+type PersonInput struct {
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
 	BirthDate  string `json:"birth_date"`

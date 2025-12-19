@@ -3,64 +3,45 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
-	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 )
 
 type SignIn struct {
-	persistence repository.Authentication
-	logger      repository.Logger
-	gateway     gateway.Token
+	user repository.IUser
+	jwt  gateway.JWT
 }
 
 func NewSignIn(
-	persistence repository.Authentication,
-	logger repository.Logger,
-	token gateway.Token,
+	user repository.IUser,
+	jwt gateway.JWT,
 ) SignIn {
 	return SignIn{
-		persistence,
-		logger,
-		token,
+		user,
+		jwt,
 	}
 }
 
-func (a SignIn) Execute(ctx context.Context, req dto.SignInInput) (dto.SignInOutput, error) {
-	cpf := vo.CPF(req.CPF)
+func (a SignIn) Execute(ctx context.Context, input dto.SignInInput) (user dto.SignInOutput, err error) {
+	cpf := vo.CPF(input.CPF)
 	if !cpf.IsValid() {
-		a.logger.Warn(ctx, "invalid cpf format provided",
-			"cpf", req.CPF,
-		)
-		return dto.SignInOutput{}, exception.ErrInvalidCPF
+		return user, fmt.Errorf("invalid CPF format %s in sign in use case: %w", input.CPF, exception.ErrInvalidCredentials)
 	}
-	person, err := a.persistence.SignIn(ctx, cpf.OnlyDigits())
+	input.CPF = cpf.OnlyDigits()
+	user, err = a.user.AuthenticationByCPF(ctx, input)
 	if err != nil {
-		a.logger.Warn(ctx, "user not found during authentication",
-			"cpf", req.CPF,
-			"error", err,
-		)
-		return dto.SignInOutput{}, err
+		return user, fmt.Errorf("sign in use case failed for CPF %s: %w", input.CPF, err)
 	}
-	err = a.persistence.ValidatePassword(ctx, person.IDUser, req.Password)
+	tokenPair, err := a.jwt.GenerateTokenPair(string(user.IDUser))
 	if err != nil {
-		a.logger.Warn(ctx, "invalid credentials provided",
-			"cpf", req.CPF,
-			"id_person", person.IDUser,
-		)
-		return dto.SignInOutput{}, err
+		return user, fmt.Errorf("sign in use case failed to generate token pair for user ID %s: %w", user.IDUser, err)
 	}
-	tokenPair, err := a.gateway.GenerateTokenPair(person.IDUser)
-	if err != nil {
-		a.logger.Error(ctx, "failed to generate token pair", "error", err)
-		return dto.SignInOutput{}, adapter.ErrBuildToken
-	}
-	person.AccessToken = tokenPair.AccessToken
-	person.RefreshToken = tokenPair.RefreshToken
-	a.logger.Info(ctx, "person authenticated successfully", "cpf", req.CPF, "id_person", person.IDUser)
-	return person, err
+	user.AccessToken = tokenPair.AccessToken
+	user.RefreshToken = tokenPair.RefreshToken
+	return user, err
 }

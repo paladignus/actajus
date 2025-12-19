@@ -7,13 +7,13 @@ import (
 )
 
 type RepositorySpy struct {
-	auth  Authentication
+	user  IUser
 	log   Logger
 	cache Cache
 }
 
-func (r *RepositorySpy) Authentication() Authentication {
-	return r.auth
+func (r *RepositorySpy) User() IUser {
+	return r.user
 }
 
 func (r *RepositorySpy) Logger() Logger {
@@ -26,15 +26,14 @@ func (r *RepositorySpy) Cache() Cache {
 
 func TestRepositoryInterface(t *testing.T) {
 	sut := &RepositorySpy{
-		auth:  &AuthenticationSpy{},
+		// user:  &AuthenticationSpy{},
 		log:   &LoggerSpy{},
 		cache: &CacheSpy{},
 	}
-	auth := sut.Authentication()
-	assert.NotNil(t, auth)
+	user := sut.User()
+	assert.NotNil(t, user)
 	log := sut.Logger()
 	assert.NotNil(t, log)
 	cache := sut.Cache()
 	assert.NotNil(t, cache)
 }
-

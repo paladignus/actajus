@@ -1,0 +1,16 @@
+# Arquivo para aplicar todos os recursos do Kubernetes
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: actajus
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: observability
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: monitoring

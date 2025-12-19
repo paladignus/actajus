@@ -7,7 +7,7 @@ import (
 )
 
 func TestPeopleInput(t *testing.T) {
-	sut := PeopleInput{
+	sut := PersonInput{
 		FirstName:  "John",
 		LastName:   "Doe",
 		BirthDate:  "1990-01-01",
@@ -24,7 +24,7 @@ func TestPeopleInput(t *testing.T) {
 		assert.Equal(t, "M", sut.Gender)
 	})
 	t.Run("should return an empty value", func(t *testing.T) {
-		sut := PeopleInput{}
+		sut := PersonInput{}
 		assert.Equal(t, "", sut.FirstName)
 		assert.Equal(t, "", sut.LastName)
 		assert.Equal(t, "", sut.BirthDate)

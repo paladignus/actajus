@@ -13,10 +13,10 @@ func NewPersistence(db *database.DB) Persistence {
 	return Persistence{db}
 }
 
-func (p Persistence) Authentication() Authentication {
-	return NewAuthentication(p.db)
+func (p Persistence) User() User {
+	return NewUser(p.db)
 }
 
-func (p Persistence) Token() Token {
-	return NewToken(p.db)
+func (p Persistence) PasswordResetToken() PasswordResetToken {
+	return NewPasswordResetToken(p.db)
 }

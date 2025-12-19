@@ -3,6 +3,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
@@ -11,26 +12,28 @@ import (
 )
 
 type GetEmailByCPF struct {
-	persistence repository.Authentication
-	logger      repository.Logger
+	user repository.IUser
 }
 
-func NewGetEmailByCPF(persistence repository.Authentication, logger repository.Logger) GetEmailByCPF {
-	return GetEmailByCPF{persistence, logger}
+func NewGetEmailByCPF(
+	persistence repository.IUser,
+) GetEmailByCPF {
+	return GetEmailByCPF{
+		persistence,
+	}
 }
 
-func (g GetEmailByCPF) Execute(ctx context.Context, req dto.GetEmailByCPFInput) (dto.GetEmailByCPFOutput, error) {
-	g.logger.Info(ctx, "getting email by CPF", "cpf", req.CPF)
-	cpf := vo.CPF(req.CPF)
+func (g GetEmailByCPF) Execute(
+	ctx context.Context,
+	input dto.GetEmailByCPFInput,
+) (email dto.GetEmailByCPFOutput, err error) {
+	cpf := vo.CPF(input.CPF)
 	if !cpf.IsValid() {
-		g.logger.Warn(ctx, "invalid cpf format provided", "cpf", req.CPF)
-		return dto.GetEmailByCPFOutput{}, exception.ErrInvalidCPF
+		return email, fmt.Errorf("use case get email by cpf, invalid cpf: %w", exception.ErrEmailNotFound)
 	}
-	email, err := g.persistence.FindEmailByCPF(ctx, cpf.OnlyDigits())
+	email, err = g.user.FindEmailByCPF(ctx, cpf.OnlyDigits())
 	if err != nil {
-		g.logger.Warn(ctx, "email not found for provided cpf", "cpf", req.CPF, "error", err)
-		return dto.GetEmailByCPFOutput{}, exception.ErrEmailNotFound
+		return email, fmt.Errorf("use case get email by cpf: %w", err)
 	}
-	g.logger.Info(ctx, "email found successfully", "cpf", req.CPF, "email", email.Email)
 	return email, nil
 }

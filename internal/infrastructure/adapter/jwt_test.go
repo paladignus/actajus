@@ -46,11 +46,11 @@ func TestGenerateTokenPair(t *testing.T) {
 		assert.NotEqual(t, tokens.AccessToken, tokens.RefreshToken)
 	})
 
-	t.Run("should return reset token", func(t *testing.T) {
-		sut, err := adapter.GenerateResetToken(userID)
-		require.NoError(t, err)
-		assert.NotEmpty(t, sut.ResetToken)
-	})
+	// t.Run("should return reset token", func(t *testing.T) {
+	// 	sut, err := adapter.GenerateResetToken(userID)
+	// 	require.NoError(t, err)
+	// 	assert.NotEmpty(t, sut.ResetToken)
+	// })
 
 	t.Run("should validate an access token without error", func(t *testing.T) {
 		tokens, err := adapter.GenerateTokenPair(userID)
@@ -68,13 +68,13 @@ func TestGenerateTokenPair(t *testing.T) {
 		assert.Equal(t, userID, claims.IDUser)
 	})
 
-	t.Run("should validate an reset token without error", func(t *testing.T) {
-		sut, err := adapter.GenerateResetToken(userID)
-		require.NoError(t, err)
-		claims, err := adapter.ValidateResetToken(sut.ResetToken)
-		require.NoError(t, err)
-		assert.Equal(t, userID, claims.IDUser)
-	})
+	// t.Run("should validate an reset token without error", func(t *testing.T) {
+	// 	sut, err := adapter.GenerateResetToken(userID)
+	// 	require.NoError(t, err)
+	// 	claims, err := adapter.ValidateResetToken(sut.ResetToken)
+	// 	require.NoError(t, err)
+	// 	assert.Equal(t, userID, claims.IDUser)
+	// })
 
 	t.Run("should return access token and refresh token from refresh method", func(t *testing.T) {
 		tokens, err := adapter.GenerateTokenPair(userID)

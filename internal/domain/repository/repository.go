@@ -2,7 +2,7 @@
 package repository
 
 type Repository interface {
-	Authentication() Authentication
+	User() IUser
 	Logger() Logger
 	Cache() Cache
 }

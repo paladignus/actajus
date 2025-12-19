@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="12"
+<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="12"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="715,0" last-zoom="1.15" scene-rect="0,0,2442.33,1076.8"
+	 last-position="126,0" last-zoom="0.8" scene-rect="0,0,2442.33,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -108,7 +108,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="users" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1240" y="20"/>
+	<position x="1160" y="40"/>
 	<column name="password" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -215,7 +215,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="user_role" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1380" y="460"/>
+	<position x="1300" y="480"/>
 	<column name="created_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>
@@ -324,7 +324,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.emails"
 	 src-required="true" dst-required="false"/>
 
-<table name="password_reset" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="password_reset" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1320" y="860"/>
@@ -341,7 +341,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="used_at">
 		<type name="timestamptz" length="0"/>
 	</column>
-</table>
+
+	<customidxs object-type="column">
+		<object name="id_users" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="users_fk" index="0"/>
+	</customidxs></table>
 
 <relationship name="users_has_one_people" type="rel11" layers="0"
 	 src-col-pattern="id{dt}"
@@ -364,10 +370,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.users"
 	 dst-table="public.user_role"
 	 src-required="true" dst-required="false">
+	<label ref-type="dst-label">
+		<position x="16" y="16.7"/>
+	</label>
 	<constraint name="user_role_pk" type="pk-constr" alias="user_role_pk" protected="true" table="public.user_role">
 		</constraint>
 	<special-pk-cols indexes="0"/>
 </relationship>
+
+<relationship name="users_has_many_password_reset" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#05089b"
+	 src-table="public.users"
+	 dst-table="public.password_reset"
+	 src-required="true" dst-required="false"/>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">

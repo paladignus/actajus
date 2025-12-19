@@ -1,0 +1,12 @@
+# Configuração do namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: actajus
+---
+# Service Account para o aplicativo
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: actajus-app
+  namespace: actajus

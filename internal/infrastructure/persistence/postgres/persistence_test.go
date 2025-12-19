@@ -36,7 +36,7 @@ func TestPersistence_Authentication(t *testing.T) {
 		defer mock.Close()
 		db := &database.DB{Pool: mock}
 		persistence := NewPersistence(db)
-		accountRepo := persistence.Authentication()
+		accountRepo := persistence.User()
 		assert.NotNil(t, accountRepo)
 		assert.Equal(t, db, accountRepo.db)
 	})
@@ -47,8 +47,8 @@ func TestPersistence_Authentication(t *testing.T) {
 		defer mock.Close()
 		db := &database.DB{Pool: mock}
 		persistence := NewPersistence(db)
-		account1 := persistence.Authentication()
-		account2 := persistence.Authentication()
+		account1 := persistence.User()
+		account2 := persistence.User()
 		// Verifica que ambas instâncias usam o mesmo db
 		assert.Equal(t, account1.db, account2.db)
 		// Note: Como Authentication é um struct (não ponteiro), cada chamada
@@ -64,7 +64,7 @@ func TestPersistence_Authentication(t *testing.T) {
 		defer mock.Close()
 		db := &database.DB{Pool: mock}
 		persistence := NewPersistence(db)
-		account := persistence.Authentication()
+		account := persistence.User()
 		// Verifica que o repositório de account tem acesso ao mesmo pool de conexões
 		assert.Same(t, persistence.db, account.db)
 		assert.Same(t, db.Pool, account.db.Pool)

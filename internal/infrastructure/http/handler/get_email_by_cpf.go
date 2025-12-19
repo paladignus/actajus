@@ -21,7 +21,7 @@ func NewGetEmailByCPF(service service.GetEmailByCPF, logger repository.Logger) G
 func (g GetEmailByCPF) GetEmailByCPF(w http.ResponseWriter, r *http.Request) {
 	req, err := DecodeJSONRequest[dto.GetEmailByCPFInput](r)
 	if err != nil {
-		g.logger.Warn(r.Context(), "invalid request body", "error", err)
+		g.logger.Warn(r.Context(), "failed to decode request body for get email by CPF", "error", err, "method", r.Method, "url", r.URL.Path)
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -29,13 +29,13 @@ func (g GetEmailByCPF) GetEmailByCPF(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {
-			g.logger.Error(r.Context(), "get email failed with server error", "error", err, "cpf", req.CPF)
+			g.logger.Error(r.Context(), "get email by CPF failed with server error", "error", err, "cpf", req.CPF, "method", r.Method, "url", r.URL.Path)
 		} else {
-			g.logger.Warn(r.Context(), "get email failed", "error", err, "cpf", req.CPF, "status_code", statusCode)
+			g.logger.Warn(r.Context(), "get email by CPF failed", "error", err, "cpf", req.CPF, "method", r.Method, "url", r.URL.Path)
 		}
 		RespondJSON(w, statusCode, errResponse)
 		return
 	}
-	g.logger.Info(r.Context(), "get email successful", "cpf", req.CPF)
+	g.logger.Info(r.Context(), "get email by CPF successful", "cpf", req.CPF, "email", resp.Email, "method", r.Method, "url", r.URL.Path)
 	RespondJSON(w, http.StatusOK, resp)
 }

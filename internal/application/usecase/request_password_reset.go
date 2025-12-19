@@ -3,6 +3,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/entity"
@@ -15,98 +16,52 @@ import (
 )
 
 type RequestPasswordReset struct {
-	auth         repository.Authentication
+	user         repository.IUser
 	token        repository.IPasswordResetToken
-	tokenService service.IToken
-	logger       repository.Logger
-	// token     gateway.Token
-	publisher gateway.Publisher
+	tokenService service.ITokenGenerator
+	publisher    gateway.Publisher
 }
 
 func NewRequestPasswordReset(
-	auth repository.Authentication,
+	user repository.IUser,
 	token repository.IPasswordResetToken,
-	tokenService service.IToken,
-	logger repository.Logger,
-	// token gateway.Token,
+	tokenService service.ITokenGenerator,
 	publisher gateway.Publisher,
 ) RequestPasswordReset {
 	return RequestPasswordReset{
-		auth,
+		user,
 		token,
 		tokenService,
-		logger,
-		// token,
 		publisher,
 	}
 }
 
-func (r RequestPasswordReset) Execute(ctx context.Context, req dto.RecoverPasswordInput) error {
+func (r RequestPasswordReset) Execute(ctx context.Context, req dto.RequestPasswordResetInput) error {
 	email := vo.Email(req.Email)
 	if !email.IsValid() {
-		r.logger.Warn(ctx, "invalid email format provided",
-			"email", email.Value(),
-		)
-		return exception.ErrInvalidEmail
+		return fmt.Errorf("invalid email format %s in request password reset use case: %w", req.Email, exception.ErrEmailNotFound)
 	}
-	authenticate, err := r.auth.FindByEmail(ctx, email.Value())
+	idUser, err := r.user.FindByEmail(ctx, email.Value())
 	if err != nil {
-		r.logger.Warn(ctx, "person does not have an account", "error", err, "email", email.Value())
-		return err
+		return fmt.Errorf("request password reset use case failed to find user by email %s: %w", req.Email, err)
 	}
-	if authenticate.IsDeleted() {
-		r.logger.Warn(ctx, "person with inactive authentication", "email", email.Value())
+	if err := r.token.InvalidateUserTokens(ctx, idUser); err != nil {
+		return fmt.Errorf("request password reset use case failed to invalidate previous tokens for user ID %d: %w", idUser, err)
 	}
-	if err := r.token.InvalidateUserTokens(ctx, authenticate.IDPerson); err != nil {
-		r.logger.Error(ctx, "failed to invalidate previous token", "error", err, "id_user", authenticate.IDPerson)
-		return err
-	}
-	token, err := r.tokenService.GenerateToken()
+	token, err := r.tokenService.Generate()
 	if err != nil {
-		r.logger.Error(ctx, "failed to generate reset token", "error", err, "email", email.Value())
-		return err
+		return fmt.Errorf("request password reset use case failed to generate reset token for email %s: %w", req.Email, err)
 	}
-	resetToken := entity.NewPasswordResetToken(authenticate.IDPerson, token)
+	resetToken := entity.NewPasswordResetToken(idUser, token)
 	if err := r.token.Create(ctx, resetToken); err != nil {
-		r.logger.Error(ctx, "failed to create reset token record", "error", err, "email", email.Value())
-		return err
+		return fmt.Errorf("request password reset use case failed to save reset token for user ID %d: %w", idUser, err)
 	}
 	if err := r.publisher.Publish(ctx, event.NewPasswordResetRequestedEvent(
-		string(authenticate.IDPerson),
+		string(idUser),
 		req.Email,
-		"https://api.actajus.com.br/auth/recover/"+resetToken.Token,
+		"https://dynamicsolutions-hlg.com.br/alterar-senha/"+resetToken.Token,
 	)); err != nil {
-		r.logger.Error(ctx, "failed to publish recover password event", "error", err, "email", req.Email)
-		return err
+		return fmt.Errorf("request password reset use case failed to publish event for email %s: %w", req.Email, err)
 	}
-	r.logger.Info(ctx, "recover password successfully", "email", req.Email)
-	return nil
-	// idUser, err := r.auth.AccountIsActive(ctx, req.Email)
-	// if err != nil {
-	// 	r.logger.Error(ctx, "account not found or is inactive", "error", err, "email", req.Email)
-	// 	return err
-	// }
-	// token, err := r.token.GenerateResetToken(idUser)
-	// if err != nil {
-	// 	r.logger.Error(ctx, "failed to generate reset token", "error", err, "email", req.Email)
-	// 	return err
-	// }
-	// if err := r.auth.InvalidAllTokensByIDUser(ctx, idUser); err != nil {
-	// 	r.logger.Error(ctx, "failed to invalidate previous token", "error", err, "id_user", idUser)
-	// 	return err
-	// }
-	// if err = r.auth.CreateRecoverPassword(ctx, idUser, token.ResetToken); err != nil {
-	// 	r.logger.Error(ctx, "failed to create reset token record", "error", err, "email", req.Email)
-	// 	return err
-	// }
-	// if err := r.publisher.Publish(ctx, event.NewPasswordResetRequestedEvent(
-	// 	idUser,
-	// 	req.Email,
-	// 	"https://api.actajus.com.br/auth/recover/"+token.ResetToken,
-	// )); err != nil {
-	// 	r.logger.Error(ctx, "failed to publish recover password event", "error", err, "email", req.Email)
-	// 	return err
-	// }
-	// r.logger.Info(ctx, "recover password successfully", "email", req.Email)
 	return nil
 }

@@ -14,6 +14,7 @@ type Config struct {
 	JWT      JWTConfig
 	SMTP     SMTPConfig
 	NATS     NATSConfig
+	Tracing  TracingConfig
 }
 
 type ServerConfig struct {
@@ -66,6 +67,13 @@ type NATSConfig struct {
 	RequestTimeout    time.Duration
 }
 
+type TracingConfig struct {
+	ServiceName string
+	AgentHost   string
+	AgentPort   string
+	Enabled     bool
+}
+
 func Load() Config {
 	return Config{
 		Server: ServerConfig{
@@ -116,6 +124,12 @@ func Load() Config {
 			ConnectionTimeout: time.Duration(getEnvAsInt("NATS_CONNECTION_TIMEOUT", 10)) * time.Second,
 			RequestTimeout:    time.Duration(getEnvAsInt("NATS_REQUEST_TIMEOUT", 5)) * time.Second,
 		},
+		Tracing: TracingConfig{
+			ServiceName: getEnv("TRACING_SERVICE_NAME", "actajus-api"),
+			AgentHost:   getEnv("TRACING_AGENT_HOST", "localhost"),
+			AgentPort:   getEnv("TRACING_AGENT_PORT", "6831"),
+			Enabled:     getEnvAsBool("TRACING_ENABLED", true), // Default to true for development
+		},
 	}
 }
 
@@ -130,6 +144,15 @@ func getEnvAsInt(key string, defaultValue int) int {
 	if value := os.Getenv(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
 			return intValue
+		}
+	}
+	return defaultValue
+}
+
+func getEnvAsBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
 		}
 	}
 	return defaultValue

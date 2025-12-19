@@ -2,22 +2,46 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/service"
+	"github.com/paladignus/actajus/internal/domain/repository"
 )
 
-type RenewPassword struct{}
+type RenewPassword struct {
+	service service.RenewPassword
+	logger  repository.Logger
+}
 
-// 	RenewPasswordService service.RenewPassword
-// 	Logger               repository.Logger
-// }
-
-func NewRenewPassword() RenewPassword {
-	return RenewPassword{}
-	// return RenewPassword{RenewPasswordService: renewPasswordService, Logger: logger}
+func NewRenewPassword(
+	service service.RenewPassword,
+	logger repository.Logger,
+) RenewPassword {
+	return RenewPassword{
+		service,
+		logger,
+	}
 }
 
 func (rp RenewPassword) RenewPassword(w http.ResponseWriter, r *http.Request) {
-	token := r.PathValue("token")
-	fmt.Println("TOKEN=", token)
+	req, err := DecodeJSONRequest[dto.RenewPasswordInput](r)
+	if err != nil {
+		rp.logger.Warn(r.Context(), "invalid request body", "error", err)
+		RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = rp.service.Execute(r.Context(), req)
+	if err != nil {
+		statusCode, errResponse := MapDomainErrorToHTTP(err)
+		if statusCode >= 500 {
+			rp.logger.Error(r.Context(), "renew password failed with server error", "error", err, "cpf", req.CPF)
+		} else {
+			rp.logger.Warn(r.Context(), "renew password failed", "error", err, "cpf", req.CPF)
+		}
+		RespondJSON(w, statusCode, errResponse)
+		return
+	}
+	rp.logger.Info(r.Context(), "renew password successful", "cpf", req.CPF)
+	// RespondJSON(w, http.StatusOK, resp)
 }

@@ -50,6 +50,21 @@ func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 			Code:    "EMAIL_NOT_FOUND",
 			Message: "email not found",
 		}
+	case errors.Is(err, exception.ErrEmailAlreadyExists):
+		return http.StatusConflict, ErrorResponse{
+			Code:    "EMAIL_ALREADY_EXISTS",
+			Message: "email already exists",
+		}
+	case errors.Is(err, exception.ErrInvalidPassword):
+		return http.StatusBadRequest, ErrorResponse{
+			Code:    "INVALID_PASSWORD",
+			Message: "invalid password",
+		}
+	case errors.Is(err, exception.ErrInvalidToken):
+		return http.StatusBadRequest, ErrorResponse{
+			Code:    "INVALID_TOKEN",
+			Message: "invalid token",
+		}
 	default:
 		return http.StatusInternalServerError, ErrorResponse{
 			Code:    "INTERNAL_ERROR",

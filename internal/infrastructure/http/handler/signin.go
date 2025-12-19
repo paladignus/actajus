@@ -21,7 +21,7 @@ func NewSignIn(service service.SignIn, logger repository.Logger) SignIn {
 func (a SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
 	req, err := DecodeJSONRequest[dto.SignInInput](r)
 	if err != nil {
-		a.logger.Warn(r.Context(), "invalid request body", "error", err)
+		a.logger.Warn(r.Context(), "failed to decode request body for sign in", "error", err)
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -29,13 +29,13 @@ func (a SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {
-			a.logger.Error(r.Context(), "signin failed with server error", "error", err, "cpf", req.CPF)
+			a.logger.Error(r.Context(), "signin failed with server error", "error", err, "cpf", req.CPF, "method", r.Method, "url", r.URL.Path)
 		} else {
-			a.logger.Warn(r.Context(), "signin failed", "error", err, "cpf", req.CPF, "status_code", statusCode)
+			a.logger.Warn(r.Context(), "signin failed", "error", err, "cpf", req.CPF, "method", r.Method, "url", r.URL.Path)
 		}
 		RespondJSON(w, statusCode, errResponse)
 		return
 	}
-	a.logger.Info(r.Context(), "signin successful", "cpf", req.CPF)
+	a.logger.Info(r.Context(), "signin successful", "cpf", req.CPF, "userID", resp.IDUser)
 	RespondJSON(w, http.StatusOK, resp)
 }

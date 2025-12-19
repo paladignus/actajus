@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;-- ddl-end ---- ** Database generated wi
 
 -- object: actajus | type: DATABASE --
 -- DROP DATABASE IF EXISTS actajus;
-CREATE DATABASE actajus;
+-- CREATE DATABASE actajus;
 -- ddl-end --
 
 
@@ -33,7 +33,7 @@ CREATE TABLE public.people (
 	CONSTRAINT people_pk PRIMARY KEY (idpeople)
 );
 -- ddl-end --
-ALTER TABLE public.people OWNER TO postgres;
+-- ALTER TABLE public.people OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.gender | type: TABLE --
@@ -44,7 +44,7 @@ CREATE TABLE public.gender (
 	CONSTRAINT gender_pkey PRIMARY KEY (idgender)
 );
 -- ddl-end --
-ALTER TABLE public.gender OWNER TO postgres;
+-- ALTER TABLE public.gender OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.documents | type: TABLE --
@@ -57,24 +57,23 @@ CREATE TABLE public.documents (
 	CONSTRAINT cpf_uq UNIQUE (cpf)
 );
 -- ddl-end --
-ALTER TABLE public.documents OWNER TO postgres;
+-- ALTER TABLE public.documents OWNER TO marcelo;
 -- ddl-end --
 
--- object: public.accounts | type: TABLE --
--- DROP TABLE IF EXISTS public.accounts CASCADE;
-CREATE TABLE public.accounts (
-	idaccounts bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
-	id_people bigint NOT NULL,
+-- object: public.users | type: TABLE --
+-- DROP TABLE IF EXISTS public.users CASCADE;
+CREATE TABLE public.users (
+	idusers bigint NOT NULL,
 	password text NOT NULL,
 	avatar text,
 	last_login_at timestamptz,
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
 	deleted_at timestamptz,
-	CONSTRAINT accounts_pk PRIMARY KEY (idaccounts)
+	CONSTRAINT users_pk PRIMARY KEY (idusers)
 );
 -- ddl-end --
-ALTER TABLE public.accounts OWNER TO postgres;
+-- ALTER TABLE public.users OWNER TO marcelo;
 -- ddl-end --
 
 -- object: gender_fk | type: CONSTRAINT --
@@ -82,18 +81,6 @@ ALTER TABLE public.accounts OWNER TO postgres;
 ALTER TABLE public.people ADD CONSTRAINT gender_fk FOREIGN KEY (id_gender)
 REFERENCES public.gender (idgender) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
--- ddl-end --
-
--- object: people_fk | type: CONSTRAINT --
--- ALTER TABLE public.accounts DROP CONSTRAINT IF EXISTS people_fk CASCADE;
-ALTER TABLE public.accounts ADD CONSTRAINT people_fk FOREIGN KEY (id_people)
-REFERENCES public.people (idpeople) MATCH FULL
-ON DELETE RESTRICT ON UPDATE CASCADE;
--- ddl-end --
-
--- object: accounts_uq | type: CONSTRAINT --
--- ALTER TABLE public.accounts DROP CONSTRAINT IF EXISTS accounts_uq CASCADE;
-ALTER TABLE public.accounts ADD CONSTRAINT accounts_uq UNIQUE (id_people);
 -- ddl-end --
 
 -- object: people_fk | type: CONSTRAINT --
@@ -118,7 +105,7 @@ CREATE TABLE public.roles (
 	CONSTRAINT roles_pk PRIMARY KEY (idroles)
 );
 -- ddl-end --
-ALTER TABLE public.roles OWNER TO postgres;
+-- ALTER TABLE public.roles OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.permissions | type: TABLE --
@@ -133,7 +120,7 @@ CREATE TABLE public.permissions (
 	CONSTRAINT permissions_uq UNIQUE (resource,action)
 );
 -- ddl-end --
-ALTER TABLE public.permissions OWNER TO postgres;
+-- ALTER TABLE public.permissions OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.role_permission | type: TABLE --
@@ -144,32 +131,25 @@ CREATE TABLE public.role_permission (
 	CONSTRAINT role_permission_pk PRIMARY KEY (id_roles,id_permissions)
 );
 -- ddl-end --
-ALTER TABLE public.role_permission OWNER TO postgres;
+-- ALTER TABLE public.role_permission OWNER TO marcelo;
 -- ddl-end --
 
--- object: public.account_role | type: TABLE --
--- DROP TABLE IF EXISTS public.account_role CASCADE;
-CREATE TABLE public.account_role (
-	id_accounts bigint NOT NULL,
+-- object: public.user_role | type: TABLE --
+-- DROP TABLE IF EXISTS public.user_role CASCADE;
+CREATE TABLE public.user_role (
+	id_users bigint NOT NULL,
 	id_roles smallint NOT NULL,
 	assigned_by bigint NOT NULL,
 	created_at timestamptz NOT NULL DEFAULT NOW(),
-	CONSTRAINT account_role_pk PRIMARY KEY (id_accounts,id_roles)
+	CONSTRAINT user_role_pk PRIMARY KEY (id_roles,id_users)
 );
 -- ddl-end --
-ALTER TABLE public.account_role OWNER TO postgres;
--- ddl-end --
-
--- object: accounts_fk | type: CONSTRAINT --
--- ALTER TABLE public.account_role DROP CONSTRAINT IF EXISTS accounts_fk CASCADE;
-ALTER TABLE public.account_role ADD CONSTRAINT accounts_fk FOREIGN KEY (id_accounts)
-REFERENCES public.accounts (idaccounts) MATCH FULL
-ON DELETE SET NULL ON UPDATE CASCADE;
+-- ALTER TABLE public.user_role OWNER TO marcelo;
 -- ddl-end --
 
 -- object: roles_fk | type: CONSTRAINT --
--- ALTER TABLE public.account_role DROP CONSTRAINT IF EXISTS roles_fk CASCADE;
-ALTER TABLE public.account_role ADD CONSTRAINT roles_fk FOREIGN KEY (id_roles)
+-- ALTER TABLE public.user_role DROP CONSTRAINT IF EXISTS roles_fk CASCADE;
+ALTER TABLE public.user_role ADD CONSTRAINT roles_fk FOREIGN KEY (id_roles)
 REFERENCES public.roles (idroles) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
@@ -189,8 +169,8 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: people_fk | type: CONSTRAINT --
--- ALTER TABLE public.account_role DROP CONSTRAINT IF EXISTS people_fk CASCADE;
-ALTER TABLE public.account_role ADD CONSTRAINT people_fk FOREIGN KEY (assigned_by)
+-- ALTER TABLE public.user_role DROP CONSTRAINT IF EXISTS people_fk CASCADE;
+ALTER TABLE public.user_role ADD CONSTRAINT people_fk FOREIGN KEY (assigned_by)
 REFERENCES public.people (idpeople) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
@@ -208,7 +188,7 @@ CREATE TABLE public.emails (
 	CONSTRAINT emails_name_uq UNIQUE (address)
 );
 -- ddl-end --
-ALTER TABLE public.emails OWNER TO postgres;
+-- ALTER TABLE public.emails OWNER TO marcelo;
 -- ddl-end --
 
 -- object: people_fk | type: CONSTRAINT --
@@ -222,14 +202,35 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 -- DROP TABLE IF EXISTS public.password_reset CASCADE;
 CREATE TABLE public.password_reset (
 	idpassword_reset bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
-	id_people bigint NOT NULL,
+	id_users bigint NOT NULL,
 	token text NOT NULL,
 	expires_at timestamptz NOT NULL,
 	used_at timestamptz
 
 );
 -- ddl-end --
-ALTER TABLE public.password_reset OWNER TO postgres;
+-- ALTER TABLE public.password_reset OWNER TO marcelo;
+-- ddl-end --
+
+-- object: people_fk | type: CONSTRAINT --
+-- ALTER TABLE public.users DROP CONSTRAINT IF EXISTS people_fk CASCADE;
+ALTER TABLE public.users ADD CONSTRAINT people_fk FOREIGN KEY (idusers)
+REFERENCES public.people (idpeople) MATCH FULL
+ON DELETE CASCADE ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: users_fk | type: CONSTRAINT --
+-- ALTER TABLE public.user_role DROP CONSTRAINT IF EXISTS users_fk CASCADE;
+ALTER TABLE public.user_role ADD CONSTRAINT users_fk FOREIGN KEY (id_users)
+REFERENCES public.users (idusers) MATCH FULL
+ON DELETE RESTRICT ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: users_fk | type: CONSTRAINT --
+-- ALTER TABLE public.password_reset DROP CONSTRAINT IF EXISTS users_fk CASCADE;
+ALTER TABLE public.password_reset ADD CONSTRAINT users_fk FOREIGN KEY (id_users)
+REFERENCES public.users (idusers) MATCH FULL
+ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: mother_fk | type: CONSTRAINT --
@@ -248,5 +249,5 @@ ON DELETE SET NULL ON UPDATE CASCADE;
 
 
 -- Appended SQL commands --
-ALTER DATABASE actajus SET datestyle TO "ISO, DMY";
+-- ALTER DATABASE actajus SET datestyle TO "ISO, DMY";
 -- ddl-end --

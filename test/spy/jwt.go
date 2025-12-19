@@ -7,9 +7,9 @@ import (
 
 // Token implementa gateway.Token
 type Token struct {
-	Pair       dto.TokenPair
-	ResetToken dto.TokenRecover
-	Err        error
+	Pair dto.TokenPair
+	// ResetToken dto.TokenRecover
+	Err error
 
 	CalledWithID string
 }
@@ -31,10 +31,10 @@ func (s *Token) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error
 	return dto.TokenClaims{}, nil
 }
 
-func (s *Token) GenerateResetToken(idUser string) (dto.TokenRecover, error) {
-	return s.ResetToken, s.Err
-}
-
-func (s *Token) ValidateResetToken(tokenString string) (dto.TokenClaims, error) {
-	return dto.TokenClaims{}, nil
-}
+// func (s *Token) GenerateResetToken(idUser string) (dto.TokenRecover, error) {
+// 	return s.ResetToken, s.Err
+// }
+//
+// func (s *Token) ValidateResetToken(tokenString string) (dto.TokenClaims, error) {
+// 	return dto.TokenClaims{}, nil
+// }

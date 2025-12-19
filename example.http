@@ -22,13 +22,23 @@ content-type: application/json
     "email": "marcelo@marcelo.eti.br"
 }
 
+###
+POST http://localhost:8080/auth/renew
+content-type: application/json
+
+{
+    "cpf": "987.654.321-00",
+    "password": "@Admin123",
+    "token": "Wi1Gk60IxEeiRNo1zX_mA632v4GJkQ6VwYJ7ewMwntY="
+}
+
 
 ###
 POST https://api.actajus.com.br/auth/email
 content-type: application/json
 
 {
-    "cpf": "987.654.321-00"
+    "cpf": "111.444.777-35"
 }
 
 
@@ -37,7 +47,17 @@ POST https://api.actajus.com.br/auth/recover
 content-type: application/json
 
 {
-    "email": "wostemberg3@gmail.com"
+    "email": "marcelo@marcelo.eti.br"
+}
+
+###
+POST https://api.actajus.com.br/auth/renew
+content-type: application/json
+
+{
+    "cpf": "987.654.321-00",
+    "password": "@Admin123",
+    "token": "yNTZrWlOalljefSR-n3iEXHtji4PzA8K1fy9ASA5KcY="
 }
 
 
@@ -47,7 +67,7 @@ content-type: application/json
 
 {
     "cpf": "111.444.777-35",
-    "password": "admin123"
+    "password": "@Admin123"
 }
 
 ###

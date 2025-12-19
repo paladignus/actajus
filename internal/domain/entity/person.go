@@ -11,6 +11,7 @@ import (
 )
 
 type Person struct {
+	IDPerson  int
 	FirstName vo.Text
 	LastName  vo.Text
 	BirthDate vo.Date
@@ -22,7 +23,7 @@ type Person struct {
 	DeletedAt *time.Time
 }
 
-func NewPerson(people dto.PeopleInput) (Person, error) {
+func NewPerson(people dto.PersonInput) (Person, error) {
 	p := Person{
 		FirstName: vo.Text(strings.TrimSpace(people.FirstName)),
 		LastName:  vo.Text(strings.TrimSpace(people.LastName)),

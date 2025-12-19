@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # Jaeger para tracing distribuído
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # UI
+      - "14268"        # HTTP collector
+      - "14250"        # GRPC collector
+      - "6831:6831/udp" # Jaeger agent thrift compact
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - observability
+
+  # Prometheus para coleta de métricas
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - observability
+    depends_on:
+      - app
+
+  # Grafana para visualização
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - observability
+    depends_on:
+      - prometheus
+      - loki
+
+  # Loki para armazenamento de logs
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - observability
+
+  # PostgreSQL para o banco de dados do app
+  postgres:
+    image: postgres:15-alpine
+    container_name: actajus_postgres
+    environment:
+      POSTGRES_DB: actajus
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: M4rc3l0
+    ports:
+      - "5433:5432"  # Mudando para porta 5433 para evitar conflito
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - ./inserts.sql:/docker-entrypoint-initdb.d/2-inserts.sql
+    networks:
+      - observability
+
+  # pgAdmin4 para gerenciamento do PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: actajus_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@actajus.com.br
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      # Configuração para conexão automática ao PostgreSQL
+      PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - observability
+
+  # NATS para mensagens
+  nats:
+    image: nats:latest
+    container_name: actajus_nats
+    ports:
+      - "4224:4222"  # Mudando para porta 4224 para evitar conflito
+      - "8224:8222"  # Mudando porta de monitoramento também
+    command: |
+      --js
+      --config /etc/nats/nats.conf
+    volumes:
+      - nats_data:/data
+      - type: bind
+        source: ./nats.conf
+        target: /etc/nats/nats.conf
+    networks:
+      - observability
+
+  # Serviço da aplicação
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: actajus_app
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=M4rc3l0
+      - DB_NAME=actajus
+      - NATS_URL=nats://nats:4222  # Usa a porta interna do container NATS
+      - TRACING_ENABLED=true
+      - TRACING_AGENT_HOST=jaeger
+      - TRACING_AGENT_PORT=6831
+      - SERVER_PORT=8080
+      # Adicione outras variáveis de ambiente conforme necessário
+    depends_on:
+      - postgres
+      - nats
+      - jaeger
+    networks:
+      - observability
+
+volumes:
+  postgres_data:
+  grafana-storage:
+  nats_data:
+  pgadmin_data:
+
+networks:
+  observability:
+    driver: bridge

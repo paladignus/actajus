@@ -6,17 +6,18 @@ import "time"
 const TokenExpirationMinutes = 30
 
 type PasswordResetToken struct {
-	IDAccount int
-	Token     string
-	ExpiresAt time.Time
-	UsedAt    *time.Time
-	CreatedAt time.Time
+	IDPasswordReset int
+	IDUser          int
+	Token           string
+	ExpiresAt       time.Time
+	UsedAt          *time.Time
+	CreatedAt       time.Time
 }
 
-func NewPasswordResetToken(IDAccount int, token string) PasswordResetToken {
+func NewPasswordResetToken(idUser int, token string) PasswordResetToken {
 	now := time.Now()
 	return PasswordResetToken{
-		IDAccount: IDAccount,
+		IDUser:    idUser,
 		Token:     token,
 		ExpiresAt: now.Add(time.Minute * TokenExpirationMinutes),
 		CreatedAt: now,
@@ -35,7 +36,7 @@ func (p PasswordResetToken) IsValid() bool {
 	return !p.IsExpired() && !p.IsUsed()
 }
 
-// func (p PasswordResetToken) MarkAsUsed() {
+// func (p PasswordReset) MarkAsUsed() {
 // 	now := time.Now()
 // 	p.UsedAt = &now
 // }
