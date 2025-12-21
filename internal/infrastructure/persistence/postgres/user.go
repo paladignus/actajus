@@ -105,7 +105,7 @@ func (u User) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEma
 	return output, nil
 }
 
-func (u User) FindByEmail(ctx context.Context, email string) (idUser int, err error) {
+func (u User) FindIDUserByEmail(ctx context.Context, email string) (idUser int, err error) {
 	sql := `
 		SELECT idusers FROM users u
 		LEFT JOIN emails e ON e.id_people = u.idusers AND e.deleted_at IS NULL
