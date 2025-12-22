@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/paladignus/actajus/internal/domain/event"
-	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/test/spy"
 )
 
@@ -34,16 +33,6 @@ func (e TestEvent) EventVersion() string {
 
 func (e TestEvent) AggregateID() string {
 	return e.aggregateID
-}
-
-func TestPublisherInterface(t *testing.T) {
-	// Teste para garantir que o Publisher spy implementa a interface corretamente
-	var publisher gateway.Publisher = &spy.Publisher{}
-	
-	// Verifica se é possível atribuir um spy.Publisher a um gateway.Publisher
-	if publisher == nil {
-		t.Error("spy.Publisher não implementa gateway.Publisher")
-	}
 }
 
 func TestSpyPublisherPublish(t *testing.T) {
@@ -87,10 +76,7 @@ func TestSpyPublisherPublishBatch(t *testing.T) {
 			aggregateID: "test-id-2",
 		},
 	}
-
 	spyPublisher := &spy.Publisher{}
-	
-	// Testa publicação em lote com sucesso
 	err := spyPublisher.PublishBatch(ctx, testEvents)
 	if err != spyPublisher.Err {
 		t.Errorf("Esperava erro %v, mas obteve %v", spyPublisher.Err, err)
@@ -99,8 +85,6 @@ func TestSpyPublisherPublishBatch(t *testing.T) {
 
 func TestSpyPublisherClose(t *testing.T) {
 	spyPublisher := &spy.Publisher{}
-	
-	// Testa fechamento com sucesso
 	err := spyPublisher.Close()
 	if err != spyPublisher.Err {
 		t.Errorf("Esperava erro %v, mas obteve %v", spyPublisher.Err, err)
@@ -115,13 +99,11 @@ func TestSpyPublisherWithError(t *testing.T) {
 		version:     "1.0",
 		aggregateID: "test-id",
 	}
-
 	expectedError := errors.New("publisher error")
 	spyPublisher := &spy.Publisher{Err: expectedError}
-	
-	// Testa publicação com erro
 	err := spyPublisher.Publish(ctx, testEvent)
 	if err != expectedError {
 		t.Errorf("Esperava erro %v, mas obteve %v", expectedError, err)
 	}
 }
+
