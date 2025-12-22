@@ -56,14 +56,11 @@ func (p PasswordResetToken) FindByToken(ctx context.Context, token string) (pr e
 
 func (p PasswordResetToken) MarkAsUsed(ctx context.Context, token string) error {
 	sql := `UPDATE password_reset SET used_at = now() WHERE token = $1 AND used_at IS NULL;`
-	result, err := p.db.Pool.Exec(ctx, sql, token)
+	_, err := p.db.Pool.Exec(ctx, sql, token)
 	if err != nil {
 		return fmt.Errorf("database error while marking token %s as used: %w", token, err)
 	}
-	if result.RowsAffected() == 0 {
-		return fmt.Errorf("no token found with value %s to mark as used: %w", token, exception.ErrInvalidToken)
-	}
-	return err
+	return nil
 }
 
 func (p PasswordResetToken) InvalidateUserTokens(ctx context.Context, idUser int) error {
@@ -72,5 +69,5 @@ func (p PasswordResetToken) InvalidateUserTokens(ctx context.Context, idUser int
 	if err != nil {
 		return fmt.Errorf("database error while invalidating tokens for user ID %d: %w", idUser, err)
 	}
-	return err
+	return nil
 }
