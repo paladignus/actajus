@@ -21,13 +21,9 @@ type User struct {
 
 func NewUser(user dto.UserInput) (User, error) {
 	a := User{
-		// IDPerson:    user.IDPeople,
 		Password:    vo.Password(user.Password),
 		Avatar:      vo.File(user.Avatar),
 		LastLoginAt: user.LastLoginAt,
-		// CreatedAt:   user.CreatedAt,
-		// UpdatedAt:   user.UpdatedAt,
-		// DeletedAt:   user.DeletedAt,
 	}
 	if !a.Password.IsValid() {
 		return a, exception.ErrInvalidPassword
@@ -36,7 +32,7 @@ func NewUser(user dto.UserInput) (User, error) {
 		return a, exception.ErrInvalidAvatar
 	}
 	now := time.Now()
-	if !a.LastLoginAt.IsZero() || a.LastLoginAt.Before(now) {
+	if a.LastLoginAt.IsZero() || a.LastLoginAt.After(now) {
 		return a, exception.ErrInvalidLastLoginAt
 	}
 	return a, nil
