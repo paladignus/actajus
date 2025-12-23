@@ -4,6 +4,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/entity"
@@ -41,7 +42,7 @@ func (r RequestPasswordReset) Execute(ctx context.Context, req dto.RequestPasswo
 	if !email.IsValid() {
 		return fmt.Errorf("invalid email format %s in request password reset use case: %w", req.Email, exception.ErrEmailNotFound)
 	}
-	idUser, err := r.user.FindByEmail(ctx, email.Value())
+	idUser, err := r.user.FindIDUserByEmail(ctx, email.Value())
 	if err != nil {
 		return fmt.Errorf("request password reset use case failed to find user by email %s: %w", req.Email, err)
 	}
@@ -57,7 +58,7 @@ func (r RequestPasswordReset) Execute(ctx context.Context, req dto.RequestPasswo
 		return fmt.Errorf("request password reset use case failed to save reset token for user ID %d: %w", idUser, err)
 	}
 	if err := r.publisher.Publish(ctx, event.NewPasswordResetRequestedEvent(
-		string(idUser),
+		strconv.Itoa(idUser),
 		req.Email,
 		"https://dynamicsolutions-hlg.com.br/alterar-senha/"+resetToken.Token,
 	)); err != nil {

@@ -4,6 +4,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
@@ -37,9 +38,10 @@ func (a SignIn) Execute(ctx context.Context, input dto.SignInInput) (user dto.Si
 	if err != nil {
 		return user, fmt.Errorf("sign in use case failed for CPF %s: %w", input.CPF, err)
 	}
-	tokenPair, err := a.jwt.GenerateTokenPair(string(user.IDUser))
+	idUser := strconv.Itoa(user.IDUser)
+	tokenPair, err := a.jwt.GenerateTokenPair(idUser)
 	if err != nil {
-		return user, fmt.Errorf("sign in use case failed to generate token pair for user ID %s: %w", user.IDUser, err)
+		return user, fmt.Errorf("sign in use case failed to generate token pair for user ID %d: %w", user.IDUser, err)
 	}
 	user.AccessToken = tokenPair.AccessToken
 	user.RefreshToken = tokenPair.RefreshToken

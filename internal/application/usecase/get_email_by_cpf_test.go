@@ -14,13 +14,10 @@ import (
 func TestGetEmailByCPF(t *testing.T) {
 	ctx := context.Background()
 	user := &spy.User{}
-	logger := &spy.Logger{}
 	input := dto.GetEmailByCPFInput{CPF: "111.444.777-35"}
-	sut := NewGetEmailByCPF(user, logger)
+	sut := NewGetEmailByCPF(user)
 	t.Run("should return of an email when the CPF is valid and found", func(t *testing.T) {
 		user.FindResult.FindEmail.Email = "email@example.com.br"
-		logger.On("Info", ctx, "getting email by CPF", "cpf", input.CPF).Once()
-		logger.On("Info", ctx, "email found successfully", "cpf", input.CPF, "email", user.FindResult.FindEmail.Email).Once()
 		email, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, email)
@@ -28,18 +25,15 @@ func TestGetEmailByCPF(t *testing.T) {
 
 	t.Run("should return an error when the CPF is invalid", func(t *testing.T) {
 		input.CPF = "123.456.789-00"
-		logger.On("Info", ctx, "getting email by CPF", "cpf", input.CPF).Once()
-		logger.On("Warn", ctx, "invalid cpf format provided", "cpf", input.CPF).Once()
 		_, err := sut.Execute(ctx, input)
-		assert.ErrorIs(t, err, exception.ErrInvalidCPF)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, exception.ErrEmailNotFound)
 	})
 
 	t.Run("should return an error if the CPF is not found", func(t *testing.T) {
 		input.CPF = "123.456.789-09"
 		wantErr := exception.ErrEmailNotFound
 		user.FindError = wantErr
-		logger.On("Info", ctx, "getting email by CPF", "cpf", input.CPF).Once()
-		logger.On("Warn", ctx, "email not found for provided cpf", "cpf", input.CPF, "error", wantErr).Once()
 		_, err := sut.Execute(ctx, input)
 		assert.ErrorIs(t, err, wantErr)
 	})
