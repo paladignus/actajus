@@ -5,8 +5,7 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-// Token implementa gateway.Token
-type Token struct {
+type JWT struct {
 	Pair dto.TokenPair
 	// ResetToken dto.TokenRecover
 	Err error
@@ -14,20 +13,20 @@ type Token struct {
 	CalledWithID string
 }
 
-func (s *Token) GenerateTokenPair(idUser string) (dto.TokenPair, error) {
+func (s *JWT) GenerateTokenPair(idUser string) (dto.TokenPair, error) {
 	s.CalledWithID = idUser
 	return s.Pair, s.Err
 }
 
-func (s *Token) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
+func (s *JWT) RefreshAccessToken(refreshToken string) (dto.TokenPair, error) {
 	return s.Pair, s.Err
 }
 
-func (s *Token) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
+func (s *JWT) ValidateAccessToken(tokenString string) (dto.TokenClaims, error) {
 	return dto.TokenClaims{}, nil
 }
 
-func (s *Token) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
+func (s *JWT) ValidateRefreshToken(tokenString string) (dto.TokenClaims, error) {
 	return dto.TokenClaims{}, nil
 }
 

@@ -7,10 +7,10 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-type RecoverPassword struct {
+type RequestPasswordReset struct {
 	ExpectedError error
 }
 
-func (m *RecoverPassword) Execute(ctx context.Context, input dto.RecoverPasswordInput) error {
+func (m *RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPasswordResetInput) error {
 	return m.ExpectedError
 }
