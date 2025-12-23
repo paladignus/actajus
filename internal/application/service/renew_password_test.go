@@ -1,3 +1,4 @@
+// Package service
 package service
 
 import (
@@ -10,25 +11,28 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRequestPasswordReset(t *testing.T) {
+func TestRenewPasswordInterface(t *testing.T) {
 	ctx := context.Background()
-	sut := &spy.RequestPasswordReset{
+	sut := &spy.RenewPassword{
 		ExpectedError: nil,
 	}
-	input := dto.RequestPasswordResetInput{
-		Email: "test@example.com",
+	input := dto.RenewPasswordInput{
+		CPF:      "111.444.777-35",
+		Password: "password",
+		Token:    "token",
 	}
+
 	t.Run("should return nil", func(t *testing.T) {
 		err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 	})
 
 	t.Run("should return an error", func(t *testing.T) {
-		sut = &spy.RequestPasswordReset{
-			ExpectedError: errors.New("password recovery failed"),
+		sut = &spy.RenewPassword{
+			ExpectedError: errors.New("renew password failed"),
 		}
 		err := sut.Execute(ctx, input)
 		assert.Error(t, err)
-		assert.Equal(t, "password recovery failed", err.Error())
+		assert.Equal(t, "renew password failed", err.Error())
 	})
 }

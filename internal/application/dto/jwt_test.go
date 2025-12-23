@@ -34,32 +34,3 @@ func TestTokenPair(t *testing.T) {
 		assert.Equal(t, "", sut.RefreshToken)
 	})
 }
-
-// func TestTokenRecover(t *testing.T) {
-// 	sut := TokenRecover{
-// 		ResetToken: "reset-token-789",
-// 	}
-// 	t.Run("should return the same reset token", func(t *testing.T) {
-// 		assert.Equal(t, "reset-token-789", sut.ResetToken)
-// 	})
-// 	t.Run("should return an empty reset token", func(t *testing.T) {
-// 		sut := TokenRecover{}
-// 		assert.Equal(t, "", sut.ResetToken)
-// 	})
-// }
-
-// func TestTokenStructsEmptyValues(t *testing.T) {
-// 	emptysut := TokenClaims{}
-// 	emptyPair := TokenPair{}
-// 	emptyRecover := TokenRecover{}
-// 	t.Run("should return empty values for sut", func(t *testing.T) {
-// 		assert.Empty(t, emptysut.IDUser)
-// 	})
-// 	t.Run("should return empty values for TokenPair", func(t *testing.T) {
-// 		assert.Empty(t, emptyPair.AccessToken)
-// 		assert.Empty(t, emptyPair.RefreshToken)
-// 	})
-// 	t.Run("should return empty values for TokenRecover", func(t *testing.T) {
-// 		assert.Empty(t, emptyRecover.ResetToken)
-// 	})
-// }

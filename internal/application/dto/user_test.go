@@ -2,9 +2,24 @@ package dto
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestUserInput(t *testing.T) {
+	now := time.Now()
+	sut := UserInput{
+		Password:    "!Password123",
+		Avatar:      "avatar.png",
+		LastLoginAt: now,
+	}
+	t.Run("should return the same first name, last name, email and password", func(t *testing.T) {
+		assert.Equal(t, "!Password123", sut.Password)
+		assert.Equal(t, "avatar.png", sut.Avatar)
+		assert.Equal(t, now, sut.LastLoginAt)
+	})
+}
 
 func TestSignInInput(t *testing.T) {
 	sut := SignInInput{
@@ -26,7 +41,7 @@ func TestSignInOutput(t *testing.T) {
 	sut := SignInOutput{
 		AccessToken:  "access-token-123",
 		RefreshToken: "refresh-token-456",
-		IDUser:       "user-id-789",
+		IDUser:       789,
 		FirstName:    "John",
 		LastName:     "Doe",
 		Email:        "john.doe@example.com",
@@ -35,7 +50,7 @@ func TestSignInOutput(t *testing.T) {
 	t.Run("should return the same access token, refresh token, ID user, first name, last name, email and roles", func(t *testing.T) {
 		assert.Equal(t, "access-token-123", sut.AccessToken)
 		assert.Equal(t, "refresh-token-456", sut.RefreshToken)
-		assert.Equal(t, "user-id-789", sut.IDUser)
+		assert.Equal(t, 789, sut.IDUser)
 		assert.Equal(t, "John", sut.FirstName)
 		assert.Equal(t, "Doe", sut.LastName)
 		assert.Equal(t, "john.doe@example.com", sut.Email)

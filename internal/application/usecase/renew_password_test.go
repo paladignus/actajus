@@ -86,11 +86,4 @@ func TestRenewPassword(t *testing.T) {
 		err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
 	})
-
-	// t.Run("should return error token is invalid", func(t *testing.T) {
-	// 	sut := NewRenewPassword(nil)
-	// 	err := sut.Execute(ctx, "token")
-	// 	assert.Error(t, err)
-	// 	assert.ErrorContains(t, err, "invalid token")
-	// })
 }

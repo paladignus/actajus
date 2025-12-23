@@ -14,7 +14,7 @@ func TestSignInInterface(t *testing.T) {
 	ctx := context.Background()
 	sut := &spy.SignIn{
 		ExpectedOutput: dto.SignInOutput{
-			IDUser:       "user-123",
+			IDUser:       123,
 			FirstName:    "John",
 			LastName:     "Doe",
 			Email:        "john.doe@example.com",
@@ -30,7 +30,7 @@ func TestSignInInterface(t *testing.T) {
 	t.Run("should return the same IDUser, FirstName, Email, AccessToken and RefreshToken", func(t *testing.T) {
 		output, err := sut.Execute(ctx, input)
 		assert.NoError(t, err)
-		assert.Equal(t, "user-123", output.IDUser)
+		assert.Equal(t, 123, output.IDUser)
 		assert.Equal(t, "John", output.FirstName)
 		assert.Equal(t, "john.doe@example.com", output.Email)
 	})
