@@ -9,7 +9,7 @@ import (
 )
 
 func TestTokenInterface(t *testing.T) {
-	sut := &spy.Token{}
+	sut := &spy.JWT{}
 	tokenPair, err := sut.GenerateTokenPair("user-id")
 	assert.NoError(t, err)
 	tokenClaims, err := sut.ValidateAccessToken("access-token")

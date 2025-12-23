@@ -8,47 +8,42 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type AuthenticationSpy struct{}
+type UserSpy struct{}
 
-func (a *AuthenticationSpy) SignIn(ctx context.Context, email string) (dto.SignInOutput, error) {
+func (u *UserSpy) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (user dto.SignInOutput, err error) {
 	return dto.SignInOutput{}, nil
 }
 
-func (a *AuthenticationSpy) ValidatePassword(ctx context.Context, email, password string) error {
+func (u *UserSpy) ValidatePassword(ctx context.Context, email, password string) error {
 	return nil
 }
 
-func (a *AuthenticationSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
+func (u *UserSpy) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
 	return dto.GetEmailByCPFOutput{}, nil
 }
 
-func (a *AuthenticationSpy) AccountIsActive(ctx context.Context, email string) (string, error) {
-	return "active", nil
+func (u *UserSpy) FindIDUserByEmail(ctx context.Context, email string) (int, error) {
+	return 0, nil
 }
 
-func (a *AuthenticationSpy) InvalidAllTokensByIDUser(ctx context.Context, id string) error {
+func (u *UserSpy) UpdatePassword(ctx context.Context, idUser int, password string) error {
 	return nil
 }
 
-func (a *AuthenticationSpy) CreateRecoverPassword(ctx context.Context, email, id string) error {
-	return nil
-}
-
-func TestAuthenticationInterface(t *testing.T) {
+func TestUserInterface(t *testing.T) {
 	ctx := context.Background()
-	sut := &AuthenticationSpy{}
-	signInOutput, err := sut.SignIn(ctx, "test@example.com")
+	sut := &UserSpy{}
+	signInOutput, err := sut.AuthenticationByCPF(ctx, dto.SignInInput{})
 	assert.NoError(t, err)
+	assert.Empty(t, signInOutput)
 	err = sut.ValidatePassword(ctx, "test@example.com", "password")
 	assert.NoError(t, err)
 	emailOutput, err := sut.FindEmailByCPF(ctx, "12345678901")
 	assert.NoError(t, err)
-	_, err = sut.AccountIsActive(ctx, "test@example.com")
-	assert.NoError(t, err)
-	err = sut.InvalidAllTokensByIDUser(ctx, "user-id")
-	assert.NoError(t, err)
-	err = sut.CreateRecoverPassword(ctx, "test@example.com", "user-id")
-	assert.NoError(t, err)
-	assert.Empty(t, signInOutput)
 	assert.Empty(t, emailOutput)
+	idUser, err := sut.FindIDUserByEmail(ctx, "test@example.com")
+	assert.NoError(t, err)
+	assert.Equal(t, idUser, 0)
+	err = sut.UpdatePassword(ctx, 1, "password")
+	assert.NoError(t, err)
 }

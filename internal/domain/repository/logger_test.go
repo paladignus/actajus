@@ -51,4 +51,3 @@ func TestLoggerInterface(t *testing.T) {
 		}
 	}
 }
-
