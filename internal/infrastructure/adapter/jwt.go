@@ -27,12 +27,12 @@ func NewJWTAdapter(config config.JWTConfig) jwtAdapter {
 	return jwtAdapter{config: config}
 }
 
-func (j jwtAdapter) GenerateTokenPair(IDUser string) (dto.TokenPair, error) {
-	accessToken, err := j.generateToken(IDUser, j.config.AccessSecret, j.config.AccessExpire)
+func (j jwtAdapter) GenerateTokenPair(idUser string) (dto.TokenPair, error) {
+	accessToken, err := j.generateToken(idUser, j.config.AccessSecret, j.config.AccessExpire)
 	if err != nil {
 		return dto.TokenPair{}, err
 	}
-	refreshToken, err := j.generateToken(IDUser, j.config.RefreshSecret, j.config.RefreshExpire)
+	refreshToken, err := j.generateToken(idUser, j.config.RefreshSecret, j.config.RefreshExpire)
 	if err != nil {
 		return dto.TokenPair{}, err
 	}
@@ -41,14 +41,6 @@ func (j jwtAdapter) GenerateTokenPair(IDUser string) (dto.TokenPair, error) {
 		RefreshToken: string(refreshToken),
 	}, err
 }
-
-// func (j jwtAdapter) GenerateResetToken(IDUser string) (dto.TokenRecover, error) {
-// 	token, err := j.generateToken(IDUser, j.config.ResetSecret, j.config.ResetExpire)
-// 	if err != nil {
-// 		return dto.TokenRecover{}, err
-// 	}
-// 	return dto.TokenRecover{ResetToken: string(token)}, nil
-// }
 
 func (j jwtAdapter) ValidateAccessToken(token string) (dto.TokenClaims, error) {
 	return j.validateToken(token, j.config.AccessSecret)
@@ -70,10 +62,10 @@ func (j jwtAdapter) RefreshAccessToken(token string) (dto.TokenPair, error) {
 	return j.GenerateTokenPair(claims.IDUser)
 }
 
-func (j jwtAdapter) generateToken(IDUser string, secret string, expire time.Duration) ([]byte, error) {
+func (j jwtAdapter) generateToken(idUser string, secret string, expire time.Duration) ([]byte, error) {
 	now := time.Now()
 	token, err := jwt.NewBuilder().
-		Subject(IDUser).
+		Subject(idUser).
 		IssuedAt(now).
 		Expiration(now.Add(expire)).
 		Issuer(j.config.Issuer).
