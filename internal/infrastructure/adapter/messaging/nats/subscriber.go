@@ -121,8 +121,6 @@ func (p *Subscriber) processMessages(
 }
 
 func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler repository.IHandler) {
-	// processCtx, cancel := context.WithTimeout(ctx, p.config.AckWait-5*time.Second)
-	// defer cancel()
 	meta, err := msg.Metadata()
 	if err != nil {
 		p.logger.Error(ctx, "[NATS] Failed to get message metadata", "error", err)
@@ -136,18 +134,10 @@ func (p *Subscriber) handleMessage(ctx context.Context, msg *nats.Msg, handler r
 		msg.Term()
 		return
 	}
-	// if !handler.CanHandle(evt) {
-	// 	log.Printf("[NATS] Handler cannot process event: %s", evt.EventName())
-	// 	msg.Ack() // ACK para não reprocessar
-	// 	return
-	// }
 	if err := handler.Handle(ctx, evt); err != nil {
 		p.logger.Error(ctx, "[NATS] Handler failed", "num_delivered", meta.NumDelivered, "error", err)
 		backoff := time.Duration(1<<(meta.NumDelivered-1)) * time.Second
 		backoff = min(backoff, 30*time.Second)
-		// if backoff > 30*time.Second {
-		// 	backoff = 30 * time.Second // Máximo de 30s
-		// }
 		p.logger.Info(ctx, "[NATS] Retrying", "delay", backoff)
 		msg.NakWithDelay(backoff)
 		return

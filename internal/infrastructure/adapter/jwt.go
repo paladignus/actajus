@@ -50,10 +50,6 @@ func (j jwtAdapter) ValidateRefreshToken(token string) (dto.TokenClaims, error) 
 	return j.validateToken(token, j.config.RefreshSecret)
 }
 
-func (j jwtAdapter) ValidateResetToken(token string) (dto.TokenClaims, error) {
-	return j.validateToken(token, j.config.ResetSecret)
-}
-
 func (j jwtAdapter) RefreshAccessToken(token string) (dto.TokenPair, error) {
 	claims, err := j.ValidateRefreshToken(token)
 	if err != nil {
