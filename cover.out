@@ -8,6 +8,6 @@ github.com/paladignus/actajus/internal/infrastructure/config/config.go:144.42,14
 github.com/paladignus/actajus/internal/infrastructure/config/config.go:145.55,147.4 1 1
 github.com/paladignus/actajus/internal/infrastructure/config/config.go:149.2,149.21 1 1
 github.com/paladignus/actajus/internal/infrastructure/config/config.go:152.55,153.42 1 1
-github.com/paladignus/actajus/internal/infrastructure/config/config.go:153.42,154.61 1 0
-github.com/paladignus/actajus/internal/infrastructure/config/config.go:154.61,156.4 1 0
+github.com/paladignus/actajus/internal/infrastructure/config/config.go:153.42,154.61 1 1
+github.com/paladignus/actajus/internal/infrastructure/config/config.go:154.61,156.4 1 1
 github.com/paladignus/actajus/internal/infrastructure/config/config.go:158.2,158.21 1 1
