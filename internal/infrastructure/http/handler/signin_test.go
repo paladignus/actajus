@@ -26,10 +26,10 @@ func (m *MockSignInService) Execute(ctx context.Context, input dto.SignInInput) 
 	return m.expectedOutput, m.expectedError
 }
 
-func TestSignInsut(t *testing.T) {
+func TestSignInput(t *testing.T) {
 	mockService := &MockSignInService{
 		expectedOutput: dto.SignInOutput{
-			IDUser:       "user-123",
+			IDUser:       123,
 			FirstName:    "John",
 			LastName:     "Doe",
 			Email:        "john.doe@example.com",
@@ -45,13 +45,13 @@ func TestSignInsut(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		logger.On("Info", req.Context(), "signin successful", "cpf", "12345678901")
+		logger.On("Info", req.Context(), "signin successful", "cpf", "12345678901", "userID", 123)
 		sut.SignIn(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 		var response dto.SignInOutput
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, response.IDUser, "user-123")
+		assert.Equal(t, response.IDUser, 123)
 		assert.Equal(t, response.Email, "john.doe@example.com")
 	})
 
@@ -61,7 +61,7 @@ func TestSignInsut(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString("{invalid json"))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		logger.On("Warn", req.Context(), "invalid request body", "error", mock.Anything)
+		logger.On("Warn", req.Context(), "failed to decode request body for sign in", "error", mock.Anything)
 		sut.SignIn(w, req)
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
@@ -87,8 +87,10 @@ func TestSignInsut(t *testing.T) {
 			mockService.expectedError,
 			"cpf",
 			"12345678901",
-			"status_code",
-			http.StatusNotFound,
+			"method",
+			req.Method,
+			"url",
+			req.URL.Path,
 		)
 		sut.SignIn(w, req)
 		assert.Equal(t, http.StatusNotFound, w.Code)
@@ -105,9 +107,8 @@ func TestSignInsut(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		logger.On("Error", req.Context(), "signin failed with server error", "error", mockService.expectedError, "cpf", "12345678901")
+		logger.On("Error", req.Context(), "signin failed with server error", "error", mockService.expectedError, "cpf", "12345678901", "method", req.Method, "url", req.URL.Path)
 		sut.SignIn(w, req)
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
-

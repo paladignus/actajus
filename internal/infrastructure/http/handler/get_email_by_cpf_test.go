@@ -41,7 +41,7 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/get-email", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		logger.On("Info", req.Context(), "get email successful", "cpf", "12345678901")
+		logger.On("Info", req.Context(), "get email by CPF successful", "cpf", "12345678901", "email", "test@example.com", "method", req.Method, "url", req.URL.Path)
 		sut.GetEmailByCPF(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 		var response dto.GetEmailByCPFOutput
@@ -56,7 +56,7 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/get-email", bytes.NewBufferString("{invalid json"))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		logger.On("Warn", req.Context(), "invalid request body", "error", mock.Anything)
+		logger.On("Warn", req.Context(), "failed to decode request body for get email by CPF", "error", mock.Anything, "method", req.Method, "url", req.URL.Path)
 		sut.GetEmailByCPF(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
@@ -71,7 +71,7 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/get-email", bytes.NewBufferString(requestBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
-		logger.On("Error", req.Context(), "get email failed with server error", "error", mockService.expectedError, "cpf", "12345678901")
+		logger.On("Error", req.Context(), "get email by CPF failed with server error", "error", mockService.expectedError, "cpf", "12345678901", "method", req.Method, "url", req.URL.Path)
 		sut.GetEmailByCPF(w, req)
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
@@ -88,12 +88,11 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 		logger.On("Warn",
 			req.Context(),
-			"get email failed", "error",
+			"get email by CPF failed", "error",
 			mockService.expectedError,
 			"cpf",
 			"22345678901",
-			"status_code",
-			http.StatusNotFound)
+			"method", req.Method, "url", req.URL.Path)
 		sut.GetEmailByCPF(w, req)
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})

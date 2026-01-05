@@ -89,6 +89,33 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 				Message: "email not found",
 			},
 		},
+		{
+			name:               "should return status code 409 and error response for email already exists",
+			inputError:         exception.ErrEmailAlreadyExists,
+			expectedStatusCode: http.StatusConflict,
+			expectedResponse: ErrorResponse{
+				Code:    "EMAIL_ALREADY_EXISTS",
+				Message: "email already exists",
+			},
+		},
+		{
+			name:               "should return status code 400 and error response for invalid password",
+			inputError:         exception.ErrInvalidPassword,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse: ErrorResponse{
+				Code:    "INVALID_PASSWORD",
+				Message: "invalid password",
+			},
+		},
+		{
+			name:               "should return status code 400 and error response for invalid token",
+			inputError:         exception.ErrInvalidToken,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse: ErrorResponse{
+				Code:    "INVALID_TOKEN",
+				Message: "invalid token",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

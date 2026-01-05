@@ -43,5 +43,4 @@ func (rp RenewPassword) RenewPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rp.logger.Info(r.Context(), "renew password successful", "cpf", req.CPF)
-	// RespondJSON(w, http.StatusOK, resp)
 }
