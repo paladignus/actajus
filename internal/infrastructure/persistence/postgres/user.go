@@ -119,13 +119,18 @@ func (u User) FindIDUserByEmail(ctx context.Context, email string) (idUser int, 
 	return idUser, nil
 }
 
-func (u User) UpdatePassword(ctx context.Context, idUser int, password string) error {
+func (u User) UpdatePassword(ctx context.Context, idUser int, password, cpf string) error {
 	sql := `
-		UPDATE users
+		UPDATE users u
     SET password = crypt($2, gen_salt('bf')), updated_at = now()
-    WHERE idusers = $1 AND deleted_at IS NULL`
-	if _, err := u.db.Pool.Exec(ctx, sql, idUser, password); err != nil {
+		FROM documents d
+    WHERE idusers = $1 AND u.idusers = d.id_people AND d.cpf = $3 AND deleted_at IS NULL;`
+	ct, err := u.db.Pool.Exec(ctx, sql, idUser, password, cpf)
+	if err != nil {
 		return fmt.Errorf("database error while updating password for user ID %d: %w", idUser, err)
+	}
+	if ct.RowsAffected() == 0 {
+		return fmt.Errorf("no rows affected while updating password for user ID %d: %w", idUser, exception.ErrInvalidCredentials)
 	}
 	return nil
 }

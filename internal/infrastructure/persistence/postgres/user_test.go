@@ -332,23 +332,34 @@ func TestUser_UpdatePassword(t *testing.T) {
 	defer mock.Close()
 	db := &database.DB{Pool: mock}
 	repo := NewUser(db)
+	password := "@Dmin1234"
+	cpf := "11144477735"
 
 	t.Run("should successful", func(t *testing.T) {
-		password := "@Dmin1234"
 		mock.ExpectExec(`UPDATE users`).
-			WithArgs(123, password).
+			WithArgs(123, password, cpf).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-		err := repo.UpdatePassword(ctx, 123, password)
+		err := repo.UpdatePassword(ctx, 123, password, cpf)
 		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("should return error if cpf is not users", func(t *testing.T) {
+		mock.ExpectExec(`UPDATE users`).
+			WithArgs(123, password, "98765432100").
+			WillReturnResult(pgxmock.NewResult("UPDATE", 0))
+		err := repo.UpdatePassword(ctx, 123, password, "98765432100")
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "no rows affected while updating password for user ID 123")
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
 	t.Run("should return error", func(t *testing.T) {
 		mockErr := errors.New("database error")
 		mock.ExpectExec(`UPDATE users`).
-			WithArgs(123, "password").
+			WithArgs(123, "password", cpf).
 			WillReturnError(mockErr)
-		err := repo.UpdatePassword(ctx, 123, "password")
+		err := repo.UpdatePassword(ctx, 123, "password", cpf)
 		assert.Error(t, err)
 		assert.ErrorContains(t, err, "database error while updating password for user ID 123")
 		assert.ErrorContains(t, err, mockErr.Error())

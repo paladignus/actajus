@@ -26,7 +26,7 @@ func (u *UserSpy) FindIDUserByEmail(ctx context.Context, email string) (int, err
 	return 0, nil
 }
 
-func (u *UserSpy) UpdatePassword(ctx context.Context, idUser int, password string) error {
+func (u *UserSpy) UpdatePassword(ctx context.Context, idUser int, password, cpf string) error {
 	return nil
 }
 
@@ -44,6 +44,6 @@ func TestUserInterface(t *testing.T) {
 	idUser, err := sut.FindIDUserByEmail(ctx, "test@example.com")
 	assert.NoError(t, err)
 	assert.Equal(t, idUser, 0)
-	err = sut.UpdatePassword(ctx, 1, "password")
+	err = sut.UpdatePassword(ctx, 1, "password", "11144477735")
 	assert.NoError(t, err)
 }

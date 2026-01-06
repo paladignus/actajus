@@ -42,6 +42,6 @@ func (u *User) FindIDUserByEmail(ctx context.Context, email string) (int, error)
 // 	return u.FindResult.UserEntity, u.FindError
 // }
 
-func (u *User) UpdatePassword(ctx context.Context, idAuthentication int, hashedPassword string) error {
+func (u *User) UpdatePassword(ctx context.Context, idAuthentication int, hashedPassword, cpf string) error {
 	return u.ValidateError
 }
