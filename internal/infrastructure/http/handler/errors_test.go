@@ -116,6 +116,15 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 				Message: "invalid token",
 			},
 		},
+		{
+			name:               "should return status code 401 and error response for token expired",
+			inputError:         exception.ErrTokenExpired,
+			expectedStatusCode: http.StatusUnauthorized,
+			expectedResponse: ErrorResponse{
+				Code:    "TOKEN_EXPIRED",
+				Message: "token expired",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

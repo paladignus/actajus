@@ -54,8 +54,8 @@ func (u User) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (u
 
 func (u User) GetRolesByID(ctx context.Context, idUser int) (roles []string, err error) {
 	sql := `SELECT r.name FROM roles r
-		INNER JOIN user_role ur ON r.idroles = ur.id_roles
-		WHERE ur.id_users = $1 ORDER BY r.name;`
+		INNER JOIN role_user ru ON r.idroles = ru.id_roles
+		WHERE ru.id_users = $1 ORDER BY r.name;`
 	rows, err := u.db.Pool.Query(ctx, sql, idUser)
 	if err != nil {
 		return nil, fmt.Errorf("database error while getting roles for user ID %d: %w", idUser, err)

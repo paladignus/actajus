@@ -194,9 +194,9 @@ root_person AS (
   WHERE first_name = 'Sofia' AND last_name = 'Jackson'
   LIMIT 1
 )
-INSERT INTO user_role (id_users, id_roles, assigned_by)
+INSERT INTO role_user (id_users, id_roles, assigned_by)
 SELECT am.idusers, ri.idroles, rp.assigned_by
-FROM user_map am
+FROM role_map am
 JOIN role_ids ri ON ri.role = am.role
 CROSS JOIN root_person rp
 WHERE am.idusers IS NOT NULL
@@ -221,7 +221,7 @@ RETURNING *;
 -- -- Customer tem role de customer
 -- ('0199bc60-1e46-70da-a034-33bc4296f326', 5, '0199bc58-f61a-76c8-8837-6a273aa9b2d0');
 
-INSERT INTO user_role (id_users, id_roles, assigned_by) VALUES ('3', 5, '1') RETURNING *;
+INSERT INTO role_user (id_users, id_roles, assigned_by) VALUES ('3', 5, '1') RETURNING *;
 
 WITH people AS (
     SELECT

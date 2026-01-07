@@ -61,9 +61,14 @@ func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 			Message: "invalid password",
 		}
 	case errors.Is(err, exception.ErrInvalidToken):
-		return http.StatusBadRequest, ErrorResponse{
+		return http.StatusUnauthorized, ErrorResponse{
 			Code:    "INVALID_TOKEN",
 			Message: "invalid token",
+		}
+	case errors.Is(err, exception.ErrTokenExpired):
+		return http.StatusUnauthorized, ErrorResponse{
+			Code:    "TOKEN_EXPIRED",
+			Message: "token expired",
 		}
 	default:
 		return http.StatusInternalServerError, ErrorResponse{

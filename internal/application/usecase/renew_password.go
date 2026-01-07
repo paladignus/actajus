@@ -31,7 +31,6 @@ func (r RenewPassword) Execute(ctx context.Context, input dto.RenewPasswordInput
 	if !cpf.IsValid() {
 		return fmt.Errorf("use case renew password, invalid cpf: %w", exception.ErrInvalidCredentials)
 	}
-	// input.CPF = cpf.OnlyDigits()
 	token, err := r.token.FindByToken(ctx, input.Token)
 	if err != nil {
 		return fmt.Errorf("use case renew password, failed to find token: %w", err)
