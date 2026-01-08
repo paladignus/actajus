@@ -28,7 +28,7 @@ func TestCPF(t *testing.T) {
 			assert.Truef(t, cpf.IsValid(), "Expected CPF to be valid, but got invalid: %s", cpf.Value())
 		}
 	})
-	t.Run("", func(t *testing.T) {
+	t.Run("should return the only digits", func(t *testing.T) {
 		validCpfs := []CPF{
 			"529.982.247-25",
 		}
