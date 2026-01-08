@@ -32,6 +32,9 @@ func TestErrorVariables(t *testing.T) {
 		{ErrEmailAlreadyVerified, "email already verified"},
 		{ErrInvalidEmail, "invalid email"},
 		{ErrInvalidPassword, "invalid password"},
+		{ErrInvalidName, "name is invalid"},
+		{ErrInvalidTradeName, "trade name is invalid"},
+		{ErrInvalidCNPJ, "cnpj is invalid"},
 	}
 	for _, sut := range tests {
 		if sut.err.Error() != sut.expected {
