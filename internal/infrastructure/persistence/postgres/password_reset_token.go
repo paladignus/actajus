@@ -20,13 +20,13 @@ func NewPasswordResetToken(db *database.DB) PasswordResetToken {
 	return PasswordResetToken{db}
 }
 
-func (p PasswordResetToken) Create(ctx context.Context, token entity.PasswordResetToken) (err error) {
+func (p PasswordResetToken) Create(ctx context.Context, token entity.PasswordResetToken) error {
 	sql := `INSERT INTO password_reset (id_users, token, expires_at) VALUES ($1, $2, $3);`
-	_, err = p.db.Pool.Exec(ctx, sql, token.IDUser, token.Token, token.ExpiresAt)
+	_, err := p.db.Pool.Exec(ctx, sql, token.IDUser, token.Token, token.ExpiresAt)
 	if err != nil {
 		return fmt.Errorf("database error while saving password reset token for user ID %d: %w", token.IDUser, err)
 	}
-	return err
+	return nil
 }
 
 func (p PasswordResetToken) FindByToken(ctx context.Context, token string) (pr entity.PasswordResetToken, err error) {

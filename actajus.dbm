@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="22"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,0" last-zoom="0.6" scene-rect="0,-39.617,1642.73,1862.54"
+	 last-position="0,-33" last-zoom="0.65" scene-rect="0,-50.7679,2513.34,2293.69"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -20,7 +20,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="public" layers="0" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
 </schema>
 
-<table name="people" layers="0" collapse-mode="1" max-obj-count="12" z-value="0">
+<table name="people" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="60" y="60"/>
@@ -63,10 +63,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="gender_fk" index="3"/>
 	</customidxs></table>
 
-<table name="gender" layers="0" collapse-mode="1" max-obj-count="2" z-value="0">
+<table name="gender" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="220" y="120"/>
+	<position x="420" y="120"/>
 	<column name="idgender" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="smallint" length="0"/>
@@ -79,10 +79,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="documents" layers="0" collapse-mode="1" max-obj-count="4" z-value="0">
+<table name="documents" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="260" y="300"/>
+	<position x="480" y="320"/>
 	<column name="iddocuments" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -98,17 +98,17 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 
 	<customidxs object-type="column">
-		<object name="id_people" index="2"/>
+		<object name="id_people" index="1"/>
 	</customidxs>
 	<customidxs object-type="constraint">
 		<object name="documents_uq" index="3"/>
 		<object name="people_fk" index="2"/>
 	</customidxs></table>
 
-<table name="users" layers="0" collapse-mode="1" max-obj-count="8" z-value="0">
+<table name="users" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="420" y="960"/>
+	<position x="620" y="1240"/>
 	<column name="password" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -156,10 +156,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.documents"
 	 src-required="true" dst-required="false"/>
 
-<table name="roles" layers="0" collapse-mode="1" max-obj-count="4" z-value="0">
+<table name="roles" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="800" y="120"/>
+	<position x="1180" y="120"/>
 	<column name="idroles" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="smallint" length="0"/>
@@ -178,10 +178,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="permissions" layers="0" collapse-mode="1" max-obj-count="6" z-value="0">
+<table name="permissions" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1480" y="120"/>
+	<position x="2220" y="120"/>
 	<column name="idpermissions" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="smallint" length="0"/>
@@ -206,16 +206,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="role_permission" layers="0" collapse-mode="1" max-obj-count="3" z-value="0">
+<table name="role_permission" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1220" y="120"/>
+	<position x="1800" y="120"/>
 </table>
 
-<table name="role_user" layers="0" collapse-mode="1" max-obj-count="4" z-value="0">
+<table name="role_user" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="320" y="480"/>
+	<position x="520" y="600"/>
 	<column name="created_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>
@@ -280,10 +280,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.role_user"
 	 src-required="true" dst-required="false"/>
 
-<table name="emails" layers="0" collapse-mode="1" max-obj-count="7" z-value="0">
+<table name="emails" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="360" y="700"/>
+	<position x="580" y="900"/>
 	<column name="idemails" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -324,10 +324,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.emails"
 	 src-required="true" dst-required="false"/>
 
-<table name="password_reset" layers="0" collapse-mode="1" max-obj-count="6" z-value="0">
+<table name="password_reset" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="860" y="340"/>
+	<position x="1240" y="360"/>
 	<column name="idpassword_reset" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -385,21 +385,21 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.password_reset"
 	 src-required="true" dst-required="false"/>
 
-<table name="companies" layers="0" collapse-mode="1" max-obj-count="6" z-value="0">
+<table name="companies" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="460" y="1240"/>
+	<position x="680" y="1560"/>
 	<column name="idcompanies" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
-	</column>
-	<column name="cnpj" not-null="true">
-		<type name="text" length="0"/>
 	</column>
 	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="trade_name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="cnpj" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<constraint name="companies_pk" type="pk-constr" table="public.companies">
@@ -413,10 +413,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="people_fk" index="1"/>
 	</customidxs></table>
 
-<table name="phones" layers="0" collapse-mode="1" max-obj-count="6" z-value="0">
+<table name="phones" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1060" y="1400"/>
+	<position x="1440" y="1480"/>
 	<column name="idphones" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -448,10 +448,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.companies"
 	 src-required="true" dst-required="false"/>
 
-<table name="addresses" layers="0" collapse-mode="1" max-obj-count="13" z-value="0">
+<table name="addresses" layers="0" collapse-mode="2" max-obj-count="13" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1000" y="1020"/>
+	<position x="1380" y="1080"/>
 	<column name="idaddresses" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -491,10 +491,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="address_person" layers="0" collapse-mode="1" max-obj-count="2" z-value="0">
+<table name="address_person" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="520" y="1460"/>
+	<position x="720" y="1840"/>
 </table>
 
 <relationship name="addresses_has_many_address_person" type="rel1n" layers="0"
@@ -517,10 +517,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.address_person"
 	 src-required="true" dst-required="false"/>
 
-<table name="person_phone" layers="0" collapse-mode="1" max-obj-count="3" z-value="0">
+<table name="person_phone" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="560" y="1640"/>
+	<position x="780" y="2060"/>
 </table>
 
 <relationship name="phones_has_many_person_phone" type="rel1n" layers="0"
@@ -545,16 +545,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 identifier="true"
 />
 
-<table name="address_enterprise" layers="0" collapse-mode="1" max-obj-count="2" z-value="0">
+<table name="address_enterprise" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="900" y="580"/>
+	<position x="1280" y="620"/>
 </table>
 
-<table name="enterprise_phone" layers="0" collapse-mode="1" max-obj-count="3" z-value="0">
+<table name="enterprise_phone" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="960" y="780"/>
+	<position x="1340" y="840"/>
 	<column name="enterprise_person">
 		<type name="smallint" length="0"/>
 	</column>
@@ -618,9 +618,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.people" reference-fk="mother_fk"
 	 src-required="false" dst-required="false">
 	<line>
-		<position x="192.213" y="150.975"/>
-	<position x="192.213" y="38"/>
-	<position x="133.475" y="38"/>
+		<position x="331.598" y="182.108"/>
+	<position x="331.598" y="38"/>
+	<position x="226.399" y="38"/>
 	</line>
 	<label ref-type="name-label">
 		<position x="0" y="0"/>
@@ -633,9 +633,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.people" reference-fk="father_fk"
 	 src-required="false" dst-required="false">
 	<line>
-		<position x="201.03" y="159.792"/>
-	<position x="201.03" y="29.183"/>
-	<position x="124.658" y="29.183"/>
+		<position x="351.566" y="202.076"/>
+	<position x="351.566" y="18.0321"/>
+	<position x="206.431" y="18.0321"/>
 	</line>
 	<label ref-type="name-label">
 		<position x="0" y="0"/>
