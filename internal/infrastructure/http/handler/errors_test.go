@@ -125,6 +125,15 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 				Message: "token expired",
 			},
 		},
+		{
+			name:               "",
+			inputError:         exception.ErrInvalidRegisteredBy,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse: ErrorResponse{
+				Code:    "INVALID_REGISTERED_BY",
+				Message: "registered by is invalid",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
