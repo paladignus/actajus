@@ -18,7 +18,7 @@ func NewEnterprise(db *database.DB) *Enterprise {
 }
 
 func (e Enterprise) Create(ctx context.Context, enterprise entity.Enterprise) error {
-	sql := `INSERT INTO enterprises (registered_by, name, trade_name, cnpj) VALUES ($1, $2, $3, $4);`
+	sql := `INSERT INTO companies (registered_by, name, trade_name, cnpj) VALUES ($1, $2, $3, $4);`
 	_, err := e.db.Pool.Exec(ctx, sql, enterprise.RegisteredBy, enterprise.Name, enterprise.TradeName, enterprise.CNPJ)
 	if err != nil {
 		return fmt.Errorf("database error while saving enterprise: %w", err)

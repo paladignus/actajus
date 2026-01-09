@@ -25,7 +25,7 @@ func TestEnterprise(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("should be successfully inseted into the database", func(t *testing.T) {
-		mock.ExpectExec(`INSERT INTO enterprises`).
+		mock.ExpectExec(`INSERT INTO companies`).
 			WithArgs(enterprise.RegisteredBy, enterprise.Name, enterprise.TradeName, enterprise.CNPJ).
 			WillReturnResult(pgxmock.NewResult("INSERT", 1))
 		err := repo.Create(ctx, enterprise)
@@ -35,7 +35,7 @@ func TestEnterprise(t *testing.T) {
 
 	t.Run("should return error when database fails to insert", func(t *testing.T) {
 		mockErr := fmt.Errorf("database error")
-		mock.ExpectExec(`INSERT INTO enterprises`).
+		mock.ExpectExec(`INSERT INTO companies`).
 			WithArgs(enterprise.RegisteredBy, enterprise.Name, enterprise.TradeName, enterprise.CNPJ).
 			WillReturnError(mockErr)
 		err := repo.Create(ctx, enterprise)
