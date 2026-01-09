@@ -145,6 +145,8 @@ func main() {
 		persistence.PasswordResetToken(),
 	)
 
+	enterpriseCreateUC := usecase.NewEnterprise(persistence.Enterprise())
+
 	// =================================================================
 	// 7. CRIA OS HANDLERS
 	// =================================================================
@@ -153,6 +155,7 @@ func main() {
 	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
 	resetPasswordHandler := handler.NewRequestPasswordReset(recoverPassword, logger)
 	renewPasswordHandler := handler.NewRenewPassword(renewPasswordUC, logger)
+	enterpriseHandler := handler.NewEnterprise(enterpriseCreateUC, logger)
 
 	// =================================================================
 	// 8. CRIA E INICIA O SERVIDOR HTTP
@@ -162,6 +165,7 @@ func main() {
 	mux.HandleFunc("POST /auth/email", getEmailByCPF.GetEmailByCPF)
 	mux.HandleFunc("POST /auth/recover", resetPasswordHandler.RequestPasswordReset)
 	mux.HandleFunc("POST /auth/renew", renewPasswordHandler.RenewPassword)
+	mux.HandleFunc("POST /enterprise", enterpriseHandler.Create)
 
 	// Add metrics endpoint for Prometheus
 	mux.Handle("/metrics", metrics.Handler())
@@ -179,14 +183,14 @@ func main() {
 		),
 	)
 
-srv := &http.Server{
-	Addr:         ":" + config.Server.Port,
-	Handler:      handler,
-	ReadTimeout:  15 * time.Second,
-	WriteTimeout: 15 * time.Second,
-	IdleTimeout:  60 * time.Second,
-	TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
-}
+	srv := &http.Server{
+		Addr:         ":" + config.Server.Port,
+		Handler:      handler,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
+	}
 	go func() {
 		logger.Info(ctx, "🚀 HTTP server running on port", "porta", config.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
