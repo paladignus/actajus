@@ -2,7 +2,7 @@ POST http://localhost:8080/signin
 content-type: application/json
 
 {
-    "cpf": "987.654.321-00",
+    "cpf": "11144477735",
     "password": "admin123"
 }
 
@@ -11,7 +11,7 @@ POST http://localhost:8080/auth/email
 content-type: application/json
 
 {
-    "cpf": "987.654.321-00"
+    "cpf": "11144477735"
 }
 
 ###
@@ -27,9 +27,20 @@ POST http://localhost:8080/auth/renew
 content-type: application/json
 
 {
-    "cpf": "987.654.321-00",
-    "password": "@Admin123",
-    "token": "Wi1Gk60IxEeiRNo1zX_mA632v4GJkQ6VwYJ7ewMwntY="
+    "cpf": "111.444.777-35",
+    "password": "!Admin123",
+    "token": "tVtTlI5wXXcdrGpXhmis_75kfKxW1EkjJE6ggdBnUws="
+}
+
+###
+POST http://localhost:8080/enterprise
+content-type: application/json
+
+{
+    "registered_by": 1,
+    "name": "Actajus",
+    "trade_name": "Actajus sistema jurídico",
+    "cnpj": "10.123.456/0001-00"
 }
 
 
