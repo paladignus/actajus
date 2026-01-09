@@ -70,6 +70,11 @@ func MapDomainErrorToHTTP(err error) (int, ErrorResponse) {
 			Code:    "TOKEN_EXPIRED",
 			Message: "token expired",
 		}
+	case errors.Is(err, exception.ErrInvalidRegisteredBy):
+		return http.StatusBadRequest, ErrorResponse{
+			Code:    "REGISTERED_BY_INVALID",
+			Message: "registered_by is invalid",
+		}
 	default:
 		return http.StatusInternalServerError, ErrorResponse{
 			Code:    "INTERNAL_ERROR",
