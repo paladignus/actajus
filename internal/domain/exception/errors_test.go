@@ -32,6 +32,7 @@ func TestErrorVariables(t *testing.T) {
 		{ErrEmailAlreadyVerified, "email already verified"},
 		{ErrInvalidEmail, "invalid email"},
 		{ErrInvalidPassword, "invalid password"},
+		{ErrInvalidRegisteredBy, "registered by is invalid or empty"},
 		{ErrInvalidName, "name is invalid"},
 		{ErrInvalidTradeName, "trade name is invalid"},
 		{ErrInvalidCNPJ, "cnpj is invalid"},
