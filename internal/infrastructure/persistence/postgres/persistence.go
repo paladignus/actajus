@@ -20,3 +20,7 @@ func (p Persistence) User() User {
 func (p Persistence) PasswordResetToken() PasswordResetToken {
 	return NewPasswordResetToken(p.db)
 }
+
+func (p Persistence) Enterprise() Enterprise {
+	return *NewEnterprise(p.db)
+}
