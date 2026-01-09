@@ -4,12 +4,14 @@ package entity
 import (
 	"time"
 
+	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
 type Enterprise struct {
 	IDEnterprise int
+	RegisteredBy int
 	Name         vo.Text
 	TradeName    vo.Text
 	CNPJ         vo.CNPJ
@@ -18,14 +20,18 @@ type Enterprise struct {
 	DeletedAt    *time.Time
 }
 
-func NewEnterprise(name, tradeName, cnpj string) (Enterprise, error) {
+func NewEnterprise(enterprise dto.EnterpriseInput) (Enterprise, error) {
 	now := time.Now()
 	e := Enterprise{
-		Name:      vo.Text(name),
-		TradeName: vo.Text(tradeName),
-		CNPJ:      vo.CNPJ(cnpj),
-		CreatedAt: now,
-		UpdatedAt: now,
+		RegisteredBy: enterprise.RegisteredBy,
+		Name:         vo.Text(enterprise.Name),
+		TradeName:    vo.Text(enterprise.TradeName),
+		CNPJ:         vo.CNPJ(enterprise.CNPJ),
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	}
+	if e.RegisteredBy == 0 {
+		return e, exception.ErrInvalidRegisteredBy
 	}
 	if !e.Name.IsValid() {
 		return e, exception.ErrInvalidName
