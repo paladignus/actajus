@@ -182,7 +182,7 @@ role_ids AS (
   SELECT name AS role, idroles
   FROM roles
 ),
-user_map AS (
+role_map AS (
   SELECT pm.role, a.idusers
   FROM people_map pm
   LEFT JOIN users a

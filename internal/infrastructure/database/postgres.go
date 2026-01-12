@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
@@ -19,11 +20,34 @@ type PgxPool interface {
 	Close()
 }
 
-type DB struct {
-	Pool PgxPool
+type TxAdapter struct {
+	tx pgx.Tx
 }
 
-func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repository.Logger) (*DB, error) {
+func NewTxAdapter(tx pgx.Tx) *TxAdapter {
+	return &TxAdapter{tx: tx}
+}
+
+func (t *TxAdapter) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+	return t.tx.Query(ctx, sql, args...)
+}
+
+func (t *TxAdapter) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+	return t.tx.QueryRow(ctx, sql, args...)
+}
+
+func (t *TxAdapter) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+	return t.tx.Exec(ctx, sql, args...)
+}
+
+func (t *TxAdapter) Close() {
+}
+
+// type DB struct {
+// 	Pool PgxPool
+// }
+
+func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repository.Logger) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 	poolConfig, err := pgxpool.ParseConfig(dsn)
@@ -40,12 +64,13 @@ func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repos
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
 	logger.Info(ctx, "database connection sucessfully")
-	return &DB{Pool: pool}, nil
+	return pool, nil
+	// return &DB{Pool: pool}, nil
 }
 
-func (db *DB) Close(ctx context.Context, logger repository.Logger) {
-	if db.Pool != nil {
-		db.Pool.Close()
-		logger.Info(ctx, "database connection closed")
-	}
-}
+// func (db *DB) Close(ctx context.Context, logger repository.Logger) {
+// 	if db.Pool != nil {
+// 		db.Pool.Close()
+// 		logger.Info(ctx, "database connection closed")
+// 	}
+// }

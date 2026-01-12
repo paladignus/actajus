@@ -4,7 +4,6 @@ package postgres
 import (
 	"testing"
 
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,12 +13,12 @@ func TestNewPersistence(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
+	// db := &database.DB{Pool: mock}
 	t.Run("ensure creates persistence instance successfully", func(t *testing.T) {
-		persistence := NewPersistence(db)
+		persistence := NewPersistence(mock)
 		assert.NotNil(t, persistence)
 		assert.NotNil(t, persistence.db)
-		assert.Equal(t, db, persistence.db)
+		assert.Equal(t, mock, persistence.db)
 	})
 
 	t.Run("ensure creates persistence with nil db", func(t *testing.T) {
@@ -33,12 +32,12 @@ func TestPersistence_User(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	persistence := NewPersistence(db)
+	// db := &database.DB{Pool: mock}
+	persistence := NewPersistence(mock)
 	t.Run("should returns user repository instance", func(t *testing.T) {
 		userRepo := persistence.User()
 		assert.NotNil(t, userRepo)
-		assert.Equal(t, db, userRepo.db)
+		assert.Equal(t, mock, userRepo.db)
 	})
 
 	t.Run("should returns new account instance on each call", func(t *testing.T) {
@@ -52,7 +51,7 @@ func TestPersistence_User(t *testing.T) {
 	t.Run("should account repository shares same db connection", func(t *testing.T) {
 		user := persistence.User()
 		assert.Same(t, persistence.db, user.db)
-		assert.Same(t, db.Pool, user.db.Pool)
+		// assert.Same(t, db.Pool, user.db.Pool)
 	})
 }
 
@@ -60,12 +59,12 @@ func TestPersistence_PasswordResetToken(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	persistence := NewPersistence(db)
+	// db := &database.DB{Pool: mock}
+	persistence := NewPersistence(mock)
 	t.Run("should returns password reset token repository instance", func(t *testing.T) {
 		passwordResetTokenRepo := persistence.PasswordResetToken()
 		assert.NotNil(t, passwordResetTokenRepo)
-		assert.Equal(t, db, passwordResetTokenRepo.db)
+		assert.Equal(t, mock, passwordResetTokenRepo.db)
 	})
 
 	t.Run("should returns new password reset token instance on each call", func(t *testing.T) {
@@ -79,6 +78,6 @@ func TestPersistence_PasswordResetToken(t *testing.T) {
 	t.Run("should password reset token repository shares same db connection", func(t *testing.T) {
 		passwordResetToken := persistence.PasswordResetToken()
 		assert.Same(t, persistence.db, passwordResetToken.db)
-		assert.Same(t, db.Pool, passwordResetToken.db.Pool)
+		// assert.Same(t, db.Pool, passwordResetToken.db.Pool)
 	})
 }

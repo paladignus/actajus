@@ -8,5 +8,5 @@ import (
 )
 
 type IEnterprise interface {
-	Create(ctx context.Context, enterprise entity.Enterprise) error
+	Create(ctx context.Context, enterprise entity.Enterprise) (id string, err error)
 }

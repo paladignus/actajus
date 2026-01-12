@@ -8,13 +8,14 @@ import (
 )
 
 type Enterprise struct {
-	CreateError error
+	IDEnterprise string
+	CreateError  error
 }
 
 func NewEnterprise() *Enterprise {
 	return &Enterprise{}
 }
 
-func (e Enterprise) Create(ctx context.Context, enterprise entity.Enterprise) error {
-	return e.CreateError
+func (e Enterprise) Create(ctx context.Context, enterprise entity.Enterprise) (id string, err error) {
+	return e.IDEnterprise, e.CreateError
 }

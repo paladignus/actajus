@@ -13,10 +13,10 @@ import (
 )
 
 type User struct {
-	db *database.DB
+	db database.PgxPool
 }
 
-func NewUser(db *database.DB) User {
+func NewUser(db database.PgxPool) User {
 	return User{db}
 }
 
@@ -32,7 +32,7 @@ func (u User) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (u
 	JOIN users u ON u.idusers = p.idpeople AND u.deleted_at IS NULL
 	LEFT JOIN emails e ON e.id_people = p.idpeople AND e.deleted_at IS NULL
 	WHERE cpf = $1 AND u.password = crypt($2, password);`
-	if err = u.db.Pool.QueryRow(ctx, sql, input.CPF, input.Password).
+	if err = u.db.QueryRow(ctx, sql, input.CPF, input.Password).
 		Scan(
 			&user.IDUser,
 			&user.FirstName,
@@ -56,7 +56,7 @@ func (u User) GetRolesByID(ctx context.Context, idUser int) (roles []string, err
 	sql := `SELECT r.name FROM roles r
 		INNER JOIN role_user ru ON r.idroles = ru.id_roles
 		WHERE ru.id_users = $1 ORDER BY r.name;`
-	rows, err := u.db.Pool.Query(ctx, sql, idUser)
+	rows, err := u.db.Query(ctx, sql, idUser)
 	if err != nil {
 		return nil, fmt.Errorf("database error while getting roles for user ID %d: %w", idUser, err)
 	}
@@ -75,7 +75,7 @@ func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissio
 	sql := `SELECT p.resource, p.action FROM permissions p
 		INNER JOIN role_permission rp ON p.idpermissions = rp.id_permissions
 		WHERE rp.id_roles = $1 ORDER BY p.resource, p.action;`
-	rows, err := u.db.Pool.Query(ctx, sql, idrole)
+	rows, err := u.db.Query(ctx, sql, idrole)
 	if err != nil {
 		return nil, fmt.Errorf("database error while getting permissions for role ID %d: %w", idrole, err)
 	}
@@ -96,7 +96,7 @@ func (u User) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEma
 		LEFT JOIN documents d ON d.id_people = e.id_people
 		JOIN users u ON u.idusers = e.id_people AND u.deleted_at IS NULL
 		WHERE d.cpf = $1 AND e.deleted_at IS NULL;`
-	if err = u.db.Pool.QueryRow(ctx, sql, cpf).Scan(&output.Email); err != nil {
+	if err = u.db.QueryRow(ctx, sql, cpf).Scan(&output.Email); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return output, fmt.Errorf("email not found for CPF %s: %w", cpf, exception.ErrEmailNotFound)
 		}
@@ -110,7 +110,7 @@ func (u User) FindIDUserByEmail(ctx context.Context, email string) (idUser int, 
 		SELECT idusers FROM users u
 		LEFT JOIN emails e ON e.id_people = u.idusers AND e.deleted_at IS NULL
 		WHERE e.address = $1 AND u.deleted_at IS NULL`
-	if err := u.db.Pool.QueryRow(ctx, sql, email).Scan(&idUser); err != nil {
+	if err := u.db.QueryRow(ctx, sql, email).Scan(&idUser); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return idUser, fmt.Errorf("user not found for email %s: %w", email, exception.ErrEmailNotFound)
 		}
@@ -125,7 +125,7 @@ func (u User) UpdatePassword(ctx context.Context, idUser int, password, cpf stri
     SET password = crypt($2, gen_salt('bf')), updated_at = now()
 		FROM documents d
     WHERE idusers = $1 AND u.idusers = d.id_people AND d.cpf = $3 AND deleted_at IS NULL;`
-	ct, err := u.db.Pool.Exec(ctx, sql, idUser, password, cpf)
+	ct, err := u.db.Exec(ctx, sql, idUser, password, cpf)
 	if err != nil {
 		return fmt.Errorf("database error while updating password for user ID %d: %w", idUser, err)
 	}

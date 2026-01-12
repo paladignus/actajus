@@ -8,7 +8,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,8 +18,8 @@ func TestUser_AuthenticationByCPF(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewUser(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewUser(mock)
 	input := dto.SignInInput{
 		CPF:      "12345678900",
 		Password: "Password123@",
@@ -107,8 +106,8 @@ func TestUser_GetRolesByAccountID(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewUser(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewUser(mock)
 	idUser := 123
 	t.Run("should return roles", func(t *testing.T) {
 		expectedRoles := []string{"admin", "manager", "user"}
@@ -170,8 +169,8 @@ func TestUser_GetPermissionsByRoleID(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewUser(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewUser(mock)
 	t.Run("should return permissions", func(t *testing.T) {
 		roleID := 1
 		expectedPermissions := []dto.Permission{
@@ -239,8 +238,8 @@ func TestUser_FindEmailByCPF(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewUser(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewUser(mock)
 	t.Run("should return email by cpf", func(t *testing.T) {
 		cpf := "11144477735"
 		expectedEmail := dto.GetEmailByCPFOutput{Email: "email@example.com.br"}
@@ -287,8 +286,8 @@ func TestUser_FindByEmail(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewUser(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewUser(mock)
 
 	t.Run("should return an id user", func(t *testing.T) {
 		email := "manager@email.com.br"
@@ -330,8 +329,8 @@ func TestUser_UpdatePassword(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewUser(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewUser(mock)
 	password := "@Dmin1234"
 	cpf := "11144477735"
 

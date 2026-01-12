@@ -9,7 +9,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/domain/entity"
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,8 +19,8 @@ func TestPasswordResetToken_Create(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewPasswordResetToken(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewPasswordResetToken(mock)
 	inputToken := entity.PasswordResetToken{
 		IDUser: 1,
 		Token:  "sample",
@@ -52,8 +51,8 @@ func TestPasswordResetToken_FindByToken(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewPasswordResetToken(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewPasswordResetToken(mock)
 	token := "okokopkpodjklsjiodjsoi"
 	now := time.Now()
 	inputToken := entity.PasswordResetToken{
@@ -110,8 +109,8 @@ func TestPasswordResetToken_MarkAsUsed(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewPasswordResetToken(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewPasswordResetToken(mock)
 	token := "okokopkpodjklsjiodjsoi"
 
 	t.Run("should to mark the token as used", func(t *testing.T) {
@@ -139,8 +138,8 @@ func TestPasswordResetToken_InvalidateUserTokens(t *testing.T) {
 	mock, err := pgxmock.NewPool()
 	require.NoError(t, err)
 	defer mock.Close()
-	db := &database.DB{Pool: mock}
-	repo := NewPasswordResetToken(db)
+	// db := &database.DB{Pool: mock}
+	repo := NewPasswordResetToken(mock)
 
 	t.Run("should invalidate the token", func(t *testing.T) {
 		mock.ExpectExec(`UPDATE password_reset`).

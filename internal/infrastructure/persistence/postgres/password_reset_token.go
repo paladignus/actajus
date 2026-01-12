@@ -13,16 +13,16 @@ import (
 )
 
 type PasswordResetToken struct {
-	db *database.DB
+	db database.PgxPool
 }
 
-func NewPasswordResetToken(db *database.DB) PasswordResetToken {
+func NewPasswordResetToken(db database.PgxPool) PasswordResetToken {
 	return PasswordResetToken{db}
 }
 
 func (p PasswordResetToken) Create(ctx context.Context, token entity.PasswordResetToken) error {
 	sql := `INSERT INTO password_reset (id_users, token, expires_at) VALUES ($1, $2, $3);`
-	_, err := p.db.Pool.Exec(ctx, sql, token.IDUser, token.Token, token.ExpiresAt)
+	_, err := p.db.Exec(ctx, sql, token.IDUser, token.Token, token.ExpiresAt)
 	if err != nil {
 		return fmt.Errorf("database error while saving password reset token for user ID %d: %w", token.IDUser, err)
 	}
@@ -40,7 +40,7 @@ func (p PasswordResetToken) FindByToken(ctx context.Context, token string) (pr e
 		FROM password_reset pr
 		JOIN documents d ON pr.id_users = d.id_people
 		WHERE token = $1 AND used_at IS NULL;`
-	if err = p.db.Pool.QueryRow(ctx, sql, token).Scan(
+	if err = p.db.QueryRow(ctx, sql, token).Scan(
 		&pr.IDPasswordReset,
 		&pr.IDUser,
 		&pr.Token,
@@ -56,7 +56,7 @@ func (p PasswordResetToken) FindByToken(ctx context.Context, token string) (pr e
 
 func (p PasswordResetToken) MarkAsUsed(ctx context.Context, token string) error {
 	sql := `UPDATE password_reset SET used_at = now() WHERE token = $1 AND used_at IS NULL;`
-	_, err := p.db.Pool.Exec(ctx, sql, token)
+	_, err := p.db.Exec(ctx, sql, token)
 	if err != nil {
 		return fmt.Errorf("database error while marking token %s as used: %w", token, err)
 	}
@@ -65,7 +65,7 @@ func (p PasswordResetToken) MarkAsUsed(ctx context.Context, token string) error 
 
 func (p PasswordResetToken) InvalidateUserTokens(ctx context.Context, idUser int) error {
 	sql := `UPDATE password_reset SET used_at = now() WHERE id_users = $1 AND used_at IS NULL;`
-	_, err := p.db.Pool.Exec(ctx, sql, idUser)
+	_, err := p.db.Exec(ctx, sql, idUser)
 	if err != nil {
 		return fmt.Errorf("database error while invalidating tokens for user ID %d: %w", idUser, err)
 	}

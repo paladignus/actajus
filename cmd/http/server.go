@@ -63,8 +63,12 @@ func main() {
 		logger.Error(ctx, "error initializing the database connection.", "error", err)
 		os.Exit(1)
 	}
-	defer db.Close(ctx, logger)
-	persistence := postgres.NewPersistence(db)
+	// defer db.Close(ctx, logger)
+	defer db.Close()
+	// persistence := postgres.NewPersistence(db)
+	uow := database.NewUnitOfWork(db)
+	persistence := postgres.NewPersistence(uow.GetPgxPool())
+
 	token := adapter.NewJWTAdapter(config.JWT)
 
 	// CRIA EVENT REGISTRY E REGISTRA TIPOS DE EVENTOS
@@ -145,7 +149,7 @@ func main() {
 		persistence.PasswordResetToken(),
 	)
 
-	enterpriseCreateUC := usecase.NewEnterprise(persistence.Enterprise())
+	enterpriseCreateUC := usecase.NewEnterprise(uow, persistence.Enterprise())
 
 	// =================================================================
 	// 7. CRIA OS HANDLERS

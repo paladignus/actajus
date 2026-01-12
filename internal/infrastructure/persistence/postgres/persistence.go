@@ -6,10 +6,10 @@ import (
 )
 
 type Persistence struct {
-	db *database.DB
+	db database.PgxPool
 }
 
-func NewPersistence(db *database.DB) Persistence {
+func NewPersistence(db database.PgxPool) Persistence {
 	return Persistence{db}
 }
 

@@ -37,7 +37,7 @@ POST http://localhost:8080/enterprise
 content-type: application/json
 
 {
-    "registered_by": 1,
+    "registered_by": 3,
     "name": "Actajus",
     "trade_name": "Actajus sistema jurídico",
     "cnpj": "10.123.456/0001-00"
