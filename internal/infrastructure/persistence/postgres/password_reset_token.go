@@ -9,14 +9,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/domain/entity"
 	"github.com/paladignus/actajus/internal/domain/exception"
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
 
 type PasswordResetToken struct {
-	db database.PgxPool
+	db PgxPool
 }
 
-func NewPasswordResetToken(db database.PgxPool) PasswordResetToken {
+func NewPasswordResetToken(db PgxPool) PasswordResetToken {
 	return PasswordResetToken{db}
 }
 

@@ -9,14 +9,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
 
 type User struct {
-	db database.PgxPool
+	db PgxPool
 }
 
-func NewUser(db database.PgxPool) User {
+func NewUser(db PgxPool) User {
 	return User{db}
 }
 

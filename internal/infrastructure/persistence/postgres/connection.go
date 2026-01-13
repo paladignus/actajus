@@ -1,5 +1,5 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	"context"

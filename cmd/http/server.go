@@ -15,7 +15,6 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter/messaging/nats"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/infrastructure/http/middleware"
 	"github.com/paladignus/actajus/internal/infrastructure/messaging"
@@ -58,7 +57,7 @@ func main() {
 		}
 	}
 
-	db, err := database.NewConnection(ctx, &config.Database, logger)
+	db, err := postgres.NewConnection(ctx, &config.Database, logger)
 	if err != nil {
 		logger.Error(ctx, "error initializing the database connection.", "error", err)
 		os.Exit(1)
@@ -66,7 +65,7 @@ func main() {
 	// defer db.Close(ctx, logger)
 	defer db.Close()
 	// persistence := postgres.NewPersistence(db)
-	uow := database.NewUnitOfWork(db)
+	uow := postgres.NewUnitOfWork(db)
 	persistence := postgres.NewPersistence(uow.GetPgxPool())
 
 	token := adapter.NewJWTAdapter(config.JWT)

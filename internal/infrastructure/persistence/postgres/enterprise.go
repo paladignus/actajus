@@ -6,14 +6,13 @@ import (
 	"fmt"
 
 	"github.com/paladignus/actajus/internal/domain/entity"
-	"github.com/paladignus/actajus/internal/infrastructure/database"
 )
 
 type Enterprise struct {
-	db database.PgxPool
+	db PgxPool
 }
 
-func NewEnterprise(db database.PgxPool) *Enterprise {
+func NewEnterprise(db PgxPool) *Enterprise {
 	return &Enterprise{db: db}
 }
 

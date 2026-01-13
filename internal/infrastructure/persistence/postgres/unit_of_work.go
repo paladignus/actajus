@@ -1,5 +1,5 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	"context"
@@ -8,6 +8,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type IUnitOfWork interface {
+	Begin(context.Context) error
+	Commit(context.Context) error
+	Rollback(context.Context) error
+	GetPgxPool() PgxPool
+}
 
 type UnitOfWork struct {
 	pool *pgxpool.Pool

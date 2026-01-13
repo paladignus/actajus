@@ -1,15 +1,11 @@
 // Package postgres
 package postgres
 
-import (
-	"github.com/paladignus/actajus/internal/infrastructure/database"
-)
-
 type Persistence struct {
-	db database.PgxPool
+	db PgxPool
 }
 
-func NewPersistence(db database.PgxPool) Persistence {
+func NewPersistence(db PgxPool) Persistence {
 	return Persistence{db}
 }
 
