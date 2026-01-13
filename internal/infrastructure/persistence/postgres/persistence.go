@@ -17,10 +17,10 @@ func (p Persistence) PasswordResetToken() PasswordResetToken {
 	return NewPasswordResetToken(p.db)
 }
 
-func (p Persistence) Enterprise() Enterprise {
-	return *NewEnterprise(p.db)
-}
-
-func (p Persistence) Address() Address {
-	return NewAddress(p.db)
-}
+// func (p Persistence) Enterprise() Enterprise {
+// 	return NewEnterprise(p.db)
+// }
+//
+// func (p Persistence) Address() Address {
+// 	return NewAddress(p.db)
+// }
