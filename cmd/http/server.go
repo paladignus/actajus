@@ -148,7 +148,11 @@ func main() {
 		persistence.PasswordResetToken(),
 	)
 
-	enterpriseCreateUC := usecase.NewEnterprise(uow, persistence.Enterprise())
+	enterpriseCreateUC := usecase.NewEnterprise(
+		uow,
+		persistence.Enterprise(),
+		persistence.Address(),
+	)
 
 	// =================================================================
 	// 7. CRIA OS HANDLERS

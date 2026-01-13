@@ -37,10 +37,23 @@ POST http://localhost:8080/enterprise
 content-type: application/json
 
 {
-    "registered_by": 3,
-    "name": "Actajus",
-    "trade_name": "Actajus sistema jurídico",
-    "cnpj": "10.123.456/0001-00"
+    "enterprise": {
+        "registered_by": 3,
+        "name": "Actajus",
+        "trade_name": "Actajus sistema jurídico",
+        "cnpj": "10.123.456/0001-00"
+    },
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    }   
 }
 
 

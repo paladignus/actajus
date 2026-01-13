@@ -9,10 +9,12 @@ import (
 
 func TestEnterpriseInput(t *testing.T) {
 	sut := EnterpriseInput{
-		RegisteredBy: 1,
-		Name:         "Teste",
-		TradeName:    "Teste Trade",
-		CNPJ:         "10.123.456/0001-00",
+		Enterprise: Enterprise{
+			RegisteredBy: 1,
+			Name:         "Teste",
+			TradeName:    "Teste Trade",
+			CNPJ:         "10.123.456/0001-00",
+		},
 	}
 
 	t.Run("should return true same values", func(t *testing.T) {

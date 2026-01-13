@@ -19,7 +19,7 @@ func TestEnterprise(t *testing.T) {
 	defer mock.Close()
 	// db := database.DB{Pool: mock}
 	repo := NewEnterprise(mock)
-	input := dto.EnterpriseInput{RegisteredBy: 1, Name: "Actajus", TradeName: "Actajus Trade", CNPJ: "10.123.456/0001-00"}
+	input := dto.Enterprise{RegisteredBy: 1, Name: "Actajus", TradeName: "Actajus Trade", CNPJ: "10.123.456/0001-00"}
 	enterprise, err := entity.NewEnterprise(input)
 	assert.NoError(t, err)
 

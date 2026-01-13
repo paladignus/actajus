@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="22"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,-33" last-zoom="0.65" scene-rect="0,-50.7679,2513.34,2293.69"
+	 last-position="0,399" last-zoom="0.65" scene-rect="0,-50.7679,2513.34,2293.69"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -448,7 +448,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.companies"
 	 src-required="true" dst-required="false"/>
 
-<table name="addresses" layers="0" collapse-mode="2" max-obj-count="13" z-value="0">
+<table name="addresses" layers="0" collapse-mode="2" max-obj-count="15" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1380" y="1080"/>
@@ -459,20 +459,26 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="zip">
 		<type name="text" length="0"/>
 	</column>
+	<column name="title">
+		<type name="text" length="0"/>
+	</column>
 	<column name="street">
 		<type name="text" length="0"/>
 	</column>
 	<column name="number">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="complement">
 		<type name="text" length="0"/>
 	</column>
-	<column name="supplement">
+	<column name="neighborhood">
 		<type name="text" length="0"/>
 	</column>
 	<column name="city">
 		<type name="text" length="0"/>
 	</column>
 	<column name="state">
-		<type name="char" length="2"/>
+		<type name="text" length="0"/>
 	</column>
 	<column name="country">
 		<type name="text" length="0"/>

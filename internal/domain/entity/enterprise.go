@@ -20,7 +20,7 @@ type Enterprise struct {
 	DeletedAt    *time.Time
 }
 
-func NewEnterprise(enterprise dto.EnterpriseInput) (Enterprise, error) {
+func NewEnterprise(enterprise dto.Enterprise) (Enterprise, error) {
 	now := time.Now()
 	e := Enterprise{
 		RegisteredBy: enterprise.RegisteredBy,

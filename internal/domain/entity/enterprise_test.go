@@ -11,7 +11,7 @@ import (
 )
 
 func TestEnterprise(t *testing.T) {
-	input := dto.EnterpriseInput{
+	input := dto.Enterprise{
 		RegisteredBy: 1, Name: "Actajus", TradeName: "Actajus", CNPJ: "10.123.456/0001-00",
 	}
 	t.Run("should return an enterprise", func(t *testing.T) {

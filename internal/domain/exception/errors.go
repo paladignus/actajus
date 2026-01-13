@@ -38,4 +38,13 @@ var (
 	ErrInvalidName         = errors.New("name is invalid")
 	ErrInvalidTradeName    = errors.New("trade name is invalid")
 	ErrInvalidCNPJ         = errors.New("cnpj is invalid")
+
+	ErrInvalidIDUser       = errors.New("id user is invalid")
+	ErrInvalidZip          = errors.New("zip is invalid")
+	ErrInvalidTitle        = errors.New("title is invalid")
+	ErrInvalidStreet       = errors.New("street is invalid")
+	ErrInvalidNeighborhood = errors.New("neighborhood is invalid")
+	ErrInvalidCity         = errors.New("city is invalid")
+	ErrInvalidState        = errors.New("state is invalid")
+	ErrInvalidCountry      = errors.New("country is invalid")
 )
