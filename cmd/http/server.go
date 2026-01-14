@@ -65,7 +65,6 @@ func main() {
 	// defer db.Close(ctx, logger)
 	defer db.Close()
 	// persistence := postgres.NewPersistence(db)
-	// uow := postgres.NewUnitOfWork(db)
 	persistence := postgres.NewPersistence(db)
 
 	token := adapter.NewJWTAdapter(config.JWT)
@@ -148,8 +147,8 @@ func main() {
 		persistence.PasswordResetToken(),
 	)
 
-	u := postgres.NewUnitOfWorkEnterprise(db)
-	enterpriseCreateUC := usecase.NewEnterprise(*u)
+	uow := postgres.NewUnitOfWork(db)
+	enterpriseCreateUC := usecase.NewEnterprise(uow.Enterprise())
 
 	// =================================================================
 	// 7. CRIA OS HANDLERS

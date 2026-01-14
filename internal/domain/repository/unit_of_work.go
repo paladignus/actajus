@@ -13,6 +13,7 @@ type UnitOfWorkEnterprise interface {
 	UnitOfWork
 	Enterprise() IEnterprise
 	Address() IAddress
+	AddressEnterprise() IAddressEnterprise
 }
 
 type UnitOfWorkDefault interface {

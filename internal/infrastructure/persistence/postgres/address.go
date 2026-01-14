@@ -17,7 +17,7 @@ func NewAddress(tx pgx.Tx) Address {
 	return Address{tx}
 }
 
-func (a Address) Create(ctx context.Context, input entity.Address) (id string, err error) {
+func (a Address) Create(ctx context.Context, input entity.Address) (id uint, err error) {
 	sql := `INSERT INTO addresses 
 		(zip, title, street, number, complement, neighborhood, city, state, country)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning idaddresses;`
@@ -25,7 +25,7 @@ func (a Address) Create(ctx context.Context, input entity.Address) (id string, e
 		input.Zip, input.Title, input.Street, input.Number, input.Complement,
 		input.Neighborhood, input.City, input.State, input.Country,
 	).Scan(&id); err != nil {
-		return "", fmt.Errorf("database error while saving address: %w", err)
+		return 0, fmt.Errorf("database error while saving address: %w", err)
 	}
 	return id, nil
 }

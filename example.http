@@ -51,7 +51,7 @@ content-type: application/json
         "number": 123,
         "neighborhood": "Centro",
         "city": "São Paulo",
-        "state": "",
+        "state": "São Paulo",
         "country": "Brasil"
     }   
 }

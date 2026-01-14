@@ -49,3 +49,7 @@ func (u *UnitOfWorkEnterprise) Enterprise() repository.IEnterprise {
 func (u *UnitOfWorkEnterprise) Address() repository.IAddress {
 	return NewAddress(u.tx)
 }
+
+func (u *UnitOfWorkEnterprise) AddressEnterprise() repository.IAddressEnterprise {
+	return NewAddressEnterprise(u.tx)
+}
