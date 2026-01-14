@@ -14,6 +14,10 @@ type UnitOfWorkEnterprise interface {
 	Enterprise() IEnterprise
 	Address() IAddress
 	AddressEnterprise() IAddressEnterprise
+	Phone() IPhone
+	EnterprisePhone() IEnterprisePhone
+	Email() IEmail
+	EmailEnterprise() IEmailEnterprise
 }
 
 type UnitOfWorkDefault interface {

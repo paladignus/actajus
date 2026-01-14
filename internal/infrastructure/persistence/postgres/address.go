@@ -5,15 +5,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/domain/entity"
 )
 
 type Address struct {
-	tx pgx.Tx
+	tx PgxPool
 }
 
-func NewAddress(tx pgx.Tx) Address {
+func NewAddress(tx PgxPool) Address {
 	return Address{tx}
 }
 

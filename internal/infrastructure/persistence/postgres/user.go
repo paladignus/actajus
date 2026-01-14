@@ -20,6 +20,7 @@ func NewUser(db PgxPool) User {
 }
 
 func (u User) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (user dto.SignInOutput, err error) {
+	// LEFT JOIN emails e ON e.id_people = p.idpeople AND e.deleted_at IS NULL
 	sql := `
 	SELECT
     u.idusers,
@@ -29,7 +30,8 @@ func (u User) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (u
 	FROM documents d
 	JOIN people p ON p.idpeople = d.id_people AND p.deleted_at IS NULL
 	JOIN users u ON u.idusers = p.idpeople AND u.deleted_at IS NULL
-	LEFT JOIN emails e ON e.id_people = p.idpeople AND e.deleted_at IS NULL
+	JOIN email_person ep ON p.idpeople = ep.id_people
+	JOIN emails e ON e.idemails = ep.id_emails 
 	WHERE cpf = $1 AND u.password = crypt($2, password);`
 	if err = u.db.QueryRow(ctx, sql, input.CPF, input.Password).
 		Scan(
@@ -72,8 +74,8 @@ func (u User) GetRolesByID(ctx context.Context, idUser int) (roles []string, err
 
 func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissions []dto.Permission, err error) {
 	sql := `SELECT p.resource, p.action FROM permissions p
-		INNER JOIN role_permission rp ON p.idpermissions = rp.id_permissions
-		WHERE rp.id_roles = $1 ORDER BY p.resource, p.action;`
+		INNER JOIN permission_role pr ON p.idpermissions = pr.id_permissions
+		WHERE pr.id_roles = $1 ORDER BY p.resource, p.action;`
 	rows, err := u.db.Query(ctx, sql, idrole)
 	if err != nil {
 		return nil, fmt.Errorf("database error while getting permissions for role ID %d: %w", idrole, err)
@@ -92,9 +94,10 @@ func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissio
 func (u User) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEmailByCPFOutput, err error) {
 	sql := `
 		SELECT e.address FROM emails e
-		LEFT JOIN documents d ON d.id_people = e.id_people
-		JOIN users u ON u.idusers = e.id_people AND u.deleted_at IS NULL
-		WHERE d.cpf = $1 AND e.deleted_at IS NULL;`
+		JOIN email_person ep ON e.idemails = ep.id_emails
+		LEFT JOIN documents d ON d.id_people = ep.id_people
+		JOIN users u ON u.idusers = ep.id_people AND u.deleted_at IS NULL
+	WHERE d.cpf = $1 AND e.deleted_at IS NULL;`
 	if err = u.db.QueryRow(ctx, sql, cpf).Scan(&output.Email); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return output, fmt.Errorf("email not found for CPF %s: %w", cpf, exception.ErrEmailNotFound)
@@ -107,7 +110,8 @@ func (u User) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEma
 func (u User) FindIDUserByEmail(ctx context.Context, email string) (idUser int, err error) {
 	sql := `
 		SELECT idusers FROM users u
-		LEFT JOIN emails e ON e.id_people = u.idusers AND e.deleted_at IS NULL
+		JOIN email_person ep ON u.idusers = ep.id_people
+		LEFT JOIN emails e ON e.idemails = ep.id_emails AND e.deleted_at IS NULL
 		WHERE e.address = $1 AND u.deleted_at IS NULL`
 	if err := u.db.QueryRow(ctx, sql, email).Scan(&idUser); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

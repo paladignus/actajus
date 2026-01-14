@@ -44,5 +44,26 @@ func (e Enterprise) Execute(ctx context.Context, input dto.EnterpriseInput) erro
 	if err = e.uow.AddressEnterprise().Create(ctx, idAddress, idEnterprise); err != nil {
 		return fmt.Errorf("database error while saving address enterprise relation: %w", err)
 	}
+	phone := entity.NewPhone(input.Phone)
+	idPhone, err := e.uow.Phone().Create(ctx, phone)
+	if err != nil {
+		return fmt.Errorf("database error while saving phone: %w", err)
+	}
+	if err := e.uow.EnterprisePhone().Create(ctx, idEnterprise, idPhone); err != nil {
+		return fmt.Errorf("database error while saving enterprise phone relation: %w", err)
+	}
+
+	email, err := entity.NewEmail(input.Email)
+	if err != nil {
+		return fmt.Errorf("use case create enterprise, invalid input: %w", err)
+	}
+	idEmail, err := e.uow.Email().Create(ctx, email)
+	if err != nil {
+		return fmt.Errorf("database error while saving email: %w", err)
+	}
+	if err := e.uow.EmailEnterprise().Create(ctx, idEmail, idEnterprise); err != nil {
+		return fmt.Errorf("database error while saving enterprise email relation: %w", err)
+	}
+
 	return e.uow.Commit(ctx)
 }

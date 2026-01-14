@@ -53,7 +53,17 @@ content-type: application/json
         "city": "São Paulo",
         "state": "São Paulo",
         "country": "Brasil"
-    }   
+    },
+    "phone": {
+        "country_code": 55,
+        "area_code": 11,
+        "number": "91234-5678",
+        "kind": "Celular",
+        "department": "Comercial"
+    },
+     "email": {
+        "address": "marcelo@marcelo.eti.br"
+     }
 }
 
 

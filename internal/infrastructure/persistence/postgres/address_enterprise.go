@@ -4,15 +4,13 @@ package postgres
 import (
 	"context"
 	"fmt"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type AddressEnterprise struct {
-	tx pgx.Tx
+	tx PgxPool
 }
 
-func NewAddressEnterprise(tx pgx.Tx) AddressEnterprise {
+func NewAddressEnterprise(tx PgxPool) AddressEnterprise {
 	return AddressEnterprise{tx}
 }
 

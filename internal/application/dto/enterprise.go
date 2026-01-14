@@ -11,4 +11,6 @@ type Enterprise struct {
 type EnterpriseInput struct {
 	Enterprise `json:"enterprise"`
 	Address    `json:"address"`
+	Phone      `json:"phone"`
+	Email      `json:"email"`
 }

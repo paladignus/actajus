@@ -5,15 +5,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/domain/entity"
 )
 
 type Enterprise struct {
-	tx pgx.Tx
+	tx PgxPool
 }
 
-func NewEnterprise(tx pgx.Tx) Enterprise {
+func NewEnterprise(tx PgxPool) Enterprise {
 	return Enterprise{tx}
 }
 

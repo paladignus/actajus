@@ -124,37 +124,37 @@ VALUES
 ('reports', 'export', 'Exportar relatórios') RETURNING *;
 
 -- ROOT: Todas as permissões
-INSERT INTO role_permission (id_roles, id_permissions)
+INSERT INTO permission_role (id_roles, id_permissions)
 SELECT 1 AS id_roles, idpermissions AS id_permissions
 FROM permissions RETURNING *;
 
 -- ADMIN: Quase todas, exceto algumas críticas
-INSERT INTO role_permission (id_roles, id_permissions)
+INSERT INTO permission_role (id_roles, id_permissions)
 SELECT 2, idpermissions FROM permissions
 WHERE resource != 'settings' OR action = 'read' RETURNING *;
 
 -- MANAGER: Gerenciar pedidos e visualizar relatórios
-INSERT INTO role_permission (id_roles, id_permissions)
+INSERT INTO permission_role (id_roles, id_permissions)
 SELECT 3, idpermissions FROM permissions
 WHERE
     resource = 'orders' AND action != 'create' AND action != 'cancel'
     OR resource = 'reports' AND action = 'read' OR action = 'export' RETURNING *;
 
 -- EDITOR: Gerenciar posts
-INSERT INTO role_permission (id_roles, id_permissions)
+INSERT INTO permission_role (id_roles, id_permissions)
 SELECT 4, idpermissions FROM permissions
 WHERE
     resource = 'posts' AND action != 'publish' RETURNING *;
 
 -- CUSTOMER: Criar e ver seus próprios pedidos
-INSERT INTO role_permission (id_roles, id_permissions)
+INSERT INTO permission_role (id_roles, id_permissions)
 SELECT 5, idpermissions FROM permissions
 WHERE
     resource = 'orders' AND (action = 'create' OR action = 'read')
 	OR resource = 'posts' AND action = 'read' RETURNING *;
 
 -- VIEWER: Apenas leitura
-INSERT INTO role_permission (id_roles, id_permissions)
+INSERT INTO permission_role (id_roles, id_permissions)
 SELECT 6, idpermissions FROM permissions
 WHERE
     resource = 'users' AND action = 'read'
@@ -223,31 +223,80 @@ RETURNING *;
 
 INSERT INTO role_user (id_users, id_roles, assigned_by) VALUES ('3', 5, '1') RETURNING *;
 
-WITH people AS (
-    SELECT
-        (SELECT idpeople FROM people WHERE first_name = 'Sofia' AND last_name = 'Jackson' LIMIT 1) AS id_root,
-        (SELECT idpeople FROM people WHERE first_name = 'Admin' AND last_name = 'System' LIMIT 1) AS id_admin,
-        (SELECT idpeople FROM people WHERE first_name = 'John' AND last_name = 'Manager' LIMIT 1) AS id_manager,
-        (SELECT idpeople FROM people WHERE first_name = 'Jane' AND last_name = 'Editor' LIMIT 1) AS id_editor,
-        (SELECT idpeople FROM people WHERE first_name = 'Bob' AND last_name = 'Customer' LIMIT 1) AS id_customer
-)
-INSERT INTO emails (id_people, address)
-SELECT
-    CASE v.role
-        WHEN 'root' THEN p.id_root
-        WHEN 'admin' THEN p.id_admin
-        WHEN 'manager' THEN p.id_manager
-        WHEN 'editor' THEN p.id_editor
-        WHEN 'customer' THEN p.id_customer
-    END AS id_people,
-    v.address
-FROM people p
-CROSS JOIN (
-    VALUES
-        ('root',     'marcelo@marcelo.eti.br'),
-        ('admin',    'admin@email.com.br'),
-        ('manager',  'wostemberg3@gmail.com'),
-        ('editor',   'editor@email.com.br'),
-        ('customer', 'customer@email.com.br')
-) AS v(role, address) RETURNING *;
 
+-- 6. Associar Emails aos Usuários
+-- WITH people AS (
+--     SELECT
+--         (SELECT idpeople FROM people WHERE first_name = 'Sofia' AND last_name = 'Jackson' LIMIT 1) AS id_root,
+--         (SELECT idpeople FROM people WHERE first_name = 'Admin' AND last_name = 'System' LIMIT 1) AS id_admin,
+--         (SELECT idpeople FROM people WHERE first_name = 'John' AND last_name = 'Manager' LIMIT 1) AS id_manager,
+--         (SELECT idpeople FROM people WHERE first_name = 'Jane' AND last_name = 'Editor' LIMIT 1) AS id_editor,
+--         (SELECT idpeople FROM people WHERE first_name = 'Bob' AND last_name = 'Customer' LIMIT 1) AS id_customer
+-- )
+-- INSERT INTO emails (id_people, address)
+-- SELECT
+--     CASE v.role
+--         WHEN 'root' THEN p.id_root
+--         WHEN 'admin' THEN p.id_admin
+--         WHEN 'manager' THEN p.id_manager
+--         WHEN 'editor' THEN p.id_editor
+--         WHEN 'customer' THEN p.id_customer
+--     END AS id_people,
+--     v.address
+-- FROM people p
+-- CROSS JOIN (
+--     VALUES
+--         ('root',     'marcelo@marcelo.eti.br'),
+--         ('admin',    'admin@email.com.br'),
+--         ('manager',  'wostemberg3@gmail.com'),
+--         ('editor',   'editor@email.com.br'),
+--         ('customer', 'customer@email.com.br')
+-- ) AS v(role, address) RETURNING *;
+
+INSERT INTO emails (address) VALUES 
+    ('marcelo@marcelo.eti.br'),
+    ('admin@email.com.br'),
+    ('wostemberg3@gmail.com'),
+    ('editor@email.com.br'),
+    ('customer@email.com.br') RETURNING *;
+
+WITH person_map AS (
+    SELECT idpeople, first_name, last_name
+    FROM people
+    WHERE (first_name, last_name) IN (
+        ('Sofia', 'Jackson'),
+        ('Admin', 'System'),
+        ('John', 'Manager'),
+        ('Jane', 'Editor'),
+        ('Bob', 'Customer')
+    )
+),
+email_map AS (
+    SELECT idemails, address
+    FROM emails
+    WHERE address IN (
+        'marcelo@marcelo.eti.br',
+        'admin@email.com.br',
+        'wostemberg3@gmail.com',
+        'editor@email.com.br',
+        'customer@email.com.br'
+    )
+),
+mapping AS (
+    SELECT 
+        em.idemails,
+        pm.idpeople
+    FROM (VALUES
+        ('marcelo@marcelo.eti.br', 'Sofia', 'Jackson'),
+        ('admin@email.com.br', 'Admin', 'System'),
+        ('wostemberg3@gmail.com', 'John', 'Manager'),
+        ('editor@email.com.br', 'Jane', 'Editor'),
+        ('customer@email.com.br', 'Bob', 'Customer')
+    ) AS v(email_addr, fname, lname)
+    JOIN person_map pm ON pm.first_name = v.fname AND pm.last_name = v.lname
+    JOIN email_map em ON em.address = v.email_addr
+)
+INSERT INTO email_person (id_emails, id_people)
+SELECT idemails, idpeople
+FROM mapping
+RETURNING *;

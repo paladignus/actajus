@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="22"
+<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="26"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,399" last-zoom="0.65" scene-rect="0,-50.7679,2513.34,2293.69"
+	 last-position="0,568" last-zoom="0.7" scene-rect="0,-50.7679,2633.34,2625.49"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -108,7 +108,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="users" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="620" y="1240"/>
+	<position x="580" y="900"/>
 	<column name="password" not-null="true">
 		<type name="text" length="0"/>
 	</column>
@@ -181,7 +181,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="permissions" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="2220" y="120"/>
+	<position x="2340" y="120"/>
 	<column name="idpermissions" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="smallint" length="0"/>
@@ -206,11 +206,20 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="role_permission" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="permission_role" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1800" y="120"/>
-</table>
+	<position x="1920" y="120"/>
+
+	<customidxs object-type="column">
+		<object name="id_permissions" index="1"/>
+		<object name="id_roles" index="0"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="permission_role_pk" index="1"/>
+		<object name="permissions_fk" index="2"/>
+		<object name="roles_fk" index="0"/>
+	</customidxs></table>
 
 <table name="role_user" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
@@ -251,7 +260,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#a3b97f"
 	 src-table="public.roles"
-	 dst-table="public.role_permission"
+	 dst-table="public.permission_role"
 	 src-required="true" dst-required="false">
 	<special-pk-cols indexes="0"/>
 </relationship>
@@ -263,9 +272,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#e34586"
 	 src-table="public.permissions"
-	 dst-table="public.role_permission"
+	 dst-table="public.permission_role"
 	 src-required="true" dst-required="false">
-	<constraint name="role_permission_pk" type="pk-constr" alias="role_permission_pk" protected="true" table="public.role_permission">
+	<constraint name="permission_role_pk" type="pk-constr" alias="permission_role_pk" protected="true" table="public.permission_role">
 		</constraint>
 	<special-pk-cols indexes="0"/>
 </relationship>
@@ -280,10 +289,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.role_user"
 	 src-required="true" dst-required="false"/>
 
-<table name="emails" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+<table name="emails" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="580" y="900"/>
+	<position x="1520" y="2060"/>
 	<column name="idemails" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -306,28 +315,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="emails_name_uq" type="uq-constr" table="public.emails">
 		<columns names="address" ref-type="src-columns"/>
 	</constraint>
-
-	<customidxs object-type="column">
-		<object name="id_people" index="1"/>
-	</customidxs>
-	<customidxs object-type="constraint">
-		<object name="people_fk" index="1"/>
-	</customidxs></table>
-
-<relationship name="people_has_many_email" type="rel1n" layers="0"
-	 src-col-pattern="id_{st}"
-	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
-	 src-fk-pattern="{st}_fk"
-	 fk-idx-pattern="{st}_idx"
-	 custom-color="#53a70d"
-	 src-table="public.people"
-	 dst-table="public.emails"
-	 src-required="true" dst-required="false"/>
+</table>
 
 <table name="password_reset" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1240" y="360"/>
+	<position x="1220" y="360"/>
 	<column name="idpassword_reset" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -388,7 +381,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="companies" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="680" y="1560"/>
+	<position x="620" y="1240"/>
 	<column name="idcompanies" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -413,15 +406,21 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="people_fk" index="1"/>
 	</customidxs></table>
 
-<table name="phones" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+<table name="phones" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1440" y="1480"/>
+	<position x="1480" y="1760"/>
 	<column name="idphones" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
 	</column>
 	<column name="number" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="kind" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="department">
 		<type name="text" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">
@@ -448,10 +447,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.companies"
 	 src-required="true" dst-required="false"/>
 
-<table name="addresses" layers="0" collapse-mode="2" max-obj-count="15" z-value="0">
+<table name="addresses" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1380" y="1080"/>
+	<position x="1420" y="1300"/>
 	<column name="idaddresses" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -469,6 +468,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="smallint" length="0"/>
 	</column>
 	<column name="complement">
+		<type name="text" length="0"/>
+	</column>
+	<column name="reference">
 		<type name="text" length="0"/>
 	</column>
 	<column name="neighborhood">
@@ -500,7 +502,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="address_person" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="720" y="1840"/>
+	<position x="680" y="1520"/>
 </table>
 
 <relationship name="addresses_has_many_address_person" type="rel1n" layers="0"
@@ -526,7 +528,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="person_phone" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="780" y="2060"/>
+	<position x="720" y="1740"/>
 </table>
 
 <relationship name="phones_has_many_person_phone" type="rel1n" layers="0"
@@ -557,14 +559,19 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<position x="1280" y="620"/>
 </table>
 
-<table name="enterprise_phone" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="enterprise_phone" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1340" y="840"/>
-	<column name="enterprise_person">
-		<type name="smallint" length="0"/>
-	</column>
-</table>
+	<position x="1320" y="840"/>
+
+	<customidxs object-type="column">
+		<object name="id_companies" index="0"/>
+		<object name="id_phones" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="companies_fk" index="1"/>
+		<object name="phones_fk" index="0"/>
+	</customidxs></table>
 
 <relationship name="addresses_has_many_address_enterprise" type="rel1n" layers="0"
 	 src-col-pattern="id_{st}"
@@ -605,6 +612,91 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.companies"
 	 dst-table="public.enterprise_phone"
 	 src-required="true" dst-required="false"/>
+
+<table name="social_media" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="60" y="2440"/>
+	<column name="idsocial_media" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="address" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="title" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+</table>
+
+<table name="email_enterprise" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1380" y="1060"/>
+
+	<customidxs object-type="column">
+		<object name="id_companies" index="1"/>
+		<object name="id_emails" index="0"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="companies_fk" index="2"/>
+		<object name="email_enterprise_pk" index="0"/>
+		<object name="emails_fk" index="1"/>
+	</customidxs></table>
+
+<relationship name="enterprise_email_has_one_emails" type="rel11" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#de1161"
+	 src-table="public.emails"
+	 dst-table="public.email_enterprise"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<relationship name="companies_has_many_enterprise_email" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#cb957b"
+	 src-table="public.companies"
+	 dst-table="public.email_enterprise"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<table name="email_person" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="780" y="1980"/>
+</table>
+
+<relationship name="email_person_has_one_emails" type="rel11" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#27f118"
+	 src-table="public.emails"
+	 dst-table="public.email_person"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<relationship name="people_has_many_email_person" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#8f9041"
+	 src-table="public.people"
+	 dst-table="public.email_person"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">

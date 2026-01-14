@@ -17,14 +17,14 @@ type PgxPool interface {
 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
-	Close()
+	// Close()
 }
 
 type TxAdapter struct {
-	tx pgx.Tx
+	tx PgxPool
 }
 
-func NewTxAdapter(tx pgx.Tx) *TxAdapter {
+func NewTxAdapter(tx PgxPool) *TxAdapter {
 	return &TxAdapter{tx: tx}
 }
 
@@ -40,8 +40,8 @@ func (t *TxAdapter) Exec(ctx context.Context, sql string, args ...any) (pgconn.C
 	return t.tx.Exec(ctx, sql, args...)
 }
 
-func (t *TxAdapter) Close() {
-}
+// func (t *TxAdapter) Close() {
+// }
 
 // type DB struct {
 // 	Pool PgxPool

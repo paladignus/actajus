@@ -42,14 +42,37 @@ func (u *UnitOfWorkEnterprise) Rollback(ctx context.Context) error {
 	return nil
 }
 
+func (u *UnitOfWorkEnterprise) GetPgxPool() PgxPool {
+	if u.tx != nil {
+		return NewTxAdapter(u.tx)
+	}
+	return u.db
+}
+
 func (u *UnitOfWorkEnterprise) Enterprise() repository.IEnterprise {
-	return NewEnterprise(u.tx)
+	return NewEnterprise(u.GetPgxPool())
 }
 
 func (u *UnitOfWorkEnterprise) Address() repository.IAddress {
-	return NewAddress(u.tx)
+	return NewAddress(u.GetPgxPool())
 }
 
 func (u *UnitOfWorkEnterprise) AddressEnterprise() repository.IAddressEnterprise {
-	return NewAddressEnterprise(u.tx)
+	return NewAddressEnterprise(u.GetPgxPool())
+}
+
+func (u *UnitOfWorkEnterprise) Phone() repository.IPhone {
+	return NewPhone(u.GetPgxPool())
+}
+
+func (u *UnitOfWorkEnterprise) EnterprisePhone() repository.IEnterprisePhone {
+	return NewEnterprisePhone(u.GetPgxPool())
+}
+
+func (u UnitOfWorkEnterprise) Email() repository.IEmail {
+	return NewEmail(u.GetPgxPool())
+}
+
+func (u *UnitOfWorkEnterprise) EmailEnterprise() repository.IEmailEnterprise {
+	return NewEmailEnterprise(u.GetPgxPool())
 }
