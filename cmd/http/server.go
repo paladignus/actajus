@@ -149,6 +149,7 @@ func main() {
 
 	uow := postgres.NewUnitOfWork(db)
 	enterpriseCreateUC := usecase.NewEnterprise(uow.Enterprise())
+	enterpriseUpdateUC := usecase.NewEnterpriseUpdate(uow.Enterprise())
 
 	// =================================================================
 	// 7. CRIA OS HANDLERS
@@ -158,7 +159,11 @@ func main() {
 	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
 	resetPasswordHandler := handler.NewRequestPasswordReset(recoverPassword, logger)
 	renewPasswordHandler := handler.NewRenewPassword(renewPasswordUC, logger)
-	enterpriseHandler := handler.NewEnterprise(enterpriseCreateUC, logger)
+	enterpriseHandler := handler.NewEnterprise(
+		enterpriseCreateUC,
+		enterpriseUpdateUC,
+		logger,
+	)
 
 	// =================================================================
 	// 8. CRIA E INICIA O SERVIDOR HTTP

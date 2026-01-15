@@ -11,16 +11,19 @@ import (
 )
 
 type Enterprise struct {
-	service service.IEnterpriseCreate
-	logger  repository.Logger
+	create service.IEnterpriseCreate
+	update service.IEnterpriseUpdate
+	logger repository.Logger
 }
 
 func NewEnterprise(
-	service service.IEnterpriseCreate,
+	create service.IEnterpriseCreate,
+	update service.IEnterpriseUpdate,
 	logger repository.Logger,
 ) Enterprise {
 	return Enterprise{
-		service,
+		create,
+		update,
 		logger,
 	}
 }
@@ -32,7 +35,7 @@ func (e Enterprise) Create(w http.ResponseWriter, r *http.Request) {
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = e.service.Execute(r.Context(), req)
+	err = e.create.Execute(r.Context(), req)
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {
@@ -54,7 +57,7 @@ func (e Enterprise) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("Reached update handler", req)
-	// err = e.service.Execute(r.Context(), req)
+	err = e.update.Execute(r.Context(), req)
 	err = nil
 	if err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
