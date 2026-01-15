@@ -148,8 +148,10 @@ func main() {
 	)
 
 	uow := postgres.NewUnitOfWork(db)
+
 	enterpriseCreateUC := usecase.NewEnterprise(uow.Enterprise())
 	enterpriseUpdateUC := usecase.NewEnterpriseUpdate(uow.Enterprise())
+	enterpriseGetAllUC := usecase.NewEnterpriseGetAll(uow.Enterprise())
 
 	// =================================================================
 	// 7. CRIA OS HANDLERS
@@ -162,6 +164,7 @@ func main() {
 	enterpriseHandler := handler.NewEnterprise(
 		enterpriseCreateUC,
 		enterpriseUpdateUC,
+		enterpriseGetAllUC,
 		logger,
 	)
 
@@ -175,6 +178,7 @@ func main() {
 	mux.HandleFunc("POST /auth/renew", renewPasswordHandler.RenewPassword)
 	mux.HandleFunc("POST /enterprise", enterpriseHandler.Create)
 	mux.HandleFunc("PUT /enterprise", enterpriseHandler.Update)
+	mux.HandleFunc("GET /enterprise", enterpriseHandler.GetAll)
 
 	// Add metrics endpoint for Prometheus
 	mux.Handle("/metrics", metrics.Handler())

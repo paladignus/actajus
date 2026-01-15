@@ -2,7 +2,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/application/dto"
@@ -13,17 +12,20 @@ import (
 type Enterprise struct {
 	create service.IEnterpriseCreate
 	update service.IEnterpriseUpdate
+	getAll service.IEnterpriseGetAll
 	logger repository.Logger
 }
 
 func NewEnterprise(
 	create service.IEnterpriseCreate,
 	update service.IEnterpriseUpdate,
+	getAll service.IEnterpriseGetAll,
 	logger repository.Logger,
 ) Enterprise {
 	return Enterprise{
 		create,
 		update,
+		getAll,
 		logger,
 	}
 }
@@ -56,10 +58,7 @@ func (e Enterprise) Update(w http.ResponseWriter, r *http.Request) {
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	fmt.Println("Reached update handler", req)
-	err = e.update.Execute(r.Context(), req)
-	err = nil
-	if err != nil {
+	if err = e.update.Execute(r.Context(), req); err != nil {
 		statusCode, errResponse := MapDomainErrorToHTTP(err)
 		if statusCode >= 500 {
 			e.logger.Error(r.Context(), "update enterprise failed with server error", "error", err, "cnpj", req.CNPJ, "method", r.Method, "url", r.URL.Path)
@@ -69,5 +68,16 @@ func (e Enterprise) Update(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(w, statusCode, errResponse)
 		return
 	}
-	e.logger.Info(r.Context(), "create enterprise successful", "cnpj", req.CNPJ, "registered_by", req.RegisteredBy, "method", r.Method, "url", r.URL.Path)
+	e.logger.Info(r.Context(), "update enterprise successful", "cnpj", req.CNPJ, "registered_by", req.RegisteredBy, "method", r.Method, "url", r.URL.Path)
+}
+
+func (e Enterprise) GetAll(w http.ResponseWriter, r *http.Request) {
+	enterprises, err := e.getAll.Execute(r.Context())
+	if err != nil {
+		e.logger.Warn(r.Context(), "get all enterprise failed", "error", err, "method", r.Method, "url", r.URL.Path)
+		RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	e.logger.Info(r.Context(), "get all enterprise successful", "method", r.Method, "url", r.URL.Path)
+	RespondJSON(w, http.StatusOK, enterprises)
 }

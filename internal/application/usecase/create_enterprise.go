@@ -25,16 +25,16 @@ func (e Enterprise) Execute(ctx context.Context, input dto.EnterpriseInput) erro
 		return fmt.Errorf("database error for begin transaction: %w", err)
 	}
 	defer e.uow.Rollback(ctx)
-	enterprise, err := entity.NewEnterprise(input.Enterprise)
-	if err != nil {
+	enterprise := entity.NewEnterprise(input.Enterprise)
+	if err := enterprise.Create(); err != nil {
 		return fmt.Errorf("use case create enterprise, invalid input: %w", err)
 	}
 	idEnterprise, err := e.uow.Enterprise().Create(ctx, enterprise)
 	if err != nil {
 		return fmt.Errorf("database error while saving enterprise: %w", err)
 	}
-	address, err := entity.NewAddress(input.Address)
-	if err != nil {
+	address := entity.NewAddress(input.Address)
+	if err = enterprise.Create(); err != nil {
 		return fmt.Errorf("use case create enterprise, invalid input: %w", err)
 	}
 	idAddress, err := e.uow.Address().Create(ctx, address)
@@ -52,8 +52,8 @@ func (e Enterprise) Execute(ctx context.Context, input dto.EnterpriseInput) erro
 	if err := e.uow.EnterprisePhone().Create(ctx, idEnterprise, idPhone); err != nil {
 		return fmt.Errorf("database error while saving enterprise phone relation: %w", err)
 	}
-	email, err := entity.NewEmail(input.Email)
-	if err != nil {
+	email := entity.NewEmail(input.Email)
+	if err := email.Create(); err != nil {
 		return fmt.Errorf("use case create enterprise, invalid input: %w", err)
 	}
 	idEmail, err := e.uow.Email().Create(ctx, email)
@@ -64,11 +64,11 @@ func (e Enterprise) Execute(ctx context.Context, input dto.EnterpriseInput) erro
 		return fmt.Errorf("database error while saving enterprise email relation: %w", err)
 	}
 	for _, input := range input.SocialMedia {
-		socialMedia, err := entity.NewSocialMedia(input)
-		socialMedia.IDEnterprise = idEnterprise
-		if err != nil {
+		socialMedia := entity.NewSocialMedia(input)
+		if err = socialMedia.Create(); err != nil {
 			return fmt.Errorf("use case create enterprise, invalid input: %w", err)
 		}
+		socialMedia.IDEnterprise = idEnterprise
 		if err := e.uow.SocialMedia().Create(ctx, socialMedia); err != nil {
 			return fmt.Errorf("database error while saving social media: %w", err)
 		}

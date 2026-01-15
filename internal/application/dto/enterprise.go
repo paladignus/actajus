@@ -2,6 +2,7 @@
 package dto
 
 type Enterprise struct {
+	IDEnterprise int    `json:"id_enterprise"`
 	RegisteredBy int    `json:"registered_by"`
 	Name         string `json:"name"`
 	TradeName    string `json:"trade_name"`
@@ -14,4 +15,12 @@ type EnterpriseInput struct {
 	Phone       `json:"phone"`
 	Email       `json:"email"`
 	SocialMedia []SocialMedia `json:"social_media"`
+}
+
+type EnterpriseOutput struct {
+	IDEnterprise int    `json:"id_enterprise"`
+	RegisteredBy int    `json:"registered_by"`
+	Name         string `json:"name"`
+	TradeName    string `json:"trade_name"`
+	CNPJ         string `json:"cnpj"`
 }

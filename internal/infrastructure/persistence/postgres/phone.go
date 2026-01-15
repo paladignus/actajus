@@ -23,3 +23,12 @@ func (p Phone) Create(ctx context.Context, phone entity.Phone) (id uint, err err
 	}
 	return id, nil
 }
+
+func (p Phone) Update(ctx context.Context, phone entity.Phone) error {
+	sql := `UPDATE phones SET number = $1, kind = $2, department = $3, updated_at = now() WHERE idphones = $4;`
+	_, err := p.tx.Exec(ctx, sql, phone.Number, phone.Kind, phone.Department, phone.IDPhone)
+	if err != nil {
+		return fmt.Errorf("database error while updating phone for user ID %d: %w", phone.IDPhone, err)
+	}
+	return nil
+}

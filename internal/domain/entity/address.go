@@ -2,6 +2,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/paladignus/actajus/internal/application/dto"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
@@ -14,45 +16,66 @@ type Address struct {
 	Title        vo.Text
 	Street       vo.Text
 	Complement   vo.Text
+	Reference    vo.Text
 	Neighborhood vo.Text
 	City         vo.Text
 	State        vo.Text
 	Country      vo.Text
+	DeletedAt    *time.Time
 }
 
-func NewAddress(address dto.Address) (Address, error) {
-	a := Address{
+func NewAddress(address dto.Address) Address {
+	return Address{
 		IDAddress:    address.IDAddress,
 		Zip:          vo.ZIP(address.Zip),
 		Title:        vo.Text(address.Title),
 		Street:       vo.Text(address.Street),
 		Number:       address.Number,
 		Complement:   vo.Text(address.Complement),
+		Reference:    vo.Text(address.Reference),
 		Neighborhood: vo.Text(address.Neighborhood),
 		City:         vo.Text(address.City),
 		State:        vo.Text(address.State),
 		Country:      vo.Text(address.Country),
 	}
-	if !a.Zip.IsValid() {
-		return a, exception.ErrInvalidZip
+}
+
+func (a Address) Create() error {
+	return a.validate()
+}
+
+func (a Address) Update() error {
+	if a.IDAddress == 0 {
+		return exception.ErrInvalidIDAddress
 	}
-	if !a.Title.IsValid() {
-		return a, exception.ErrInvalidTitle
+	return a.validate()
+}
+
+func (a Address) IsDeleted() bool {
+	return a.DeletedAt != nil
+}
+
+func (a Address) validate() error {
+	if a.Zip.Value() != "" && !a.Zip.IsValid() {
+		return exception.ErrInvalidZip
 	}
-	if !a.Street.IsValid() {
-		return a, exception.ErrInvalidStreet
+	if a.Title.Value() != "" && !a.Title.IsValid() {
+		return exception.ErrInvalidTitle
 	}
-	if !a.Neighborhood.IsValid() {
-		return a, exception.ErrInvalidNeighborhood
+	if a.Street.Value() != "" && !a.Street.IsValid() {
+		return exception.ErrInvalidStreet
 	}
-	if !a.City.IsValid() {
-		return a, exception.ErrInvalidCity
+	if a.Neighborhood.Value() != "" && !a.Neighborhood.IsValid() {
+		return exception.ErrInvalidNeighborhood
 	}
-	if !a.State.IsValid() {
-		return a, exception.ErrInvalidState
+	if a.City.Value() != "" && !a.City.IsValid() {
+		return exception.ErrInvalidCity
+	}
+	if a.State.Value() != "" && !a.State.IsValid() {
+		return exception.ErrInvalidState
 	}
 	if a.Country.Value() != "" && !a.Country.IsValid() {
-		return a, exception.ErrInvalidCountry
+		return exception.ErrInvalidCountry
 	}
-	return a, nil
+	return nil
 }

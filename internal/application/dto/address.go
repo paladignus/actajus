@@ -8,6 +8,7 @@ type Address struct {
 	Title        string `json:"title"`
 	Street       string `json:"street"`
 	Complement   string `json:"complement"`
+	Reference    string `json:"reference"`
 	Neighborhood string `json:"neighborhood"`
 	City         string `json:"city"`
 	State        string `json:"state"`

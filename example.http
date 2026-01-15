@@ -48,6 +48,7 @@ content-type: application/json
         "title": "Avenida",
         "street": "Paulista",
         "complement": "Apartamento 123",
+        "reference": "Perto da escola",
         "number": 123,
         "neighborhood": "Centro",
         "city": "São Paulo",
@@ -61,14 +62,31 @@ content-type: application/json
         "kind": "Celular",
         "department": "Comercial"
     },
-     "email": {
-        "address": "example@example.eti.br"
-     },
-     "social_media": [
-        {"name": "instagran", "url": "https://instagram/actajus"},
-        {"name": "facebook", "url": "https://facebook/actajus"},
-        {"name": "site", "url": "https://www.actajus.com.br"}
-     ]
+    "email": {
+        "address": "examplo2@examplo.eti.br"
+    },
+    "social_media": [
+        {
+            "name": "facebook",
+            "url": "https://www.facebook.com/actajus1"
+        },
+        {
+            "name": "Linkedin",
+            "url": "https://www.linkedin.com/in/actajus1/"
+        },
+        {
+            "name": "Instagram",
+            "url": "https://www.instagram.com/actajus1/"
+        },
+        {
+            "name": "X",
+            "url": "https://x.com/actajus1"
+        },
+        {
+            "name": "Site",
+            "url": "https://twitter.com/actajus1"
+        }
+    ]
 }
 
 ###
@@ -77,38 +95,70 @@ content-type: application/json
 
 {
     "enterprise": {
-        "registered_by": 3,
-        "name": "Actajus",
-        "trade_name": "Actajus sistema jurídico",
+        "id_enterprise": 1,
+        "name": "Actajuss",
+        "trade_name": "Actajus Sistema Jurídico",
         "cnpj": "10.123.456/0001-00"
     },
     "address": {
-        "zip": "12345-678",
-        "title": "Avenida",
-        "street": "Paulista",
-        "complement": "Apartamento 123",
-        "number": 123,
+        "id_address": 1,
+        "zip": "67890-123",
+        "title": "Rua",
+        "street": "Cariocas",
+        "complement": "Apartamento 1234",
+        "reference": "Perto da igreja",
+        "number": 1234,
         "neighborhood": "Centro",
-        "city": "São Paulo",
-        "state": "São Paulo",
+        "city": "Rio de Janeiro",
+        "state": "Rio de Janeiro",
         "country": "Brasil"
     },
     "phone": {
+        "id_phone": 1,
         "country_code": 55,
         "area_code": 11,
-        "number": "91234-5678",
-        "kind": "Celular",
-        "department": "Comercial"
+        "number": "12345-9876",
+        "kind": "Fixo",
+        "department": "Financeiro"
     },
-     "email": {
-        "address": "example@example.eti.br"
-     },
-     "social_media": [
-        {"name": "instagran", "url": "https://instagram/actajus"},
-        {"name": "facebook", "url": "https://facebook/actajus"},
-        {"name": "site", "url": "https://www.actajus.com.br"}
-     ]
+    "email": {
+        "id_emails": 6,
+        "address": "examplo1@examploo.eti.br"
+    },
+    "social_media": [
+        {
+            "id_social_media": 1,
+            "name": "facebook",
+            "url": "https://www.facebook.com/actajuss"
+        },
+        {
+            "id_social_media": 2,
+            "name": "linkedin",
+            "url": "https://www.linkedin.com/in/actajuss/"
+        },
+        {
+            "id_social_media": 3,
+            "name": "instagram",
+            "url": "https://www.instagram.com/actajuss/"
+        },
+        {
+            "id_social_media": 4,
+            "name": "x",
+            "url": "https://x.com/actajuss"
+        },
+        {
+            "id_social_media": 5,
+            "name": "site",
+            "url": "https://twitter.com/actajuss"
+        }
+    ]
 }
+
+###
+GET http://localhost:8080/enterprise
+content-type: application/json
+
+
 
 
 ###

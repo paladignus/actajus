@@ -1,19 +1,33 @@
 // Package entity
 package entity
 
-import "github.com/paladignus/actajus/internal/application/dto"
+import (
+	"time"
+
+	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/domain/exception"
+)
 
 type Phone struct {
 	IDPhone    int
 	Number     string
 	Kind       string
 	Department string
+	DeletedAt  *time.Time
 }
 
 func NewPhone(phone dto.Phone) Phone {
 	return Phone{
+		IDPhone:    phone.IDPhone,
 		Number:     phone.Number,
 		Kind:       phone.Kind,
 		Department: phone.Department,
 	}
+}
+
+func (e Phone) Update() error {
+	if e.IDPhone == 0 {
+		return exception.ErrInvalidIDPhone
+	}
+	return nil
 }

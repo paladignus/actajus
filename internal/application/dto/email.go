@@ -7,6 +7,6 @@ type SendEmailRecoverPasswordInput struct {
 }
 
 type Email struct {
-	IDEmails uint   `json:"idemails"`
+	IDEmails uint   `json:"id_emails"`
 	Address  string `json:"address"`
 }

@@ -9,4 +9,5 @@ import (
 
 type IEmail interface {
 	Create(ctx context.Context, email entity.Email) (id uint, err error)
+	Update(ctx context.Context, email entity.Email) error
 }

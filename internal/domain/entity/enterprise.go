@@ -20,31 +20,43 @@ type Enterprise struct {
 	DeletedAt    *time.Time
 }
 
-func NewEnterprise(enterprise dto.Enterprise) (Enterprise, error) {
-	now := time.Now()
-	e := Enterprise{
-		RegisteredBy: enterprise.RegisteredBy,
-		Name:         vo.Text(enterprise.Name),
-		TradeName:    vo.Text(enterprise.TradeName),
-		CNPJ:         vo.CNPJ(enterprise.CNPJ),
-		CreatedAt:    now,
-		UpdatedAt:    now,
+func NewEnterprise(data dto.Enterprise) Enterprise {
+	return Enterprise{
+		IDEnterprise: data.IDEnterprise,
+		RegisteredBy: data.RegisteredBy,
+		Name:         vo.Text(data.Name),
+		TradeName:    vo.Text(data.TradeName),
+		CNPJ:         vo.CNPJ(data.CNPJ),
 	}
+}
+
+func (e Enterprise) Create() error {
 	if e.RegisteredBy == 0 {
-		return e, exception.ErrInvalidRegisteredBy
+		return exception.ErrInvalidRegisteredBy
 	}
-	if !e.Name.IsValid() {
-		return e, exception.ErrInvalidName
+	return e.validate()
+}
+
+func (e Enterprise) Update() error {
+	if e.IDEnterprise == 0 {
+		return exception.ErrInvalidIDEnterprise
 	}
-	if !e.TradeName.IsValid() {
-		return e, exception.ErrInvalidTradeName
-	}
-	if !e.CNPJ.IsValid() {
-		return e, exception.ErrInvalidCNPJ
-	}
-	return e, nil
+	return e.validate()
 }
 
 func (e Enterprise) IsDeleted() bool {
 	return e.DeletedAt != nil
+}
+
+func (e Enterprise) validate() error {
+	if !e.Name.IsValid() {
+		return exception.ErrInvalidName
+	}
+	if !e.TradeName.IsValid() {
+		return exception.ErrInvalidTradeName
+	}
+	if !e.CNPJ.IsValid() {
+		return exception.ErrInvalidCNPJ
+	}
+	return nil
 }

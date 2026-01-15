@@ -9,4 +9,5 @@ import (
 
 type ISocialMedia interface {
 	Create(ctx context.Context, input entity.SocialMedia) error
+	Update(ctx context.Context, input entity.SocialMedia) error
 }

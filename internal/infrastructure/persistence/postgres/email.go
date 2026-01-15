@@ -23,3 +23,11 @@ func (e Email) Create(ctx context.Context, email entity.Email) (id uint, err err
 	}
 	return id, nil
 }
+
+func (e Email) Update(ctx context.Context, email entity.Email) error {
+	sql := `UPDATE emails SET address = $1, updated_at = now() WHERE idemails = $2;`
+	if _, err := e.db.Exec(ctx, sql, email.Address.Value(), email.IDEmails); err != nil {
+		return fmt.Errorf("database error while update email: %w", err)
+	}
+	return nil
+}

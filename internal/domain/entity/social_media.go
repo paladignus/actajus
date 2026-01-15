@@ -14,14 +14,29 @@ type SocialMedia struct {
 	URL           string
 }
 
-func NewSocialMedia(input dto.SocialMedia) (SocialMedia, error) {
-	s := SocialMedia{
-		IDEnterprise: input.IDEnterprise,
-		Name:         vo.Text(input.Name),
-		URL:          input.URL,
+func NewSocialMedia(input dto.SocialMedia) SocialMedia {
+	return SocialMedia{
+		IDSocialMedia: input.IDSocialMedia,
+		IDEnterprise:  input.IDEnterprise,
+		Name:          vo.Text(input.Name),
+		URL:           input.URL,
 	}
+}
+
+func (s SocialMedia) Create() error {
+	return s.validate()
+}
+
+func (s SocialMedia) Update() error {
+	if s.IDSocialMedia == 0 {
+		return exception.ErrInvalidIDSocialMedia
+	}
+	return s.validate()
+}
+
+func (s SocialMedia) validate() error {
 	if !s.Name.IsValid() {
-		return s, exception.ErrInvalidName
+		return exception.ErrInvalidName
 	}
-	return s, nil
+	return nil
 }

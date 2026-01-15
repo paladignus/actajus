@@ -23,3 +23,11 @@ func (s SocialMedia) Create(ctx context.Context, input entity.SocialMedia) error
 	}
 	return nil
 }
+
+func (s SocialMedia) Update(ctx context.Context, input entity.SocialMedia) error {
+	sql := `UPDATE social_media SET name = $1, url = $2, updated_at = now() WHERE idsocial_media = $3`
+	if _, err := s.db.Exec(ctx, sql, input.Name, input.URL, input.IDSocialMedia); err != nil {
+		return fmt.Errorf("failed to update social media: %w", err)
+	}
+	return nil
+}

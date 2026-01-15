@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="27"
+<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,1077" last-zoom="1" scene-rect="0,-50.7679,2693.34,2598.89"
+	 last-position="423,931" last-zoom="1.1" scene-rect="0,-50.7679,2693.34,2598.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -378,7 +378,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.password_reset"
 	 src-required="true" dst-required="false"/>
 
-<table name="companies" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+<table name="companies" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="620" y="1240"/>
@@ -394,6 +394,15 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="cnpj" not-null="true">
 		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="updated_at" not-null="true" default-value="now()">
+		<type name="timestamp" length="0"/>
+	</column>
+	<column name="deleted_at">
+		<type name="timestamp" length="0"/>
 	</column>
 	<constraint name="companies_pk" type="pk-constr" table="public.companies">
 		<columns names="idcompanies" ref-type="src-columns"/>
@@ -426,7 +435,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="created_at" not-null="true" default-value="now()">
 		<type name="timestamptz" length="0"/>
 	</column>
-	<column name="update_at" not-null="true" default-value="now()">
+	<column name="updated_at" not-null="true" default-value="now()">
 		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="deleted_at">
@@ -613,7 +622,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.enterprise_phone"
 	 src-required="true" dst-required="false"/>
 
-<table name="social_media" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="social_media" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1420" y="1300"/>
@@ -626,6 +635,15 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="url" not-null="true">
 		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="updated_at" not-null="true" default-value="now()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="deleted_at">
+		<type name="timestamptz" length="0"/>
 	</column>
 	<constraint name="social_media_url_uq" type="uq-constr" table="public.social_media">
 		<columns names="url" ref-type="src-columns"/>
