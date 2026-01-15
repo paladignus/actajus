@@ -169,6 +169,7 @@ func main() {
 	mux.HandleFunc("POST /auth/recover", resetPasswordHandler.RequestPasswordReset)
 	mux.HandleFunc("POST /auth/renew", renewPasswordHandler.RenewPassword)
 	mux.HandleFunc("POST /enterprise", enterpriseHandler.Create)
+	mux.HandleFunc("PUT /enterprise", enterpriseHandler.Update)
 
 	// Add metrics endpoint for Prometheus
 	mux.Handle("/metrics", metrics.Handler())

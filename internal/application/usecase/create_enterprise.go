@@ -52,7 +52,6 @@ func (e Enterprise) Execute(ctx context.Context, input dto.EnterpriseInput) erro
 	if err := e.uow.EnterprisePhone().Create(ctx, idEnterprise, idPhone); err != nil {
 		return fmt.Errorf("database error while saving enterprise phone relation: %w", err)
 	}
-
 	email, err := entity.NewEmail(input.Email)
 	if err != nil {
 		return fmt.Errorf("use case create enterprise, invalid input: %w", err)
@@ -64,6 +63,15 @@ func (e Enterprise) Execute(ctx context.Context, input dto.EnterpriseInput) erro
 	if err := e.uow.EmailEnterprise().Create(ctx, idEmail, idEnterprise); err != nil {
 		return fmt.Errorf("database error while saving enterprise email relation: %w", err)
 	}
-
+	for _, input := range input.SocialMedia {
+		socialMedia, err := entity.NewSocialMedia(input)
+		socialMedia.IDEnterprise = idEnterprise
+		if err != nil {
+			return fmt.Errorf("use case create enterprise, invalid input: %w", err)
+		}
+		if err := e.uow.SocialMedia().Create(ctx, socialMedia); err != nil {
+			return fmt.Errorf("database error while saving social media: %w", err)
+		}
+	}
 	return e.uow.Commit(ctx)
 }

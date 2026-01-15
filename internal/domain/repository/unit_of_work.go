@@ -18,6 +18,7 @@ type UnitOfWorkEnterprise interface {
 	EnterprisePhone() IEnterprisePhone
 	Email() IEmail
 	EmailEnterprise() IEmailEnterprise
+	SocialMedia() ISocialMedia
 }
 
 type UnitOfWorkDefault interface {

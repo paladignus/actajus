@@ -9,8 +9,9 @@ type Enterprise struct {
 }
 
 type EnterpriseInput struct {
-	Enterprise `json:"enterprise"`
-	Address    `json:"address"`
-	Phone      `json:"phone"`
-	Email      `json:"email"`
+	Enterprise  `json:"enterprise"`
+	Address     `json:"address"`
+	Phone       `json:"phone"`
+	Email       `json:"email"`
+	SocialMedia []SocialMedia `json:"social_media"`
 }

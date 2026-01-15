@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="26"
+<dbmodel pgmodeler-ver="1.2.1" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,568" last-zoom="0.7" scene-rect="0,-50.7679,2633.34,2625.49"
+	 last-position="0,1077" last-zoom="1" scene-rect="0,-50.7679,2693.34,2598.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -181,7 +181,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="permissions" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="2340" y="120"/>
+	<position x="2400" y="120"/>
 	<column name="idpermissions" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="smallint" length="0"/>
@@ -209,7 +209,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="permission_role" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1920" y="120"/>
+	<position x="1980" y="120"/>
 
 	<customidxs object-type="column">
 		<object name="id_permissions" index="1"/>
@@ -292,7 +292,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="emails" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1520" y="2060"/>
+	<position x="1580" y="2320"/>
 	<column name="idemails" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -409,7 +409,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="phones" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1480" y="1760"/>
+	<position x="1520" y="2020"/>
 	<column name="idphones" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -450,7 +450,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="addresses" layers="0" collapse-mode="2" max-obj-count="16" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1420" y="1300"/>
+	<position x="1480" y="1560"/>
 	<column name="idaddresses" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
@@ -613,21 +613,30 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.enterprise_phone"
 	 src-required="true" dst-required="false"/>
 
-<table name="social_media" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="social_media" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="60" y="2440"/>
+	<position x="1420" y="1300"/>
 	<column name="idsocial_media" not-null="true"
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
 	</column>
-	<column name="address" not-null="true">
+	<column name="name" not-null="true">
 		<type name="text" length="0"/>
 	</column>
-	<column name="title" not-null="true">
+	<column name="url" not-null="true">
 		<type name="text" length="0"/>
 	</column>
-</table>
+	<constraint name="social_media_url_uq" type="uq-constr" table="public.social_media">
+		<columns names="url" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="id_companies" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="companies_fk" index="0"/>
+	</customidxs></table>
 
 <table name="email_enterprise" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
@@ -697,6 +706,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-required="true" dst-required="false"
 	 identifier="true"
 />
+
+<relationship name="companies_has_many_social_media" type="rel1n" layers="0"
+	 src-col-pattern="id_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 fk-idx-pattern="{st}_idx"
+	 custom-color="#4325d2"
+	 src-table="public.companies"
+	 dst-table="public.social_media"
+	 src-required="true" dst-required="false"/>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">

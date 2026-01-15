@@ -62,8 +62,52 @@ content-type: application/json
         "department": "Comercial"
     },
      "email": {
-        "address": "marcelo@marcelo.eti.br"
-     }
+        "address": "example@example.eti.br"
+     },
+     "social_media": [
+        {"name": "instagran", "url": "https://instagram/actajus"},
+        {"name": "facebook", "url": "https://facebook/actajus"},
+        {"name": "site", "url": "https://www.actajus.com.br"}
+     ]
+}
+
+###
+PUT http://localhost:8080/enterprise
+content-type: application/json
+
+{
+    "enterprise": {
+        "registered_by": 3,
+        "name": "Actajus",
+        "trade_name": "Actajus sistema jurídico",
+        "cnpj": "10.123.456/0001-00"
+    },
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    },
+    "phone": {
+        "country_code": 55,
+        "area_code": 11,
+        "number": "91234-5678",
+        "kind": "Celular",
+        "department": "Comercial"
+    },
+     "email": {
+        "address": "example@example.eti.br"
+     },
+     "social_media": [
+        {"name": "instagran", "url": "https://instagram/actajus"},
+        {"name": "facebook", "url": "https://facebook/actajus"},
+        {"name": "site", "url": "https://www.actajus.com.br"}
+     ]
 }
 
 

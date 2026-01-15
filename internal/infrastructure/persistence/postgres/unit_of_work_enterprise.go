@@ -69,10 +69,14 @@ func (u *UnitOfWorkEnterprise) EnterprisePhone() repository.IEnterprisePhone {
 	return NewEnterprisePhone(u.GetPgxPool())
 }
 
-func (u UnitOfWorkEnterprise) Email() repository.IEmail {
+func (u *UnitOfWorkEnterprise) Email() repository.IEmail {
 	return NewEmail(u.GetPgxPool())
 }
 
 func (u *UnitOfWorkEnterprise) EmailEnterprise() repository.IEmailEnterprise {
 	return NewEmailEnterprise(u.GetPgxPool())
+}
+
+func (u *UnitOfWorkEnterprise) SocialMedia() repository.ISocialMedia {
+	return NewSocialMedia(u.GetPgxPool())
 }
