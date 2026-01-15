@@ -39,8 +39,8 @@ content-type: application/json
 {
     "enterprise": {
         "registered_by": 3,
-        "name": "Actajus",
-        "trade_name": "Actajus sistema jurídico",
+        "name": "ActajusS",
+        "trade_name": "Actajus Sistema Jurídico",
         "cnpj": "10.123.456/0001-00"
     },
     "address": {
@@ -63,28 +63,28 @@ content-type: application/json
         "department": "Comercial"
     },
     "email": {
-        "address": "examplo2@examplo.eti.br"
+        "address": "examplo3@examplo.eti.br"
     },
     "social_media": [
         {
             "name": "facebook",
-            "url": "https://www.facebook.com/actajus1"
+            "url": "https://www.facebook.com/actajus2"
         },
         {
             "name": "Linkedin",
-            "url": "https://www.linkedin.com/in/actajus1/"
+            "url": "https://www.linkedin.com/in/actajus2/"
         },
         {
             "name": "Instagram",
-            "url": "https://www.instagram.com/actajus1/"
+            "url": "https://www.instagram.com/actajus2/"
         },
         {
             "name": "X",
-            "url": "https://x.com/actajus1"
+            "url": "https://x.com/actajus2"
         },
         {
             "name": "Site",
-            "url": "https://twitter.com/actajus1"
+            "url": "https://twitter.com/actajus2"
         }
     ]
 }
@@ -159,8 +159,6 @@ GET http://localhost:8080/enterprise
 content-type: application/json
 
 
-
-
 ###
 POST https://api.actajus.com.br/auth/email
 content-type: application/json
@@ -233,3 +231,130 @@ content-type: application/json
     "cpf": "714.602.380-01",
     "password": "admin123"
 }
+
+
+###
+POST  https://api.actajus.com.br/enterprise
+content-type: application/json
+
+{
+    "enterprise": {
+        "registered_by": 3,
+        "name": "ActajusS",
+        "trade_name": "Actajus Sistema Jurídico",
+        "cnpj": "10.123.456/0001-00"
+    },
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "reference": "Perto da escola",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    },
+    "phone": {
+        "country_code": 55,
+        "area_code": 11,
+        "number": "91234-5678",
+        "kind": "Celular",
+        "department": "Comercial"
+    },
+    "email": {
+        "address": "examplo3@examplo.eti.br"
+    },
+    "social_media": [
+        {
+            "name": "facebook",
+            "url": "https://www.facebook.com/actajus2"
+        },
+        {
+            "name": "Linkedin",
+            "url": "https://www.linkedin.com/in/actajus2/"
+        },
+        {
+            "name": "Instagram",
+            "url": "https://www.instagram.com/actajus2/"
+        },
+        {
+            "name": "X",
+            "url": "https://x.com/actajus2"
+        },
+        {
+            "name": "Site",
+            "url": "https://twitter.com/actajus2"
+        }
+    ]
+}
+
+###
+PUT  https://api.actajus.com.br/enterprise
+content-type: application/json
+
+{
+    "enterprise": {
+        "id_enterprise": 1,
+        "name": "Actajuss",
+        "trade_name": "Actajus Sistema Jurídico",
+        "cnpj": "10.123.456/0001-00"
+    },
+    "address": {
+        "id_address": 1,
+        "zip": "67890-123",
+        "title": "Rua",
+        "street": "Cariocas",
+        "complement": "Apartamento 1234",
+        "reference": "Perto da igreja",
+        "number": 1234,
+        "neighborhood": "Centro",
+        "city": "Rio de Janeiro",
+        "state": "Rio de Janeiro",
+        "country": "Brasil"
+    },
+    "phone": {
+        "id_phone": 1,
+        "country_code": 55,
+        "area_code": 11,
+        "number": "12345-9876",
+        "kind": "Fixo",
+        "department": "Financeiro"
+    },
+    "email": {
+        "id_emails": 6,
+        "address": "examplo1@examploo.eti.br"
+    },
+    "social_media": [
+        {
+            "id_social_media": 1,
+            "name": "facebook",
+            "url": "https://www.facebook.com/actajuss"
+        },
+        {
+            "id_social_media": 2,
+            "name": "linkedin",
+            "url": "https://www.linkedin.com/in/actajuss/"
+        },
+        {
+            "id_social_media": 3,
+            "name": "instagram",
+            "url": "https://www.instagram.com/actajuss/"
+        },
+        {
+            "id_social_media": 4,
+            "name": "x",
+            "url": "https://x.com/actajuss"
+        },
+        {
+            "id_social_media": 5,
+            "name": "site",
+            "url": "https://twitter.com/actajuss"
+        }
+    ]
+}
+
+###
+GET  https://api.actajus.com.br/enterprise
+content-type: application/json
