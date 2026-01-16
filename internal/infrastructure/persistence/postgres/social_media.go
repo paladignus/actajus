@@ -18,7 +18,7 @@ func NewSocialMedia(db PgxPool) SocialMedia {
 
 func (s SocialMedia) Create(ctx context.Context, input entity.SocialMedia) error {
 	sql := `INSERT INTO social_media (id_companies, name, url) VALUES ($1, $2, $3)`
-	if _, err := s.db.Exec(ctx, sql, input.IDEnterprise, input.Name, input.URL); err != nil {
+	if _, err := s.db.Exec(ctx, sql, input.IDCompany, input.Name, input.URL); err != nil {
 		return fmt.Errorf("failed to create social media: %w", err)
 	}
 	return nil

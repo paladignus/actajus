@@ -148,10 +148,10 @@ func main() {
 	)
 
 	uow := postgres.NewUnitOfWork(db)
-
-	enterpriseCreateUC := usecase.NewEnterprise(uow.Enterprise())
-	enterpriseUpdateUC := usecase.NewEnterpriseUpdate(uow.Enterprise())
-	enterpriseGetAllUC := usecase.NewEnterpriseGetAll(uow.Enterprise())
+	companyCreateUC := usecase.NewCompany(uow.Company())
+	companyUpdateUC := usecase.NewUpdateCompany(uow.Company())
+	companyGetAllUC := usecase.NewGetAllCompany(uow.Company())
+	companyDeleteUC := usecase.NewDeleteCompany(uow.Company())
 
 	// =================================================================
 	// 7. CRIA OS HANDLERS
@@ -161,10 +161,11 @@ func main() {
 	getEmailByCPF := handler.NewGetEmailByCPF(usecaseGetEmail, logger)
 	resetPasswordHandler := handler.NewRequestPasswordReset(recoverPassword, logger)
 	renewPasswordHandler := handler.NewRenewPassword(renewPasswordUC, logger)
-	enterpriseHandler := handler.NewEnterprise(
-		enterpriseCreateUC,
-		enterpriseUpdateUC,
-		enterpriseGetAllUC,
+	companyHandler := handler.NewCompany(
+		companyCreateUC,
+		companyUpdateUC,
+		companyGetAllUC,
+		companyDeleteUC,
 		logger,
 	)
 
@@ -176,9 +177,10 @@ func main() {
 	mux.HandleFunc("POST /auth/email", getEmailByCPF.GetEmailByCPF)
 	mux.HandleFunc("POST /auth/recover", resetPasswordHandler.RequestPasswordReset)
 	mux.HandleFunc("POST /auth/renew", renewPasswordHandler.RenewPassword)
-	mux.HandleFunc("POST /enterprise", enterpriseHandler.Create)
-	mux.HandleFunc("PUT /enterprise", enterpriseHandler.Update)
-	mux.HandleFunc("GET /enterprise", enterpriseHandler.GetAll)
+	mux.HandleFunc("POST /company", companyHandler.Create)
+	mux.HandleFunc("PUT /company", companyHandler.Update)
+	mux.HandleFunc("GET /company", companyHandler.GetAll)
+	mux.HandleFunc("DELETE /company", companyHandler.Delete)
 
 	// Add metrics endpoint for Prometheus
 	mux.Handle("/metrics", metrics.Handler())

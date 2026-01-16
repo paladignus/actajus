@@ -9,18 +9,18 @@ type UnitOfWork interface {
 	Rollback(ctx context.Context) error
 }
 
-type UnitOfWorkEnterprise interface {
+type UnitOfWorkCompany interface {
 	UnitOfWork
-	Enterprise() IEnterprise
+	Company() ICompany
 	Address() IAddress
-	AddressEnterprise() IAddressEnterprise
+	CompanyAddress() ICompanyAddress
 	Phone() IPhone
-	EnterprisePhone() IEnterprisePhone
+	CompanyPhone() ICompanyPhone
 	Email() IEmail
-	EmailEnterprise() IEmailEnterprise
+	CompanyEmail() ICompanyEmail
 	SocialMedia() ISocialMedia
 }
 
 type UnitOfWorkDefault interface {
-	Enterprise() UnitOfWorkEnterprise
+	Company() UnitOfWorkCompany
 }

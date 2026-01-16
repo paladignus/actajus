@@ -33,14 +33,14 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:8080/enterprise
+POST http://localhost:8080/company
 content-type: application/json
 
 {
-    "enterprise": {
+    "company": {
         "registered_by": 3,
         "name": "ActajusS",
-        "trade_name": "Actajus Sistema Jurídico",
+        "trade_name": "Actajuss Sistema Jurídico",
         "cnpj": "10.123.456/0001-00"
     },
     "address": {
@@ -63,40 +63,40 @@ content-type: application/json
         "department": "Comercial"
     },
     "email": {
-        "address": "examplo3@examplo.eti.br"
+        "address": "examplo@examplo.eti.br"
     },
     "social_media": [
         {
             "name": "facebook",
-            "url": "https://www.facebook.com/actajus2"
+            "url": "https://www.facebook.com/actajus"
         },
         {
             "name": "Linkedin",
-            "url": "https://www.linkedin.com/in/actajus2/"
+            "url": "https://www.linkedin.com/in/actajus/"
         },
         {
             "name": "Instagram",
-            "url": "https://www.instagram.com/actajus2/"
+            "url": "https://www.instagram.com/actajus/"
         },
         {
             "name": "X",
-            "url": "https://x.com/actajus2"
+            "url": "https://x.com/actajus"
         },
         {
             "name": "Site",
-            "url": "https://twitter.com/actajus2"
+            "url": "https://twitter.com/actajus"
         }
     ]
 }
 
 ###
-PUT http://localhost:8080/enterprise
+PUT http://localhost:8080/company
 content-type: application/json
 
 {
-    "enterprise": {
-        "id_enterprise": 1,
-        "name": "Actajuss",
+    "company": {
+        "id_company": 1,
+        "name": "Actajus",
         "trade_name": "Actajus Sistema Jurídico",
         "cnpj": "10.123.456/0001-00"
     },
@@ -155,8 +155,20 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:8080/enterprise
+GET http://localhost:8080/company
 content-type: application/json
+
+
+###
+DELETE http://localhost:8080/company
+content-type: application/json
+
+{
+    "company": {
+        "id_company": 1
+    }
+}
+
 
 
 ###

@@ -14,6 +14,6 @@ func NewUnitOfWork(db *pgxpool.Pool) UnitOfWork {
 	return UnitOfWork{db}
 }
 
-func (u UnitOfWork) Enterprise() repository.UnitOfWorkEnterprise {
-	return NewUnitOfWorkEnterprise(u.db)
+func (u UnitOfWork) Company() repository.UnitOfWorkCompany {
+	return NewUnitOfWorkCompany(u.db)
 }

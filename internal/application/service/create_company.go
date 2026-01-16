@@ -7,6 +7,6 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-type IEnterpriseCreate interface {
-	Execute(ctx context.Context, input dto.EnterpriseInput) error
+type ICreateCompany interface {
+	Execute(ctx context.Context, input dto.CompanyInputOutput) error
 }

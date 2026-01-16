@@ -35,7 +35,7 @@ var (
 	ErrInvalidAvatar      = errors.New("invalid avatar")
 	ErrInvalidLastLoginAt = errors.New("invalid last login at")
 
-	ErrInvalidIDEnterprise = errors.New("id enterprise is invalid")
+	ErrInvalidIDCompany    = errors.New("id company is invalid")
 	ErrInvalidRegisteredBy = errors.New("registered by is invalid or empty")
 	ErrInvalidName         = errors.New("name is invalid")
 	ErrInvalidTradeName    = errors.New("trade name is invalid")

@@ -9,7 +9,7 @@ import (
 
 type SocialMedia struct {
 	IDSocialMedia uint
-	IDEnterprise  uint
+	IDCompany     uint
 	Name          vo.Text
 	URL           string
 }
@@ -17,7 +17,7 @@ type SocialMedia struct {
 func NewSocialMedia(input dto.SocialMedia) SocialMedia {
 	return SocialMedia{
 		IDSocialMedia: input.IDSocialMedia,
-		IDEnterprise:  input.IDEnterprise,
+		IDCompany:     input.IDCompany,
 		Name:          vo.Text(input.Name),
 		URL:           input.URL,
 	}

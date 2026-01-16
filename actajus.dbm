@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="423,931" last-zoom="1.1" scene-rect="0,-50.7679,2693.34,2598.89"
+	 last-position="0,962" last-zoom="0.75" scene-rect="0,-50.7679,2693.34,2598.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -562,13 +562,21 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 identifier="true"
 />
 
-<table name="address_enterprise" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+<table name="company_address" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1280" y="620"/>
-</table>
 
-<table name="enterprise_phone" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<customidxs object-type="column">
+		<object name="id_addresses" index="0"/>
+		<object name="id_companies" index="1"/>
+	</customidxs>
+	<customidxs object-type="constraint">
+		<object name="addresses_fk" index="0"/>
+		<object name="companies_fk" index="1"/>
+	</customidxs></table>
+
+<table name="company_phone" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1320" y="840"/>
@@ -589,7 +597,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#3b7d55"
 	 src-table="public.addresses"
-	 dst-table="public.address_enterprise"
+	 dst-table="public.company_address"
 	 src-required="true" dst-required="false"/>
 
 <relationship name="companies_has_many_address_enterprise" type="rel1n" layers="0"
@@ -599,7 +607,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#b8ff17"
 	 src-table="public.companies"
-	 dst-table="public.address_enterprise"
+	 dst-table="public.company_address"
 	 src-required="true" dst-required="false"/>
 
 <relationship name="phones_has_many_enterprise_phone" type="rel1n" layers="0"
@@ -609,7 +617,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#bf0e53"
 	 src-table="public.phones"
-	 dst-table="public.enterprise_phone"
+	 dst-table="public.company_phone"
 	 src-required="true" dst-required="false"/>
 
 <relationship name="companies_has_many_enterprise_phone" type="rel1n" layers="0"
@@ -619,7 +627,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#0bf23d"
 	 src-table="public.companies"
-	 dst-table="public.enterprise_phone"
+	 dst-table="public.company_phone"
 	 src-required="true" dst-required="false"/>
 
 <table name="social_media" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
@@ -656,7 +664,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="companies_fk" index="0"/>
 	</customidxs></table>
 
-<table name="email_enterprise" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+<table name="company_email" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1380" y="1060"/>
@@ -667,7 +675,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</customidxs>
 	<customidxs object-type="constraint">
 		<object name="companies_fk" index="2"/>
-		<object name="email_enterprise_pk" index="0"/>
+		<object name="company_email_pk" index="0"/>
 		<object name="emails_fk" index="1"/>
 	</customidxs></table>
 
@@ -678,7 +686,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#de1161"
 	 src-table="public.emails"
-	 dst-table="public.email_enterprise"
+	 dst-table="public.company_email"
 	 src-required="true" dst-required="false"
 	 identifier="true"
 />
@@ -690,7 +698,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 fk-idx-pattern="{st}_idx"
 	 custom-color="#cb957b"
 	 src-table="public.companies"
-	 dst-table="public.email_enterprise"
+	 dst-table="public.company_email"
 	 src-required="true" dst-required="false"
 	 identifier="true"
 />

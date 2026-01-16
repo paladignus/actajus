@@ -9,8 +9,8 @@ import (
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
 
-type Enterprise struct {
-	IDEnterprise int
+type Company struct {
+	IDCompany    int
 	RegisteredBy int
 	Name         vo.Text
 	TradeName    vo.Text
@@ -20,9 +20,9 @@ type Enterprise struct {
 	DeletedAt    *time.Time
 }
 
-func NewEnterprise(data dto.Enterprise) Enterprise {
-	return Enterprise{
-		IDEnterprise: data.IDEnterprise,
+func NewCompany(data dto.Company) Company {
+	return Company{
+		IDCompany:    data.IDCompany,
 		RegisteredBy: data.RegisteredBy,
 		Name:         vo.Text(data.Name),
 		TradeName:    vo.Text(data.TradeName),
@@ -30,32 +30,32 @@ func NewEnterprise(data dto.Enterprise) Enterprise {
 	}
 }
 
-func (e Enterprise) Create() error {
-	if e.RegisteredBy == 0 {
+func (c Company) Create() error {
+	if c.RegisteredBy == 0 {
 		return exception.ErrInvalidRegisteredBy
 	}
-	return e.validate()
+	return c.validate()
 }
 
-func (e Enterprise) Update() error {
-	if e.IDEnterprise == 0 {
-		return exception.ErrInvalidIDEnterprise
+func (c Company) Update() error {
+	if c.IDCompany == 0 {
+		return exception.ErrInvalidIDCompany
 	}
-	return e.validate()
+	return c.validate()
 }
 
-func (e Enterprise) IsDeleted() bool {
-	return e.DeletedAt != nil
+func (c Company) IsDeleted() bool {
+	return c.DeletedAt != nil
 }
 
-func (e Enterprise) validate() error {
-	if !e.Name.IsValid() {
+func (c Company) validate() error {
+	if !c.Name.IsValid() {
 		return exception.ErrInvalidName
 	}
-	if !e.TradeName.IsValid() {
+	if !c.TradeName.IsValid() {
 		return exception.ErrInvalidTradeName
 	}
-	if !e.CNPJ.IsValid() {
+	if !c.CNPJ.IsValid() {
 		return exception.ErrInvalidCNPJ
 	}
 	return nil

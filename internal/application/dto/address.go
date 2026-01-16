@@ -3,7 +3,7 @@ package dto
 
 type Address struct {
 	IDAddress    uint   `json:"id_address"`
-	Number       uint   `json:"number"`
+	Number       uint   `json:"number,omitzero"`
 	Zip          string `json:"zip"`
 	Title        string `json:"title"`
 	Street       string `json:"street"`

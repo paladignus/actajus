@@ -7,6 +7,6 @@ import (
 	"github.com/paladignus/actajus/internal/application/dto"
 )
 
-type IEnterpriseUpdate interface {
-	Execute(ctx context.Context, input dto.EnterpriseInput) error
+type IGetAllCompany interface {
+	Execute(ctx context.Context) (output []dto.CompanyInputOutput, err error)
 }
