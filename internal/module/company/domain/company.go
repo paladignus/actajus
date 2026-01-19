@@ -2,28 +2,10 @@
 package domain
 
 import (
-	"errors"
 	"time"
 
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
-
-// ErrInvalidID = NewDomainError("invalid company ID")
-var (
-	ErrInvalidID           = errors.New("invalid company ID")
-	ErrCompanyDeleted      = errors.New("company is deleted")
-	ErrInvalidName         = errors.New("invalid company name")
-	ErrInvalidTradeName    = errors.New("invalid company trade name")
-	ErrInvalidCNPJ         = errors.New("invalid company CNPJ")
-	ErrInvalidRegisteredBy = errors.New("invalid registered by user ID")
-	ErrAlreadyDeleted      = errors.New("company is already deleted")
-	ErrAlreadySet          = errors.New("company ID is already set")
-	ErrCNPJAlreadyExists   = errors.New("company with this CNPJ already exists")
-)
-
-func NewValidationErrors(errs []error) error {
-	return nil
-}
 
 type Company struct {
 	id           int
@@ -154,7 +136,7 @@ func (c *Company) UpdatedAt() time.Time  { return c.updatedAt }
 func (c *Company) DeletedAt() *time.Time { return c.deletedAt }
 
 func (c *Company) Delete() error {
-	if c.id <= 0 {
+	if c.id == 0 {
 		return ErrInvalidID
 	}
 	if c.IsDeleted() {
@@ -172,9 +154,9 @@ func (c *Company) IsDeleted() bool {
 
 func (c *Company) SetID(id int) error {
 	if c.id != 0 {
-		return ErrAlreadySet
+		return ErrIDAlreadySet
 	}
-	if id <= 0 {
+	if id == 0 {
 		return ErrInvalidID
 	}
 	c.id = id
