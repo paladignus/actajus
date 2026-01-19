@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	vo "github.com/paladignus/actajus/internal/share/domain/value_object"
+	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
 // ErrInvalidID = NewDomainError("invalid company ID")

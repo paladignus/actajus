@@ -11,12 +11,12 @@ import (
 )
 
 type CreateCompany struct {
-	repository domain.CompanyRepository
-	mapper     mapper.CompanyMapper
+	uow    domain.CompanyUnitOfWork
+	mapper mapper.CompanyMapper
 }
 
-func NewCreateCompany(repository domain.CompanyRepository, mapper mapper.CompanyMapper) CreateCompany {
-	return CreateCompany{repository, mapper}
+func NewCreateCompany(uow domain.CompanyUnitOfWork, mapper mapper.CompanyMapper) CreateCompany {
+	return CreateCompany{uow, mapper}
 }
 
 func (c CreateCompany) Execute(ctx context.Context, input dto.CreateCompanyRequest) (*dto.CompanyResponse, error) {
@@ -24,14 +24,14 @@ func (c CreateCompany) Execute(ctx context.Context, input dto.CreateCompanyReque
 	if err != nil {
 		return nil, fmt.Errorf("invalid input: %w", err)
 	}
-	existing, err := c.repository.FindByCNPJ(ctx, company.CNPJ().Value())
+	existing, err := c.uow.Company().FindByCNPJ(ctx, company.CNPJ().Value())
 	if err != nil {
 		return nil, fmt.Errorf("failed to check existing company: %w", err)
 	}
 	if existing != nil {
 		return nil, domain.ErrCNPJAlreadyExists
 	}
-	if err := c.repository.Create(ctx, company); err != nil {
+	if err := c.uow.Company().Create(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to create company: %w", err)
 	}
 	response := c.mapper.DomainToOutput(company)

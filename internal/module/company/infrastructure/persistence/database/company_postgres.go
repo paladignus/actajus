@@ -1,28 +1,28 @@
-// Package persistence
-package persistence
+// Package database
+package database
 
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 )
 
-type CompanyRepositoryPostgres struct {
-	pool *pgxpool.Pool
+type Company struct {
+	pool postgres.PgxPool
 }
 
-func NewCompanyRepositoryPostgres(pool *pgxpool.Pool) *CompanyRepositoryPostgres {
-	return &CompanyRepositoryPostgres{
+func NewCompany(pool postgres.PgxPool) *Company {
+	return &Company{
 		pool,
 	}
 }
 
-func (c *CompanyRepositoryPostgres) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
+func (c *Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
 	return nil, nil
 }
 
-func (c CompanyRepositoryPostgres) Create(ctx context.Context, company *domain.Company) error {
+func (c Company) Create(ctx context.Context, company *domain.Company) error {
 	query := `INSERT INTO companies (registered_by, name, trade_name, cnpj, created_at, updated_at)
 	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING idcompanies`
