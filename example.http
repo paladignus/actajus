@@ -32,6 +32,19 @@ content-type: application/json
     "token": "tVtTlI5wXXcdrGpXhmis_75kfKxW1EkjJE6ggdBnUws="
 }
 
+
+###
+POST http://localhost:8080/companies
+content-type: application/json
+
+{
+    "registered_by": 3,
+    "name": "ActajusS",
+    "trade_name": "Actajuss Sistema Jurídico",
+    "cnpj": "10.123.456/0001-00"
+}
+
+
 ###
 POST http://localhost:8080/company
 content-type: application/json
