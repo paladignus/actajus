@@ -1,0 +1,98 @@
+# Configuração do ActaJus App
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actajus-app
+  namespace: actajus
+  labels:
+    app: actajus-app
+spec:
+  replicas: 2  # Escalabilidade horizontal
+  selector:
+    matchLabels:
+      app: actajus-app
+  template:
+    metadata:
+      labels:
+        app: actajus-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: actajus-app
+      containers:
+      - name: app
+        image: actajus:latest  # A imagem será construída e enviada ao registry
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "postgres.actajus.svc.cluster.local"  # Endereço dentro do cluster
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        - name: DB_NAME
+          value: "actajus"
+        - name: NATS_URL
+          value: "nats://nats:4222"
+        - name: TRACING_ENABLED
+          value: "true"
+        - name: TRACING_AGENT_HOST
+          value: "jaeger-agent.observability.svc.cluster.local"
+        - name: TRACING_AGENT_PORT
+          value: "6831"
+        - name: SERVER_PORT
+          value: "8080"
+        - name: TRACING_SERVICE_NAME
+          value: "actajus-api"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health  # Assumindo que você tem um endpoint de health check
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health  # Assumindo que você tem um endpoint de health check
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: actajus-app
+  namespace: actajus
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # Se estiver usando AWS
+spec:
+  selector:
+    app: actajus-app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer  # Ou ClusterIP para acesso interno
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: actajus
+type: Opaque
+data:
+  password: TTRyYzNMMQ==  # "M4rc3l0" em base64

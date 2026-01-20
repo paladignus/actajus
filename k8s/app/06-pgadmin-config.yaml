@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-servers
+  namespace: actajus
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": "ActaJus PostgreSQL",
+          "Group": "Servers",
+          "Host": "postgres.actajus.svc.cluster.local",
+          "Port": 5432,
+          "MaintenanceDB": "postgres",
+          "Username": "postgres",
+          "Password": "M4rc3l0",
+          "SSLMode": "prefer"
+        }
+      }
+    }
