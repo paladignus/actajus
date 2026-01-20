@@ -7,6 +7,6 @@ type CreateCompanyRequest struct {
 	Name         string                          `json:"name"`
 	TradeName    string                          `json:"trade_name"`
 	CNPJ         string                          `json:"cnpj"`
-	RegisteredBy int                             `json:"registered_by"`
+	RegisteredBy uint                            `json:"registered_by"`
 	Address      addressDTO.CreateAddressRequest `json:"address,omitzero"`
 }

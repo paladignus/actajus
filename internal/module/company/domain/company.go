@@ -4,20 +4,20 @@ package domain
 import (
 	"time"
 
-	addressDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
 type Company struct {
-	id           int
-	registeredBy int
+	id           uint
+	registeredBy uint
 	name         vo.Text
 	tradeName    vo.Text
 	cnpj         vo.CNPJ
 	createdAt    time.Time
-	address      *addressDomain.Address
-	updatedAt    time.Time
-	deletedAt    *time.Time
+	// address      *addressDomain.Address
+	idAddress uint
+	updatedAt time.Time
+	deletedAt *time.Time
 }
 
 type CompanyBuilder struct {
@@ -52,9 +52,9 @@ func (c *Company) UpdateBuilder() *CompanyBuilder {
 	}
 }
 
-func (b *CompanyBuilder) WithID(id int) *CompanyBuilder {
+func (b *CompanyBuilder) WithID(id uint) *CompanyBuilder {
 	b.company.id = id
-	if id <= 0 {
+	if id == 0 {
 		b.errors = append(b.errors, ErrInvalidID)
 	}
 	return b
@@ -84,7 +84,7 @@ func (b *CompanyBuilder) WithCNPJ(cnpj string) *CompanyBuilder {
 	return b
 }
 
-func (b *CompanyBuilder) WithRegisteredBy(registeredBy int) *CompanyBuilder {
+func (b *CompanyBuilder) WithRegisteredBy(registeredBy uint) *CompanyBuilder {
 	b.company.registeredBy = registeredBy
 	if registeredBy <= 0 {
 		b.errors = append(b.errors, ErrInvalidRegisteredBy)
@@ -92,10 +92,15 @@ func (b *CompanyBuilder) WithRegisteredBy(registeredBy int) *CompanyBuilder {
 	return b
 }
 
-func (b *CompanyBuilder) WithAddress(address *addressDomain.Address) *CompanyBuilder {
-	b.company.address = address
+func (b *CompanyBuilder) WithIDAddress(id uint) *CompanyBuilder {
+	b.company.idAddress = id
 	return b
 }
+
+// func (b *CompanyBuilder) WithAddress(address *addressDomain.Address) *CompanyBuilder {
+// 	b.company.address = address
+// 	return b
+// }
 
 func (b *CompanyBuilder) WithCreatedAt(createdAt time.Time) *CompanyBuilder {
 	b.company.createdAt = createdAt
@@ -133,15 +138,15 @@ func (b *CompanyBuilder) Apply() error {
 	return nil
 }
 
-func (c *Company) ID() int                         { return c.id }
-func (c *Company) RegisteredBy() int               { return c.registeredBy }
-func (c *Company) Name() vo.Text                   { return c.name }
-func (c *Company) TradeName() vo.Text              { return c.tradeName }
-func (c *Company) CNPJ() vo.CNPJ                   { return c.cnpj }
-func (c *Company) Address() *addressDomain.Address { return c.address }
-func (c *Company) CreatedAt() time.Time            { return c.createdAt }
-func (c *Company) UpdatedAt() time.Time            { return c.updatedAt }
-func (c *Company) DeletedAt() *time.Time           { return c.deletedAt }
+func (c *Company) ID() uint              { return c.id }
+func (c *Company) RegisteredBy() uint    { return c.registeredBy }
+func (c *Company) Name() vo.Text         { return c.name }
+func (c *Company) TradeName() vo.Text    { return c.tradeName }
+func (c *Company) CNPJ() vo.CNPJ         { return c.cnpj }
+func (c *Company) IDAddress() uint       { return c.idAddress }
+func (c *Company) CreatedAt() time.Time  { return c.createdAt }
+func (c *Company) UpdatedAt() time.Time  { return c.updatedAt }
+func (c *Company) DeletedAt() *time.Time { return c.deletedAt }
 
 func (c *Company) Delete() error {
 	if c.id == 0 {
@@ -160,12 +165,16 @@ func (c *Company) IsDeleted() bool {
 	return c.deletedAt != nil
 }
 
-func (c *Company) SetAddress(address *addressDomain.Address) {
-	c.address = address
+func (c *Company) SetAddress(id uint) {
+	c.idAddress = id
 	c.updatedAt = time.Now()
 }
 
-func (c *Company) SetID(id int) error {
+func (c *Company) HasAddress() bool {
+	return c.idAddress != 0
+}
+
+func (c *Company) SetID(id uint) error {
 	if c.id != 0 {
 		return ErrIDAlreadySet
 	}

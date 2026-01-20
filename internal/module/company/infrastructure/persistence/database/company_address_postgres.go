@@ -18,9 +18,8 @@ func NewCompanyAddress(pool postgres.PgxPool) *CompanyAddress {
 }
 
 func (c CompanyAddress) Create(ctx context.Context, idCompany, idAddress uint) error {
-	query := `INSERT INTO company_addresses (id_company, id_address)
-		VALUES ($1, $2)
-		ON CONFLICT (id_companies, id_addresses) DO NOTHING`
+	query := `INSERT INTO company_address (id_companies, id_addresses)
+		VALUES ($1, $2)`
 	_, err := c.pool.Exec(ctx, query, idCompany, idAddress)
 	return err
 }

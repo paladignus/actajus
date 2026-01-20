@@ -27,10 +27,6 @@ func (m *AddressMapper) InputToDomain(input dto.CreateAddressRequest) (*domain.A
 		WithState(input.State).
 		WithCountry(input.Country).
 		Build()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return address, nil
 }
 
 func (m *AddressMapper) DomainToOutput(address *domain.Address) dto.AddressResponse {

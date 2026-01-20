@@ -26,7 +26,7 @@ func (c Company) Create(ctx context.Context, company *domain.Company) error {
 	query := `INSERT INTO companies (registered_by, name, trade_name, cnpj, created_at, updated_at)
 	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING idcompanies`
-	var id int
+	var id uint
 	if err := c.pool.QueryRow(ctx, query,
 		company.RegisteredBy(),
 		company.Name().Value(),
