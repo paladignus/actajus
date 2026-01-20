@@ -2,37 +2,36 @@
 package mapper
 
 import (
+	"fmt"
 	"time"
 
+	addressMapper "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
 )
 
 type CompanyMapper struct {
-	// addressMapper
+	addressMapper *addressMapper.AddressMapper
 }
 
-func NewCompanyMapper() *CompanyMapper {
+func NewCompanyMapper(addressMapper *addressMapper.AddressMapper) *CompanyMapper {
 	return &CompanyMapper{
-		// addressMapper: NewAddressMapper()
+		addressMapper,
 	}
 }
 
 func (m *CompanyMapper) InputToDomain(input dto.CreateCompanyRequest) (*domain.Company, error) {
-	// address, err := m.addressMappper.InputToDomain(input.Address)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid address", err)
-	// }
+	address, err := m.addressMapper.InputToDomain(input.Address)
+	if err != nil {
+		return nil, fmt.Errorf("invalid address %w", err)
+	}
 	return domain.NewCompanyBuilder().
 		WithName(input.Name).
 		WithTradeName(input.TradeName).
 		WithCNPJ(input.CNPJ).
 		WithRegisteredBy(input.RegisteredBy).
+		WithAddress(address).
 		Build()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return company, nil
 }
 
 func (m *CompanyMapper) UpdateInputDomain(existing *domain.Company, input dto.UpdateCompanyRequest) error {
@@ -48,7 +47,7 @@ func (m *CompanyMapper) UpdateInputDomain(existing *domain.Company, input dto.Up
 // }
 
 func (m *CompanyMapper) DomainToOutput(company *domain.Company) dto.CompanyResponse {
-	return dto.CompanyResponse{
+	response := dto.CompanyResponse{
 		ID:           company.ID(),
 		Name:         company.Name().Value(),
 		TradeName:    company.TradeName().Value(),
@@ -57,10 +56,11 @@ func (m *CompanyMapper) DomainToOutput(company *domain.Company) dto.CompanyRespo
 		CreatedAt:    company.CreatedAt().Format(time.RFC3339),
 		UpdatedAt:    company.UpdatedAt().Format(time.RFC3339),
 	}
-	// if company.CurrentAddress() != nil {
-	// 	addr := m.addressMapper.DomainToOutput(company.CurrentAddress())
-	// }
-	// return response
+	if company.Address() != nil {
+		addr := m.addressMapper.DomainToOutput(company.Address())
+		response.Address = &addr
+	}
+	return response
 }
 
 // func (m *CompanyMapper) DomainToOutputWithHistory(company *domain.Company) dto.CompanyWithHistoryResponse {

@@ -7,6 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	addressDomain "github.com/paladignus/actajus/internal/module/address/domain"
+	addressDatabase "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/module/company/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 )
@@ -52,4 +54,8 @@ func (u *CompanyUnitOfWork) GetPgxPool() postgres.PgxPool {
 
 func (u *CompanyUnitOfWork) Company() domain.CompanyRepository {
 	return NewCompany(u.GetPgxPool())
+}
+
+func (u *CompanyUnitOfWork) Address() addressDomain.AddressRepository {
+	return addressDatabase.NewAddress(u.GetPgxPool())
 }

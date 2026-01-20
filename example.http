@@ -41,7 +41,19 @@ content-type: application/json
     "registered_by": 3,
     "name": "Actajus",
     "trade_name": "Actajus Sistema Jurídico",
-    "cnpj": "10.123.456/0001-00"
+    "cnpj": "10.123.456/0001-00",
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "reference": "Perto da escola Izabel",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    }
 }
 
 

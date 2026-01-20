@@ -4,6 +4,7 @@ package domain
 import (
 	"time"
 
+	addressDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
@@ -14,6 +15,7 @@ type Company struct {
 	tradeName    vo.Text
 	cnpj         vo.CNPJ
 	createdAt    time.Time
+	address      *addressDomain.Address
 	updatedAt    time.Time
 	deletedAt    *time.Time
 }
@@ -90,6 +92,11 @@ func (b *CompanyBuilder) WithRegisteredBy(registeredBy int) *CompanyBuilder {
 	return b
 }
 
+func (b *CompanyBuilder) WithAddress(address *addressDomain.Address) *CompanyBuilder {
+	b.company.address = address
+	return b
+}
+
 func (b *CompanyBuilder) WithCreatedAt(createdAt time.Time) *CompanyBuilder {
 	b.company.createdAt = createdAt
 	return b
@@ -126,14 +133,15 @@ func (b *CompanyBuilder) Apply() error {
 	return nil
 }
 
-func (c *Company) ID() int               { return c.id }
-func (c *Company) RegisteredBy() int     { return c.registeredBy }
-func (c *Company) Name() vo.Text         { return c.name }
-func (c *Company) TradeName() vo.Text    { return c.tradeName }
-func (c *Company) CNPJ() vo.CNPJ         { return c.cnpj }
-func (c *Company) CreatedAt() time.Time  { return c.createdAt }
-func (c *Company) UpdatedAt() time.Time  { return c.updatedAt }
-func (c *Company) DeletedAt() *time.Time { return c.deletedAt }
+func (c *Company) ID() int                         { return c.id }
+func (c *Company) RegisteredBy() int               { return c.registeredBy }
+func (c *Company) Name() vo.Text                   { return c.name }
+func (c *Company) TradeName() vo.Text              { return c.tradeName }
+func (c *Company) CNPJ() vo.CNPJ                   { return c.cnpj }
+func (c *Company) Address() *addressDomain.Address { return c.address }
+func (c *Company) CreatedAt() time.Time            { return c.createdAt }
+func (c *Company) UpdatedAt() time.Time            { return c.updatedAt }
+func (c *Company) DeletedAt() *time.Time           { return c.deletedAt }
 
 func (c *Company) Delete() error {
 	if c.id == 0 {
@@ -150,6 +158,11 @@ func (c *Company) Delete() error {
 
 func (c *Company) IsDeleted() bool {
 	return c.deletedAt != nil
+}
+
+func (c *Company) SetAddress(address *addressDomain.Address) {
+	c.address = address
+	c.updatedAt = time.Now()
 }
 
 func (c *Company) SetID(id int) error {

@@ -31,8 +31,23 @@ func (c CreateCompany) Execute(ctx context.Context, input dto.CreateCompanyReque
 	if existing != nil {
 		return nil, domain.ErrCNPJAlreadyExists
 	}
+	if err := c.uow.Begin(ctx); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			c.uow.Rollback(ctx)
+			panic(r)
+		}
+	}()
 	if err := c.uow.Company().Create(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to create company: %w", err)
+	}
+	if err := c.uow.Address().Create(ctx, company.Address()); err != nil {
+		return nil, fmt.Errorf("failed to create address: %w", err)
+	}
+	if err := c.uow.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 	response := c.mapper.DomainToOutput(company)
 	return &response, nil
