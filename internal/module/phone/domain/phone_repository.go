@@ -1,0 +1,12 @@
+// Package domain
+package domain
+
+import (
+	"context"
+
+	"github.com/paladignus/actajus/internal/domain/entity"
+)
+
+type IPhone interface {
+	Create(ctx context.Context, phone entity.Phone) (id uint, err error)
+}
