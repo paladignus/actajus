@@ -11,15 +11,23 @@ import (
 )
 
 type CreateCompany struct {
-	uow    domain.CompanyUnitOfWork
-	mapper mapper.CompanyMapper
+	uow        domain.CompanyUnitOfWork
+	mapper     mapper.CompanyMapper
+	projection mapper.CompanyProjectionMapper
 }
 
-func NewCreateCompany(uow domain.CompanyUnitOfWork, mapper mapper.CompanyMapper) CreateCompany {
-	return CreateCompany{uow, mapper}
+func NewCreateCompany(
+	uow domain.CompanyUnitOfWork,
+	mapper mapper.CompanyMapper,
+	projection mapper.CompanyProjectionMapper,
+) CreateCompany {
+	return CreateCompany{uow, mapper, projection}
 }
 
-func (c CreateCompany) Execute(ctx context.Context, input dto.CreateCompanyRequest) (*dto.CompanyResponse, error) {
+func (c CreateCompany) Execute(
+	ctx context.Context,
+	input dto.CreateCompanyRequest,
+) (*dto.CompanyReadModel, error) {
 	company, err := c.mapper.CompanyInputToDomain(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid company data: %w", err)
@@ -58,8 +66,9 @@ func (c CreateCompany) Execute(ctx context.Context, input dto.CreateCompanyReque
 	if err := c.uow.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("failed to commit: %w", err)
 	}
-	response := c.mapper.DomainToOutput(
-		mapper.CompanyProjection{Company: company, Address: address},
-	)
-	return &response, nil
+	return c.projection.ProjectCompanyToReadModel(company, address), nil
+	// response := c.mapper.DomainToOutput(
+	// 	mapper.CompanyProjection{Company: company, Address: address},
+	// )
+	// return &response, nil
 }

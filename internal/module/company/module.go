@@ -16,9 +16,11 @@ type Module struct {
 
 func NewModule(pool *pgxpool.Pool) Module {
 	uow := database.NewCompanyUnitOfWork(pool)
+	addrProject := address.NewAddressProjectionMapper()
 	address := address.NewAddressMapper()
+	projection := mapper.NewCompanyProjectionMapper(addrProject)
 	mapper := mapper.NewCompanyMapper(address)
-	createUC := usecase.NewCreateCompany(&uow, *mapper)
+	createUC := usecase.NewCreateCompany(&uow, *mapper, projection)
 	handler := handler.NewCompanyHandler(createUC)
 	return Module{handler}
 }

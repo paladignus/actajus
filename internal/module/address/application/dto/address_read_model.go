@@ -1,7 +1,7 @@
 // Package dto
 package dto
 
-type AddressResponse struct {
+type AddressReadModel struct {
 	ID           uint   `json:"id"`
 	ZIP          string `json:"zip"`
 	Title        string `json:"title"`

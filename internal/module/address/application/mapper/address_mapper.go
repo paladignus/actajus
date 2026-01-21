@@ -2,8 +2,6 @@
 package mapper
 
 import (
-	"time"
-
 	"github.com/paladignus/actajus/internal/module/address/application/dto"
 	"github.com/paladignus/actajus/internal/module/address/domain"
 )
@@ -29,20 +27,38 @@ func (m *AddressMapper) InputToDomain(input dto.CreateAddressRequest) (*domain.A
 		Build()
 }
 
-func (m *AddressMapper) DomainToOutput(address *domain.Address) dto.AddressResponse {
-	return dto.AddressResponse{
-		ID:           address.ID(),
-		ZIP:          address.ZIP().Formatted(),
-		Title:        address.Title().Value(),
-		Street:       address.Street().Value(),
-		Number:       address.Number(),
-		Complement:   address.Complement().Value(),
-		Reference:    address.Reference().Value(),
-		Neighborhood: address.Neighborhood().Value(),
-		City:         address.City().Value(),
-		State:        address.State().Value(),
-		Country:      address.Country().Value(),
-		CreatedAt:    address.CreatedAt().Format(time.RFC3339),
-		UpdatedAt:    address.UpdatedAt().Format(time.RFC3339),
-	}
+func (m *AddressMapper) UpdateInputToDomain(
+	existing *domain.Address,
+	input dto.UpdateAddressRequest,
+) error {
+	return existing.UpdateBuilder().
+		WithZIP(input.ZIP).
+		WithTitle(input.Title).
+		WithStreet(input.Street).
+		WithNumber(input.Number).
+		WithComplement(input.Complement).
+		WithReference(input.Reference).
+		WithNeighborhood(input.Neighborhood).
+		WithCity(input.City).
+		WithState(input.State).
+		WithCountry(input.Country).
+		Apply()
 }
+
+// func (m *AddressMapper) DomainToOutput(address *domain.Address) query.AddressReadModel {
+// 	return query.AddressReadModel{
+// 		ID:           address.ID(),
+// 		ZIP:          address.ZIP().Formatted(),
+// 		Title:        address.Title().Value(),
+// 		Street:       address.Street().Value(),
+// 		Number:       address.Number(),
+// 		Complement:   address.Complement().Value(),
+// 		Reference:    address.Reference().Value(),
+// 		Neighborhood: address.Neighborhood().Value(),
+// 		City:         address.City().Value(),
+// 		State:        address.State().Value(),
+// 		Country:      address.Country().Value(),
+// 		CreatedAt:    address.CreatedAt().Format(time.RFC3339),
+// 		UpdatedAt:    address.UpdatedAt().Format(time.RFC3339),
+// 	}
+// }

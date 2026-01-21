@@ -10,14 +10,13 @@ import (
 type Company struct {
 	id           uint
 	registeredBy uint
+	idAddress    uint
 	name         vo.Text
 	tradeName    vo.Text
 	cnpj         vo.CNPJ
 	createdAt    time.Time
-	// address      *addressDomain.Address
-	idAddress uint
-	updatedAt time.Time
-	deletedAt *time.Time
+	updatedAt    time.Time
+	deletedAt    *time.Time
 }
 
 type CompanyBuilder struct {
@@ -26,10 +25,11 @@ type CompanyBuilder struct {
 }
 
 func NewCompanyBuilder() *CompanyBuilder {
+	now := time.Now()
 	return &CompanyBuilder{
 		company: &Company{
-			createdAt: time.Now(),
-			updatedAt: time.Now(),
+			createdAt: now,
+			updatedAt: now,
 		},
 		errors: []error{},
 	}
@@ -96,11 +96,6 @@ func (b *CompanyBuilder) WithIDAddress(id uint) *CompanyBuilder {
 	b.company.idAddress = id
 	return b
 }
-
-// func (b *CompanyBuilder) WithAddress(address *addressDomain.Address) *CompanyBuilder {
-// 	b.company.address = address
-// 	return b
-// }
 
 func (b *CompanyBuilder) WithCreatedAt(createdAt time.Time) *CompanyBuilder {
 	b.company.createdAt = createdAt
