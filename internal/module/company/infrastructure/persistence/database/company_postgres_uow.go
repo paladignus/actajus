@@ -10,6 +10,8 @@ import (
 	addr "github.com/paladignus/actajus/internal/module/address/domain"
 	addrDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	email "github.com/paladignus/actajus/internal/module/email/domain"
+	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database"
 	phone "github.com/paladignus/actajus/internal/module/phone/domain"
 	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
@@ -72,4 +74,12 @@ func (u *CompanyUnitOfWork) Phone() phone.PhoneRepository {
 
 func (u *CompanyUnitOfWork) CompanyPhone() domain.CompanyPhoneRepository {
 	return NewCompanyPhone(u.GetPgxPool())
+}
+
+func (u *CompanyUnitOfWork) Email() email.EmailRepository {
+	return emailDB.NewEmail(u.GetPgxPool())
+}
+
+func (u *CompanyUnitOfWork) CompanyEmail() domain.CompanyEmailRepository {
+	return NewCompanyEmail(u.GetPgxPool())
 }

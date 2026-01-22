@@ -58,6 +58,9 @@ content-type: application/json
         "number": "+5567912345678",
         "kind": "Celular",
         "department": "Comercial"
+    },
+    "email": {
+        "address": "examplo@examplo.eti.br"
     }
 }
 

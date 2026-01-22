@@ -3,7 +3,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/phone/domain"
@@ -20,7 +19,6 @@ func NewPhone(pool postgres.PgxPool) *Phone {
 }
 
 func (p *Phone) Create(ctx context.Context, phone *domain.Phone) error {
-	fmt.Println(phone.CreatedAt(), phone.UpdatedAt())
 	query := `INSERT INTO phones (number, kind, department, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING idphones`
 	var id uint

@@ -8,6 +8,8 @@ import (
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	emailMapper "github.com/paladignus/actajus/internal/module/email/application/mapper"
+	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
 	phoneMapper "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
 )
@@ -15,15 +17,18 @@ import (
 type CompanyProjectionMapper struct {
 	addrMapper  addrMapper.AddressPrejectionMapper
 	phoneMapper phoneMapper.PhoneProjectionMapper
+	emailMapper emailMapper.EmailProjectionMapper
 }
 
 func NewCompanyProjectionMapper(
 	addrMapper addrMapper.AddressPrejectionMapper,
 	phoneMapper phoneMapper.PhoneProjectionMapper,
+	emailMapper emailMapper.EmailProjectionMapper,
 ) CompanyProjectionMapper {
 	return CompanyProjectionMapper{
 		addrMapper,
 		phoneMapper,
+		emailMapper,
 	}
 }
 
@@ -31,6 +36,7 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 	company *domain.Company,
 	address *addrDomain.Address,
 	phone *phoneDomain.Phone,
+	email *emailDomain.Email,
 ) *dto.CompanyReadModel {
 	readModel := &dto.CompanyReadModel{
 		ID:           company.ID(),
@@ -46,6 +52,9 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 	}
 	if phone != nil {
 		readModel.Phone = m.phoneMapper.ProjectPhoneToReadModel(phone)
+	}
+	if email != nil {
+		readModel.Email = m.emailMapper.ProjectEmailToReadModel(email)
 	}
 	return readModel
 }

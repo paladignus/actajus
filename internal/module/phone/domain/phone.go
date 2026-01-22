@@ -152,5 +152,14 @@ func (p *Phone) SetID(id uint) error {
 }
 
 func (p *Phone) validate() error {
+	if !p.number.IsValid() {
+		return ErrInvalidNumber
+	}
+	if !p.kind.IsValid() {
+		return ErrInvalidKind
+	}
+	if !p.department.IsValid() {
+		return ErrInvalidDepartment
+	}
 	return nil
 }

@@ -40,6 +40,10 @@ func (c CreateCompany) Execute(
 	if err != nil {
 		return nil, fmt.Errorf("invalid phone data: %w", err)
 	}
+	email, err := c.mapper.EmailInputToDomain(input.Email)
+	if err != nil {
+		return nil, fmt.Errorf("invalid email data: %w", err)
+	}
 	existing, err := c.uow.Company().FindByCNPJ(ctx, company.CNPJ().Value())
 	if err != nil {
 		return nil, err
@@ -62,8 +66,9 @@ func (c CreateCompany) Execute(
 	if err := c.uow.Phone().Create(ctx, phone); err != nil {
 		return nil, fmt.Errorf("failed to create phone: %w", err)
 	}
-	// company.SetAddress(address.ID())
-	// company.SetPhone(phone.ID())
+	if err := c.uow.Email().Create(ctx, email); err != nil {
+		return nil, fmt.Errorf("failed to create email: %w", err)
+	}
 	if err := c.uow.Company().Create(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to create company: %w", err)
 	}
@@ -73,6 +78,9 @@ func (c CreateCompany) Execute(
 	if err := c.uow.CompanyPhone().Create(ctx, company.ID(), phone.ID()); err != nil {
 		return nil, fmt.Errorf("failed to create relationship: %w", err)
 	}
+	if err := c.uow.CompanyEmail().Create(ctx, company.ID(), email.ID()); err != nil {
+		return nil, fmt.Errorf("failed to create relationship: %w", err)
+	}
 	if err := c.uow.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("failed to commit: %w", err)
 	}
@@ -80,5 +88,6 @@ func (c CreateCompany) Execute(
 		company,
 		address,
 		phone,
+		email,
 	), nil
 }
