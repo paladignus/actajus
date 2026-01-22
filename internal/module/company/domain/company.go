@@ -11,6 +11,7 @@ type Company struct {
 	id           uint
 	registeredBy uint
 	idAddress    uint
+	idPhone      uint
 	name         vo.Text
 	tradeName    vo.Text
 	cnpj         vo.CNPJ
@@ -139,6 +140,7 @@ func (c *Company) Name() vo.Text         { return c.name }
 func (c *Company) TradeName() vo.Text    { return c.tradeName }
 func (c *Company) CNPJ() vo.CNPJ         { return c.cnpj }
 func (c *Company) IDAddress() uint       { return c.idAddress }
+func (c *Company) IDPhone() uint         { return c.idPhone }
 func (c *Company) CreatedAt() time.Time  { return c.createdAt }
 func (c *Company) UpdatedAt() time.Time  { return c.updatedAt }
 func (c *Company) DeletedAt() *time.Time { return c.deletedAt }
@@ -162,6 +164,11 @@ func (c *Company) IsDeleted() bool {
 
 func (c *Company) SetAddress(id uint) {
 	c.idAddress = id
+	c.updatedAt = time.Now()
+}
+
+func (c *Company) SetPhone(id uint) {
+	c.idPhone = id
 	c.updatedAt = time.Now()
 }
 

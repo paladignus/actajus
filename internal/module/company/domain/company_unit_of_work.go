@@ -13,4 +13,5 @@ type CompanyUnitOfWork interface {
 	Address() address.AddressRepository
 	CompanyAddress() CompanyAddressRepository
 	Phone() phone.PhoneRepository
+	CompanyPhone() CompanyPhoneRepository
 }

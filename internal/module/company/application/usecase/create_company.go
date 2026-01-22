@@ -62,11 +62,15 @@ func (c CreateCompany) Execute(
 	if err := c.uow.Phone().Create(ctx, phone); err != nil {
 		return nil, fmt.Errorf("failed to create phone: %w", err)
 	}
-	company.SetAddress(address.ID())
+	// company.SetAddress(address.ID())
+	// company.SetPhone(phone.ID())
 	if err := c.uow.Company().Create(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to create company: %w", err)
 	}
 	if err := c.uow.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
+		return nil, fmt.Errorf("failed to create relationship: %w", err)
+	}
+	if err := c.uow.CompanyPhone().Create(ctx, company.ID(), phone.ID()); err != nil {
 		return nil, fmt.Errorf("failed to create relationship: %w", err)
 	}
 	if err := c.uow.Commit(ctx); err != nil {

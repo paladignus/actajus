@@ -69,3 +69,7 @@ func (u *CompanyUnitOfWork) CompanyAddress() domain.CompanyAddressRepository {
 func (u *CompanyUnitOfWork) Phone() phone.PhoneRepository {
 	return phoneDB.NewPhone(u.GetPgxPool())
 }
+
+func (u *CompanyUnitOfWork) CompanyPhone() domain.CompanyPhoneRepository {
+	return NewCompanyPhone(u.GetPgxPool())
+}
