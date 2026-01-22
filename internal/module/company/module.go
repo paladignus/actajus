@@ -8,6 +8,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
 	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/module/company/presentation/handler"
+	phone "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 )
 
 type Module struct {
@@ -18,8 +19,16 @@ func NewModule(pool *pgxpool.Pool) Module {
 	uow := database.NewCompanyUnitOfWork(pool)
 	addrProject := address.NewAddressProjectionMapper()
 	address := address.NewAddressMapper()
-	projection := mapper.NewCompanyProjectionMapper(addrProject)
-	mapper := mapper.NewCompanyMapper(address)
+	phoneProject := phone.NewPhoneProjectionMapper()
+	phone := phone.NewPhoneMapper()
+	projection := mapper.NewCompanyProjectionMapper(
+		addrProject,
+		phoneProject,
+	)
+	mapper := mapper.NewCompanyMapper(
+		address,
+		phone,
+	)
 	createUC := usecase.NewCreateCompany(&uow, *mapper, projection)
 	handler := handler.NewCompanyHandler(createUC)
 	return Module{handler}

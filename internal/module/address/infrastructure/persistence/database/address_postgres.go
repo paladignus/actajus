@@ -18,11 +18,11 @@ func NewAddress(pool postgres.PgxPool) *Address {
 	}
 }
 
-func (a Address) FindByCEP(ctx context.Context, cep string) (*domain.Address, error) {
+func (a *Address) FindByCEP(ctx context.Context, cep string) (*domain.Address, error) {
 	return nil, nil
 }
 
-func (a Address) Create(ctx context.Context, address *domain.Address) error {
+func (a *Address) Create(ctx context.Context, address *domain.Address) error {
 	query := `INSERT INTO addresses
 		(zip, title, street, number, complement, reference, neighborhood, city, state, country, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING idaddresses`

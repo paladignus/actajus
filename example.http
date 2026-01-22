@@ -53,6 +53,11 @@ content-type: application/json
         "city": "São Paulo",
         "state": "São Paulo",
         "country": "Brasil"
+    },
+    "phone": {
+        "number": "+5567912345678",
+        "kind": "Celular",
+        "department": "Comercial"
     }
 }
 

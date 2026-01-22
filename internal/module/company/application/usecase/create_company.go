@@ -36,6 +36,10 @@ func (c CreateCompany) Execute(
 	if err != nil {
 		return nil, fmt.Errorf("invalid address data: %w", err)
 	}
+	phone, err := c.mapper.PhoneInputToDomain(input.Phone)
+	if err != nil {
+		return nil, fmt.Errorf("invalid phone data: %w", err)
+	}
 	existing, err := c.uow.Company().FindByCNPJ(ctx, company.CNPJ().Value())
 	if err != nil {
 		return nil, err
@@ -55,20 +59,22 @@ func (c CreateCompany) Execute(
 	if err := c.uow.Address().Create(ctx, address); err != nil {
 		return nil, fmt.Errorf("failed to create address: %w", err)
 	}
-	addressID := address.ID()
-	company.SetAddress(addressID)
+	if err := c.uow.Phone().Create(ctx, phone); err != nil {
+		return nil, fmt.Errorf("failed to create phone: %w", err)
+	}
+	company.SetAddress(address.ID())
 	if err := c.uow.Company().Create(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to create company: %w", err)
 	}
-	if err := c.uow.CompanyAddress().Create(ctx, company.ID(), addressID); err != nil {
+	if err := c.uow.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
 		return nil, fmt.Errorf("failed to create relationship: %w", err)
 	}
 	if err := c.uow.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("failed to commit: %w", err)
 	}
-	return c.projection.ProjectCompanyToReadModel(company, address), nil
-	// response := c.mapper.DomainToOutput(
-	// 	mapper.CompanyProjection{Company: company, Address: address},
-	// )
-	// return &response, nil
+	return c.projection.ProjectCompanyToReadModel(
+		company,
+		address,
+		phone,
+	), nil
 }
