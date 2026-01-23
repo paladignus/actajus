@@ -13,23 +13,29 @@ import (
 	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
 	phoneMapper "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
+	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
+	socialMediaMapper "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
+	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 )
 
 type CompanyMapper struct {
-	addrMapper  *addrMapper.AddressMapper
-	phoneMapper *phoneMapper.PhoneMapper
-	emailMapper *emailMapper.EmailMapper
+	addrMapper        *addrMapper.AddressMapper
+	phoneMapper       *phoneMapper.PhoneMapper
+	emailMapper       *emailMapper.EmailMapper
+	socialMediaMapper *socialMediaMapper.SocialMediaMapper
 }
 
 func NewCompanyMapper(
 	addrMapper *addrMapper.AddressMapper,
 	phoneMapper *phoneMapper.PhoneMapper,
 	emailMapper *emailMapper.EmailMapper,
+	socialMediaMapper *socialMediaMapper.SocialMediaMapper,
 ) *CompanyMapper {
 	return &CompanyMapper{
 		addrMapper,
 		phoneMapper,
 		emailMapper,
+		socialMediaMapper,
 	}
 }
 
@@ -52,6 +58,18 @@ func (m *CompanyMapper) PhoneInputToDomain(input phoneDTO.CreatePhoneRequest) (*
 
 func (m *CompanyMapper) EmailInputToDomain(input emailDTO.CreateEmailRequest) (*emailDomain.Email, error) {
 	return m.emailMapper.InputToDomain(input)
+}
+
+func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaDTO.CreateSocialMediaRequest) ([]*socialMediaDomain.SocialMedia, error) {
+	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
+	for i, sm := range input {
+		dsm, err := m.socialMediaMapper.InputToDomain(sm)
+		if err != nil {
+			return nil, err
+		}
+		socialMedia[i] = dsm
+	}
+	return socialMedia, nil
 }
 
 func (m *CompanyMapper) UpdateInputDomain(existing *domain.Company, input dto.UpdateCompanyRequest) error {

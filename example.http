@@ -60,8 +60,30 @@ content-type: application/json
         "department": "Comercial"
     },
     "email": {
-        "address": "examplo@examplo.eti.br"
-    }
+        "address": "examplo3939@examplo.eti.br"
+    },
+    "social_media": [
+        {
+            "name": "facebook",
+            "url": "https://www.facebook.com/puta"
+        },
+        {
+            "name": "Linkedin",
+            "url": "https://www.linkedin.com/in/puta/"
+        },
+        {
+            "name": "Instagram",
+            "url": "https://www.instagram.com/puta/"
+        },
+        {
+            "name": "X",
+            "url": "https://x.com/puta"
+        },
+        {
+            "name": "Site",
+            "url": "https://twitter.com/puta"
+        }
+    ]
 }
 
 

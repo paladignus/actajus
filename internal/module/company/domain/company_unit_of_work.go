@@ -5,6 +5,7 @@ import (
 	address "github.com/paladignus/actajus/internal/module/address/domain"
 	email "github.com/paladignus/actajus/internal/module/email/domain"
 	phone "github.com/paladignus/actajus/internal/module/phone/domain"
+	socialMedia "github.com/paladignus/actajus/internal/module/social_media/domain"
 	uow "github.com/paladignus/actajus/internal/shared/domain/unit_of_work"
 )
 
@@ -17,4 +18,5 @@ type CompanyUnitOfWork interface {
 	CompanyPhone() CompanyPhoneRepository
 	Email() email.EmailRepository
 	CompanyEmail() CompanyEmailRepository
+	SocialMedia() socialMedia.SocialMediaRepository
 }

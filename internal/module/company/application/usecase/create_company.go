@@ -44,6 +44,10 @@ func (c CreateCompany) Execute(
 	if err != nil {
 		return nil, fmt.Errorf("invalid email data: %w", err)
 	}
+	socialMedia, err := c.mapper.SocialMediaInputToDomain(input.SocialMedia)
+	if err != nil {
+		return nil, fmt.Errorf("invalid social media data: %w", err)
+	}
 	existing, err := c.uow.Company().FindByCNPJ(ctx, company.CNPJ().Value())
 	if err != nil {
 		return nil, err
@@ -54,12 +58,13 @@ func (c CreateCompany) Execute(
 	if err := c.uow.Begin(ctx); err != nil {
 		return nil, err
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			c.uow.Rollback(ctx)
-			panic(r)
-		}
-	}()
+	defer c.uow.Rollback(ctx)
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		c.uow.Rollback(ctx)
+	// 		panic(r)
+	// 	}
+	// }()
 	if err := c.uow.Address().Create(ctx, address); err != nil {
 		return nil, fmt.Errorf("failed to create address: %w", err)
 	}
@@ -81,6 +86,14 @@ func (c CreateCompany) Execute(
 	if err := c.uow.CompanyEmail().Create(ctx, company.ID(), email.ID()); err != nil {
 		return nil, fmt.Errorf("failed to create relationship: %w", err)
 	}
+	for _, sm := range socialMedia {
+		if err := sm.SetCompanyID(company.ID()); err != nil {
+			return nil, fmt.Errorf("failed to set company id: %w", err)
+		}
+		if err := c.uow.SocialMedia().Create(ctx, sm); err != nil {
+			return nil, fmt.Errorf("failed to create social media: %w", err)
+		}
+	}
 	if err := c.uow.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("failed to commit: %w", err)
 	}
@@ -89,5 +102,6 @@ func (c CreateCompany) Execute(
 		address,
 		phone,
 		email,
+		socialMedia,
 	), nil
 }

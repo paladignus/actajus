@@ -12,23 +12,28 @@ import (
 	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
 	phoneMapper "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
+	socialMediaMapper "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
+	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 )
 
 type CompanyProjectionMapper struct {
-	addrMapper  addrMapper.AddressPrejectionMapper
-	phoneMapper phoneMapper.PhoneProjectionMapper
-	emailMapper emailMapper.EmailProjectionMapper
+	addrMapper        addrMapper.AddressPrejectionMapper
+	phoneMapper       phoneMapper.PhoneProjectionMapper
+	emailMapper       emailMapper.EmailProjectionMapper
+	socialMediaMapper socialMediaMapper.SocialMediaProjectionMapper
 }
 
 func NewCompanyProjectionMapper(
 	addrMapper addrMapper.AddressPrejectionMapper,
 	phoneMapper phoneMapper.PhoneProjectionMapper,
 	emailMapper emailMapper.EmailProjectionMapper,
+	socialMediaMapper socialMediaMapper.SocialMediaProjectionMapper,
 ) CompanyProjectionMapper {
 	return CompanyProjectionMapper{
 		addrMapper,
 		phoneMapper,
 		emailMapper,
+		socialMediaMapper,
 	}
 }
 
@@ -37,6 +42,7 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 	address *addrDomain.Address,
 	phone *phoneDomain.Phone,
 	email *emailDomain.Email,
+	socialMedia []*socialMediaDomain.SocialMedia,
 ) *dto.CompanyReadModel {
 	readModel := &dto.CompanyReadModel{
 		ID:           company.ID(),
@@ -55,6 +61,11 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 	}
 	if email != nil {
 		readModel.Email = m.emailMapper.ProjectEmailToReadModel(email)
+	}
+	if len(socialMedia) > 0 {
+		for _, socialMedia := range socialMedia {
+			readModel.SocialMedia = append(readModel.SocialMedia, m.socialMediaMapper.ProjectSocialMediaToReadModel(socialMedia))
+		}
 	}
 	return readModel
 }

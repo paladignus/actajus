@@ -14,6 +14,8 @@ import (
 	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database"
 	phone "github.com/paladignus/actajus/internal/module/phone/domain"
 	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database"
+	socialMedia "github.com/paladignus/actajus/internal/module/social_media/domain"
+	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 )
 
@@ -82,4 +84,8 @@ func (u *CompanyUnitOfWork) Email() email.EmailRepository {
 
 func (u *CompanyUnitOfWork) CompanyEmail() domain.CompanyEmailRepository {
 	return NewCompanyEmail(u.GetPgxPool())
+}
+
+func (u *CompanyUnitOfWork) SocialMedia() socialMedia.SocialMediaRepository {
+	return socialMediaDB.NewSocialMedia(u.GetPgxPool())
 }

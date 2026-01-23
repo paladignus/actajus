@@ -10,6 +10,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/company/presentation/handler"
 	email "github.com/paladignus/actajus/internal/module/email/application/mapper"
 	phone "github.com/paladignus/actajus/internal/module/phone/application/mapper"
+	socialMedia "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
 )
 
 type Module struct {
@@ -24,15 +25,19 @@ func NewModule(pool *pgxpool.Pool) Module {
 	phone := phone.NewPhoneMapper()
 	emailProject := email.NewEmailProjectionMapper()
 	email := email.NewEmailMapper()
+	socialMediaProject := socialMedia.NewSocialMediaProjectionMapper()
+	socialMedia := socialMedia.NewSocialMediaMapper()
 	projection := mapper.NewCompanyProjectionMapper(
 		addrProject,
 		phoneProject,
 		emailProject,
+		socialMediaProject,
 	)
 	mapper := mapper.NewCompanyMapper(
 		address,
 		phone,
 		email,
+		socialMedia,
 	)
 	createUC := usecase.NewCreateCompany(&uow, *mapper, projection)
 	handler := handler.NewCompanyHandler(createUC)
