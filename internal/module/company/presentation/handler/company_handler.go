@@ -2,11 +2,13 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
+	"github.com/paladignus/actajus/internal/shared/domain"
 )
 
 type CompanyHandler struct {
@@ -33,6 +35,13 @@ func (c CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	response, err := c.create.Execute(r.Context(), req)
 	if err != nil {
+		var vErr *domain.ValidationErrors
+		if errors.As(err, &vErr) {
+			handler.RespondJSON(w, http.StatusBadRequest, map[string]any{
+				"errors": vErr.Errors(),
+			})
+			return
+		}
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

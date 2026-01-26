@@ -4,6 +4,7 @@ package domain
 import (
 	"time"
 
+	"github.com/paladignus/actajus/internal/shared/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
@@ -26,7 +27,6 @@ type Address struct {
 
 type AddressBuilder struct {
 	address *Address
-	errors  []error
 }
 
 func NewAddressBuilder() *AddressBuilder {
@@ -36,64 +36,37 @@ func NewAddressBuilder() *AddressBuilder {
 			createdAt: now,
 			updatedAt: now,
 		},
-		errors: []error{},
 	}
 }
 
 func (a *Address) UpdateBuilder() *AddressBuilder {
-	if a.id == 0 {
-		return &AddressBuilder{
-			errors: []error{ErrInvalidID},
-		}
-	}
-	if a.IsDeleted() {
-		return &AddressBuilder{
-			errors: []error{ErrAddressDeleted},
-		}
-	}
 	return &AddressBuilder{
 		address: a,
-		errors:  []error{},
 	}
 }
 
 func (b *AddressBuilder) WithID(id uint) *AddressBuilder {
 	b.address.id = id
-	if id == 0 {
-		b.errors = append(b.errors, ErrInvalidID)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithZIP(zip string) *AddressBuilder {
 	b.address.zip = vo.ZIP(zip)
-	if !b.address.zip.IsValid() {
-		b.errors = append(b.errors, ErrInvalidZIP)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithTitle(title string) *AddressBuilder {
 	b.address.title = vo.Text(title)
-	if !b.address.title.IsValid() {
-		b.errors = append(b.errors, ErrInvalidTitle)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithStreet(street string) *AddressBuilder {
 	b.address.street = vo.Text(street)
-	if !b.address.street.IsValid() {
-		b.errors = append(b.errors, ErrInvalidStreet)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithNumber(number uint) *AddressBuilder {
 	b.address.number = number
-	if number == 0 {
-		b.errors = append(b.errors, ErrInvalidNumber)
-	}
 	return b
 }
 
@@ -109,33 +82,21 @@ func (b *AddressBuilder) WithReference(reference string) *AddressBuilder {
 
 func (b *AddressBuilder) WithNeighborhood(neighborhood string) *AddressBuilder {
 	b.address.neighborhood = vo.Text(neighborhood)
-	if !b.address.neighborhood.IsValid() {
-		b.errors = append(b.errors, ErrInvalidNeighborhood)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithCity(city string) *AddressBuilder {
 	b.address.city = vo.Text(city)
-	if !b.address.city.IsValid() {
-		b.errors = append(b.errors, ErrInvalidCity)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithState(state string) *AddressBuilder {
 	b.address.state = vo.Text(state)
-	if !b.address.state.IsValid() {
-		b.errors = append(b.errors, ErrInvalidState)
-	}
 	return b
 }
 
 func (b *AddressBuilder) WithCountry(country string) *AddressBuilder {
 	b.address.country = vo.Text(country)
-	if !b.address.country.IsValid() {
-		b.errors = append(b.errors, ErrInvalidCountry)
-	}
 	return b
 }
 
@@ -155,9 +116,6 @@ func (b *AddressBuilder) WithDeletedAt(deletedAt *time.Time) *AddressBuilder {
 }
 
 func (b *AddressBuilder) Build() (*Address, error) {
-	if len(b.errors) > 0 {
-		return nil, NewValidationErrors(b.errors)
-	}
 	if err := b.address.validate(); err != nil {
 		return nil, err
 	}
@@ -165,9 +123,6 @@ func (b *AddressBuilder) Build() (*Address, error) {
 }
 
 func (b *AddressBuilder) Apply() error {
-	if len(b.errors) > 0 {
-		return NewValidationErrors(b.errors)
-	}
 	if err := b.address.validate(); err != nil {
 		return err
 	}
@@ -192,10 +147,10 @@ func (a *Address) DeletedAt() *time.Time { return a.deletedAt }
 
 func (a *Address) Delete() error {
 	if a.id == 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "address ID is invalid")
 	}
 	if a.IsDeleted() {
-		return ErrAlreadyDeleted
+		return domain.NewFieldError("deleted_at", "address is already deleted")
 	}
 	now := time.Now()
 	a.deletedAt = &now
@@ -209,10 +164,10 @@ func (a *Address) IsDeleted() bool {
 
 func (a *Address) SetID(id uint) error {
 	if a.id != 0 {
-		return ErrIDAlreadySet
+		return domain.NewFieldError("id", "address ID is already set")
 	}
 	if id == 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "address ID is invalid")
 	}
 	a.id = id
 	return nil
@@ -220,28 +175,28 @@ func (a *Address) SetID(id uint) error {
 
 func (a *Address) validate() error {
 	if !a.zip.IsValid() {
-		return ErrInvalidZIP
+		return domain.NewFieldError("zip", "address ZIP is invalid")
 	}
 	if !a.title.IsValid() {
-		return ErrInvalidTitle
+		return domain.NewFieldError("title", "address title is invalid")
 	}
 	if !a.street.IsValid() {
-		return ErrInvalidStreet
+		return domain.NewFieldError("street", "address street is invalid")
 	}
 	if a.number == 0 {
-		return ErrInvalidNumber
+		return domain.NewFieldError("number", "address number is invalid")
 	}
 	if !a.neighborhood.IsValid() {
-		return ErrInvalidNeighborhood
+		return domain.NewFieldError("neighborhood", "address neighborhood is invalid")
 	}
 	if !a.city.IsValid() {
-		return ErrInvalidCity
+		return domain.NewFieldError("city", "address city is invalid")
 	}
 	if !a.state.IsValid() {
-		return ErrInvalidState
+		return domain.NewFieldError("state", "address state is invalid")
 	}
 	if !a.country.IsValid() {
-		return ErrInvalidCountry
+		return domain.NewFieldError("country", "address country is invalid")
 	}
 	return nil
 }

@@ -16,6 +16,7 @@ import (
 	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
 	socialMediaMapper "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
 	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
+	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 )
 
 type CompanyMapper struct {
@@ -40,6 +41,10 @@ func NewCompanyMapper(
 }
 
 func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*domain.Company, error) {
+	v := validation.New(validation.EN)
+	if err := v.ValidateStruct(input); err != nil {
+		return nil, err
+	}
 	return domain.NewCompanyBuilder().
 		WithName(input.Name).
 		WithTradeName(input.TradeName).

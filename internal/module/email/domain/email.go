@@ -4,6 +4,7 @@ package domain
 import (
 	"time"
 
+	"github.com/paladignus/actajus/internal/shared/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
@@ -16,8 +17,7 @@ type Email struct {
 }
 
 type EmailBuilder struct {
-	email  *Email
-	errors []error
+	email *Email
 }
 
 func NewEmailBuilder() *EmailBuilder {
@@ -27,40 +27,22 @@ func NewEmailBuilder() *EmailBuilder {
 			createdAt: now,
 			updatedAt: now,
 		},
-		errors: []error{},
 	}
 }
 
 func (e *Email) UpdateBuilder() *EmailBuilder {
-	if e.id == 0 {
-		return &EmailBuilder{
-			errors: []error{ErrInvalidID},
-		}
-	}
-	if e.IsDeleted() {
-		return &EmailBuilder{
-			errors: []error{ErrEmailDeleted},
-		}
-	}
 	return &EmailBuilder{
-		email:  e,
-		errors: []error{},
+		email: e,
 	}
 }
 
 func (e *EmailBuilder) WithID(id uint) *EmailBuilder {
 	e.email.id = id
-	if id == 0 {
-		e.errors = append(e.errors, ErrInvalidID)
-	}
 	return e
 }
 
 func (e *EmailBuilder) WithAddress(address string) *EmailBuilder {
 	e.email.address = vo.Email(address)
-	if !e.email.address.IsValid() {
-		e.errors = append(e.errors, ErrInvalidEmailAddress)
-	}
 	return e
 }
 
@@ -80,9 +62,6 @@ func (e *EmailBuilder) WithDeletedAt(deletedAt *time.Time) *EmailBuilder {
 }
 
 func (e *EmailBuilder) Build() (*Email, error) {
-	if len(e.errors) > 0 {
-		return nil, NewValidationErrors(e.errors)
-	}
 	if err := e.email.validate(); err != nil {
 		return nil, err
 	}
@@ -90,9 +69,6 @@ func (e *EmailBuilder) Build() (*Email, error) {
 }
 
 func (e *EmailBuilder) Apply() error {
-	if len(e.errors) > 0 {
-		return NewValidationErrors(e.errors)
-	}
 	if err := e.email.validate(); err != nil {
 		return err
 	}
@@ -108,10 +84,10 @@ func (e *Email) DeletedAt() *time.Time { return e.deletedAt }
 
 func (e *Email) Delete() error {
 	if e.id == 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "email ID is invalid")
 	}
 	if e.IsDeleted() {
-		return ErrEmailDeleted
+		return domain.NewFieldError("deleted_at", "email is already deleted")
 	}
 	now := time.Now()
 	e.deletedAt = &now
@@ -125,7 +101,10 @@ func (e *Email) IsDeleted() bool {
 
 func (e *Email) SetID(id uint) error {
 	if e.id != 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "email ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id", "email ID is invalid")
 	}
 	e.id = id
 	return nil
@@ -133,7 +112,7 @@ func (e *Email) SetID(id uint) error {
 
 func (e *Email) validate() error {
 	if !e.address.IsValid() {
-		return ErrInvalidEmailAddress
+		return domain.NewFieldError("address", "email address is invalid")
 	}
 	return nil
 }

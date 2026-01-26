@@ -4,6 +4,7 @@ package domain
 import (
 	"time"
 
+	"github.com/paladignus/actajus/internal/shared/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
@@ -19,7 +20,6 @@ type SocialMedia struct {
 
 type SocialMediaBuilder struct {
 	socialMedia *SocialMedia
-	errors      []error
 }
 
 func NewSocialMediaBuilder() *SocialMediaBuilder {
@@ -29,56 +29,32 @@ func NewSocialMediaBuilder() *SocialMediaBuilder {
 			createdAt: now,
 			updatedAt: now,
 		},
-		errors: []error{},
 	}
 }
 
 func (s *SocialMedia) UpdateBuilder() *SocialMediaBuilder {
-	if s.id == 0 {
-		return &SocialMediaBuilder{
-			errors: []error{ErrInvalidID},
-		}
-	}
-	if s.IsDeleted() {
-		return &SocialMediaBuilder{
-			errors: []error{ErrSocialMediaDeleted},
-		}
-	}
 	return &SocialMediaBuilder{
 		socialMedia: s,
-		errors:      []error{},
 	}
 }
 
 func (s *SocialMediaBuilder) WithID(id uint) *SocialMediaBuilder {
 	s.socialMedia.id = id
-	if id == 0 {
-		s.errors = append(s.errors, ErrInvalidID)
-	}
 	return s
 }
 
 func (s *SocialMediaBuilder) WithIDCompany(id uint) *SocialMediaBuilder {
 	s.socialMedia.idCompany = id
-	if id == 0 {
-		s.errors = append(s.errors, ErrInvalidIDCompany)
-	}
 	return s
 }
 
 func (s *SocialMediaBuilder) WithName(name string) *SocialMediaBuilder {
 	s.socialMedia.name = vo.Text(name)
-	if !s.socialMedia.name.IsValid() {
-		s.errors = append(s.errors, ErrInvalidName)
-	}
 	return s
 }
 
 func (s *SocialMediaBuilder) WithURL(url string) *SocialMediaBuilder {
 	s.socialMedia.url = vo.URL(url)
-	if !s.socialMedia.url.IsValid() {
-		s.errors = append(s.errors, ErrInvalidURL)
-	}
 	return s
 }
 
@@ -98,9 +74,6 @@ func (s *SocialMediaBuilder) WithDeletedAt(deletedAt *time.Time) *SocialMediaBui
 }
 
 func (s *SocialMediaBuilder) Build() (*SocialMedia, error) {
-	if len(s.errors) > 0 {
-		return nil, NewValidationErrors(s.errors)
-	}
 	if err := s.socialMedia.validate(); err != nil {
 		return nil, err
 	}
@@ -108,9 +81,6 @@ func (s *SocialMediaBuilder) Build() (*SocialMedia, error) {
 }
 
 func (s *SocialMediaBuilder) Apply() error {
-	if len(s.errors) > 0 {
-		return NewValidationErrors(s.errors)
-	}
 	if err := s.socialMedia.validate(); err != nil {
 		return err
 	}
@@ -128,10 +98,10 @@ func (s *SocialMedia) DeletedAt() *time.Time { return s.deletedAt }
 
 func (s *SocialMedia) Delete() error {
 	if s.id == 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "social media ID is invalid")
 	}
 	if s.IsDeleted() {
-		return ErrSocialMediaDeleted
+		return domain.NewFieldError("deleted_at", "social media is already deleted")
 	}
 	now := time.Now()
 	s.deletedAt = &now
@@ -145,7 +115,10 @@ func (s *SocialMedia) IsDeleted() bool {
 
 func (s *SocialMedia) SetID(id uint) error {
 	if s.id != 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "social media ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id", "social media ID is invalid")
 	}
 	s.id = id
 	return nil
@@ -153,7 +126,10 @@ func (s *SocialMedia) SetID(id uint) error {
 
 func (s *SocialMedia) SetCompanyID(id uint) error {
 	if s.idCompany != 0 {
-		return ErrInvalidIDCompany
+		return domain.NewFieldError("id", "company ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id", "company ID is invalid")
 	}
 	s.idCompany = id
 	return nil
@@ -161,10 +137,10 @@ func (s *SocialMedia) SetCompanyID(id uint) error {
 
 func (s *SocialMedia) validate() error {
 	if !s.name.IsValid() {
-		return ErrInvalidName
+		return domain.NewFieldError("name", "name is invalid")
 	}
 	if !s.url.IsValid() {
-		return ErrInvalidURL
+		return domain.NewFieldError("url", "url is invalid")
 	}
 	return nil
 }

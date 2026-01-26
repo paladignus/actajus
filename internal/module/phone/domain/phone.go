@@ -4,6 +4,7 @@ package domain
 import (
 	"time"
 
+	"github.com/paladignus/actajus/internal/shared/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
@@ -18,8 +19,7 @@ type Phone struct {
 }
 
 type PhoneBuilder struct {
-	phone  *Phone
-	errors []error
+	phone *Phone
 }
 
 func NewPhoneBuilder() *PhoneBuilder {
@@ -29,56 +29,32 @@ func NewPhoneBuilder() *PhoneBuilder {
 			createdAt: now,
 			updatedAt: now,
 		},
-		errors: []error{},
 	}
 }
 
 func (p *Phone) UpdateBuilder() *PhoneBuilder {
-	if p.id == 0 {
-		return &PhoneBuilder{
-			errors: []error{ErrInvalidID},
-		}
-	}
-	if p.IsDeleted() {
-		return &PhoneBuilder{
-			errors: []error{ErrPhoneDeleted},
-		}
-	}
 	return &PhoneBuilder{
-		phone:  p,
-		errors: []error{},
+		phone: p,
 	}
 }
 
 func (p *PhoneBuilder) WithID(id uint) *PhoneBuilder {
 	p.phone.id = id
-	if id == 0 {
-		p.errors = append(p.errors, ErrInvalidID)
-	}
 	return p
 }
 
 func (p *PhoneBuilder) WithNumber(number string) *PhoneBuilder {
 	p.phone.number = vo.PhoneNumber(number)
-	if !p.phone.number.IsValid() {
-		p.errors = append(p.errors, ErrInvalidNumber)
-	}
 	return p
 }
 
 func (p *PhoneBuilder) WithKind(kind string) *PhoneBuilder {
 	p.phone.kind = vo.Text(kind)
-	if !p.phone.kind.IsValid() {
-		p.errors = append(p.errors, ErrInvalidKind)
-	}
 	return p
 }
 
 func (p *PhoneBuilder) WithDepartment(department string) *PhoneBuilder {
 	p.phone.department = vo.Text(department)
-	if !p.phone.department.IsValid() {
-		p.errors = append(p.errors, ErrInvalidDepartment)
-	}
 	return p
 }
 
@@ -98,9 +74,6 @@ func (p *PhoneBuilder) WithDeletedAt(deletedAt *time.Time) *PhoneBuilder {
 }
 
 func (p *PhoneBuilder) Build() (*Phone, error) {
-	if len(p.errors) > 0 {
-		return nil, NewValidationErrors(p.errors)
-	}
 	if err := p.phone.validate(); err != nil {
 		return nil, err
 	}
@@ -108,9 +81,6 @@ func (p *PhoneBuilder) Build() (*Phone, error) {
 }
 
 func (p *PhoneBuilder) Apply() error {
-	if len(p.errors) > 0 {
-		return NewValidationErrors(p.errors)
-	}
 	if err := p.phone.validate(); err != nil {
 		return err
 	}
@@ -128,10 +98,10 @@ func (p *Phone) DeletedAt() *time.Time  { return p.deletedAt }
 
 func (p *Phone) Delete() error {
 	if p.id == 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "phone ID is invalid")
 	}
 	if p.IsDeleted() {
-		return ErrPhoneDeleted
+		return domain.NewFieldError("deleted_at", "phone is already deleted")
 	}
 	now := time.Now()
 	p.deletedAt = &now
@@ -145,7 +115,10 @@ func (p *Phone) IsDeleted() bool {
 
 func (p *Phone) SetID(id uint) error {
 	if p.id != 0 {
-		return ErrInvalidID
+		return domain.NewFieldError("id", "phone ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id", "phone ID is invalid")
 	}
 	p.id = id
 	return nil
@@ -153,13 +126,13 @@ func (p *Phone) SetID(id uint) error {
 
 func (p *Phone) validate() error {
 	if !p.number.IsValid() {
-		return ErrInvalidNumber
+		return domain.NewFieldError("number", "phone number is invalid")
 	}
 	if !p.kind.IsValid() {
-		return ErrInvalidKind
+		return domain.NewFieldError("kind", "phone kind is invalid")
 	}
 	if !p.department.IsValid() {
-		return ErrInvalidDepartment
+		return domain.NewFieldError("department", "phone department is invalid")
 	}
 	return nil
 }

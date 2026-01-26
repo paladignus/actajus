@@ -2,7 +2,7 @@
 package dto
 
 type CreateAddressRequest struct {
-	ZIP          string `json:"zip"`
+	ZIP          string `json:"zip" validate:"required|len=8|numeric"`
 	Title        string `json:"title"`
 	Street       string `json:"street"`
 	Number       uint   `json:"number"`

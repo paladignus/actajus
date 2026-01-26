@@ -9,11 +9,11 @@ import (
 )
 
 type CreateCompanyRequest struct {
-	Name         string                                 `json:"name"`
-	TradeName    string                                 `json:"trade_name"`
-	CNPJ         string                                 `json:"cnpj"`
-	RegisteredBy uint                                   `json:"registered_by"`
-	Address      addr.CreateAddressRequest              `json:"address,omitzero"`
+	Name         string                                 `json:"name" validate:"required|min=3"`
+	TradeName    string                                 `json:"trade_name" validate:"required|min=3"`
+	CNPJ         string                                 `json:"cnpj" validate:"required|len=14|numeric"`
+	RegisteredBy uint                                   `json:"registered_by" validate:"required|min=1"`
+	Address      addr.CreateAddressRequest              `json:"address" validate:"required"`
 	Phone        phone.CreatePhoneRequest               `json:"phone,omitzero"`
 	Email        email.CreateEmailRequest               `json:"email,omitzero"`
 	SocialMedia  []socialMedia.CreateSocialMediaRequest `json:"social_media,omitzero"`
