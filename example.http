@@ -32,16 +32,19 @@ content-type: application/json
     "token": "tVtTlI5wXXcdrGpXhmis_75kfKxW1EkjJE6ggdBnUws="
 }
 
+###
+GET http://localhost:8080/companies
+content-type: application/json
 
 ###
 POST http://localhost:8080/companies
 content-type: application/json
 
 {
-    "registered_by": 0,
+    "registered_by": 3,
     "name": "Actajus",
     "trade_name": "Actajus Sistema Jurídico",
-    "cnpj": "10.123.456/0001-00",
+    "cnpj": "03.015.475/0001-40",
     "address": {
         "zip": "12345-678",
         "title": "Avenida",
@@ -60,28 +63,28 @@ content-type: application/json
         "department": "Comercial"
     },
     "email": {
-        "address": "examplo3939@examplo.eti.br"
+        "address": "falecosm@acatajus.com.br"
     },
     "social_media": [
         {
             "name": "facebook",
-            "url": "https://www.facebook.com/puta"
+            "url": "https://www.facebook.com/sidof"
         },
         {
             "name": "Linkedin",
-            "url": "https://www.linkedin.com/in/puta/"
+            "url": "https://www.linkedin.com/in/sidof/"
         },
         {
             "name": "Instagram",
-            "url": "https://www.instagram.com/puta/"
+            "url": "https://www.instagram.com/sidof/"
         },
         {
             "name": "X",
-            "url": "https://x.com/puta"
+            "url": "https://x.com/sidof"
         },
         {
             "name": "Site",
-            "url": "https://twitter.com/puta"
+            "url": "https://twitter.com/sidof"
         }
     ]
 }

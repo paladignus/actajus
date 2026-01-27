@@ -16,6 +16,7 @@ func NewEmailProjectionMapper() EmailProjectionMapper {
 
 func (e EmailProjectionMapper) ProjectEmailToReadModel(email *domain.Email) *dto.EmailReadModel {
 	return &dto.EmailReadModel{
+		ID:        email.ID(),
 		Address:   email.Address().Value(),
 		CreatedAt: email.CreatedAt().Format(time.RFC3339),
 		UpdatedAt: email.UpdatedAt().Format(time.RFC3339),

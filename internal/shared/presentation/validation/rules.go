@@ -12,7 +12,7 @@ func (v *Validator) applyRules(field string, value any, tag string) {
 	if _, exists := v.errors[field]; exists {
 		return
 	}
-	for _, rule := range strings.Split(tag, "|") {
+	for rule := range strings.SplitSeq(tag, "|") {
 		if _, exists := v.errors[field]; exists {
 			return
 		}

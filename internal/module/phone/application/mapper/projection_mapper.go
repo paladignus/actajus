@@ -16,6 +16,7 @@ func NewPhoneProjectionMapper() PhoneProjectionMapper {
 
 func (p PhoneProjectionMapper) ProjectPhoneToReadModel(phone *domain.Phone) *dto.PhoneReadModel {
 	return &dto.PhoneReadModel{
+		ID:         phone.ID(),
 		Number:     phone.Number().Value(),
 		Kind:       phone.Kind().Value(),
 		Department: phone.Department().Value(),

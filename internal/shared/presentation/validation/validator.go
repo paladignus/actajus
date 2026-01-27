@@ -5,18 +5,18 @@ import (
 	"reflect"
 	"strings"
 
-	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
+	"github.com/paladignus/actajus/internal/shared/domain"
 )
 
 type Validator struct {
 	lang   Lang
-	errors map[string]*sharedDomain.FieldError
+	errors map[string]*domain.FieldError
 }
 
 func New(lang Lang) *Validator {
 	return &Validator{
 		lang:   lang,
-		errors: make(map[string]*sharedDomain.FieldError),
+		errors: make(map[string]*domain.FieldError),
 	}
 }
 
@@ -24,7 +24,7 @@ func (v *Validator) addError(field, message string) {
 	if _, exists := v.errors[field]; exists {
 		return
 	}
-	v.errors[field] = sharedDomain.NewFieldError(field, message)
+	v.errors[field] = domain.NewFieldError(field, message)
 }
 
 func (v *Validator) ValidateStruct(input any) error {
@@ -68,7 +68,7 @@ func (v *Validator) validateStruct(input any) error {
 	}
 
 	if len(v.errors) > 0 {
-		return sharedDomain.NewValidationErrors(v.toSlice())
+		return domain.NewValidationErrors(v.toSlice())
 	}
 	return nil
 }
@@ -103,8 +103,8 @@ func isTime(t reflect.Type) bool {
 //		}
 //		return nil
 //	}
-func (v *Validator) toSlice() []*sharedDomain.FieldError {
-	out := make([]*sharedDomain.FieldError, 0, len(v.errors))
+func (v *Validator) toSlice() []*domain.FieldError {
+	out := make([]*domain.FieldError, 0, len(v.errors))
 	for _, e := range v.errors {
 		out = append(out, e)
 	}

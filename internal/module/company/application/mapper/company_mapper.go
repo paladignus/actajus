@@ -41,7 +41,7 @@ func NewCompanyMapper(
 }
 
 func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*domain.Company, error) {
-	v := validation.New(validation.EN)
+	v := validation.New(validation.PT)
 	if err := v.ValidateStruct(input); err != nil {
 		return nil, err
 	}

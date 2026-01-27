@@ -2,7 +2,7 @@
 package dto
 
 type PhoneReadModel struct {
-	ID         string `json:"id"`
+	ID         uint   `json:"id"`
 	Number     string `json:"number"`
 	Kind       string `json:"kind"`
 	Department string `json:"department"`

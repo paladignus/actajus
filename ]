@@ -13,28 +13,24 @@ import (
 
 type CompanyHandler struct {
 	create usecase.CreateCompany
-	list   usecase.ListCompanies
 }
 
 func NewCompanyHandler(
 	create usecase.CreateCompany,
-	list usecase.ListCompanies,
 ) CompanyHandler {
 	return CompanyHandler{
 		create,
-		list,
 	}
 }
 
 func (c CompanyHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /companies", c.Create)
-	mux.HandleFunc("GET /companies", c.List)
 }
 
 func (c CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 	req, err := handler.DecodeJSONRequest[dto.CreateCompanyRequest](r)
 	if err != nil {
-		handler.RespondError(w, http.StatusBadRequest, "invalid request body")
+		handler.RespondError(w, http.StatusBadRequest, "invalid request body: "+err.Error())
 		return
 	}
 	response, err := c.create.Execute(r.Context(), req)
@@ -46,10 +42,10 @@ func (c CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		var dErr *domain.FieldError
-		if errors.As(err, &dErr) {
-			handler.RespondJSON(w, http.StatusBadRequest, map[string]any{
-				"errors": domain.NewValidationErrors([]*domain.FieldError{dErr}).Errors(),
+		var vaErr *domain.FieldError
+		if errors.As(err, &vaErr) {
+			handler.RespondJSON(w, http.StatusBadRequest, map[string]string{
+				vaErr.Field: vaErr.Message,
 			})
 			return
 		}
@@ -57,20 +53,4 @@ func (c CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	handler.RespondJSON(w, http.StatusCreated, response)
-}
-
-func (c CompanyHandler) List(w http.ResponseWriter, r *http.Request) {
-	companies, err := c.list.Execute(r.Context(), 1, 10)
-	if err != nil {
-		handler.RespondError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	response := map[string]any{
-		"companies": companies,
-	}
-	handler.RespondJSON(w, http.StatusOK, response)
-
-	// page := r.URL.Query().Get("page")
-	// fmt.Println(page)
-	// return
 }

@@ -12,7 +12,7 @@ type CreateCompanyRequest struct {
 	Name         string                                 `json:"name" validate:"required|min=3"`
 	TradeName    string                                 `json:"trade_name" validate:"required|min=3"`
 	CNPJ         string                                 `json:"cnpj" validate:"required|len=18|numeric"`
-	RegisteredBy uint                                   `json:"registered_by" validate:"required|min=1"`
+	RegisteredBy uint                                   `json:"registered_by" validate:"required|min=1|numeric"`
 	Address      addr.CreateAddressRequest              `json:"address,omitzero"`
 	Phone        phone.CreatePhoneRequest               `json:"phone,omitzero"`
 	Email        email.CreateEmailRequest               `json:"email,omitzero"`

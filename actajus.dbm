@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,395" last-zoom="0.75" scene-rect="0,-50.7679,2693.34,2598.89"
+	 last-position="0,667" last-zoom="0.75" scene-rect="0,-50.7679,2693.34,2598.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -396,16 +396,19 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="text" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">
-		<type name="timestamp" length="0"/>
+		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="updated_at" not-null="true" default-value="now()">
-		<type name="timestamp" length="0"/>
+		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="deleted_at">
-		<type name="timestamp" length="0"/>
+		<type name="timestamptz" length="0"/>
 	</column>
 	<constraint name="companies_pk" type="pk-constr" table="public.companies">
 		<columns names="idcompanies" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="companies_cnpj_uq" type="uq-constr" table="public.companies">
+		<columns names="cnpj" ref-type="src-columns"/>
 	</constraint>
 
 	<customidxs object-type="column">

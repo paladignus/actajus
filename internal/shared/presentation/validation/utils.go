@@ -16,6 +16,10 @@ func isZero(value any) bool {
 		return strings.TrimSpace(v.String()) == ""
 	case reflect.Int, reflect.Int64:
 		return v.Int() == 0
+	case reflect.Uint, reflect.Uint64:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
 	case reflect.Pointer:
 		return v.IsNil()
 	}

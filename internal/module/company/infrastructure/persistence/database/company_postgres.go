@@ -3,8 +3,14 @@ package database
 
 import (
 	"context"
+	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
+	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 )
 
@@ -35,7 +41,102 @@ func (c Company) Create(ctx context.Context, company *domain.Company) error {
 		company.CreatedAt(),
 		company.UpdatedAt(),
 	).Scan(&id); err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return sharedDomain.NewFieldError("cnpj", "cnpj already exists")
+		}
 		return err
 	}
 	return company.SetID(id)
+}
+
+func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyListReadModel, error) {
+	offset := (page - 1) * pageSize
+	query := `
+			SELECT
+					c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
+					a.idaddresses, a.zip, a.title, a.street, a.complement, a.reference, a.number, a.neighborhood,
+					a.city, a.state, a.country, a.created_at, a.updated_at
+			FROM companies c 
+			LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies
+			LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses AND a.deleted_at IS NULL
+			WHERE c.deleted_at IS NULL
+			ORDER BY c.idcompanies DESC
+			LIMIT $1 OFFSET $2`
+	rows, err := c.pool.Query(ctx, query, pageSize, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	companies := []dto.CompanyReadModel{}
+	for rows.Next() {
+		var (
+			idCompany        uint
+			registeredBy     uint
+			name             string
+			tradeName        string
+			cnpj             string
+			companyCreatedAt time.Time
+			companyUpdatedAt time.Time
+
+			idAddress       *uint
+			zip             *string
+			title           *string
+			street          *string
+			complement      *string
+			reference       *string
+			number          *uint
+			neighborhood    *string
+			city            *string
+			state           *string
+			country         *string
+			addresCreatedAt *time.Time
+			addresUpdatedAt *time.Time
+		)
+		if err := rows.Scan(
+			&idCompany, &registeredBy, &name, &tradeName, &cnpj, &companyCreatedAt, &companyUpdatedAt,
+			&idAddress, &zip, &title, &street, &complement, &reference, &number, &neighborhood, &city,
+			&state, &country, &addresCreatedAt, &addresUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		company := dto.CompanyReadModel{
+			ID:           idCompany,
+			RegisteredBy: registeredBy,
+			Name:         name,
+			TradeName:    tradeName,
+			CNPJ:         cnpj,
+			CreatedAt:    companyCreatedAt.Format(time.RFC3339),
+			UpdatedAt:    companyUpdatedAt.Format(time.RFC3339),
+		}
+		if idAddress != nil {
+			company.Address = &addrDTO.AddressReadModel{
+				ID:           *idAddress,
+				ZIP:          *zip,
+				Title:        *title,
+				Street:       *street,
+				Number:       *number,
+				Complement:   *complement,
+				Reference:    *reference,
+				Neighborhood: *neighborhood,
+				City:         *city,
+				State:        *state,
+				Country:      *country,
+				CreatedAt:    addresCreatedAt.Format(time.RFC3339),
+				UpdatedAt:    addresUpdatedAt.Format(time.RFC3339),
+			}
+		}
+		companies = append(companies, company)
+	}
+	var total uint64
+	if err := c.pool.QueryRow(ctx, "SELECT count(*) FROM companies").Scan(&total); err != nil {
+		return nil, err
+	}
+
+	return &dto.CompanyListReadModel{
+		Companies: companies,
+		Page:      page,
+		PageSize:  pageSize,
+		Total:     total,
+	}, nil
 }
