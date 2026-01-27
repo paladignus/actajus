@@ -38,9 +38,9 @@ POST http://localhost:8080/companies
 content-type: application/json
 
 {
-    "registered_by": 3,
-    "name": "",
-    "trade_name": "",
+    "registered_by": 0,
+    "name": "Actajus",
+    "trade_name": "Actajus Sistema Jurídico",
     "cnpj": "10.123.456/0001-00",
     "address": {
         "zip": "12345-678",

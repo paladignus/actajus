@@ -3,6 +3,7 @@ package validation
 
 import (
 	"reflect"
+	"strings"
 
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 )
@@ -27,24 +28,43 @@ func (v *Validator) addError(field, message string) {
 }
 
 func (v *Validator) ValidateStruct(input any) error {
+	return v.validateStruct(input)
+}
+
+func (v *Validator) validateStruct(input any) error {
 	val := reflect.ValueOf(input)
 	typ := reflect.TypeOf(input)
 	if val.Kind() == reflect.Pointer {
+		if val.IsNil() {
+			return nil
+		}
 		val = val.Elem()
 		typ = typ.Elem()
 	}
 	for i := 0; i < val.NumField(); i++ {
 		fieldVal := val.Field(i)
 		fieldType := typ.Field(i)
-		tag := fieldType.Tag.Get("validate")
-		if tag == "" {
-			continue
-		}
 		field := fieldType.Tag.Get("json")
-		if field == "" {
-			field = fieldType.Name
+		if field == "" || field == "-" {
+			field = strings.ToLower(fieldType.Name)
 		}
-		v.applyRules(field, fieldVal.Interface(), tag)
+		if tag := fieldType.Tag.Get("validate"); tag != "" {
+			v.applyRules(field, fieldVal.Interface(), tag)
+		}
+		if fieldVal.Kind() == reflect.Struct && !isTime(fieldVal.Type()) {
+			v.validateStruct(fieldVal.Interface())
+		}
+		// 3️⃣ slice de structs
+		// if fieldVal.Kind() == reflect.Slice {
+		// 	for i := 0; i < fieldVal.Len(); i++ {
+		// 		item := fieldVal.Index(i)
+		// 		if item.Kind() == reflect.Struct {
+		// 			v.validateStruct(
+		// 				item.Interface(),
+		// 			)
+		// 		}
+		// 	}
+		// }
 	}
 
 	if len(v.errors) > 0 {
@@ -53,6 +73,36 @@ func (v *Validator) ValidateStruct(input any) error {
 	return nil
 }
 
+func isTime(t reflect.Type) bool {
+	return t.PkgPath() == "time" && t.Name() == "Time"
+}
+
+//	func (v *Validator) ValidateStruct(input any) error {
+//		val := reflect.ValueOf(input)
+//		typ := reflect.TypeOf(input)
+//		if val.Kind() == reflect.Pointer {
+//			val = val.Elem()
+//			typ = typ.Elem()
+//		}
+//		for i := 0; i < val.NumField(); i++ {
+//			fieldVal := val.Field(i)
+//			fieldType := typ.Field(i)
+//			tag := fieldType.Tag.Get("validate")
+//			if tag == "" {
+//				continue
+//			}
+//			field := fieldType.Tag.Get("json")
+//			if field == "" {
+//				field = fieldType.Name
+//			}
+//			v.applyRules(field, fieldVal.Interface(), tag)
+//		}
+//
+//		if len(v.errors) > 0 {
+//			return sharedDomain.NewValidationErrors(v.toSlice())
+//		}
+//		return nil
+//	}
 func (v *Validator) toSlice() []*sharedDomain.FieldError {
 	out := make([]*sharedDomain.FieldError, 0, len(v.errors))
 	for _, e := range v.errors {
