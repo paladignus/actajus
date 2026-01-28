@@ -24,7 +24,7 @@ func (e *SocialMedia) Create(ctx context.Context, socialMedia *domain.SocialMedi
 	var id uint
 	if err := e.pool.QueryRow(ctx, query,
 		socialMedia.IDCompany(),
-		socialMedia.Name(),
+		socialMedia.Platform(),
 		socialMedia.URL(),
 		socialMedia.CreatedAt(),
 		socialMedia.UpdatedAt()).Scan(&id); err != nil {

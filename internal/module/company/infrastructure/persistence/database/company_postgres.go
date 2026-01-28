@@ -10,6 +10,8 @@ import (
 	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
+	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 )
@@ -56,10 +58,15 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 			SELECT
 					c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
 					a.idaddresses, a.zip, a.title, a.street, a.complement, a.reference, a.number, a.neighborhood,
-					a.city, a.state, a.country, a.created_at, a.updated_at
+					a.city, a.state, a.country, a.created_at, a.updated_at, e.idemails, e.address, e.created_at, e.updated_at,
+					p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at
 			FROM companies c 
 			LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies
 			LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses AND a.deleted_at IS NULL
+			LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
+			LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
+			LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
+			LEFT JOIN phones p ON cp.id_phones = p.idphones AND p.deleted_at IS NULL
 			WHERE c.deleted_at IS NULL
 			ORDER BY c.idcompanies DESC
 			LIMIT $1 OFFSET $2`
@@ -92,11 +99,24 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 			country         *string
 			addresCreatedAt *time.Time
 			addresUpdatedAt *time.Time
+
+			idEmail        *uint
+			address        *string
+			emailCreatedAt *time.Time
+			emailUpdatedAt *time.Time
+
+			idPhone        *uint
+			phoneNumber    *string
+			kind           *string
+			department     *string
+			phoneCreatedAt *time.Time
+			phoneUpdatedAt *time.Time
 		)
 		if err := rows.Scan(
 			&idCompany, &registeredBy, &name, &tradeName, &cnpj, &companyCreatedAt, &companyUpdatedAt,
 			&idAddress, &zip, &title, &street, &complement, &reference, &number, &neighborhood, &city,
-			&state, &country, &addresCreatedAt, &addresUpdatedAt,
+			&state, &country, &addresCreatedAt, &addresUpdatedAt, &idEmail, &address, &emailCreatedAt, &emailUpdatedAt,
+			&idPhone, &phoneNumber, &kind, &department, &phoneCreatedAt, &phoneUpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -124,6 +144,25 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 				Country:      *country,
 				CreatedAt:    addresCreatedAt.Format(time.RFC3339),
 				UpdatedAt:    addresUpdatedAt.Format(time.RFC3339),
+			}
+			if idEmail != nil {
+				company.Email = &emailDTO.EmailReadModel{
+					ID:        *idEmail,
+					Address:   *address,
+					CreatedAt: emailCreatedAt.Format(time.RFC3339),
+					UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
+				}
+			}
+
+			if idPhone != nil {
+				company.Phone = &phoneDTO.PhoneReadModel{
+					ID:         *idPhone,
+					Number:     *phoneNumber,
+					Kind:       *kind,
+					Department: *department,
+					CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
+					UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
+				}
 			}
 		}
 		companies = append(companies, company)

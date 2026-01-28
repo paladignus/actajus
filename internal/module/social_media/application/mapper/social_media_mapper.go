@@ -14,7 +14,7 @@ func NewSocialMediaMapper() *SocialMediaMapper {
 
 func (s *SocialMediaMapper) InputToDomain(input dto.CreateSocialMediaRequest) (*domain.SocialMedia, error) {
 	return domain.NewSocialMediaBuilder().
-		WithName(input.Name).
+		WithPlatform(input.Platform).
 		WithURL(input.URL).
 		Build()
 }

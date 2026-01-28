@@ -17,8 +17,7 @@ func NewSocialMediaProjectionMapper() SocialMediaProjectionMapper {
 func (s SocialMediaProjectionMapper) ProjectSocialMediaToReadModel(socialMedia *domain.SocialMedia) *dto.SocialMediaReadModel {
 	return &dto.SocialMediaReadModel{
 		ID:        socialMedia.ID(),
-		IDCompany: socialMedia.IDCompany(),
-		Name:      socialMedia.Name().Value(),
+		Platform:  socialMedia.Platform().Value(),
 		URL:       socialMedia.URL().Value(),
 		CreatedAt: socialMedia.CreatedAt().Format(time.RFC3339),
 		UpdatedAt: socialMedia.UpdatedAt().Format(time.RFC3339),

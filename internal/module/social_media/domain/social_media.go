@@ -11,7 +11,7 @@ import (
 type SocialMedia struct {
 	id        uint
 	idCompany uint
-	name      vo.Text
+	platform  vo.Text
 	url       vo.URL
 	createdAt time.Time
 	updatedAt time.Time
@@ -48,8 +48,8 @@ func (s *SocialMediaBuilder) WithIDCompany(id uint) *SocialMediaBuilder {
 	return s
 }
 
-func (s *SocialMediaBuilder) WithName(name string) *SocialMediaBuilder {
-	s.socialMedia.name = vo.Text(name)
+func (s *SocialMediaBuilder) WithPlatform(platform string) *SocialMediaBuilder {
+	s.socialMedia.platform = vo.Text(platform)
 	return s
 }
 
@@ -90,7 +90,7 @@ func (s *SocialMediaBuilder) Apply() error {
 
 func (s *SocialMedia) ID() uint              { return s.id }
 func (s *SocialMedia) IDCompany() uint       { return s.idCompany }
-func (s *SocialMedia) Name() vo.Text         { return s.name }
+func (s *SocialMedia) Platform() vo.Text     { return s.platform }
 func (s *SocialMedia) URL() vo.URL           { return s.url }
 func (s *SocialMedia) CreatedAt() time.Time  { return s.createdAt }
 func (s *SocialMedia) UpdatedAt() time.Time  { return s.updatedAt }
@@ -136,8 +136,8 @@ func (s *SocialMedia) SetCompanyID(id uint) error {
 }
 
 func (s *SocialMedia) validate() error {
-	if !s.name.IsValid() {
-		return domain.NewFieldError("name", "name is invalid")
+	if !s.platform.IsValid() {
+		return domain.NewFieldError("platform", "platform is invalid")
 	}
 	if !s.url.IsValid() {
 		return domain.NewFieldError("url", "url is invalid")

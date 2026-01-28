@@ -2,6 +2,6 @@
 package dto
 
 type CreateSocialMediaRequest struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	Platform string `json:"platform"`
+	URL      string `json:"url"`
 }
