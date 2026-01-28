@@ -12,22 +12,30 @@ import (
 )
 
 type CompanyHandler struct {
-	create usecase.CreateCompany
-	list   usecase.ListCompanies
+	create     usecase.CreateCompany
+	list       usecase.ListCompanies
+	findByCNPJ usecase.FindByCNPJ
+	findByID   usecase.FindByID
 }
 
 func NewCompanyHandler(
 	create usecase.CreateCompany,
 	list usecase.ListCompanies,
+	findByCNPJ usecase.FindByCNPJ,
+	findByID usecase.FindByID,
 ) CompanyHandler {
 	return CompanyHandler{
 		create,
 		list,
+		findByCNPJ,
+		findByID,
 	}
 }
 
 func (c CompanyHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /companies", c.Create)
+	mux.HandleFunc("POST /companies/find/cnpj", c.FindByCNPJ)
+	mux.HandleFunc("POST /companies/find/id", c.FindByID)
 	mux.HandleFunc("GET /companies", c.List)
 }
 
@@ -73,4 +81,40 @@ func (c CompanyHandler) List(w http.ResponseWriter, r *http.Request) {
 	// page := r.URL.Query().Get("page")
 	// fmt.Println(page)
 	// return
+}
+
+func (c CompanyHandler) FindByCNPJ(w http.ResponseWriter, r *http.Request) {
+	req, err := handler.DecodeJSONRequest[dto.FindCompanyByCNPJRequest](r)
+	if err != nil {
+		handler.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	company, err := c.findByCNPJ.Execute(r.Context(), req.CNPJ)
+	if err != nil {
+		handler.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if company != nil {
+		handler.RespondJSON(w, http.StatusOK, company)
+		return
+	}
+	handler.RespondJSON(w, http.StatusOK, map[string]string{})
+}
+
+func (c CompanyHandler) FindByID(w http.ResponseWriter, r *http.Request) {
+	req, err := handler.DecodeJSONRequest[dto.FindCompanyByIDRequest](r)
+	if err != nil {
+		handler.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	company, err := c.findByID.Execute(r.Context(), req.ID)
+	if err != nil {
+		handler.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if company != nil {
+		handler.RespondJSON(w, http.StatusOK, company)
+		return
+	}
+	handler.RespondJSON(w, http.StatusOK, map[string]string{})
 }

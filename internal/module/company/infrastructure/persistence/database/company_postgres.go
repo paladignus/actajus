@@ -6,12 +6,14 @@ import (
 	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
 	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
 	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
+	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 )
@@ -24,10 +26,6 @@ func NewCompany(pool postgres.PgxPool) *Company {
 	return &Company{
 		pool,
 	}
-}
-
-func (c *Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
-	return nil, nil
 }
 
 func (c Company) Create(ctx context.Context, company *domain.Company) error {
@@ -145,30 +143,57 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 				CreatedAt:    addresCreatedAt.Format(time.RFC3339),
 				UpdatedAt:    addresUpdatedAt.Format(time.RFC3339),
 			}
-			if idEmail != nil {
-				company.Email = &emailDTO.EmailReadModel{
-					ID:        *idEmail,
-					Address:   *address,
-					CreatedAt: emailCreatedAt.Format(time.RFC3339),
-					UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
-				}
+		}
+		if idEmail != nil {
+			company.Email = &emailDTO.EmailReadModel{
+				ID:        *idEmail,
+				Address:   *address,
+				CreatedAt: emailCreatedAt.Format(time.RFC3339),
+				UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
 			}
-
-			if idPhone != nil {
-				company.Phone = &phoneDTO.PhoneReadModel{
-					ID:         *idPhone,
-					Number:     *phoneNumber,
-					Kind:       *kind,
-					Department: *department,
-					CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
-					UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
-				}
+		}
+		if idPhone != nil {
+			company.Phone = &phoneDTO.PhoneReadModel{
+				ID:         *idPhone,
+				Number:     *phoneNumber,
+				Kind:       *kind,
+				Department: *department,
+				CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
+				UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
 			}
+		}
+		query := `
+				SELECT idsocial_media, platform, url, created_at, updated_at
+				FROM social_media WHERE id_companies = $1 AND deleted_at IS NULL`
+		rows, err := c.pool.Query(ctx, query, idCompany)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var (
+				idSocialMedia uint
+				platform      string
+				url           string
+				createdAt     time.Time
+				updatedAt     time.Time
+			)
+			if err := rows.Scan(&idSocialMedia, &platform, &url, &createdAt, &updatedAt); err != nil {
+				return nil, err
+			}
+			company.SocialMedia = append(company.SocialMedia, &socialMediaDTO.SocialMediaReadModel{
+				ID:        idSocialMedia,
+				IDCompany: idCompany,
+				Platform:  platform,
+				URL:       url,
+				CreatedAt: createdAt.Format(time.RFC3339),
+				UpdatedAt: updatedAt.Format(time.RFC3339),
+			})
 		}
 		companies = append(companies, company)
 	}
 	var total uint64
-	if err := c.pool.QueryRow(ctx, "SELECT count(*) FROM companies").Scan(&total); err != nil {
+	if err := c.pool.QueryRow(ctx, "SELECT count(*) FROM companies WHERE deleted_at IS NULL").Scan(&total); err != nil {
 		return nil, err
 	}
 
@@ -178,4 +203,160 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 		PageSize:  pageSize,
 		Total:     total,
 	}, nil
+}
+
+func (c *Company) FindByCNPJ(ctx context.Context, cnpj string) (*dto.CompanyReadModel, error) {
+	return c.find(ctx, "cnpj", cnpj)
+}
+
+func (c *Company) FindByID(ctx context.Context, id string) (*dto.CompanyReadModel, error) {
+	return c.find(ctx, "id", id)
+}
+
+func (c *Company) find(ctx context.Context, by, search string) (*dto.CompanyReadModel, error) {
+	var where string
+	switch by {
+	case "id":
+		where = `c.idcompanies = $1 AND c.deleted_at IS NULL`
+	default:
+		where = `c.cnpj = $1 AND c.deleted_at IS NULL`
+	}
+	query := `
+			SELECT
+					c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
+					a.idaddresses, a.zip, a.title, a.street, a.complement, a.reference, a.number, a.neighborhood,
+					a.city, a.state, a.country, a.created_at, a.updated_at, e.idemails, e.address, e.created_at, e.updated_at,
+					p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at
+			FROM companies c 
+			LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies
+			LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses AND a.deleted_at IS NULL
+			LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
+			LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
+			LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
+			LEFT JOIN phones p ON cp.id_phones = p.idphones AND p.deleted_at IS NULL WHERE `
+	var (
+		idCompany        uint
+		registeredBy     uint
+		name             string
+		tradeName        string
+		cnpj             string
+		companyCreatedAt time.Time
+		companyUpdatedAt time.Time
+
+		idAddress       *uint
+		zip             *string
+		title           *string
+		street          *string
+		complement      *string
+		reference       *string
+		number          *uint
+		neighborhood    *string
+		city            *string
+		state           *string
+		country         *string
+		addresCreatedAt *time.Time
+		addresUpdatedAt *time.Time
+
+		idEmail        *uint
+		address        *string
+		emailCreatedAt *time.Time
+		emailUpdatedAt *time.Time
+
+		idPhone        *uint
+		phoneNumber    *string
+		kind           *string
+		department     *string
+		phoneCreatedAt *time.Time
+		phoneUpdatedAt *time.Time
+	)
+	err := c.pool.QueryRow(ctx, query+where, search).
+		Scan(
+			&idCompany, &registeredBy, &name, &tradeName, &cnpj, &companyCreatedAt, &companyUpdatedAt,
+			&idAddress, &zip, &title, &street, &complement, &reference, &number, &neighborhood,
+			&city, &state, &country, &addresCreatedAt, &addresUpdatedAt, &idEmail, &address, &emailCreatedAt, &emailUpdatedAt,
+			&idPhone, &phoneNumber, &kind, &department, &phoneCreatedAt, &phoneUpdatedAt,
+		)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
+			return nil, sharedDomain.NewFieldError(by, search)
+		}
+		return nil, err
+	}
+	company := dto.CompanyReadModel{
+		ID:           idCompany,
+		RegisteredBy: registeredBy,
+		Name:         name,
+		TradeName:    tradeName,
+		CNPJ:         cnpj,
+		CreatedAt:    companyCreatedAt.Format(time.RFC3339),
+		UpdatedAt:    companyUpdatedAt.Format(time.RFC3339),
+	}
+	if idAddress != nil {
+		company.Address = &addrDTO.AddressReadModel{
+			ID:           *idAddress,
+			ZIP:          *zip,
+			Title:        *title,
+			Street:       *street,
+			Number:       *number,
+			Complement:   *complement,
+			Reference:    *reference,
+			Neighborhood: *neighborhood,
+			City:         *city,
+			State:        *state,
+			Country:      *country,
+			CreatedAt:    addresCreatedAt.Format(time.RFC3339),
+			UpdatedAt:    addresUpdatedAt.Format(time.RFC3339),
+		}
+	}
+	if idEmail != nil {
+		company.Email = &emailDTO.EmailReadModel{
+			ID:        *idEmail,
+			Address:   *address,
+			CreatedAt: emailCreatedAt.Format(time.RFC3339),
+			UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
+		}
+	}
+	if idPhone != nil {
+		company.Phone = &phoneDTO.PhoneReadModel{
+			ID:         *idPhone,
+			Number:     *phoneNumber,
+			Kind:       *kind,
+			Department: *department,
+			CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
+			UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
+		}
+	}
+	query = `
+				SELECT idsocial_media, platform, url, created_at, updated_at
+				FROM social_media WHERE id_companies = $1 AND deleted_at IS NULL`
+	rows, err := c.pool.Query(ctx, query, idCompany)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			idSocialMedia uint
+			platform      string
+			url           string
+			createdAt     time.Time
+			updatedAt     time.Time
+		)
+		if err := rows.Scan(&idSocialMedia, &platform, &url, &createdAt, &updatedAt); err != nil {
+			return nil, err
+		}
+		company.SocialMedia = append(company.SocialMedia, &socialMediaDTO.SocialMediaReadModel{
+			ID:        idSocialMedia,
+			IDCompany: idCompany,
+			Platform:  platform,
+			URL:       url,
+			CreatedAt: createdAt.Format(time.RFC3339),
+			UpdatedAt: updatedAt.Format(time.RFC3339),
+		})
+	}
+	return &company, nil
 }

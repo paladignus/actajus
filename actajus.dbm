@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,667" last-zoom="0.75" scene-rect="0,-50.7679,2693.34,2598.89"
+	 last-position="0,385" last-zoom="0.75" scene-rect="0,-50.7679,2693.34,2598.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -641,7 +641,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
 	</column>
-	<column name="name" not-null="true">
+	<column name="platform" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="url" not-null="true">

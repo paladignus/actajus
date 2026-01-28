@@ -42,6 +42,8 @@ func NewModule(pool *pgxpool.Pool) Module {
 	)
 	createUC := usecase.NewCreateCompany(&uow, *mapper, projection)
 	listUC := usecase.NewListCompanies(companyRepository)
-	handler := handler.NewCompanyHandler(createUC, listUC)
+	findByCNPJ := usecase.NewFindByCNPJ(companyRepository)
+	findByID := usecase.NewFindByID(companyRepository)
+	handler := handler.NewCompanyHandler(createUC, listUC, findByCNPJ, findByID)
 	return Module{handler}
 }
