@@ -48,13 +48,6 @@ func (c CreateCompany) Execute(
 	if err != nil {
 		return nil, fmt.Errorf("invalid social media data: %w", err)
 	}
-	// existing, err := c.uow.Company().FindByCNPJ(ctx, company.CNPJ().Value())
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if existing != nil {
-	// 	return nil, domain.ErrCNPJAlreadyExists
-	// }
 	if err := c.uow.Begin(ctx); err != nil {
 		return nil, err
 	}

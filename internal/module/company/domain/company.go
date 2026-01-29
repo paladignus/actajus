@@ -13,6 +13,7 @@ type Company struct {
 	registeredBy uint
 	idAddress    uint
 	idPhone      uint
+	idEmail      uint
 	name         vo.Text
 	tradeName    vo.Text
 	cnpj         vo.CNPJ
@@ -76,6 +77,16 @@ func (b *CompanyBuilder) WithCreatedAt(createdAt time.Time) *CompanyBuilder {
 	return b
 }
 
+func (b *CompanyBuilder) WithIDPhone(id uint) *CompanyBuilder {
+	b.company.idPhone = id
+	return b
+}
+
+func (b *CompanyBuilder) WithIDEmail(id uint) *CompanyBuilder {
+	b.company.idEmail = id
+	return b
+}
+
 func (b *CompanyBuilder) WithUpdatedAt(updatedAt time.Time) *CompanyBuilder {
 	b.company.updatedAt = updatedAt
 	return b
@@ -136,6 +147,11 @@ func (c *Company) SetAddress(id uint) {
 
 func (c *Company) SetPhone(id uint) {
 	c.idPhone = id
+	c.updatedAt = time.Now()
+}
+
+func (c *Company) SetEmail(id uint) {
+	c.idEmail = id
 	c.updatedAt = time.Now()
 }
 

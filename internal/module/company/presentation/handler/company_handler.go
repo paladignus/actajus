@@ -3,6 +3,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
@@ -13,6 +14,7 @@ import (
 
 type CompanyHandler struct {
 	create     usecase.CreateCompany
+	update     usecase.UpdateCompany
 	list       usecase.ListCompanies
 	findByCNPJ usecase.FindByCNPJ
 	findByID   usecase.FindByID
@@ -20,12 +22,14 @@ type CompanyHandler struct {
 
 func NewCompanyHandler(
 	create usecase.CreateCompany,
+	update usecase.UpdateCompany,
 	list usecase.ListCompanies,
 	findByCNPJ usecase.FindByCNPJ,
 	findByID usecase.FindByID,
 ) CompanyHandler {
 	return CompanyHandler{
 		create,
+		update,
 		list,
 		findByCNPJ,
 		findByID,
@@ -36,6 +40,7 @@ func (c CompanyHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /companies", c.Create)
 	mux.HandleFunc("POST /companies/find/cnpj", c.FindByCNPJ)
 	mux.HandleFunc("POST /companies/find/id", c.FindByID)
+	mux.HandleFunc("PUT /companies", c.Update)
 	mux.HandleFunc("GET /companies", c.List)
 }
 
@@ -46,6 +51,34 @@ func (c CompanyHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response, err := c.create.Execute(r.Context(), req)
+	if err != nil {
+		var vErr *domain.ValidationErrors
+		if errors.As(err, &vErr) {
+			handler.RespondJSON(w, http.StatusBadRequest, map[string]any{
+				"errors": vErr.Errors(),
+			})
+			return
+		}
+		var dErr *domain.FieldError
+		if errors.As(err, &dErr) {
+			handler.RespondJSON(w, http.StatusBadRequest, map[string]any{
+				"errors": domain.NewValidationErrors([]*domain.FieldError{dErr}).Errors(),
+			})
+			return
+		}
+		handler.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	handler.RespondJSON(w, http.StatusCreated, response)
+}
+
+func (c CompanyHandler) Update(w http.ResponseWriter, r *http.Request) {
+	req, err := handler.DecodeJSONRequest[dto.UpdateCompanyRequest](r)
+	if err != nil {
+		handler.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	response, err := c.update.Execute(r.Context(), req)
 	if err != nil {
 		var vErr *domain.ValidationErrors
 		if errors.As(err, &vErr) {
@@ -108,6 +141,7 @@ func (c CompanyHandler) FindByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	company, err := c.findByID.Execute(r.Context(), req.ID)
+	fmt.Println(company)
 	if err != nil {
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return

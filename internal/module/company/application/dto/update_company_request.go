@@ -2,7 +2,8 @@
 package dto
 
 type UpdateCompanyRequest struct {
-	Name      string `json:"name"`
-	TradeName string `json:"trade_name"`
-	CNPJ      string `json:"cnpj"`
+	IDCompany uint   `json:"id_company" validate:"required|numeric"`
+	Name      string `json:"name" validate:"required|min=3"`
+	TradeName string `json:"trade_name" validate:"required|min=3"`
+	CNPJ      string `json:"cnpj" validate:"required|len=18|numeric"`
 }

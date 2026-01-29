@@ -53,6 +53,18 @@ func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*d
 		Build()
 }
 
+func (m *CompanyMapper) UpdateInputDomain(existing *domain.Company, input dto.UpdateCompanyRequest) error {
+	v := validation.New(validation.PT)
+	if err := v.ValidateStruct(input); err != nil {
+		return err
+	}
+	return existing.UpdateBuilder().
+		WithName(input.Name).
+		WithTradeName(input.TradeName).
+		WithCNPJ(input.CNPJ).
+		Apply()
+}
+
 func (m *CompanyMapper) AddressInputToDomain(input addrDTO.CreateAddressRequest) (*addrDomain.Address, error) {
 	return m.addrMapper.InputToDomain(input)
 }
@@ -75,12 +87,4 @@ func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaDTO.CreateSo
 		socialMedia[i] = dsm
 	}
 	return socialMedia, nil
-}
-
-func (m *CompanyMapper) UpdateInputDomain(existing *domain.Company, input dto.UpdateCompanyRequest) error {
-	return existing.UpdateBuilder().
-		WithName(input.Name).
-		WithTradeName(input.TradeName).
-		WithCNPJ(input.CNPJ).
-		Apply()
 }

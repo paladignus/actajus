@@ -9,7 +9,8 @@ import (
 
 type CompanyRepository interface {
 	Create(ctx context.Context, company *Company) error
-	FindByCNPJ(ctx context.Context, cnpj string) (*dto.CompanyReadModel, error)
-	FindByID(ctx context.Context, id string) (*dto.CompanyReadModel, error)
+	Update(ctx context.Context, company *Company) error
+	FindByCNPJ(ctx context.Context, cnpj string) (*Company, error)
+	FindByID(ctx context.Context, id uint) (*Company, error)
 	List(ctx context.Context, page, pageSize uint) (*dto.CompanyListReadModel, error)
 }
