@@ -81,6 +81,10 @@ func (m *CompanyMapper) PhoneInputToDomain(input phoneDTO.CreatePhoneRequest) (*
 	return m.phoneMapper.InputToDomain(input)
 }
 
+func (m *CompanyMapper) UpdatePhoneInputToDomain(input phoneDTO.UpdatePhoneRequest) (*phoneDomain.Phone, error) {
+	return m.phoneMapper.UpdateInputToDomain(input)
+}
+
 func (m *CompanyMapper) EmailInputToDomain(input emailDTO.CreateEmailRequest) (*emailDomain.Email, error) {
 	return m.emailMapper.InputToDomain(input)
 }

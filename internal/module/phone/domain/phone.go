@@ -131,7 +131,7 @@ func (p *Phone) validate() error {
 	if !p.kind.IsValid() {
 		return domain.NewFieldError("kind", "phone kind is invalid")
 	}
-	if !p.department.IsValid() {
+	if p.department != "" && !p.department.IsValid() {
 		return domain.NewFieldError("department", "phone department is invalid")
 	}
 	return nil

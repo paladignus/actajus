@@ -3,6 +3,7 @@ package dto
 
 import (
 	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
+	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
 )
 
 type UpdateCompanyRequest struct {
@@ -11,4 +12,5 @@ type UpdateCompanyRequest struct {
 	TradeName string                       `json:"trade_name" validate:"required|min=3"`
 	CNPJ      string                       `json:"cnpj" validate:"required|len=18|numeric"`
 	Address   addrDTO.UpdateAddressRequest `json:"address,omitzero"`
+	Phone     phoneDTO.UpdatePhoneRequest  `json:"phone,omitzero"`
 }

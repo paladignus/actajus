@@ -2,6 +2,8 @@
 package mapper
 
 import (
+	"time"
+
 	"github.com/paladignus/actajus/internal/module/phone/application/dto"
 	"github.com/paladignus/actajus/internal/module/phone/domain"
 )
@@ -17,5 +19,15 @@ func (p *PhoneMapper) InputToDomain(input dto.CreatePhoneRequest) (*domain.Phone
 		WithNumber(input.Number).
 		WithKind(input.Kind).
 		WithDepartment(input.Department).
+		Build()
+}
+
+func (p *PhoneMapper) UpdateInputToDomain(input dto.UpdatePhoneRequest) (*domain.Phone, error) {
+	return domain.NewPhoneBuilder().
+		WithID(input.ID).
+		WithNumber(input.Number).
+		WithKind(input.Kind).
+		WithDepartment(input.Department).
+		WithUpdatedAt(time.Now()).
 		Build()
 }

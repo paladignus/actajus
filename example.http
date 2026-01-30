@@ -132,8 +132,8 @@ content-type: application/json
     },
     "phone": {
         "number": "+5567912345678",
-        "kind": "Celular",
-        "department": "Comercial"
+        "kind": "",
+        "department": ""
     },
     "email": {
         "address": "falecom2@acatajus.com.br"

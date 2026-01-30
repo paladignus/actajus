@@ -7,4 +7,5 @@ import (
 
 type PhoneRepository interface {
 	Create(ctx context.Context, phone *Phone) error
+	Update(ctx context.Context, phone *Phone) error
 }
