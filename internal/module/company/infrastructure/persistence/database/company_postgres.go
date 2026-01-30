@@ -30,9 +30,10 @@ func NewCompany(pool postgres.PgxPool) *Company {
 }
 
 func (c Company) Create(ctx context.Context, company *domain.Company) error {
-	query := `INSERT INTO companies (registered_by, name, trade_name, cnpj, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6)
-	RETURNING idcompanies`
+	query := `
+		INSERT INTO companies (registered_by, name, trade_name, cnpj, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING idcompanies`
 	var id uint
 	if err := c.pool.QueryRow(ctx, query,
 		company.RegisteredBy(),
@@ -53,9 +54,9 @@ func (c Company) Create(ctx context.Context, company *domain.Company) error {
 
 func (c Company) Update(ctx context.Context, company *domain.Company) error {
 	query := `
-			UPDATE companies
-			SET name = $1, trade_name = $2, cnpj = $3, updated_at = $4 
-			WHERE idcompanies = $5 AND deleted_at IS NULL`
+		UPDATE companies
+		SET name = $1, trade_name = $2, cnpj = $3, updated_at = $4 
+		WHERE idcompanies = $5 AND deleted_at IS NULL`
 	_, err := c.pool.Exec(ctx, query,
 		company.Name().Value(),
 		company.TradeName().Value(),

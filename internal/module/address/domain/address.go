@@ -39,11 +39,11 @@ func NewAddressBuilder() *AddressBuilder {
 	}
 }
 
-func (a *Address) UpdateBuilder() *AddressBuilder {
-	return &AddressBuilder{
-		address: a,
-	}
-}
+// func (a *Address) UpdateBuilder() *AddressBuilder {
+// 	return &AddressBuilder{
+// 		address: a,
+// 	}
+// }
 
 func (b *AddressBuilder) WithID(id uint) *AddressBuilder {
 	b.address.id = id
@@ -122,13 +122,13 @@ func (b *AddressBuilder) Build() (*Address, error) {
 	return b.address, nil
 }
 
-func (b *AddressBuilder) Apply() error {
-	if err := b.address.validate(); err != nil {
-		return err
-	}
-	b.address.updatedAt = time.Now()
-	return nil
-}
+// func (b *AddressBuilder) Apply() error {
+// 	if err := b.address.validate(); err != nil {
+// 		return err
+// 	}
+// 	b.address.updatedAt = time.Now()
+// 	return nil
+// }
 
 func (a *Address) ID() uint              { return a.id }
 func (a *Address) Number() uint          { return a.number }
@@ -174,28 +174,28 @@ func (a *Address) SetID(id uint) error {
 }
 
 func (a *Address) validate() error {
-	if !a.zip.IsValid() {
+	if a.zip != "" && !a.zip.IsValid() {
 		return domain.NewFieldError("zip", "address ZIP is invalid")
 	}
-	if !a.title.IsValid() {
+	if a.title != "" && !a.title.IsValid() {
 		return domain.NewFieldError("title", "address title is invalid")
 	}
-	if !a.street.IsValid() {
+	if a.street != "" && !a.street.IsValid() {
 		return domain.NewFieldError("street", "address street is invalid")
 	}
 	if a.number == 0 {
 		return domain.NewFieldError("number", "address number is invalid")
 	}
-	if !a.neighborhood.IsValid() {
+	if a.neighborhood != "" && !a.neighborhood.IsValid() {
 		return domain.NewFieldError("neighborhood", "address neighborhood is invalid")
 	}
-	if !a.city.IsValid() {
+	if a.city != "" && !a.city.IsValid() {
 		return domain.NewFieldError("city", "address city is invalid")
 	}
-	if !a.state.IsValid() {
+	if a.state != "" && !a.state.IsValid() {
 		return domain.NewFieldError("state", "address state is invalid")
 	}
-	if !a.country.IsValid() {
+	if a.country != "" && !a.country.IsValid() {
 		return domain.NewFieldError("country", "address country is invalid")
 	}
 	return nil

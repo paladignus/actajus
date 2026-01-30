@@ -114,19 +114,20 @@ content-type: application/json
 
 {
     "id_company": 1,
-    "name": "Actajussss",
-    "trade_name": "Actajuss Sistema Jurídicos",
+    "name": "Actajuus",
+    "trade_name": "Actajuus Sistema Jurídico",
     "cnpj": "10.123.456/0001-00",
     "address": {
+        "id_address": 1,
         "zip": "12345-678",
         "title": "Avenida",
-        "street": "Paulista",
-        "complement": "Apartamento 123",
-        "reference": "Perto da escola Izabel",
-        "number": 123,
-        "neighborhood": "Centro",
-        "city": "São Paulo",
-        "state": "São Paulo",
+        "street": "Cariocas",
+        "complement": "Casa 70",
+        "reference": "Hospital Pedro Pedrossian",
+        "number": 1450,
+        "neighborhood": "Parque das Laranjeiras",
+        "city": "Rio de Janeiro",
+        "state": "Rio de Janeiro",
         "country": "Brasil"
     },
     "phone": {

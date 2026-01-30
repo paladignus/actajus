@@ -2,6 +2,8 @@
 package mapper
 
 import (
+	"time"
+
 	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
 	addrMapper "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
@@ -53,20 +55,26 @@ func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*d
 		Build()
 }
 
-func (m *CompanyMapper) UpdateInputDomain(existing *domain.Company, input dto.UpdateCompanyRequest) error {
+func (m *CompanyMapper) UpdateInputDomain(input dto.UpdateCompanyRequest) (*domain.Company, error) {
 	v := validation.New(validation.PT)
 	if err := v.ValidateStruct(input); err != nil {
-		return err
+		return nil, err
 	}
-	return existing.UpdateBuilder().
+	return domain.NewCompanyBuilder().
+		WithID(input.IDCompany).
 		WithName(input.Name).
 		WithTradeName(input.TradeName).
 		WithCNPJ(input.CNPJ).
-		Apply()
+		WithUpdatedAt(time.Now()).
+		Build()
 }
 
 func (m *CompanyMapper) AddressInputToDomain(input addrDTO.CreateAddressRequest) (*addrDomain.Address, error) {
 	return m.addrMapper.InputToDomain(input)
+}
+
+func (m *CompanyMapper) UpdateAddressInputToDomain(input addrDTO.UpdateAddressRequest) (*addrDomain.Address, error) {
+	return m.addrMapper.UpdateInputToDomain(input)
 }
 
 func (m *CompanyMapper) PhoneInputToDomain(input phoneDTO.CreatePhoneRequest) (*phoneDomain.Phone, error) {

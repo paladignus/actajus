@@ -3,6 +3,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/address/domain"
@@ -44,4 +45,28 @@ func (a *Address) Create(ctx context.Context, address *domain.Address) error {
 		return err
 	}
 	return address.SetID(id)
+}
+
+func (a *Address) Update(ctx context.Context, address *domain.Address) error {
+	fmt.Println(address)
+	query := `
+		UPDATE addresses
+		SET zip = $1, title = $2, street = $3, number = $4, complement = $5,
+		reference = $6, neighborhood = $7, city = $8, state = $9, country = $10, updated_at = $11
+		WHERE idaddresses = $12 AND deleted_at IS NULL`
+	_, err := a.pool.Exec(ctx, query,
+		address.ZIP().Value(),
+		address.Title().Value(),
+		address.Street().Value(),
+		address.Number(),
+		address.Complement().Value(),
+		address.Reference().Value(),
+		address.Neighborhood().Value(),
+		address.City().Value(),
+		address.State().Value(),
+		address.Country().Value(),
+		address.UpdatedAt(),
+		address.ID(),
+	)
+	return err
 }

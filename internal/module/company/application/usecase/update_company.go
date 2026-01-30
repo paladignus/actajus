@@ -25,20 +25,35 @@ func NewUpdateCompany(
 }
 
 func (u UpdateCompany) Execute(ctx context.Context, input dto.UpdateCompanyRequest) (*dto.CompanyReadModel, error) {
-	if err := u.uow.Begin(ctx); err != nil {
+	company, err := u.mapper.UpdateInputDomain(input)
+	if err != nil {
 		return nil, err
+	}
+	address, err := u.mapper.UpdateAddressInputToDomain(input.Address)
+	if err != nil {
+		return nil, err
+	}
+	// phone, err := u.mapper.PhoneInputToDomain(input.Phone)
+	// if err != nil {
+	//   return nil, err
+	// }
+	// email, err := u.mapper.EmailInputToDomain(input.Email)
+	// if err != nil {
+	//   return nil, err
+	// }
+	// socialMedia, err := u.mapper.SocialMediaInputToDomain(input.SocialMedia)
+	// if err != nil {
+	//   return nil, err
+	// }
+	if err := u.uow.Begin(ctx); err != nil {
+		return nil, fmt.Errorf("failed to update company: %w", err)
 	}
 	defer u.uow.Rollback(ctx)
-	company, err := u.uow.Company().FindByID(ctx, input.IDCompany)
-	if err != nil {
-		return nil, err
-	}
-	err = u.mapper.UpdateInputDomain(company, input)
-	if err != nil {
-		return nil, err
-	}
 	if err := u.uow.Company().Update(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to update company: %w", err)
+	}
+	if err := u.uow.Address().Update(ctx, address); err != nil {
+		return nil, fmt.Errorf("failed to update address: %w", err)
 	}
 	if err := u.uow.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("failed to commit: %w", err)

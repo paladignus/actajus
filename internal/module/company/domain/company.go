@@ -36,11 +36,11 @@ func NewCompanyBuilder() *CompanyBuilder {
 	}
 }
 
-func (c *Company) UpdateBuilder() *CompanyBuilder {
-	return &CompanyBuilder{
-		company: c,
-	}
-}
+// func (c *Company) UpdateBuilder() *CompanyBuilder {
+// 	return &CompanyBuilder{
+// 		company: c,
+// 	}
+// }
 
 func (b *CompanyBuilder) WithID(id uint) *CompanyBuilder {
 	b.company.id = id
@@ -104,13 +104,13 @@ func (b *CompanyBuilder) Build() (*Company, error) {
 	return b.company, nil
 }
 
-func (b *CompanyBuilder) Apply() error {
-	if err := b.company.validate(); err != nil {
-		return err
-	}
-	b.company.updatedAt = time.Now()
-	return nil
-}
+// func (b *CompanyBuilder) Apply() error {
+// 	if err := b.company.validate(); err != nil {
+// 		return err
+// 	}
+// 	b.company.updatedAt = time.Now()
+// 	return nil
+// }
 
 func (c *Company) ID() uint              { return c.id }
 func (c *Company) RegisteredBy() uint    { return c.registeredBy }
@@ -171,16 +171,16 @@ func (c *Company) SetID(id uint) error {
 }
 
 func (c *Company) validate() error {
-	if !c.name.IsValid() {
+	if c.name != "" && !c.name.IsValid() {
 		return domain.NewFieldError("name", "name is invalid")
 	}
-	if !c.tradeName.IsValid() {
+	if c.tradeName != "" && !c.tradeName.IsValid() {
 		return domain.NewFieldError("trade_name", "trade name is invalid")
 	}
-	if !c.cnpj.IsValid() {
+	if c.cnpj != "" && !c.cnpj.IsValid() {
 		return domain.NewFieldError("cnpj", "CNPJ check digits are invalid")
 	}
-	if c.registeredBy == 0 {
+	if c.id == 0 && c.registeredBy == 0 {
 		return domain.NewFieldError("registered_by", "registered by is invalid")
 	}
 	return nil

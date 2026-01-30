@@ -2,7 +2,7 @@
 package dto
 
 type UpdateAddressRequest struct {
-	ID           uint   `json:"id"`
+	ID           uint   `json:"id_address"`
 	ZIP          string `json:"zip"`
 	Title        string `json:"title"`
 	Street       string `json:"street"`
