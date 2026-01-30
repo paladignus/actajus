@@ -54,19 +54,17 @@ func (v *Validator) validateStruct(input any) error {
 		if fieldVal.Kind() == reflect.Struct && !isTime(fieldVal.Type()) {
 			v.validateStruct(fieldVal.Interface())
 		}
-		// 3️⃣ slice de structs
-		// if fieldVal.Kind() == reflect.Slice {
-		// 	for i := 0; i < fieldVal.Len(); i++ {
-		// 		item := fieldVal.Index(i)
-		// 		if item.Kind() == reflect.Struct {
-		// 			v.validateStruct(
-		// 				item.Interface(),
-		// 			)
-		// 		}
-		// 	}
-		// }
+		if fieldVal.Kind() == reflect.Slice {
+			for i := 0; i < fieldVal.Len(); i++ {
+				item := fieldVal.Index(i)
+				if item.Kind() == reflect.Struct {
+					v.validateStruct(
+						item.Interface(),
+					)
+				}
+			}
+		}
 	}
-
 	if len(v.errors) > 0 {
 		return domain.NewValidationErrors(v.toSlice())
 	}

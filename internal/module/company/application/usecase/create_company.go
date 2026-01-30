@@ -52,12 +52,9 @@ func (c CreateCompany) Execute(
 		return nil, err
 	}
 	defer c.uow.Rollback(ctx)
-	// defer func() {
-	// 	if r := recover(); r != nil {
-	// 		c.uow.Rollback(ctx)
-	// 		panic(r)
-	// 	}
-	// }()
+	if err := c.uow.Company().Create(ctx, company); err != nil {
+		return nil, fmt.Errorf("failed to create company: %w", err)
+	}
 	if err := c.uow.Address().Create(ctx, address); err != nil {
 		return nil, fmt.Errorf("failed to create address: %w", err)
 	}
@@ -66,9 +63,6 @@ func (c CreateCompany) Execute(
 	}
 	if err := c.uow.Email().Create(ctx, email); err != nil {
 		return nil, fmt.Errorf("failed to create email: %w", err)
-	}
-	if err := c.uow.Company().Create(ctx, company); err != nil {
-		return nil, fmt.Errorf("failed to create company: %w", err)
 	}
 	if err := c.uow.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
 		return nil, fmt.Errorf("failed to create relationship: %w", err)

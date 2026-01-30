@@ -32,11 +32,11 @@ func NewPhoneBuilder() *PhoneBuilder {
 	}
 }
 
-func (p *Phone) UpdateBuilder() *PhoneBuilder {
-	return &PhoneBuilder{
-		phone: p,
-	}
-}
+// func (p *Phone) UpdateBuilder() *PhoneBuilder {
+// 	return &PhoneBuilder{
+// 		phone: p,
+// 	}
+// }
 
 func (p *PhoneBuilder) WithID(id uint) *PhoneBuilder {
 	p.phone.id = id
@@ -80,13 +80,13 @@ func (p *PhoneBuilder) Build() (*Phone, error) {
 	return p.phone, nil
 }
 
-func (p *PhoneBuilder) Apply() error {
-	if err := p.phone.validate(); err != nil {
-		return err
-	}
-	p.phone.updatedAt = time.Now()
-	return nil
-}
+// func (p *PhoneBuilder) Apply() error {
+// 	if err := p.phone.validate(); err != nil {
+// 		return err
+// 	}
+// 	p.phone.updatedAt = time.Now()
+// 	return nil
+// }
 
 func (p *Phone) ID() uint               { return p.id }
 func (p *Phone) Number() vo.PhoneNumber { return p.number }

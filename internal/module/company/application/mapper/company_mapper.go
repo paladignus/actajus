@@ -89,10 +89,26 @@ func (m *CompanyMapper) EmailInputToDomain(input emailDTO.CreateEmailRequest) (*
 	return m.emailMapper.InputToDomain(input)
 }
 
+func (m *CompanyMapper) UpdateEmailInputToDomain(input emailDTO.UpdateEmailRequest) (*emailDomain.Email, error) {
+	return m.emailMapper.UpdateInputToDomain(input)
+}
+
 func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaDTO.CreateSocialMediaRequest) ([]*socialMediaDomain.SocialMedia, error) {
 	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
 	for i, sm := range input {
 		dsm, err := m.socialMediaMapper.InputToDomain(sm)
+		if err != nil {
+			return nil, err
+		}
+		socialMedia[i] = dsm
+	}
+	return socialMedia, nil
+}
+
+func (m *CompanyMapper) UpdateSocialMediaInputToDomain(input []socialMediaDTO.UpdateSocialMediaRequest) ([]*socialMediaDomain.SocialMedia, error) {
+	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
+	for i, sm := range input {
+		dsm, err := m.socialMediaMapper.UpdateInputToDomain(sm)
 		if err != nil {
 			return nil, err
 		}

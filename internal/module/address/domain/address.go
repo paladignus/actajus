@@ -174,28 +174,28 @@ func (a *Address) SetID(id uint) error {
 }
 
 func (a *Address) validate() error {
-	if a.zip != "" && !a.zip.IsValid() {
+	if !a.zip.IsValid() {
 		return domain.NewFieldError("zip", "address ZIP is invalid")
 	}
-	if a.title != "" && !a.title.IsValid() {
+	if !a.title.IsValid() {
 		return domain.NewFieldError("title", "address title is invalid")
 	}
-	if a.street != "" && !a.street.IsValid() {
+	if !a.street.IsValid() {
 		return domain.NewFieldError("street", "address street is invalid")
 	}
 	if a.number == 0 {
 		return domain.NewFieldError("number", "address number is invalid")
 	}
-	if a.neighborhood != "" && !a.neighborhood.IsValid() {
+	if !a.neighborhood.IsValid() {
 		return domain.NewFieldError("neighborhood", "address neighborhood is invalid")
 	}
-	if a.city != "" && !a.city.IsValid() {
+	if !a.city.IsValid() {
 		return domain.NewFieldError("city", "address city is invalid")
 	}
-	if a.state != "" && !a.state.IsValid() {
+	if !a.state.IsValid() {
 		return domain.NewFieldError("state", "address state is invalid")
 	}
-	if a.country != "" && !a.country.IsValid() {
+	if !a.country.IsValid() {
 		return domain.NewFieldError("country", "address country is invalid")
 	}
 	return nil

@@ -2,15 +2,15 @@
 package dto
 
 type UpdateAddressRequest struct {
-	ID           uint   `json:"id_address"`
-	ZIP          string `json:"zip"`
-	Title        string `json:"title"`
-	Street       string `json:"street"`
-	Number       uint   `json:"number"`
+	ID           uint   `json:"id_address" validate:"required|numeric"`
+	ZIP          string `json:"zip" validate:"required|len=9|numeric"`
+	Title        string `json:"title" validate:"required|min=3|max=100"`
+	Street       string `json:"street" validate:"required|min=3|max=100"`
+	Number       uint   `json:"number" validate:"required|min=1"`
 	Complement   string `json:"complement,omitzero"`
 	Reference    string `json:"reference,omitzero"`
-	Neighborhood string `json:"neighborhood"`
-	City         string `json:"city"`
-	State        string `json:"state"`
-	Country      string `json:"country"`
+	Neighborhood string `json:"neighborhood" validate:"required|min=3|max=100"`
+	City         string `json:"city" validate:"required|min=2|max=100"`
+	State        string `json:"state" validate:"required|max=100"`
+	Country      string `json:"country" validate:"required|min=2|max=100"`
 }

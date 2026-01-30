@@ -131,33 +131,40 @@ content-type: application/json
         "country": "Brasil"
     },
     "phone": {
-        "number": "+5567912345678",
-        "kind": "",
+        "id_phone": 1,
+        "number": "+5567912341111",
+        "kind": "Celular",
         "department": ""
     },
     "email": {
-        "address": "falecom2@acatajus.com.br"
+        "id_email": 1,
+        "address": "falecomnos@acatajus.com.br"
     },
     "social_media": [
         {
+            "id_social_media": 1,
             "platform": "facebook",
-            "url": "https://www.facebook.com/actajus2"
+            "url": "https://www.facebook.com/acaatajus"
         },
         {
+            "id_social_media": 2,
             "platform": "Linkedin",
-            "url": "https://www.linkedin.com/in/actajus2/"
+            "url": "https://www.linkedin.com/in/acaatajus/"
         },
         {
+            "id_social_media": 3,
             "platform": "Instagram",
-            "url": "https://www.instagram.com/actajus2/"
+            "url": "https://www.instagram.com/acaatajus/"
         },
         {
+            "id_social_media": 4,
             "platform": "X",
-            "url": "https://x.com/actajus2"
+            "url": "https://x.com/acaatajus"
         },
         {
+            "id_social_media": 5,
             "platform": "Site",
-            "url": "https://twitter.com/actajus2"
+            "url": "https://twitter.com/acaatajus"
         }
     ]
 }

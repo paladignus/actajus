@@ -7,4 +7,5 @@ import (
 
 type SocialMediaRepository interface {
 	Create(ctx context.Context, socialMedia *SocialMedia) error
+	Update(ctx context.Context, socialMedia *SocialMedia) error
 }

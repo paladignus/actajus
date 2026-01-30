@@ -34,7 +34,7 @@ func (p *Phone) Create(ctx context.Context, phone *domain.Phone) error {
 }
 
 func (p Phone) Update(ctx context.Context, phone *domain.Phone) error {
-	query := `UPDATE phones SET number = $1, kind = $2, department = $3, updated_at = $4 WHERE idphones = $5`
+	query := `UPDATE phones SET number = $1, kind = $2, department = $3, updated_at = $4 WHERE idphones = $5 AND deleted_at IS NULL`
 	_, err := p.pool.Exec(ctx, query,
 		phone.Number(),
 		phone.Kind(),
