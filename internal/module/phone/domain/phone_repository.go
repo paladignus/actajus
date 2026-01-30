@@ -6,6 +6,7 @@ import (
 )
 
 type PhoneRepository interface {
-	Create(ctx context.Context, phone *Phone) error
-	Update(ctx context.Context, phone *Phone) error
+	Create(ctx context.Context, phone Phone) error
+	Update(ctx context.Context, phone Phone) error
+	Delete(ctx context.Context, phone Phone) error
 }

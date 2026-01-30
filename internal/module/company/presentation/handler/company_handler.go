@@ -15,6 +15,7 @@ import (
 type CompanyHandler struct {
 	create     usecase.CreateCompany
 	update     usecase.UpdateCompany
+	delete     usecase.DeleteCompany
 	list       usecase.ListCompanies
 	findByCNPJ usecase.FindByCNPJ
 	findByID   usecase.FindByID
@@ -23,6 +24,7 @@ type CompanyHandler struct {
 func NewCompanyHandler(
 	create usecase.CreateCompany,
 	update usecase.UpdateCompany,
+	delete usecase.DeleteCompany,
 	list usecase.ListCompanies,
 	findByCNPJ usecase.FindByCNPJ,
 	findByID usecase.FindByID,
@@ -30,6 +32,7 @@ func NewCompanyHandler(
 	return CompanyHandler{
 		create,
 		update,
+		delete,
 		list,
 		findByCNPJ,
 		findByID,
@@ -41,6 +44,7 @@ func (c CompanyHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /companies/find/cnpj", c.FindByCNPJ)
 	mux.HandleFunc("POST /companies/find/id", c.FindByID)
 	mux.HandleFunc("PUT /companies", c.Update)
+	mux.HandleFunc("DELETE /companies", c.Delete)
 	mux.HandleFunc("GET /companies", c.List)
 }
 
@@ -98,6 +102,20 @@ func (c CompanyHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	handler.RespondJSON(w, http.StatusCreated, response)
+}
+
+func (c CompanyHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	req, err := handler.DecodeJSONRequest[dto.DeleteCompanyRequest](r)
+	if err != nil {
+		handler.RespondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	err = c.delete.Execute(r.Context(), req.IDCompany)
+	if err != nil {
+		handler.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	handler.RespondJSON(w, http.StatusOK, map[string]string{})
 }
 
 func (c CompanyHandler) List(w http.ResponseWriter, r *http.Request) {

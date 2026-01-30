@@ -15,13 +15,13 @@ type Email struct {
 	pool postgres.PgxPool
 }
 
-func NewEmail(pool postgres.PgxPool) *Email {
-	return &Email{
+func NewEmail(pool postgres.PgxPool) Email {
+	return Email{
 		pool,
 	}
 }
 
-func (e *Email) Create(ctx context.Context, email *domain.Email) error {
+func (e Email) Create(ctx context.Context, email domain.Email) error {
 	query := `INSERT INTO emails (address, created_at, updated_at)
 		VALUES ($1, $2, $3) RETURNING idemails`
 	var id uint
@@ -38,7 +38,7 @@ func (e *Email) Create(ctx context.Context, email *domain.Email) error {
 	return email.SetID(id)
 }
 
-func (e *Email) Update(ctx context.Context, email *domain.Email) error {
+func (e Email) Update(ctx context.Context, email domain.Email) error {
 	query := `UPDATE emails SET address = $1, updated_at = $2 WHERE idemails = $3 AND deleted_at IS NULL`
 	_, err := e.pool.Exec(ctx, query,
 		email.Address(),
@@ -47,6 +47,19 @@ func (e *Email) Update(ctx context.Context, email *domain.Email) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return sharedDomain.NewFieldError("email", "email already exists")
+	}
+	return err
+}
+
+func (e Email) Delete(ctx context.Context, email domain.Email) error {
+	query := `UPDATE emails SET updated_at = $1, deleted_at = $2 WHERE idemails = $3 AND deleted_at IS NULL`
+	_, err := e.pool.Exec(ctx, query,
+		email.UpdatedAt(),
+		email.DeletedAt(),
+		email.ID())
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		return nil
 	}
 	return err
 }

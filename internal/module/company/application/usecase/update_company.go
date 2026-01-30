@@ -52,17 +52,17 @@ func (u UpdateCompany) Execute(ctx context.Context, input dto.UpdateCompanyReque
 	if err := u.uow.Company().Update(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to update company: %w", err)
 	}
-	if err := u.uow.Address().Update(ctx, address); err != nil {
+	if err := u.uow.Address().Update(ctx, *address); err != nil {
 		return nil, fmt.Errorf("failed to update address to company: %w", err)
 	}
-	if err := u.uow.Phone().Update(ctx, phone); err != nil {
+	if err := u.uow.Phone().Update(ctx, *phone); err != nil {
 		return nil, fmt.Errorf("failed to upate phone to company %w", err)
 	}
-	if err := u.uow.Email().Update(ctx, email); err != nil {
+	if err := u.uow.Email().Update(ctx, *email); err != nil {
 		return nil, fmt.Errorf("failed to update email to company: %w", err)
 	}
 	for _, sm := range socialMedia {
-		if err := u.uow.SocialMedia().Update(ctx, sm); err != nil {
+		if err := u.uow.SocialMedia().Update(ctx, *sm); err != nil {
 			return nil, fmt.Errorf("failed to create social media: %w", err)
 		}
 	}

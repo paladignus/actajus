@@ -23,8 +23,8 @@ type Company struct {
 	pool postgres.PgxPool
 }
 
-func NewCompany(pool postgres.PgxPool) *Company {
-	return &Company{
+func NewCompany(pool postgres.PgxPool) Company {
+	return Company{
 		pool,
 	}
 }
@@ -67,6 +67,20 @@ func (c Company) Update(ctx context.Context, company *domain.Company) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return sharedDomain.NewFieldError("cnpj", "cnpj already exists")
+	}
+	return err
+}
+
+func (c Company) Delete(ctx context.Context, company *domain.Company) error {
+	query := `UPDATE companies SET updated_at = $1, deleted_at = $2 WHERE idcompanies = $3 AND deleted_at IS NULL`
+	_, err := c.pool.Exec(ctx, query,
+		company.UpdatedAt(),
+		company.DeletedAt(),
+		company.ID(),
+	)
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+		return sharedDomain.NewFieldError("deleted_at", "company already deleted")
 	}
 	return err
 }
@@ -226,16 +240,16 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 	}, nil
 }
 
-func (c *Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
+func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
 	return c.find(ctx, "cnpj", cnpj)
 }
 
-func (c *Company) FindByID(ctx context.Context, id uint) (*domain.Company, error) {
+func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error) {
 	sid := fmt.Sprintf("%d", id)
 	return c.find(ctx, "id", sid)
 }
 
-func (c *Company) find(ctx context.Context, by, search string) (*domain.Company, error) {
+func (c Company) find(ctx context.Context, by, search string) (*domain.Company, error) {
 	var where string
 	switch by {
 	case "id":

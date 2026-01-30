@@ -3,8 +3,9 @@ package database
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/address/domain"
 )
@@ -13,17 +14,17 @@ type Address struct {
 	pool postgres.PgxPool
 }
 
-func NewAddress(pool postgres.PgxPool) *Address {
-	return &Address{
+func NewAddress(pool postgres.PgxPool) Address {
+	return Address{
 		pool,
 	}
 }
 
-func (a *Address) FindByCEP(ctx context.Context, cep string) (*domain.Address, error) {
+func (a Address) FindByCEP(ctx context.Context, cep string) (*domain.Address, error) {
 	return nil, nil
 }
 
-func (a *Address) Create(ctx context.Context, address *domain.Address) error {
+func (a Address) Create(ctx context.Context, address domain.Address) error {
 	query := `INSERT INTO addresses
 		(zip, title, street, number, complement, reference, neighborhood, city, state, country, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING idaddresses`
@@ -47,8 +48,7 @@ func (a *Address) Create(ctx context.Context, address *domain.Address) error {
 	return address.SetID(id)
 }
 
-func (a *Address) Update(ctx context.Context, address *domain.Address) error {
-	fmt.Println(address)
+func (a Address) Update(ctx context.Context, address domain.Address) error {
 	query := `
 		UPDATE addresses
 		SET zip = $1, title = $2, street = $3, number = $4, complement = $5,
@@ -68,5 +68,19 @@ func (a *Address) Update(ctx context.Context, address *domain.Address) error {
 		address.UpdatedAt(),
 		address.ID(),
 	)
+	return err
+}
+
+func (a Address) Delete(ctx context.Context, address domain.Address) error {
+	query := `UPDATE companies SET updated_at = $1 deleted_at = $2 WHERE idcompanies = $3 AND deleted_at IS NULL`
+	_, err := a.pool.Exec(ctx, query,
+		address.UpdatedAt(),
+		address.DeletedAt(),
+		address.ID(),
+	)
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+		return nil
+	}
 	return err
 }
