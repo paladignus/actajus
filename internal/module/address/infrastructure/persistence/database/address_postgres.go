@@ -4,10 +4,13 @@ package database
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/address/domain"
+	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 )
 
 type Address struct {
@@ -83,4 +86,56 @@ func (a Address) Delete(ctx context.Context, address domain.Address) error {
 		return nil
 	}
 	return err
+}
+
+func (a Address) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Address, error) {
+	query := `
+			SELECT
+				a.idaddresses, a.zip, a.title, a.street, a.number, a.complement, a.reference,
+				a.neighborhood, a.city, a.state, a.country, a.created_at, a.updated_at
+			FROM addresses a
+			LEFT JOIN company_address ca ON a.idaddresses = ca.id_addresses AND ca.ended_at IS NULL 
+			WHERE id_companies = $1`
+	var (
+		id           uint
+		zip          string
+		title        string
+		street       string
+		number       uint
+		complement   string
+		reference    string
+		neighborhood string
+		city         string
+		state        string
+		country      string
+		createdAt    time.Time
+		updatedAt    time.Time
+	)
+	err := a.pool.QueryRow(ctx, query, idCompany).
+		Scan(&id, &zip, &title, &street, &number, &complement, &reference, &neighborhood, &city, &state, &country, &createdAt, &updatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
+			return nil, sharedDomain.NewFieldError("id_company", "idCompany")
+		}
+		return nil, err
+	}
+	return domain.NewAddressBuilder().
+		WithID(id).
+		WithZIP(zip).
+		WithTitle(title).
+		WithStreet(street).
+		WithNumber(number).
+		WithComplement(complement).
+		WithReference(reference).
+		WithNeighborhood(neighborhood).
+		WithCity(city).
+		WithState(state).
+		WithCountry(country).
+		WithCreatedAt(createdAt).
+		WithUpdatedAt(updatedAt).
+		Build()
 }

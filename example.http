@@ -62,7 +62,7 @@ content-type: application/json
     "registered_by": 3,
     "name": "Actajus",
     "trade_name": "Actajus Sistema Jurídico",
-    "cnpj": "48.922.852/0001-62",
+    "cnpj": "10.123.456/0001-00",
     "address": {
         "zip": "12345-678",
         "title": "Avenida",
@@ -81,28 +81,28 @@ content-type: application/json
         "department": "Comercial"
     },
     "email": {
-        "address": "falecom2@acatajus.com.br"
+        "address": "falecomnos@acatajus.com.br"
     },
     "social_media": [
         {
             "platform": "facebook",
-            "url": "https://www.facebook.com/actajus2"
+            "url": "https://www.facebook.com/actajus"
         },
         {
             "platform": "Linkedin",
-            "url": "https://www.linkedin.com/in/actajus2/"
+            "url": "https://www.linkedin.com/in/actajus/"
         },
         {
             "platform": "Instagram",
-            "url": "https://www.instagram.com/actajus2/"
+            "url": "https://www.instagram.com/actajus/"
         },
         {
             "platform": "X",
-            "url": "https://x.com/actajus2"
+            "url": "https://x.com/actajus"
         },
         {
             "platform": "Site",
-            "url": "https://twitter.com/actajus2"
+            "url": "https://twitter.com/actajus"
         }
     ]
 }

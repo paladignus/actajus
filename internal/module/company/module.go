@@ -4,6 +4,7 @@ package company
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	address "github.com/paladignus/actajus/internal/module/address/application/mapper"
+	addressDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
 	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database"
@@ -20,6 +21,7 @@ type Module struct {
 func NewModule(pool *pgxpool.Pool) Module {
 	uow := database.NewCompanyUnitOfWork(pool)
 	companyRepository := database.NewCompany(pool)
+	addressRepository := addressDB.NewAddress(pool)
 	addrProject := address.NewAddressProjectionMapper()
 	address := address.NewAddressMapper()
 	phoneProject := phone.NewPhoneProjectionMapper()
@@ -45,7 +47,11 @@ func NewModule(pool *pgxpool.Pool) Module {
 	deleteUC := usecase.NewDeleteCompany(&uow)
 	listUC := usecase.NewListCompanies(companyRepository)
 	findByCNPJ := usecase.NewFindByCNPJ(companyRepository)
-	findByID := usecase.NewFindByID(companyRepository)
+	findByID := usecase.NewFindByID(
+		companyRepository,
+		addressRepository,
+		projection,
+	)
 	handler := handler.NewCompanyHandler(
 		createUC,
 		updateUC,

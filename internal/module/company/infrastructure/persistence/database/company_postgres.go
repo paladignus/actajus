@@ -4,7 +4,6 @@ package database
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -241,39 +240,22 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 }
 
 func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
-	return c.find(ctx, "cnpj", cnpj)
-}
-
-func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error) {
-	sid := fmt.Sprintf("%d", id)
-	return c.find(ctx, "id", sid)
-}
-
-func (c Company) find(ctx context.Context, by, search string) (*domain.Company, error) {
-	var where string
-	switch by {
-	case "id":
-		where = `idcompanies = $1 AND deleted_at IS NULL`
-	default:
-		where = `cnpj = $1 AND deleted_at IS NULL`
-	}
 	query := `
 			SELECT
 					idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
 			FROM companies
-			WHERE `
+			WHERE cnpj = $1 AND deleted_at IS NULL`
 	var (
 		id           uint
 		registeredBy uint
 		name         string
 		tradeName    string
-		cnpj         string
 		createdAt    time.Time
 		updatedAt    time.Time
 	)
-	err := c.pool.QueryRow(ctx, query+where, search).
+	err := c.pool.QueryRow(ctx, query, cnpj).
 		Scan(
-			&id, &registeredBy, &name, &tradeName, &cnpj, &createdAt, &updatedAt,
+			&id, &registeredBy, &name, &tradeName, &createdAt, &updatedAt,
 		)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -281,7 +263,46 @@ func (c Company) find(ctx context.Context, by, search string) (*domain.Company, 
 		}
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
-			return nil, sharedDomain.NewFieldError(by, search)
+			return nil, sharedDomain.NewFieldError("cnpj", cnpj)
+		}
+		return nil, err
+	}
+	return domain.NewCompanyBuilder().
+		WithID(id).
+		WithRegisteredBy(registeredBy).
+		WithName(name).
+		WithTradeName(tradeName).
+		WithCNPJ(cnpj).
+		WithCreatedAt(createdAt).
+		WithUpdatedAt(updatedAt).
+		Build()
+}
+
+func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error) {
+	query := `
+			SELECT
+					registered_by, name, trade_name, cnpj, created_at, updated_at
+			FROM companies
+			WHERE idcompanies = $1 AND deleted_at IS NULL`
+	var (
+		registeredBy uint
+		name         string
+		tradeName    string
+		cnpj         string
+		createdAt    time.Time
+		updatedAt    time.Time
+	)
+	err := c.pool.QueryRow(ctx, query, id).
+		Scan(
+			&registeredBy, &name, &tradeName, &cnpj, &createdAt, &updatedAt,
+		)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
+			return nil, sharedDomain.NewFieldError("id", "id")
 		}
 		return nil, err
 	}

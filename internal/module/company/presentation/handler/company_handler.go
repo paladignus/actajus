@@ -3,7 +3,6 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
@@ -159,7 +158,6 @@ func (c CompanyHandler) FindByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	company, err := c.findByID.Execute(r.Context(), req.ID)
-	fmt.Println(company)
 	if err != nil {
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
