@@ -63,7 +63,7 @@ func (u UpdateCompany) Execute(ctx context.Context, input dto.UpdateCompanyReque
 	}
 	for _, sm := range socialMedia {
 		if err := u.uow.SocialMedia().Update(ctx, *sm); err != nil {
-			return nil, fmt.Errorf("failed to create social media: %w", err)
+			return nil, fmt.Errorf("failed to update social media to company: %w", err)
 		}
 	}
 	if err := u.uow.Commit(ctx); err != nil {

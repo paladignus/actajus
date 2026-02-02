@@ -21,7 +21,7 @@ func NewEmail(pool postgres.PgxPool) Email {
 	}
 }
 
-func (e Email) Create(ctx context.Context, email domain.Email) error {
+func (e Email) Create(ctx context.Context, email *domain.Email) error {
 	query := `INSERT INTO emails (address, created_at, updated_at)
 		VALUES ($1, $2, $3) RETURNING idemails`
 	var id uint

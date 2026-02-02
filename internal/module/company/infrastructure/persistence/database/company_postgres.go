@@ -95,11 +95,11 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 					p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at
 			FROM companies c 
 			LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies
-			LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses AND a.deleted_at IS NULL
+			LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses
 			LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
 			LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
 			LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
-			LEFT JOIN phones p ON cp.id_phones = p.idphones AND p.deleted_at IS NULL
+			LEFT JOIN phones p ON cp.id_phones = p.idphones
 			WHERE c.deleted_at IS NULL
 			ORDER BY c.idcompanies DESC
 			LIMIT $1 OFFSET $2`

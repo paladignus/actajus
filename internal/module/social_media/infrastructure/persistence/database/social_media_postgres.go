@@ -21,7 +21,7 @@ func NewSocialMedia(pool postgres.PgxPool) SocialMedia {
 	}
 }
 
-func (s SocialMedia) Create(ctx context.Context, socialMedia domain.SocialMedia) error {
+func (s SocialMedia) Create(ctx context.Context, socialMedia *domain.SocialMedia) error {
 	query := `INSERT INTO social_media (id_companies, platform, url, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING idsocial_media`
 	var id uint
