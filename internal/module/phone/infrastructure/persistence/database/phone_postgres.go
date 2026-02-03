@@ -4,10 +4,13 @@ package database
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/phone/domain"
+	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 )
 
 type Phone struct {
@@ -57,4 +60,41 @@ func (p Phone) Delete(ctx context.Context, phone domain.Phone) error {
 		return nil
 	}
 	return err
+}
+
+func (p Phone) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Phone, error) {
+	query := `
+			SELECT
+				p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at
+			FROM phones p
+			LEFT JOIN company_phone cp ON p.idphones = cp.id_phones AND cp.ended_at IS NULL
+			WHERE id_companies = $1`
+	var (
+		id         uint
+		number     string
+		kind       string
+		department string
+		createdAt  time.Time
+		updatedAt  time.Time
+	)
+	err := p.pool.QueryRow(ctx, query, idCompany).
+		Scan(&id, &number, &kind, &department, &createdAt, &updatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
+			return nil, sharedDomain.NewFieldError("id_company", "idCompany")
+		}
+		return nil, err
+	}
+	return domain.NewPhoneBuilder().
+		WithID(id).
+		WithNumber(number).
+		WithKind(kind).
+		WithDepartment(department).
+		WithCreatedAt(createdAt).
+		WithUpdatedAt(updatedAt).
+		Build()
 }
