@@ -8,6 +8,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
 )
 
@@ -15,6 +16,7 @@ type FindByID struct {
 	company    domain.CompanyRepository
 	address    addrDomain.AddressRepository
 	phone      phoneDomain.PhoneRepository
+	email      emailDomain.EmailRepository
 	projection mapper.CompanyProjectionMapper
 }
 
@@ -22,12 +24,14 @@ func NewFindByID(
 	company domain.CompanyRepository,
 	address addrDomain.AddressRepository,
 	phone phoneDomain.PhoneRepository,
+	email emailDomain.EmailRepository,
 	projection mapper.CompanyProjectionMapper,
 ) FindByID {
 	return FindByID{
 		company,
 		address,
 		phone,
+		email,
 		projection,
 	}
 }
@@ -45,9 +49,13 @@ func (f FindByID) Execute(ctx context.Context, id uint) (*dto.CompanyReadModel, 
 	if err != nil {
 		return nil, err
 	}
+	email, err := f.email.FindByIDCompany(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	return f.projection.ProjectCompanyToReadModel(
 		company,
 		address,
 		phone,
-		nil, nil), nil
+		email, nil), nil
 }

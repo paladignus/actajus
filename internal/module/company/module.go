@@ -10,6 +10,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database"
 	"github.com/paladignus/actajus/internal/module/company/presentation/handler"
 	email "github.com/paladignus/actajus/internal/module/email/application/mapper"
+	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database"
 	phone "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
@@ -24,6 +25,7 @@ func NewModule(pool *pgxpool.Pool) Module {
 	companyRepository := database.NewCompany(pool)
 	addressRepository := addressDB.NewAddress(pool)
 	phoneRepository := phoneDB.NewPhone(pool)
+	emailRepository := emailDB.NewEmail(pool)
 	addrProject := address.NewAddressProjectionMapper()
 	address := address.NewAddressMapper()
 	phoneProject := phone.NewPhoneProjectionMapper()
@@ -53,6 +55,7 @@ func NewModule(pool *pgxpool.Pool) Module {
 		companyRepository,
 		addressRepository,
 		phoneRepository,
+		emailRepository,
 		projection,
 	)
 	handler := handler.NewCompanyHandler(

@@ -4,7 +4,9 @@ package database
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/email/domain"
@@ -62,4 +64,37 @@ func (e Email) Delete(ctx context.Context, email domain.Email) error {
 		return nil
 	}
 	return err
+}
+
+func (e Email) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Email, error) {
+	query := `
+			SELECT
+				e.idemails, e.address, e.created_at, e.updated_at
+			FROM emails e
+			LEFT JOIN company_email ce ON e.idemails = ce.id_emails AND e.deleted_at IS NULL
+			WHERE id_companies = $1`
+	var (
+		id        uint
+		address   string
+		createdAt time.Time
+		updatedAt time.Time
+	)
+	err := e.pool.QueryRow(ctx, query, idCompany).
+		Scan(&id, &address, &createdAt, &updatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
+			return nil, sharedDomain.NewFieldError("id_company", "idCompany")
+		}
+		return nil, err
+	}
+	return domain.NewEmailBuilder().
+		WithID(id).
+		WithAddress(address).
+		WithCreatedAt(createdAt).
+		WithUpdatedAt(updatedAt).
+		Build()
 }
