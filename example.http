@@ -41,7 +41,7 @@ POST http://localhost:8080/companies/find/id
 content-type: application/json
 
 {
-    "id": 1
+    "id": 2
 }
 
 ###
@@ -49,7 +49,7 @@ POST http://localhost:8080/companies/find/cnpj
 content-type: application/json
 
 {
-    "cnpj": "10.123.456/0001-00"
+    "cnpj": "48.922.852/0001-62"
 }
 
 # "cnpj": "03.015.475/0001-40"
@@ -62,7 +62,7 @@ content-type: application/json
     "registered_by": 3,
     "name": "Actajus",
     "trade_name": "Actajus Sistema Jurídico",
-    "cnpj": "10.123.456/0001-00",
+    "cnpj": "48.922.852/0001-62",
     "address": {
         "zip": "12345-678",
         "title": "Avenida",
@@ -81,28 +81,28 @@ content-type: application/json
         "department": "Comercial"
     },
     "email": {
-        "address": "falecomnos@acatajus.com.br"
+        "address": "falecom2@acatajus.com.br"
     },
     "social_media": [
         {
             "platform": "facebook",
-            "url": "https://www.facebook.com/actajus"
+            "url": "https://www.facebook.com/actajus2"
         },
         {
             "platform": "Linkedin",
-            "url": "https://www.linkedin.com/in/actajus/"
+            "url": "https://www.linkedin.com/in/actajus2/"
         },
         {
             "platform": "Instagram",
-            "url": "https://www.instagram.com/actajus/"
+            "url": "https://www.instagram.com/actajus2/"
         },
         {
             "platform": "X",
-            "url": "https://x.com/actajus"
+            "url": "https://x.com/actajus2"
         },
         {
             "platform": "Site",
-            "url": "https://twitter.com/actajus"
+            "url": "https://twitter.com/actajus2"
         }
     ]
 }
@@ -137,7 +137,7 @@ content-type: application/json
         "department": ""
     },
     "email": {
-        "id_email": 1,
+        "id_email": 6,
         "address": "falecomnos@acatajus.com.br"
     },
     "social_media": [
@@ -170,13 +170,11 @@ content-type: application/json
 }
 
 ###
-DELETE http://localhost:8080/company
+DELETE http://localhost:8080/companies
 content-type: application/json
 
 {
-    "company": {
-        "id_company": 1
-    }
+    "id_company": 1
 }
 
 
@@ -252,4 +250,155 @@ content-type: application/json
 {
     "cpf": "714.602.380-01",
     "password": "admin123"
+}
+
+
+
+
+
+
+
+###
+GET https://api.actajus.com.br/companies
+content-type: application/json
+
+###
+POST https://api.actajus.com.br/companies/find/id
+content-type: application/json
+
+{
+    "id": 1
+}
+
+###
+POST https://api.actajus.com.br/companies/find/cnpj
+content-type: application/json
+
+{
+    "cnpj": "48.922.852/0001-62"
+}
+
+# "cnpj": "03.015.475/0001-40"
+
+###
+POST https://api.actajus.com.br/companies
+content-type: application/json
+
+{
+    "registered_by": 3,
+    "name": "Actajus",
+    "trade_name": "Actajus Sistema Jurídico",
+    "cnpj": "48.922.852/0001-62",
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "reference": "Perto da escola Izabel",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    },
+    "phone": {
+        "number": "+5567912345678",
+        "kind": "Celular",
+        "department": "Comercial"
+    },
+    "email": {
+        "address": "falecom2@acatajus.com.br"
+    },
+    "social_media": [
+        {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/actajus2"
+        },
+        {
+            "platform": "Linkedin",
+            "url": "https://www.linkedin.com/in/actajus2/"
+        },
+        {
+            "platform": "Instagram",
+            "url": "https://www.instagram.com/actajus2/"
+        },
+        {
+            "platform": "X",
+            "url": "https://x.com/actajus2"
+        },
+        {
+            "platform": "Site",
+            "url": "https://twitter.com/actajus2"
+        }
+    ]
+}
+
+
+###
+PUT  https://api.actajus.com.br/companies
+content-type: application/json
+
+{
+    "id_company": 1,
+    "name": "Actajuus",
+    "trade_name": "Actajuus Sistema Jurídico",
+    "cnpj": "10.123.456/0001-00",
+    "address": {
+        "id_address": 1,
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Cariocas",
+        "complement": "Casa 70",
+        "reference": "Hospital Pedro Pedrossian",
+        "number": 1450,
+        "neighborhood": "Parque das Laranjeiras",
+        "city": "Rio de Janeiro",
+        "state": "Rio de Janeiro",
+        "country": "Brasil"
+    },
+    "phone": {
+        "id_phone": 1,
+        "number": "+5567912341111",
+        "kind": "Celular",
+        "department": ""
+    },
+    "email": {
+        "id_email": 6,
+        "address": "falecomnos@acatajus.com.br"
+    },
+    "social_media": [
+        {
+            "id_social_media": 1,
+            "platform": "facebook",
+            "url": "https://www.facebook.com/acaatajus"
+        },
+        {
+            "id_social_media": 2,
+            "platform": "Linkedin",
+            "url": "https://www.linkedin.com/in/acaatajus/"
+        },
+        {
+            "id_social_media": 3,
+            "platform": "Instagram",
+            "url": "https://www.instagram.com/acaatajus/"
+        },
+        {
+            "id_social_media": 4,
+            "platform": "X",
+            "url": "https://x.com/acaatajus"
+        },
+        {
+            "id_social_media": 5,
+            "platform": "Site",
+            "url": "https://twitter.com/acaatajus"
+        }
+    ]
+}
+
+###
+DELETE https://api.actajus.com.br/companies
+content-type: application/json
+
+{
+    "id_company": 1
 }

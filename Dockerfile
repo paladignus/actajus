@@ -1,4 +1,4 @@
-FROM golang:1.25.3-alpine AS builder
+FROM golang:1.25.5-alpine AS builder
 
 # Instalar dependências necessárias para compilar
 RUN apk add --no-cache git ca-certificates tzdata bash
@@ -10,8 +10,8 @@ COPY go.mod go.sum ./
 
 # Baixar dependências com tentativas extras em caso de falha
 RUN --mount=type=cache,target=/go/pkg/mod \
-    for i in 1 2 3; do go mod download && break || sleep 5; done && \
-    go mod verify
+  for i in 1 2 3; do go mod download && break || sleep 5; done && \
+  go mod verify
 
 # Copiar código fonte
 COPY . .

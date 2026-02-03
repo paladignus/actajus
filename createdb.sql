@@ -1,7 +1,7 @@
 -- Prepended SQL commands --
-CREATE EXTENSION IF NOT EXISTS pgcrypto;-- ddl-end ---- ** Database generated with pgModeler (PostgreSQL Database Modeler).
+CREATE EXTENSION IF NOT EXISTS pgcrypto;-- ddl-end ---- ** Database generated with pgModeler (postgresQL Database Modeler).
 -- ** pgModeler version: 1.2.2
--- ** PostgreSQL version: 18.0
+-- ** postgresQL version: 18.0
 -- ** Project Site: pgmodeler.io
 -- ** Model Author: ---
 
@@ -33,7 +33,7 @@ CREATE TABLE public.people (
 	CONSTRAINT people_pk PRIMARY KEY (idpeople)
 );
 -- ddl-end --
-ALTER TABLE public.people OWNER TO postgres;
+ALTER TABLE public.people OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.gender | type: TABLE --
@@ -44,7 +44,7 @@ CREATE TABLE public.gender (
 	CONSTRAINT gender_pkey PRIMARY KEY (idgender)
 );
 -- ddl-end --
-ALTER TABLE public.gender OWNER TO postgres;
+ALTER TABLE public.gender OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.documents | type: TABLE --
@@ -57,7 +57,7 @@ CREATE TABLE public.documents (
 	CONSTRAINT cpf_uq UNIQUE (cpf)
 );
 -- ddl-end --
-ALTER TABLE public.documents OWNER TO postgres;
+ALTER TABLE public.documents OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.users | type: TABLE --
@@ -73,7 +73,7 @@ CREATE TABLE public.users (
 	CONSTRAINT users_pk PRIMARY KEY (idusers)
 );
 -- ddl-end --
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users OWNER TO marcelo;
 -- ddl-end --
 
 -- object: gender_fk | type: CONSTRAINT --
@@ -105,7 +105,7 @@ CREATE TABLE public.roles (
 	CONSTRAINT roles_pk PRIMARY KEY (idroles)
 );
 -- ddl-end --
-ALTER TABLE public.roles OWNER TO postgres;
+ALTER TABLE public.roles OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.permissions | type: TABLE --
@@ -120,7 +120,7 @@ CREATE TABLE public.permissions (
 	CONSTRAINT permissions_uq UNIQUE (resource,action)
 );
 -- ddl-end --
-ALTER TABLE public.permissions OWNER TO postgres;
+ALTER TABLE public.permissions OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.permission_role | type: TABLE --
@@ -131,7 +131,7 @@ CREATE TABLE public.permission_role (
 	CONSTRAINT permission_role_pk PRIMARY KEY (id_roles,id_permissions)
 );
 -- ddl-end --
-ALTER TABLE public.permission_role OWNER TO postgres;
+ALTER TABLE public.permission_role OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.role_user | type: TABLE --
@@ -144,7 +144,7 @@ CREATE TABLE public.role_user (
 	CONSTRAINT role_user_pk PRIMARY KEY (id_roles,id_users)
 );
 -- ddl-end --
-ALTER TABLE public.role_user OWNER TO postgres;
+ALTER TABLE public.role_user OWNER TO marcelo;
 -- ddl-end --
 
 -- object: roles_fk | type: CONSTRAINT --
@@ -187,7 +187,7 @@ CREATE TABLE public.emails (
 	CONSTRAINT emails_name_uq UNIQUE (address)
 );
 -- ddl-end --
-ALTER TABLE public.emails OWNER TO postgres;
+ALTER TABLE public.emails OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.password_reset | type: TABLE --
@@ -201,7 +201,7 @@ CREATE TABLE public.password_reset (
 
 );
 -- ddl-end --
-ALTER TABLE public.password_reset OWNER TO postgres;
+ALTER TABLE public.password_reset OWNER TO marcelo;
 -- ddl-end --
 
 -- object: people_fk | type: CONSTRAINT --
@@ -233,13 +233,14 @@ CREATE TABLE public.companies (
 	name text NOT NULL,
 	trade_name text NOT NULL,
 	cnpj text NOT NULL,
-	created_at timestamp NOT NULL DEFAULT now(),
-	updated_at timestamp NOT NULL DEFAULT now(),
-	deleted_at timestamp,
-	CONSTRAINT companies_pk PRIMARY KEY (idcompanies)
+	created_at timestamptz NOT NULL DEFAULT now(),
+	updated_at timestamptz NOT NULL DEFAULT now(),
+	deleted_at timestamptz,
+	CONSTRAINT companies_pk PRIMARY KEY (idcompanies),
+	CONSTRAINT companies_cnpj_uq UNIQUE (cnpj)
 );
 -- ddl-end --
-ALTER TABLE public.companies OWNER TO postgres;
+ALTER TABLE public.companies OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.phones | type: TABLE --
@@ -251,11 +252,10 @@ CREATE TABLE public.phones (
 	department text,
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
-	deleted_at timestamptz,
 	CONSTRAINT phones_pk PRIMARY KEY (idphones)
 );
 -- ddl-end --
-ALTER TABLE public.phones OWNER TO postgres;
+ALTER TABLE public.phones OWNER TO marcelo;
 -- ddl-end --
 
 -- object: people_fk | type: CONSTRAINT --
@@ -285,7 +285,7 @@ CREATE TABLE public.addresses (
 	CONSTRAINT addresses_pk PRIMARY KEY (idaddresses)
 );
 -- ddl-end --
-ALTER TABLE public.addresses OWNER TO postgres;
+ALTER TABLE public.addresses OWNER TO marcelo;
 -- ddl-end --
 
 -- object: public.address_person | type: TABLE --
@@ -296,7 +296,7 @@ CREATE TABLE public.address_person (
 
 );
 -- ddl-end --
-ALTER TABLE public.address_person OWNER TO postgres;
+ALTER TABLE public.address_person OWNER TO marcelo;
 -- ddl-end --
 
 -- object: addresses_fk | type: CONSTRAINT --
@@ -321,7 +321,7 @@ CREATE TABLE public.person_phone (
 	CONSTRAINT person_phone_pk PRIMARY KEY (id_people)
 );
 -- ddl-end --
-ALTER TABLE public.person_phone OWNER TO postgres;
+ALTER TABLE public.person_phone OWNER TO marcelo;
 -- ddl-end --
 
 -- object: phones_fk | type: CONSTRAINT --
@@ -338,52 +338,58 @@ REFERENCES public.people (idpeople) MATCH FULL
 ON DELETE CASCADE ON UPDATE CASCADE;
 -- ddl-end --
 
--- object: public.address_enterprise | type: TABLE --
--- DROP TABLE IF EXISTS public.address_enterprise CASCADE;
-CREATE TABLE public.address_enterprise (
+-- object: public.company_address | type: TABLE --
+-- DROP TABLE IF EXISTS public.company_address CASCADE;
+CREATE TABLE public.company_address (
 	id_addresses bigint NOT NULL,
-	id_companies bigint NOT NULL
-
-);
--- ddl-end --
-ALTER TABLE public.address_enterprise OWNER TO postgres;
--- ddl-end --
-
--- object: public.enterprise_phone | type: TABLE --
--- DROP TABLE IF EXISTS public.enterprise_phone CASCADE;
-CREATE TABLE public.enterprise_phone (
 	id_companies bigint NOT NULL,
-	id_phones bigint NOT NULL
+	created_at timestamptz NOT NULL DEFAULT now(),
+	started_at timestamptz NOT NULL DEFAULT now(),
+	ended_at timestamptz
 
 );
 -- ddl-end --
-ALTER TABLE public.enterprise_phone OWNER TO postgres;
+ALTER TABLE public.company_address OWNER TO marcelo;
+-- ddl-end --
+
+-- object: public.company_phone | type: TABLE --
+-- DROP TABLE IF EXISTS public.company_phone CASCADE;
+CREATE TABLE public.company_phone (
+	id_companies bigint NOT NULL,
+	id_phones bigint NOT NULL,
+	created_at timestamptz NOT NULL DEFAULT now(),
+	started_at timestamptz NOT NULL DEFAULT now(),
+	ended_at timestamptz
+
+);
+-- ddl-end --
+ALTER TABLE public.company_phone OWNER TO marcelo;
 -- ddl-end --
 
 -- object: addresses_fk | type: CONSTRAINT --
--- ALTER TABLE public.address_enterprise DROP CONSTRAINT IF EXISTS addresses_fk CASCADE;
-ALTER TABLE public.address_enterprise ADD CONSTRAINT addresses_fk FOREIGN KEY (id_addresses)
+-- ALTER TABLE public.company_address DROP CONSTRAINT IF EXISTS addresses_fk CASCADE;
+ALTER TABLE public.company_address ADD CONSTRAINT addresses_fk FOREIGN KEY (id_addresses)
 REFERENCES public.addresses (idaddresses) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: companies_fk | type: CONSTRAINT --
--- ALTER TABLE public.address_enterprise DROP CONSTRAINT IF EXISTS companies_fk CASCADE;
-ALTER TABLE public.address_enterprise ADD CONSTRAINT companies_fk FOREIGN KEY (id_companies)
+-- ALTER TABLE public.company_address DROP CONSTRAINT IF EXISTS companies_fk CASCADE;
+ALTER TABLE public.company_address ADD CONSTRAINT companies_fk FOREIGN KEY (id_companies)
 REFERENCES public.companies (idcompanies) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: phones_fk | type: CONSTRAINT --
--- ALTER TABLE public.enterprise_phone DROP CONSTRAINT IF EXISTS phones_fk CASCADE;
-ALTER TABLE public.enterprise_phone ADD CONSTRAINT phones_fk FOREIGN KEY (id_phones)
+-- ALTER TABLE public.company_phone DROP CONSTRAINT IF EXISTS phones_fk CASCADE;
+ALTER TABLE public.company_phone ADD CONSTRAINT phones_fk FOREIGN KEY (id_phones)
 REFERENCES public.phones (idphones) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: companies_fk | type: CONSTRAINT --
--- ALTER TABLE public.enterprise_phone DROP CONSTRAINT IF EXISTS companies_fk CASCADE;
-ALTER TABLE public.enterprise_phone ADD CONSTRAINT companies_fk FOREIGN KEY (id_companies)
+-- ALTER TABLE public.company_phone DROP CONSTRAINT IF EXISTS companies_fk CASCADE;
+ALTER TABLE public.company_phone ADD CONSTRAINT companies_fk FOREIGN KEY (id_companies)
 REFERENCES public.companies (idcompanies) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
@@ -393,7 +399,7 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE TABLE public.social_media (
 	idsocial_media bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
 	id_companies bigint NOT NULL,
-	name text NOT NULL,
+	platform text NOT NULL,
 	url text NOT NULL,
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
@@ -401,30 +407,30 @@ CREATE TABLE public.social_media (
 	CONSTRAINT social_media_url_uq UNIQUE (url)
 );
 -- ddl-end --
-ALTER TABLE public.social_media OWNER TO postgres;
+ALTER TABLE public.social_media OWNER TO marcelo;
 -- ddl-end --
 
--- object: public.email_enterprise | type: TABLE --
--- DROP TABLE IF EXISTS public.email_enterprise CASCADE;
-CREATE TABLE public.email_enterprise (
+-- object: public.company_email | type: TABLE --
+-- DROP TABLE IF EXISTS public.company_email CASCADE;
+CREATE TABLE public.company_email (
 	id_emails bigint NOT NULL,
 	id_companies bigint NOT NULL,
-	CONSTRAINT email_enterprise_pk PRIMARY KEY (id_emails,id_companies)
+	CONSTRAINT company_email_pk PRIMARY KEY (id_emails,id_companies)
 );
 -- ddl-end --
-ALTER TABLE public.email_enterprise OWNER TO postgres;
+ALTER TABLE public.company_email OWNER TO marcelo;
 -- ddl-end --
 
 -- object: emails_fk | type: CONSTRAINT --
--- ALTER TABLE public.email_enterprise DROP CONSTRAINT IF EXISTS emails_fk CASCADE;
-ALTER TABLE public.email_enterprise ADD CONSTRAINT emails_fk FOREIGN KEY (id_emails)
+-- ALTER TABLE public.company_email DROP CONSTRAINT IF EXISTS emails_fk CASCADE;
+ALTER TABLE public.company_email ADD CONSTRAINT emails_fk FOREIGN KEY (id_emails)
 REFERENCES public.emails (idemails) MATCH FULL
 ON DELETE CASCADE ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: companies_fk | type: CONSTRAINT --
--- ALTER TABLE public.email_enterprise DROP CONSTRAINT IF EXISTS companies_fk CASCADE;
-ALTER TABLE public.email_enterprise ADD CONSTRAINT companies_fk FOREIGN KEY (id_companies)
+-- ALTER TABLE public.company_email DROP CONSTRAINT IF EXISTS companies_fk CASCADE;
+ALTER TABLE public.company_email ADD CONSTRAINT companies_fk FOREIGN KEY (id_companies)
 REFERENCES public.companies (idcompanies) MATCH FULL
 ON DELETE CASCADE ON UPDATE CASCADE;
 -- ddl-end --
@@ -437,7 +443,7 @@ CREATE TABLE public.email_person (
 	CONSTRAINT email_person_pk PRIMARY KEY (id_emails,id_people)
 );
 -- ddl-end --
-ALTER TABLE public.email_person OWNER TO postgres;
+ALTER TABLE public.email_person OWNER TO marcelo;
 -- ddl-end --
 
 -- object: emails_fk | type: CONSTRAINT --

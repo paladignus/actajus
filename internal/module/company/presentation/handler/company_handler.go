@@ -141,6 +141,11 @@ func (c CompanyHandler) FindByCNPJ(w http.ResponseWriter, r *http.Request) {
 	}
 	company, err := c.findByCNPJ.Execute(r.Context(), req.CNPJ)
 	if err != nil {
+		var dErr *domain.FieldError
+		if errors.As(err, &dErr) {
+			handler.RespondJSON(w, http.StatusOK, map[string]any{})
+			return
+		}
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -159,6 +164,11 @@ func (c CompanyHandler) FindByID(w http.ResponseWriter, r *http.Request) {
 	}
 	company, err := c.findByID.Execute(r.Context(), req.ID)
 	if err != nil {
+		var dErr *domain.FieldError
+		if errors.As(err, &dErr) {
+			handler.RespondJSON(w, http.StatusOK, map[string]any{})
+			return
+		}
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

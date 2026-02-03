@@ -4,7 +4,9 @@ package database
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/social_media/domain"
@@ -62,4 +64,48 @@ func (s SocialMedia) Delete(ctx context.Context, socialMedia domain.SocialMedia)
 		return nil
 	}
 	return err
+}
+
+func (s SocialMedia) FindByIDCompany(ctx context.Context, idCompany uint) ([]*domain.SocialMedia, error) {
+	query := `
+			SELECT
+				idsocial_media, platform, url, created_at, updated_at
+			FROM social_media WHERE id_companies = $1 AND deleted_at IS NULL`
+	var (
+		idsocialMedia uint
+		platform      string
+		url           string
+		createdAt     time.Time
+		updatedAt     time.Time
+	)
+	rows, err := s.pool.Query(ctx, query, idCompany)
+	if err != nil {
+		return nil, err
+	}
+	var socialMedia []*domain.SocialMedia
+	for rows.Next() {
+		if err := rows.Scan(&idsocialMedia, &platform, &url, &createdAt, &updatedAt); err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return nil, nil
+			}
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
+				return nil, sharedDomain.NewFieldError("id_company", "idCompany")
+			}
+			return nil, err
+		}
+		sm, err := domain.NewSocialMediaBuilder().
+			WithID(idsocialMedia).
+			WithIDCompany(idCompany).
+			WithPlatform(platform).
+			WithURL(url).
+			WithCreatedAt(createdAt).
+			WithUpdatedAt(updatedAt).
+			Build()
+		if err != nil {
+			return nil, err
+		}
+		socialMedia = append(socialMedia, sm)
+	}
+	return socialMedia, nil
 }

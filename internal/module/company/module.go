@@ -14,6 +14,7 @@ import (
 	phone "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
+	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database"
 )
 
 type Module struct {
@@ -26,6 +27,7 @@ func NewModule(pool *pgxpool.Pool) Module {
 	addressRepository := addressDB.NewAddress(pool)
 	phoneRepository := phoneDB.NewPhone(pool)
 	emailRepository := emailDB.NewEmail(pool)
+	socialMediaRepository := socialMediaDB.NewSocialMedia(pool)
 	addrProject := address.NewAddressProjectionMapper()
 	address := address.NewAddressMapper()
 	phoneProject := phone.NewPhoneProjectionMapper()
@@ -50,12 +52,20 @@ func NewModule(pool *pgxpool.Pool) Module {
 	updateUC := usecase.NewUpdateCompany(&uow, *mapper, projection)
 	deleteUC := usecase.NewDeleteCompany(&uow)
 	listUC := usecase.NewListCompanies(companyRepository)
-	findByCNPJ := usecase.NewFindByCNPJ(companyRepository)
+	findByCNPJ := usecase.NewFindByCNPJ(
+		companyRepository,
+		addressRepository,
+		phoneRepository,
+		emailRepository,
+		socialMediaRepository,
+		projection,
+	)
 	findByID := usecase.NewFindByID(
 		companyRepository,
 		addressRepository,
 		phoneRepository,
 		emailRepository,
+		socialMediaRepository,
 		projection,
 	)
 	handler := handler.NewCompanyHandler(

@@ -242,7 +242,7 @@ func (c Company) List(ctx context.Context, page, pageSize uint) (*dto.CompanyLis
 func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
 	query := `
 			SELECT
-					idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
+					idcompanies, registered_by, name, trade_name, created_at, updated_at
 			FROM companies
 			WHERE cnpj = $1 AND deleted_at IS NULL`
 	var (
@@ -259,11 +259,7 @@ func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, 
 		)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
-			return nil, sharedDomain.NewFieldError("cnpj", cnpj)
+			return nil, sharedDomain.NewFieldError("cnpj", "cnpj not found")
 		}
 		return nil, err
 	}
@@ -298,11 +294,7 @@ func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error)
 		)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "22P02" {
-			return nil, sharedDomain.NewFieldError("id", "id")
+			return nil, sharedDomain.NewFieldError("cnpj", "cnpj not found")
 		}
 		return nil, err
 	}
