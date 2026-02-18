@@ -2,8 +2,6 @@
 package mapper
 
 import (
-	"time"
-
 	addrMapper "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
@@ -50,8 +48,8 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 		TradeName:    company.TradeName().Value(),
 		CNPJ:         company.CNPJ().Value(),
 		RegisteredBy: company.RegisteredBy(),
-		CreatedAt:    company.CreatedAt().Format(time.RFC3339),
-		UpdatedAt:    company.UpdatedAt().Format(time.RFC3339),
+		CreatedAt:    company.CreatedAt(),
+		UpdatedAt:    company.UpdatedAt(),
 	}
 	if address != nil {
 		readModel.Address = m.addrMapper.ProjectAddressToReadModel(address)

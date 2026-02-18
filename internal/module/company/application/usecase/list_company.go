@@ -16,6 +16,6 @@ func NewListCompanies(list domain.CompanyRepository) ListCompanies {
 	return ListCompanies{list}
 }
 
-func (l ListCompanies) Execute(ctx context.Context, page, pageSize uint) (*dto.CompanyListReadModel, error) {
-	return l.list.List(ctx, page, pageSize)
+func (l ListCompanies) Execute(ctx context.Context, after, before *string, limit int, baseURL string) (*dto.CompanyListReadModel, error) {
+	return l.list.List(ctx, after, before, limit, baseURL)
 }

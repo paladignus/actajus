@@ -4,6 +4,7 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
@@ -118,19 +119,32 @@ func (c CompanyHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c CompanyHandler) List(w http.ResponseWriter, r *http.Request) {
-	companies, err := c.list.Execute(r.Context(), 1, 10)
+	query := r.URL.Query()
+	var after *string
+	if afterParam := query.Get("after"); afterParam != "" {
+		after = &afterParam
+	}
+	var before *string
+	if beforeParam := query.Get("before"); beforeParam != "" {
+		before = &beforeParam
+	}
+	limit := 10
+	if limitParam := query.Get("limit"); limitParam != "" {
+		if parsedLimit, err := strconv.Atoi(limitParam); err == nil {
+			limit = parsedLimit
+		}
+	}
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	baseURL := scheme + "://" + r.Host + r.URL.Path
+	companies, err := c.list.Execute(r.Context(), after, before, limit, baseURL)
 	if err != nil {
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	response := map[string]any{
-		"companies": companies,
-	}
-	handler.RespondJSON(w, http.StatusOK, response)
-
-	// page := r.URL.Query().Get("page")
-	// fmt.Println(page)
-	// return
+	handler.RespondJSON(w, http.StatusOK, companies)
 }
 
 func (c CompanyHandler) FindByCNPJ(w http.ResponseWriter, r *http.Request) {

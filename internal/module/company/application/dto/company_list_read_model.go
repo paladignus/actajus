@@ -1,9 +1,9 @@
 // Package dto
 package dto
 
+import "github.com/paladignus/actajus/internal/shared/application/dto"
+
 type CompanyListReadModel struct {
-	Companies []CompanyReadModel `json:"companies"`
-	Page      uint               `json:"page"`
-	PageSize  uint               `json:"page_size"`
-	Total     uint64             `json:"total"`
+	Data     []CompanyReadModel `json:"data"`
+	PageInfo dto.PageInfo       `json:"page_info"`
 }

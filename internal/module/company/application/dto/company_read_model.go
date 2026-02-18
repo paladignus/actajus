@@ -2,6 +2,8 @@
 package dto
 
 import (
+	"time"
+
 	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
 	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
 	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
@@ -18,6 +20,6 @@ type CompanyReadModel struct {
 	Phone        *phoneDTO.PhoneReadModel               `json:"phone,omitzero"`
 	Email        *emailDTO.EmailReadModel               `json:"email,omitzero"`
 	SocialMedia  []*socialMediaDTO.SocialMediaReadModel `json:"social_media,omitzero"`
-	CreatedAt    string                                 `json:"created_at"`
-	UpdatedAt    string                                 `json:"updated_at"`
+	CreatedAt    time.Time                              `json:"created_at"`
+	UpdatedAt    time.Time                              `json:"updated_at"`
 }

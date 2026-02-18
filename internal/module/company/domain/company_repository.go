@@ -13,5 +13,5 @@ type CompanyRepository interface {
 	Delete(ctx context.Context, company *Company) error
 	FindByCNPJ(ctx context.Context, cnpj string) (*Company, error)
 	FindByID(ctx context.Context, id uint) (*Company, error)
-	List(ctx context.Context, page, pageSize uint) (*dto.CompanyListReadModel, error)
+	List(ctx context.Context, after, before *string, limit int, baseURL string) (*dto.CompanyListReadModel, error)
 }
