@@ -33,7 +33,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
         e.idemails, e.address, e.created_at, e.updated_at,
         p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at,
         sm.idsocial_media, sm.platform, sm.url, sm.created_at, sm.updated_at,
-				CONCAT(pe.first_name, ' ', pe.last_name) AS name
+				COALESCE(CONCAT(pe.first_name, ' ', pe.last_name), '') AS name
     FROM (
         SELECT idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
         FROM companies
@@ -48,8 +48,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
     LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies AND cp.ended_at IS NULL
     LEFT JOIN phones p ON cp.id_phones = p.idphones
     LEFT JOIN social_media sm ON sm.id_companies = c.idcompanies AND sm.deleted_at IS NULL
-		LEFT JOIN people pe ON c.registered_by = pe.idpeople
-    ORDER BY c.created_at ASC, c.idcompanies ASC;`
+		LEFT JOIN people pe ON c.registered_by = pe.idpeople;`
 	var whereClause string
 	var innerOrder string
 	var args []any

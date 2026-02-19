@@ -68,6 +68,11 @@ func (b *CompanyBuilder) WithRegisteredBy(registeredBy uint) *CompanyBuilder {
 	return b
 }
 
+func (b *CompanyBuilder) WithRegisteredByName(registeredByName string) *CompanyBuilder {
+	b.company.registeredByName = vo.Text(registeredByName)
+	return b
+}
+
 func (b *CompanyBuilder) WithIDAddress(id uint) *CompanyBuilder {
 	b.company.idAddress = id
 	return b

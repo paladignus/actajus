@@ -17,16 +17,20 @@ var (
 )
 
 type ValidationErrors struct {
-	Errors []error
+	Errs []error
 }
 
-func NewValidationErrors(errors []error) *ValidationErrors {
-	return &ValidationErrors{Errors: errors}
+func NewValidationErrors(errs []error) *ValidationErrors {
+	return &ValidationErrors{Errs: errs}
 }
 
 func (e *ValidationErrors) Error() string {
-	if len(e.Errors) == 0 {
+	if len(e.Errs) == 0 {
 		return "validation errors"
 	}
-	return e.Errors[0].Error()
+	return e.Errs[0].Error()
+}
+
+func (e *ValidationErrors) Errors() []error {
+	return e.Errs
 }

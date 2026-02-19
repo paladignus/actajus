@@ -25,10 +25,14 @@ func (c companyScan) companyToDTO() *companyDTO.CompanyReadModel {
 	if c.id == nil {
 		return nil
 	}
+	registeredByName := ""
+	if c.registeredByName != nil {
+		registeredByName = *c.registeredByName
+	}
 	return &companyDTO.CompanyReadModel{
 		ID:               *c.id,
 		Name:             *c.name,
-		RegisteredByName: *c.registeredByName,
+		RegisteredByName: registeredByName,
 		TradeName:        *c.tradeName,
 		CNPJ:             *c.cnpj,
 		CreatedAt:        *c.createdAt,
@@ -103,6 +107,9 @@ type phoneScan struct {
 }
 
 func (p *phoneScan) phoneToDTO() *phoneDTO.PhoneReadModel {
+	if p.id == nil {
+		return nil
+	}
 	return &phoneDTO.PhoneReadModel{
 		ID:         *p.id,
 		Number:     *p.number,

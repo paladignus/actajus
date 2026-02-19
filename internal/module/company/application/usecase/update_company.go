@@ -49,6 +49,18 @@ func (u UpdateCompany) Execute(ctx context.Context, input dto.UpdateCompanyReque
 		return nil, fmt.Errorf("failed to update company: %w", err)
 	}
 	defer u.uow.Rollback(ctx)
+
+	// Delete old relationships before updating
+	if err := u.uow.CompanyAddress().DeleteByIDCompany(ctx, company.ID()); err != nil {
+		return nil, fmt.Errorf("failed to delete company address relationship: %w", err)
+	}
+	if err := u.uow.CompanyPhone().DeleteByIDCompany(ctx, company.ID()); err != nil {
+		return nil, fmt.Errorf("failed to delete company phone relationship: %w", err)
+	}
+	if err := u.uow.CompanyEmail().DeleteByIDCompany(ctx, company.ID()); err != nil {
+		return nil, fmt.Errorf("failed to delete company email relationship: %w", err)
+	}
+
 	if err := u.uow.Company().Update(ctx, company); err != nil {
 		return nil, fmt.Errorf("failed to update company: %w", err)
 	}
@@ -61,6 +73,18 @@ func (u UpdateCompany) Execute(ctx context.Context, input dto.UpdateCompanyReque
 	if err := u.uow.Email().Update(ctx, *email); err != nil {
 		return nil, fmt.Errorf("failed to update email to company: %w", err)
 	}
+
+	// Create new relationships
+	if err := u.uow.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
+		return nil, fmt.Errorf("failed to create relationship company address: %w", err)
+	}
+	if err := u.uow.CompanyPhone().Create(ctx, company.ID(), phone.ID()); err != nil {
+		return nil, fmt.Errorf("failed to create relationship company phone: %w", err)
+	}
+	if err := u.uow.CompanyEmail().Create(ctx, company.ID(), email.ID()); err != nil {
+		return nil, fmt.Errorf("failed to create relationship company email: %w", err)
+	}
+
 	for _, sm := range socialMedia {
 		if err := u.uow.SocialMedia().Update(ctx, *sm); err != nil {
 			return nil, fmt.Errorf("failed to update social media to company: %w", err)

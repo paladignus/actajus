@@ -32,14 +32,20 @@ func mergeCompanyScanWithRelations(
 			existing.Addresses = addr
 		}
 	}
-	if e.id != nil && !hasEmail(existing.Emails, *e.id) {
-		existing.Emails = append(existing.Emails, e.emailToDTO())
+	if e.id != nil {
+		if email := e.emailToDTO(); email != nil && !hasEmail(existing.Emails, *e.id) {
+			existing.Emails = append(existing.Emails, email)
+		}
 	}
-	if p.id != nil && !hasPhone(existing.Phones, *p.id) {
-		existing.Phones = append(existing.Phones, p.phoneToDTO())
+	if p.id != nil {
+		if phone := p.phoneToDTO(); phone != nil && !hasPhone(existing.Phones, *p.id) {
+			existing.Phones = append(existing.Phones, phone)
+		}
 	}
-	if sm.id != nil && !hasSocialMedia(existing.SocialMedia, *sm.id) {
-		existing.SocialMedia = append(existing.SocialMedia, sm.socialMediaToDTO())
+	if sm.id != nil {
+		if socialMedia := sm.socialMediaToDTO(); socialMedia != nil && !hasSocialMedia(existing.SocialMedia, *sm.id) {
+			existing.SocialMedia = append(existing.SocialMedia, socialMedia)
+		}
 	}
 	return existing
 }

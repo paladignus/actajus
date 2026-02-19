@@ -101,7 +101,7 @@ func (c CompanyHandler) Update(w http.ResponseWriter, r *http.Request) {
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	handler.RespondJSON(w, http.StatusCreated, response)
+	handler.RespondJSON(w, http.StatusOK, response)
 }
 
 func (c CompanyHandler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -112,10 +112,17 @@ func (c CompanyHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	err = c.delete.Execute(r.Context(), req.IDCompany)
 	if err != nil {
+		var dErr *domain.FieldError
+		if errors.As(err, &dErr) {
+			handler.RespondJSON(w, http.StatusBadRequest, map[string]any{
+				"errors": domain.NewValidationErrors([]*domain.FieldError{dErr}).Errors(),
+			})
+			return
+		}
 		handler.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	handler.RespondJSON(w, http.StatusOK, map[string]string{})
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (c CompanyHandler) List(w http.ResponseWriter, r *http.Request) {

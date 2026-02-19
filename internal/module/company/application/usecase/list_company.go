@@ -6,14 +6,13 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
-	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database"
 )
 
 type ListCompanies struct {
 	repository domain.CompanyReadRepository
 }
 
-func NewListCompanies(repository database.CompanyReadRepository) ListCompanies {
+func NewListCompanies(repository domain.CompanyReadRepository) ListCompanies {
 	return ListCompanies{repository}
 }
 

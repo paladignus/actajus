@@ -134,7 +134,7 @@ func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error)
 		)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, sharedDomain.NewFieldError("cnpj", "cnpj not found")
+			return nil, sharedDomain.NewFieldError("id", "company not found")
 		}
 		return nil, err
 	}
