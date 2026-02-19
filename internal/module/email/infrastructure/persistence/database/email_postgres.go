@@ -41,7 +41,7 @@ func (e Email) Create(ctx context.Context, email *domain.Email) error {
 }
 
 func (e Email) Update(ctx context.Context, email domain.Email) error {
-	query := `UPDATE emails SET address = $1, updated_at = $2 WHERE idemails = $3 AND deleted_at IS NULL`
+	query := `UPDATE emails SET address = $1, updated_at = $2 WHERE idemails = $3`
 	_, err := e.pool.Exec(ctx, query,
 		email.Address(),
 		email.UpdatedAt(),

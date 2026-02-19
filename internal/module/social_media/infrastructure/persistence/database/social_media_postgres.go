@@ -66,6 +66,17 @@ func (s SocialMedia) Delete(ctx context.Context, socialMedia domain.SocialMedia)
 	return err
 }
 
+func (s SocialMedia) DeleteByIDCompany(ctx context.Context, idCompany uint) error {
+	now := time.Now()
+	query := `UPDATE social_media SET updated_at = $1, deleted_at = $2 WHERE id_companies = $3 AND deleted_at IS NULL`
+	_, err := s.pool.Exec(ctx, query, now, now, idCompany)
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		return nil
+	}
+	return err
+}
+
 func (s SocialMedia) FindByIDCompany(ctx context.Context, idCompany uint) ([]*domain.SocialMedia, error) {
 	query := `
 			SELECT

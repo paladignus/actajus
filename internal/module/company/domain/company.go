@@ -37,12 +37,6 @@ func NewCompanyBuilder() *CompanyBuilder {
 	}
 }
 
-// func (c *Company) UpdateBuilder() *CompanyBuilder {
-// 	return &CompanyBuilder{
-// 		company: c,
-// 	}
-// }
-
 func (b *CompanyBuilder) WithID(id uint) *CompanyBuilder {
 	b.company.id = id
 	return b
@@ -109,14 +103,6 @@ func (b *CompanyBuilder) Build() (*Company, error) {
 	}
 	return b.company, nil
 }
-
-// func (b *CompanyBuilder) Apply() error {
-// 	if err := b.company.validate(); err != nil {
-// 		return err
-// 	}
-// 	b.company.updatedAt = time.Now()
-// 	return nil
-// }
 
 func (c *Company) ID() uint                  { return c.id }
 func (c *Company) RegisteredBy() uint        { return c.registeredBy }

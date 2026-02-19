@@ -10,4 +10,5 @@ type SocialMediaRepository interface {
 	Update(ctx context.Context, socialMedia SocialMedia) error
 	Delete(ctx context.Context, socialMedia SocialMedia) error
 	FindByIDCompany(ctx context.Context, idCompany uint) ([]*SocialMedia, error)
+	DeleteByIDCompany(ctx context.Context, idCompany uint) error
 }

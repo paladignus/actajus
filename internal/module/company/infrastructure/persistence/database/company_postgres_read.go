@@ -33,18 +33,18 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
         e.idemails, e.address, e.created_at, e.updated_at,
         p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at,
         sm.idsocial_media, sm.platform, sm.url, sm.created_at, sm.updated_at,
-				COALESCE(CONCAT(pe.first_name, ' ', pe.last_name), '') AS name
+				CONCAT(pe.first_name, ' ', pe.last_name) name
     FROM (
         SELECT idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
         FROM companies
-        %s
+        WHERE deleted_at IS NULL %s
         ORDER BY %s
         LIMIT $%d
     ) c
     LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies AND ca.ended_at IS NULL
     LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses
-    LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
-    LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
+    LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies AND ce.ended_at IS NULL
+    LEFT JOIN emails e ON ce.id_emails = e.idemails
     LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies AND cp.ended_at IS NULL
     LEFT JOIN phones p ON cp.id_phones = p.idphones
     LEFT JOIN social_media sm ON sm.id_companies = c.idcompanies AND sm.deleted_at IS NULL
@@ -58,7 +58,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 		if err != nil {
 			return nil, fmt.Errorf("invalid after cursor: %w", err)
 		}
-		whereClause = fmt.Sprintf(`WHERE (created_at, idcompanies) > ($%d, $%d)`, argPosition, argPosition+1)
+		whereClause = fmt.Sprintf(`AND (created_at, idcompanies) > ($%d, $%d)`, argPosition, argPosition+1)
 		args = append(args, cursorData.Timestamp, cursorData.ID)
 		argPosition += 2
 		innerOrder = "created_at ASC, idcompanies ASC"
@@ -67,7 +67,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 		if err != nil {
 			return nil, fmt.Errorf("invalid before cursor: %w", err)
 		}
-		whereClause = fmt.Sprintf(`WHERE (created_at, idcompanies) < ($%d, $%d)`, argPosition, argPosition+1)
+		whereClause = fmt.Sprintf(`AND (created_at, idcompanies) < ($%d, $%d)`, argPosition, argPosition+1)
 		args = append(args, cursorData.Timestamp, cursorData.ID)
 		argPosition += 2
 		innerOrder = "created_at DESC, idcompanies DESC"

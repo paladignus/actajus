@@ -29,8 +29,6 @@ func (d DeleteCompany) Execute(ctx context.Context, id uint) error {
 	if company == nil {
 		return sharedDomain.NewFieldError("id", "company not found")
 	}
-
-	// Delete relationships first
 	if err := d.uow.CompanyAddress().DeleteByIDCompany(ctx, id); err != nil {
 		return fmt.Errorf("failed to delete company address relationship: %w", err)
 	}
@@ -40,8 +38,12 @@ func (d DeleteCompany) Execute(ctx context.Context, id uint) error {
 	if err := d.uow.CompanyEmail().DeleteByIDCompany(ctx, id); err != nil {
 		return fmt.Errorf("failed to delete company email relationship: %w", err)
 	}
-
-	company.Delete()
+	if err := d.uow.SocialMedia().DeleteByIDCompany(ctx, id); err != nil {
+		return fmt.Errorf("failed to delete company social media relationship: %w", err)
+	}
+	if err := company.Delete(); err != nil {
+		return err
+	}
 	if err := d.uow.Company().Delete(ctx, company); err != nil {
 		return err
 	}

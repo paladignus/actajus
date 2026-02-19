@@ -19,10 +19,9 @@ func NewCompanyPhone(pool postgres.PgxPool) *CompanyPhone {
 }
 
 func (c CompanyPhone) Create(ctx context.Context, idCompany, idPhone uint) error {
-	now := time.Now()
-	query := `INSERT INTO company_phone (id_companies, id_phones, created_at, started_at)
-		VALUES ($1, $2, $3, $4)`
-	_, err := c.pool.Exec(ctx, query, idCompany, idPhone, now, now)
+	query := `INSERT INTO company_phone (id_companies, id_phones, started_at)
+		VALUES ($1, $2, $3)`
+	_, err := c.pool.Exec(ctx, query, idCompany, idPhone, time.Now())
 	return err
 }
 
