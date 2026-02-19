@@ -43,13 +43,13 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 	socialMedia []*socialMediaDomain.SocialMedia,
 ) *dto.CompanyReadModel {
 	readModel := &dto.CompanyReadModel{
-		ID:           company.ID(),
-		Name:         company.Name().Value(),
-		TradeName:    company.TradeName().Value(),
-		CNPJ:         company.CNPJ().Value(),
-		RegisteredBy: company.RegisteredBy(),
-		CreatedAt:    company.CreatedAt(),
-		UpdatedAt:    company.UpdatedAt(),
+		ID:        company.ID(),
+		Name:      company.Name().Value(),
+		TradeName: company.TradeName().Value(),
+		CNPJ:      company.CNPJ().Value(),
+		// RegisteredBy: company.RegisteredBy(),
+		CreatedAt: company.CreatedAt(),
+		UpdatedAt: company.UpdatedAt(),
 	}
 	if address != nil {
 		readModel.Addresses = m.addrMapper.ProjectAddressToReadModel(address)

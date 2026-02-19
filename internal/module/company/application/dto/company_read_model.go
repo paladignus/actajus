@@ -15,7 +15,7 @@ type CompanyReadModel struct {
 	Name         string                                 `json:"name"`
 	TradeName    string                                 `json:"trade_name"`
 	CNPJ         string                                 `json:"cnpj"`
-	RegisteredBy uint                                   `json:"registered_by"`
+	RegisteredBy string                                 `json:"registered_by"`
 	Addresses    *addrDTO.AddressReadModel              `json:"address,omitzero"`
 	Phones       *phoneDTO.PhoneReadModel               `json:"phone,omitzero"`
 	Emails       *emailDTO.EmailReadModel               `json:"email,omitzero"`

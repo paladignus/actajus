@@ -93,12 +93,13 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
 	argPosition := 1
 	baseQuery := `
 	SELECT
-        c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
+        c.idcompanies, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
         a.idaddresses, a.zip, a.title, a.street, a.complement, a.reference, a.number, a.neighborhood,
         a.city, a.state, a.country, a.created_at, a.updated_at,
         e.idemails, e.address, e.created_at, e.updated_at,
         p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at,
-        sm.idsocial_media, sm.platform, sm.url, sm.created_at, sm.updated_at
+        sm.idsocial_media, sm.platform, sm.url, sm.created_at, sm.updated_at,
+				CONCAT(pe.first_name, ' ', pe.last_name) AS name
     FROM (
         SELECT idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
         FROM companies
@@ -113,6 +114,7 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
     LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
     LEFT JOIN phones p ON cp.id_phones = p.idphones
     LEFT JOIN social_media sm ON sm.id_companies = c.idcompanies AND sm.deleted_at IS NULL
+		LEFT JOIN people pe ON c.registered_by = pe.idpeople
     ORDER BY c.created_at ASC, c.idcompanies ASC;`
 	var whereClause string
 	var innerOrder string
@@ -155,12 +157,12 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
 			sm socialMediaScan
 		)
 		if err := rows.Scan(
-			&cp.id, &cp.registeredBy, &cp.name, &cp.tradeName, &cp.cnpj, &cp.createdAt, &cp.updatedAt,
+			&cp.id, &cp.name, &cp.tradeName, &cp.cnpj, &cp.createdAt, &cp.updatedAt,
 			&a.id, &a.zip, &a.title, &a.street, &a.complement, &a.reference,
 			&a.number, &a.neighborhood, &a.city, &a.state, &a.country, &a.createdAt, &a.updatedAt,
 			&e.id, &e.address, &e.createdAt, &e.updatedAt,
 			&p.id, &p.number, &p.kind, &p.department, &p.createdAt, &p.updatedAt,
-			&sm.id, &sm.platform, &sm.url, &sm.createdAt, &sm.updatedAt,
+			&sm.id, &sm.platform, &sm.url, &sm.createdAt, &sm.updatedAt, &cp.registeredBy,
 		); err != nil {
 			return nil, err
 		}
