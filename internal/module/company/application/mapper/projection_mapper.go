@@ -55,14 +55,14 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 		readModel.Addresses = m.addrMapper.ProjectAddressToReadModel(address)
 	}
 	if phone != nil {
-		readModel.Phones = m.phoneMapper.ProjectPhoneToReadModel(phone)
+		readModel.Phones = append(readModel.Phones, m.phoneMapper.ProjectPhoneToReadModel(phone))
 	}
 	if email != nil {
-		readModel.Emails = m.emailMapper.ProjectEmailToReadModel(email)
+		readModel.Emails = append(readModel.Emails, m.emailMapper.ProjectEmailToReadModel(email))
 	}
 	if len(socialMedia) > 0 {
-		for _, socialMedia := range socialMedia {
-			readModel.SocialMedia = append(readModel.SocialMedia, m.socialMediaMapper.ProjectSocialMediaToReadModel(socialMedia))
+		for _, sm := range socialMedia {
+			readModel.SocialMedia = append(readModel.SocialMedia, m.socialMediaMapper.ProjectSocialMediaToReadModel(sm))
 		}
 	}
 	return readModel

@@ -12,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
+	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
 	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
 	sharedDto "github.com/paladignus/actajus/internal/shared/application/dto"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
@@ -111,7 +113,7 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
     LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses
     LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
     LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
-    LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
+    LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies AND cp.ended_at IS NULL
     LEFT JOIN phones p ON cp.id_phones = p.idphones
     LEFT JOIN social_media sm ON sm.id_companies = c.idcompanies AND sm.deleted_at IS NULL
 		LEFT JOIN people pe ON c.registered_by = pe.idpeople
@@ -141,6 +143,7 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
 	}
 	query = fmt.Sprintf(baseQuery, whereClause, innerOrder, argPosition)
 	args = append(args, limit+1)
+	fmt.Println(query, args)
 	rows, err := c.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query companies: %w", err)
@@ -178,30 +181,24 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
 				existing.Addresses = addr
 			}
 		}
-
-		// email: acumula sem duplicar
-		// if idEmail != nil && !hasEmail(existing.Emails, *idEmail) {
-		// 	existing.Emails = append(existing.Emails, &emailDTO.EmailReadModel{
-		// 		ID:        *idEmail,
-		// 		Address:   *address,
-		// 		CreatedAt: emailCreatedAt.Format(time.RFC3339),
-		// 		UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
-		// 	})
-		// }
-		//
-		// // phone: acumula sem duplicar
-		// if idPhone != nil && !hasPhone(existing.Phones, *idPhone) {
-		// 	existing.Phones = append(existing.Phones, &phoneDTO.PhoneReadModel{
-		// 		ID:         *idPhone,
-		// 		Number:     *phoneNumber,
-		// 		Kind:       *kind,
-		// 		Department: *department,
-		// 		CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
-		// 		UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
-		// 	})
-		// }
-
-		// social media: acumula sem duplicar
+		if e.id != nil && !hasEmail(existing.Emails, *e.id) {
+			existing.Emails = append(existing.Emails, &emailDTO.EmailReadModel{
+				ID:        *e.id,
+				Address:   *e.address,
+				CreatedAt: *e.createdAt,
+				UpdatedAt: *e.updatedAt,
+			})
+		}
+		if p.id != nil && !hasPhone(existing.Phones, *p.id) {
+			existing.Phones = append(existing.Phones, &phoneDTO.PhoneReadModel{
+				ID:         *p.id,
+				Number:     *p.number,
+				Kind:       *p.kind,
+				Department: *p.department,
+				CreatedAt:  *p.createdAt,
+				UpdatedAt:  *p.updatedAt,
+			})
+		}
 		if sm.id != nil && !hasSocialMedia(existing.SocialMedia, *sm.id) {
 			existing.SocialMedia = append(existing.SocialMedia, &socialMediaDTO.SocialMediaReadModel{
 				ID:        *sm.id,
