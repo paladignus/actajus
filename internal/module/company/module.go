@@ -24,6 +24,7 @@ type Module struct {
 func NewModule(pool *pgxpool.Pool) Module {
 	uow := database.NewCompanyUnitOfWork(pool)
 	companyRepository := database.NewCompany(pool)
+	companyReadRepository := database.NewCompanyReadRepository(pool)
 	addressRepository := addressDB.NewAddress(pool)
 	phoneRepository := phoneDB.NewPhone(pool)
 	emailRepository := emailDB.NewEmail(pool)
@@ -51,7 +52,7 @@ func NewModule(pool *pgxpool.Pool) Module {
 	createUC := usecase.NewCreateCompany(&uow, *mapper, projection)
 	updateUC := usecase.NewUpdateCompany(&uow, *mapper, projection)
 	deleteUC := usecase.NewDeleteCompany(&uow)
-	listUC := usecase.NewListCompanies(companyRepository)
+	listUC := usecase.NewListCompanies(companyReadRepository)
 	findByCNPJ := usecase.NewFindByCNPJ(
 		companyRepository,
 		addressRepository,

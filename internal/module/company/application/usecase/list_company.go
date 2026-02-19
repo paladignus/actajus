@@ -6,16 +6,17 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
+	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database"
 )
 
 type ListCompanies struct {
-	list domain.CompanyRepository
+	repository domain.CompanyReadRepository
 }
 
-func NewListCompanies(list domain.CompanyRepository) ListCompanies {
-	return ListCompanies{list}
+func NewListCompanies(repository database.CompanyReadRepository) ListCompanies {
+	return ListCompanies{repository}
 }
 
 func (l ListCompanies) Execute(ctx context.Context, after, before *string, limit int, baseURL string) (*dto.CompanyListReadModel, error) {
-	return l.list.List(ctx, after, before, limit, baseURL)
+	return l.repository.List(ctx, after, before, limit, baseURL)
 }
