@@ -10,11 +10,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/domain"
-	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
-	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
 	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
 	sharedDto "github.com/paladignus/actajus/internal/shared/application/dto"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
@@ -95,163 +92,128 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
 	var args []any
 	argPosition := 1
 	baseQuery := `
-		SELECT
-			c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
-			a.idaddresses, a.zip, a.title, a.street, a.complement, a.reference, a.number, a.neighborhood,
-			a.city, a.state, a.country, a.created_at, a.updated_at, e.idemails, e.address, e.created_at, e.updated_at,
-			p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at
-		FROM companies c
-		LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies AND ca.ended_at IS NULL
-		LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses
-		LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
-		LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
-		LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
-		LEFT JOIN phones p ON cp.id_phones = p.idphones
-	`
+	SELECT
+        c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
+        a.idaddresses, a.zip, a.title, a.street, a.complement, a.reference, a.number, a.neighborhood,
+        a.city, a.state, a.country, a.created_at, a.updated_at,
+        e.idemails, e.address, e.created_at, e.updated_at,
+        p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at,
+        sm.idsocial_media, sm.platform, sm.url, sm.created_at, sm.updated_at
+    FROM (
+        SELECT idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
+        FROM companies
+        %s
+        ORDER BY %s
+        LIMIT $%d
+    ) c
+    LEFT JOIN company_address ca ON c.idcompanies = ca.id_companies AND ca.ended_at IS NULL
+    LEFT JOIN addresses a ON ca.id_addresses = a.idaddresses
+    LEFT JOIN company_email ce ON c.idcompanies = ce.id_companies
+    LEFT JOIN emails e ON ce.id_emails = e.idemails AND e.deleted_at IS NULL
+    LEFT JOIN company_phone cp ON c.idcompanies = cp.id_companies
+    LEFT JOIN phones p ON cp.id_phones = p.idphones
+    LEFT JOIN social_media sm ON sm.id_companies = c.idcompanies AND sm.deleted_at IS NULL
+    ORDER BY c.created_at ASC, c.idcompanies ASC;`
 	var whereClause string
-	var orderClause string
+	var innerOrder string
 	if after != nil {
 		cursorData, err := postgres.DecodeCursor(*after)
 		if err != nil {
 			return nil, fmt.Errorf("invalid after cursor: %w", err)
 		}
-		whereClause = fmt.Sprintf(`
-            WHERE (c.created_at > $%d AND c.idcompanies > $%d)
-        `, argPosition, argPosition+1)
+		whereClause = fmt.Sprintf(`WHERE (created_at, idcompanies) > ($%d, $%d)`, argPosition, argPosition+1)
 		args = append(args, cursorData.Timestamp, cursorData.ID)
 		argPosition += 2
-		orderClause = "ORDER BY c.created_at ASC, c.idcompanies ASC"
+		innerOrder = "created_at ASC, idcompanies ASC"
 	} else if before != nil {
 		cursorData, err := postgres.DecodeCursor(*before)
 		if err != nil {
 			return nil, fmt.Errorf("invalid before cursor: %w", err)
 		}
-		whereClause = fmt.Sprintf(`
-            WHERE (c.created_at < $%d AND c.idcompanies < $%d)
-        `, argPosition, argPosition+1)
+		whereClause = fmt.Sprintf(`WHERE (created_at, idcompanies) < ($%d, $%d)`, argPosition, argPosition+1)
 		args = append(args, cursorData.Timestamp, cursorData.ID)
 		argPosition += 2
-		orderClause = "ORDER BY c.created_at DESC, c.idcompanies DESC"
+		innerOrder = "created_at DESC, idcompanies DESC" // pega os mais próximos do cursor
 	} else {
-		whereClause = ""
-		orderClause = "ORDER BY c.created_at ASC, c.idcompanies ASC"
+		innerOrder = "created_at ASC, idcompanies ASC"
 	}
-	query = fmt.Sprintf("%s %s %s LIMIT $%d",
-		baseQuery, whereClause, orderClause, argPosition)
+	query = fmt.Sprintf(baseQuery, whereClause, innerOrder, argPosition)
 	args = append(args, limit+1)
 	rows, err := c.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query companies: %w", err)
 	}
 	defer rows.Close()
-	companies := make([]dto.CompanyReadModel, 0, limit)
+	companiesMap := make(map[uint]*dto.CompanyReadModel)
+	order := make([]uint, 0, limit)
 	for rows.Next() {
 		var (
-			cp     dto.CompanyReadModel
-			a      addrDTO.AddressReadModel
-			addrID *uint
-			// idAddress       *uint
-			// zip             *string
-			// title           *string
-			// street          *string
-			// complement      *string
-			// reference       *string
-			// number          *uint
-			// neighborhood    *string
-			// city            *string
-			// state           *string
-			// country         *string
-			// addresCreatedAt *time.Time
-			// addresUpdatedAt *time.Time
-
-			idEmail        *uint
-			address        *string
-			emailCreatedAt *time.Time
-			emailUpdatedAt *time.Time
-
-			idPhone        *uint
-			phoneNumber    *string
-			kind           *string
-			department     *string
-			phoneCreatedAt *time.Time
-			phoneUpdatedAt *time.Time
+			cp companyScan
+			a  addressScan
+			e  emailScan
+			p  phoneScan
+			sm socialMediaScan
 		)
 		if err := rows.Scan(
-			&cp.ID, &cp.RegisteredBy, &cp.Name, &cp.TradeName, &cp.CNPJ, &cp.CreatedAt, &cp.UpdatedAt,
-			&addrID, &a.ZIP, &a.Title, &a.Street, &a.Complement, &a.Reference, &a.Number, &a.Neighborhood, &a.City,
-			&a.State, &a.Country, &a.CreatedAt, &a.UpdatedAt, &idEmail, &address, &emailCreatedAt, &emailUpdatedAt,
-			&idPhone, &phoneNumber, &kind, &department, &phoneCreatedAt, &phoneUpdatedAt,
+			&cp.id, &cp.registeredBy, &cp.name, &cp.tradeName, &cp.cnpj, &cp.createdAt, &cp.updatedAt,
+			&a.id, &a.zip, &a.title, &a.street, &a.complement, &a.reference,
+			&a.number, &a.neighborhood, &a.city, &a.state, &a.country, &a.createdAt, &a.updatedAt,
+			&e.id, &e.address, &e.createdAt, &e.updatedAt,
+			&p.id, &p.number, &p.kind, &p.department, &p.createdAt, &p.updatedAt,
+			&sm.id, &sm.platform, &sm.url, &sm.createdAt, &sm.updatedAt,
 		); err != nil {
 			return nil, err
 		}
-		if addrID != nil {
-			a.ID = *addrID
-			cp.Address = &a
+		company := cp.companyToDTO()
+		existing, seen := companiesMap[company.ID]
+		if !seen {
+			companiesMap[company.ID] = company
+			order = append(order, company.ID)
+			existing = company
 		}
-		// if idAddress != nil {
-		// 	cp.Address = &addrDTO.AddressReadModel{
-		// 		ID:           *idAddress,
-		// 		ZIP:          *zip,
-		// 		Title:        *title,
-		// 		Street:       *street,
-		// 		Number:       *number,
-		// 		Complement:   *complement,
-		// 		Reference:    *reference,
-		// 		Neighborhood: *neighborhood,
-		// 		City:         *city,
-		// 		State:        *state,
-		// 		Country:      *country,
-		// 		CreatedAt:    addresCreatedAt.Format(time.RFC3339),
-		// 		UpdatedAt:    addresUpdatedAt.Format(time.RFC3339),
-		// 	}
+		if existing.Addresses == nil {
+			if addr := a.addressToDTO(); addr != nil {
+				existing.Addresses = addr
+			}
+		}
+
+		// email: acumula sem duplicar
+		// if idEmail != nil && !hasEmail(existing.Emails, *idEmail) {
+		// 	existing.Emails = append(existing.Emails, &emailDTO.EmailReadModel{
+		// 		ID:        *idEmail,
+		// 		Address:   *address,
+		// 		CreatedAt: emailCreatedAt.Format(time.RFC3339),
+		// 		UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
+		// 	})
 		// }
-		if idEmail != nil {
-			cp.Email = &emailDTO.EmailReadModel{
-				ID:        *idEmail,
-				Address:   *address,
-				CreatedAt: emailCreatedAt.Format(time.RFC3339),
-				UpdatedAt: emailUpdatedAt.Format(time.RFC3339),
-			}
-		}
-		if idPhone != nil {
-			cp.Phone = &phoneDTO.PhoneReadModel{
-				ID:         *idPhone,
-				Number:     *phoneNumber,
-				Kind:       *kind,
-				Department: *department,
-				CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
-				UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
-			}
-		}
-		query := `
-				SELECT idsocial_media, platform, url, created_at, updated_at
-				FROM social_media WHERE id_companies = $1 AND deleted_at IS NULL`
-		rows, err := c.pool.Query(ctx, query, cp.ID)
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var (
-				idSocialMedia uint
-				platform      string
-				url           string
-				createdAt     time.Time
-				updatedAt     time.Time
-			)
-			if err := rows.Scan(&idSocialMedia, &platform, &url, &createdAt, &updatedAt); err != nil {
-				return nil, err
-			}
-			cp.SocialMedia = append(cp.SocialMedia, &socialMediaDTO.SocialMediaReadModel{
-				ID:        idSocialMedia,
-				IDCompany: cp.ID,
-				Platform:  platform,
-				URL:       url,
-				CreatedAt: createdAt.Format(time.RFC3339),
-				UpdatedAt: updatedAt.Format(time.RFC3339),
+		//
+		// // phone: acumula sem duplicar
+		// if idPhone != nil && !hasPhone(existing.Phones, *idPhone) {
+		// 	existing.Phones = append(existing.Phones, &phoneDTO.PhoneReadModel{
+		// 		ID:         *idPhone,
+		// 		Number:     *phoneNumber,
+		// 		Kind:       *kind,
+		// 		Department: *department,
+		// 		CreatedAt:  phoneCreatedAt.Format(time.RFC3339),
+		// 		UpdatedAt:  phoneUpdatedAt.Format(time.RFC3339),
+		// 	})
+		// }
+
+		// social media: acumula sem duplicar
+		if sm.id != nil && !hasSocialMedia(existing.SocialMedia, *sm.id) {
+			existing.SocialMedia = append(existing.SocialMedia, &socialMediaDTO.SocialMediaReadModel{
+				ID:        *sm.id,
+				IDCompany: existing.ID,
+				Platform:  *sm.platform,
+				URL:       *sm.url,
+				CreatedAt: *sm.createdAt,
+				UpdatedAt: *sm.updatedAt,
 			})
 		}
-		companies = append(companies, cp)
+	}
+	companies := make([]dto.CompanyReadModel, 0, len(order))
+	for _, id := range order {
+		companies = append(companies, *companiesMap[id])
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating rows: %w", err)

@@ -45,7 +45,7 @@ type CursorData struct {
 }
 
 func EncodeCursor(timestamp time.Time, id string) string {
-	cursorStr := fmt.Sprintf("%d_%s", timestamp.Unix(), id)
+	cursorStr := fmt.Sprintf("%d_%s", timestamp.UnixNano(), id)
 	return base64.StdEncoding.EncodeToString([]byte(cursorStr))
 }
 
@@ -59,12 +59,13 @@ func DecodeCursor(cursor string) (*CursorData, error) {
 	if len(split) != 2 {
 		return nil, fmt.Errorf("invalid cursor structure")
 	}
-	timestamp, err := strconv.ParseInt(split[0], 10, 64)
+	nano, err := strconv.ParseInt(split[0], 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid timestamp ir cursor %w", err)
 	}
 	return &CursorData{
-		Timestamp: time.Unix(timestamp, 0),
+		// Timestamp: time.Unix(timestamp, 0),
+		Timestamp: time.Unix(0, nano).UTC(),
 		ID:        split[1],
 	}, nil
 }

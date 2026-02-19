@@ -2,8 +2,6 @@
 package mapper
 
 import (
-	"time"
-
 	"github.com/paladignus/actajus/internal/module/phone/application/dto"
 	"github.com/paladignus/actajus/internal/module/phone/domain"
 )
@@ -20,7 +18,7 @@ func (p PhoneProjectionMapper) ProjectPhoneToReadModel(phone *domain.Phone) *dto
 		Number:     phone.Number().Value(),
 		Kind:       phone.Kind().Value(),
 		Department: phone.Department().Value(),
-		CreatedAt:  phone.CreatedAt().Format(time.RFC3339),
-		UpdatedAt:  phone.UpdatedAt().Format(time.RFC3339),
+		CreatedAt:  phone.CreatedAt(),
+		UpdatedAt:  phone.UpdatedAt(),
 	}
 }

@@ -16,9 +16,9 @@ type CompanyReadModel struct {
 	TradeName    string                                 `json:"trade_name"`
 	CNPJ         string                                 `json:"cnpj"`
 	RegisteredBy uint                                   `json:"registered_by"`
-	Address      *addrDTO.AddressReadModel              `json:"address,omitzero"`
-	Phone        *phoneDTO.PhoneReadModel               `json:"phone,omitzero"`
-	Email        *emailDTO.EmailReadModel               `json:"email,omitzero"`
+	Addresses    *addrDTO.AddressReadModel              `json:"address,omitzero"`
+	Phones       *phoneDTO.PhoneReadModel               `json:"phone,omitzero"`
+	Emails       *emailDTO.EmailReadModel               `json:"email,omitzero"`
 	SocialMedia  []*socialMediaDTO.SocialMediaReadModel `json:"social_media,omitzero"`
 	CreatedAt    time.Time                              `json:"created_at"`
 	UpdatedAt    time.Time                              `json:"updated_at"`

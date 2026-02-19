@@ -52,13 +52,13 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 		UpdatedAt:    company.UpdatedAt(),
 	}
 	if address != nil {
-		readModel.Address = m.addrMapper.ProjectAddressToReadModel(address)
+		readModel.Addresses = m.addrMapper.ProjectAddressToReadModel(address)
 	}
 	if phone != nil {
-		readModel.Phone = m.phoneMapper.ProjectPhoneToReadModel(phone)
+		readModel.Phones = m.phoneMapper.ProjectPhoneToReadModel(phone)
 	}
 	if email != nil {
-		readModel.Email = m.emailMapper.ProjectEmailToReadModel(email)
+		readModel.Emails = m.emailMapper.ProjectEmailToReadModel(email)
 	}
 	if len(socialMedia) > 0 {
 		for _, socialMedia := range socialMedia {

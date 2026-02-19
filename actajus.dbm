@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="302,1215" last-zoom="1" scene-rect="0,-50.7679,2693.34,2778.89"
+	 last-position="407,1779" last-zoom="1" scene-rect="0,-50.7679,2693.34,2778.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -641,6 +641,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.phones"
 	 dst-table="public.company_phone"
 	 src-required="true" dst-required="false">
+	<label ref-type="src-label">
+		<position x="0" y="0"/>
+	</label>
 	<label ref-type="name-label">
 		<position x="0" y="0"/>
 	</label>
