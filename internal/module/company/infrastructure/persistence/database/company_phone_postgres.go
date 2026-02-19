@@ -25,3 +25,9 @@ func (c CompanyPhone) Create(ctx context.Context, idCompany, idPhone uint) error
 	_, err := c.pool.Exec(ctx, query, idCompany, idPhone, now, now)
 	return err
 }
+
+func (c CompanyPhone) DeleteByIDCompany(ctx context.Context, idCompany uint) error {
+	query := `UPDATE company_phone SET ended_at = $1 WHERE id_companies = $2 AND ended_at IS NULL`
+	_, err := c.pool.Exec(ctx, query, time.Now(), idCompany)
+	return err
+}
