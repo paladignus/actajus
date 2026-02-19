@@ -13,20 +13,21 @@ func NewAddressProjectionMapper() AddressPrejectionMapper {
 }
 
 func (a AddressPrejectionMapper) ProjectAddressToReadModel(address *domain.Address) *dto.AddressReadModel {
-	return &dto.AddressReadModel{}
-	// return &dto.AddressReadModel{
-	// 	ID:           address.ID(),
-	// 	ZIP:          address.ZIP().Value(),
-	// 	Title:        address.Title().Value(),
-	// 	Street:       address.Street().Value(),
-	// 	Number:       address.Number(),
-	// 	Complement:   address.Complement().Value(),
-	// 	Reference:    address.Reference().Value(),
-	// 	Neighborhood: address.Neighborhood().Value(),
-	// 	City:         address.City().Value(),
-	// 	State:        address.State().Value(),
-	// 	Country:      address.Country().Value(),
-	// 	CreatedAt:    address.CreatedAt(),
-	// 	UpdatedAt:    address.UpdatedAt(),
-	// }
+	complement := address.Complement().Value()
+	reference := address.Reference().Value()
+	return &dto.AddressReadModel{
+		ID:           address.ID(),
+		ZIP:          address.ZIP().Value(),
+		Title:        address.Title().Value(),
+		Street:       address.Street().Value(),
+		Number:       address.Number(),
+		Complement:   &complement,
+		Reference:    &reference,
+		Neighborhood: address.Neighborhood().Value(),
+		City:         address.City().Value(),
+		State:        address.State().Value(),
+		Country:      address.Country().Value(),
+		CreatedAt:    address.CreatedAt(),
+		UpdatedAt:    address.UpdatedAt(),
+	}
 }
