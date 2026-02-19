@@ -12,13 +12,13 @@ import (
 )
 
 type companyScan struct {
-	id           *uint
-	registeredBy *string
-	name         *string
-	tradeName    *string
-	cnpj         *string
-	createdAt    *time.Time
-	updatedAt    *time.Time
+	id               *uint
+	registeredByName *string
+	name             *string
+	tradeName        *string
+	cnpj             *string
+	createdAt        *time.Time
+	updatedAt        *time.Time
 }
 
 func (c companyScan) companyToDTO() *companyDTO.CompanyReadModel {
@@ -26,13 +26,13 @@ func (c companyScan) companyToDTO() *companyDTO.CompanyReadModel {
 		return nil
 	}
 	return &companyDTO.CompanyReadModel{
-		ID:           *c.id,
-		Name:         *c.name,
-		RegisteredBy: *c.registeredBy,
-		TradeName:    *c.tradeName,
-		CNPJ:         *c.cnpj,
-		CreatedAt:    *c.createdAt,
-		UpdatedAt:    *c.updatedAt,
+		ID:               *c.id,
+		Name:             *c.name,
+		RegisteredByName: *c.registeredByName,
+		TradeName:        *c.tradeName,
+		CNPJ:             *c.cnpj,
+		CreatedAt:        *c.createdAt,
+		UpdatedAt:        *c.updatedAt,
 	}
 }
 

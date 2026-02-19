@@ -9,17 +9,18 @@ import (
 )
 
 type Company struct {
-	id           uint
-	registeredBy uint
-	idAddress    uint
-	idPhone      uint
-	idEmail      uint
-	name         vo.Text
-	tradeName    vo.Text
-	cnpj         vo.CNPJ
-	createdAt    time.Time
-	updatedAt    time.Time
-	deletedAt    *time.Time
+	id               uint
+	registeredBy     uint
+	idAddress        uint
+	idPhone          uint
+	idEmail          uint
+	registeredByName vo.Text
+	name             vo.Text
+	tradeName        vo.Text
+	cnpj             vo.CNPJ
+	createdAt        time.Time
+	updatedAt        time.Time
+	deletedAt        *time.Time
 }
 
 type CompanyBuilder struct {
@@ -112,16 +113,18 @@ func (b *CompanyBuilder) Build() (*Company, error) {
 // 	return nil
 // }
 
-func (c *Company) ID() uint              { return c.id }
-func (c *Company) RegisteredBy() uint    { return c.registeredBy }
-func (c *Company) Name() vo.Text         { return c.name }
-func (c *Company) TradeName() vo.Text    { return c.tradeName }
-func (c *Company) CNPJ() vo.CNPJ         { return c.cnpj }
-func (c *Company) IDAddress() uint       { return c.idAddress }
-func (c *Company) IDPhone() uint         { return c.idPhone }
-func (c *Company) CreatedAt() time.Time  { return c.createdAt }
-func (c *Company) UpdatedAt() time.Time  { return c.updatedAt }
-func (c *Company) DeletedAt() *time.Time { return c.deletedAt }
+func (c *Company) ID() uint                  { return c.id }
+func (c *Company) RegisteredBy() uint        { return c.registeredBy }
+func (c *Company) Name() vo.Text             { return c.name }
+func (c *Company) TradeName() vo.Text        { return c.tradeName }
+func (c *Company) CNPJ() vo.CNPJ             { return c.cnpj }
+func (c *Company) IDAddress() uint           { return c.idAddress }
+func (c *Company) IDPhone() uint             { return c.idPhone }
+func (c *Company) IDEmail() uint             { return c.idEmail }
+func (c *Company) RegisteredByName() vo.Text { return c.registeredByName }
+func (c *Company) CreatedAt() time.Time      { return c.createdAt }
+func (c *Company) UpdatedAt() time.Time      { return c.updatedAt }
+func (c *Company) DeletedAt() *time.Time     { return c.deletedAt }
 
 func (c *Company) Delete() error {
 	if c.id == 0 {

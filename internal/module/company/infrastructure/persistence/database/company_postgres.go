@@ -162,7 +162,7 @@ func (c Company) List(ctx context.Context, after, before *string, limit int, bas
 			&a.number, &a.neighborhood, &a.city, &a.state, &a.country, &a.createdAt, &a.updatedAt,
 			&e.id, &e.address, &e.createdAt, &e.updatedAt,
 			&p.id, &p.number, &p.kind, &p.department, &p.createdAt, &p.updatedAt,
-			&sm.id, &sm.platform, &sm.url, &sm.createdAt, &sm.updatedAt, &cp.registeredBy,
+			&sm.id, &sm.platform, &sm.url, &sm.createdAt, &sm.updatedAt, &cp.registeredByName,
 		); err != nil {
 			return nil, err
 		}

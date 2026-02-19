@@ -11,15 +11,15 @@ import (
 )
 
 type CompanyReadModel struct {
-	ID           uint                                   `json:"id"`
-	Name         string                                 `json:"name"`
-	TradeName    string                                 `json:"trade_name"`
-	CNPJ         string                                 `json:"cnpj"`
-	RegisteredBy string                                 `json:"registered_by"`
-	Addresses    *addrDTO.AddressReadModel              `json:"address,omitzero"`
-	Phones       *phoneDTO.PhoneReadModel               `json:"phone,omitzero"`
-	Emails       *emailDTO.EmailReadModel               `json:"email,omitzero"`
-	SocialMedia  []*socialMediaDTO.SocialMediaReadModel `json:"social_media,omitzero"`
-	CreatedAt    time.Time                              `json:"created_at"`
-	UpdatedAt    time.Time                              `json:"updated_at"`
+	ID               uint                                   `json:"id"`
+	Name             string                                 `json:"name"`
+	TradeName        string                                 `json:"trade_name"`
+	CNPJ             string                                 `json:"cnpj"`
+	RegisteredByName string                                 `json:"registered_by"`
+	Addresses        *addrDTO.AddressReadModel              `json:"address,omitzero"`
+	Phones           *phoneDTO.PhoneReadModel               `json:"phone,omitzero"`
+	Emails           *emailDTO.EmailReadModel               `json:"email,omitzero"`
+	SocialMedia      []*socialMediaDTO.SocialMediaReadModel `json:"social_media,omitzero"`
+	CreatedAt        time.Time                              `json:"created_at"`
+	UpdatedAt        time.Time                              `json:"updated_at"`
 }
