@@ -39,12 +39,6 @@ func NewAddressBuilder() *AddressBuilder {
 	}
 }
 
-// func (a *Address) UpdateBuilder() *AddressBuilder {
-// 	return &AddressBuilder{
-// 		address: a,
-// 	}
-// }
-
 func (b *AddressBuilder) WithID(id uint) *AddressBuilder {
 	b.address.id = id
 	return b

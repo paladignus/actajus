@@ -2,8 +2,18 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+)
+
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrUserBlocked        = errors.New("user blocked")
+	ErrSessionNotFound    = errors.New("session not found")
+	ErrSessionRevoked     = errors.New("session revoked")
+	ErrSessionExpired     = errors.New("session expired")
+	ErrRefreshMismatch    = errors.New("refresh token mismatch")
 )
 
 type FieldError struct {

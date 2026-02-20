@@ -30,12 +30,6 @@ func NewEmailBuilder() *EmailBuilder {
 	}
 }
 
-func (e *Email) UpdateBuilder() *EmailBuilder {
-	return &EmailBuilder{
-		email: e,
-	}
-}
-
 func (e *EmailBuilder) WithID(id uint) *EmailBuilder {
 	e.email.id = id
 	return e

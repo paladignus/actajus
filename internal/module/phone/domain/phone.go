@@ -32,12 +32,6 @@ func NewPhoneBuilder() *PhoneBuilder {
 	}
 }
 
-// func (p *Phone) UpdateBuilder() *PhoneBuilder {
-// 	return &PhoneBuilder{
-// 		phone: p,
-// 	}
-// }
-
 func (p *PhoneBuilder) WithID(id uint) *PhoneBuilder {
 	p.phone.id = id
 	return p

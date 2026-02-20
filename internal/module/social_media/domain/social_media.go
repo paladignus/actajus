@@ -32,12 +32,6 @@ func NewSocialMediaBuilder() *SocialMediaBuilder {
 	}
 }
 
-func (s *SocialMedia) UpdateBuilder() *SocialMediaBuilder {
-	return &SocialMediaBuilder{
-		socialMedia: s,
-	}
-}
-
 func (s *SocialMediaBuilder) WithID(id uint) *SocialMediaBuilder {
 	s.socialMedia.id = id
 	return s
