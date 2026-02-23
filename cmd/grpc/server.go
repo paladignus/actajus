@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/paladignus/actajus/internal/module/identity"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	"github.com/paladignus/actajus/internal/module/person"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
@@ -19,7 +20,6 @@ import (
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
-	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	// identityv1connect "github.com/paladignus/actajus/gen/identity/v1/identityv1connect"
@@ -38,6 +38,7 @@ func main() {
 	defer db.Close()
 	logger.Info(ctx, "✅ Database connected successfully")
 	person := person.NewModule(db, logger)
+	identity := identity.NewModule(db, logger)
 	logger.Info(ctx, "✅ Modules initialized successfully")
 	mux := http.NewServeMux()
 	recoverI := interceptor.NewRecoverInterceptor(logger)
@@ -70,7 +71,8 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println(accessSvc, clk, refreshSvc, hasher)
-	mux.Handle(identityv1connect.NewAuthServiceHandler(identity.Handler, interceptors))
+	// mux.Handle(identityv1connect.NewAuthServiceHandler(identity.Handler, interceptors))
+	mux.Handle(identity.Route(interceptors))
 	mux.Handle(person.Route(interceptors))
 	handler := corsMiddleware(mux)
 	srv := &http.Server{

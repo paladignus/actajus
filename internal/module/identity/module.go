@@ -5,10 +5,9 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
-	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
+	"github.com/paladignus/actajus/internal/shared/domain/repository"
 	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 )
 
@@ -25,46 +24,19 @@ import (
 // 	ResetConfig   config.PasswordResetConfig
 // }
 
-// type JWTConfig struct {
-// 	Issuer       string
-// 	Audience     string
-// 	AccessTTL    time.Duration
-// 	AccessSecret string // usado apenas pela infra do HS256
-// }
-//
-// type SessionConfig struct {
-// 	RefreshTTL  time.Duration
-// 	MaxSessions int
-// }
-//
-// type PasswordResetConfig struct {
-// 	ResetTTL time.Duration
-// }
-
 type Module struct {
 	Handler handler.AuthHandler
-	// Exponho ValidateAccess pra você plugar no AuthInterceptor no main.
-	ValidateAccess usecase.ValidateAccess
 }
 
 func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
 	return identityv1connect.NewAuthServiceHandler(m.Handler, opts...)
 }
 
-func NewModule() (Module, error) {
-	// infra services puros (sem DB)
-	clk := clock.NewSystemClock()
-	refreshSvc := security.NewRefreshTokenService()
-	hasher := security.NewArgon2idPasswordHasher()
-	accessSvc, err := security.NewHS256AccessTokenService(
-		dep.JWTConfig.AccessSecret,
-		dep.JWTConfig.Issuer,
-		dep.JWTConfig.Audience,
-	)
-	if err != nil {
-		return Module{}, err
-	}
-	return Module{}, err
+func NewModule(
+	pool *pgxpool.Pool,
+	logger repository.Logger,
+) Module {
+	return Module{}
 }
 
 // mapper (validação/normalização)
