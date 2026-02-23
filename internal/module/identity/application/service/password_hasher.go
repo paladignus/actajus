@@ -3,5 +3,6 @@ package service
 
 type PasswordHasher interface {
 	Hash(plain string) (string, error)
-	Compare(hash string, plain string) error
+	Compare(encodedHash string, plain string) error
+	NeedsRehash(encodedHash string) bool
 }

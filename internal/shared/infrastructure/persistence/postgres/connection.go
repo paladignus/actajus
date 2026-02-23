@@ -8,7 +8,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/paladignus/actajus/internal/domain/repository"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 )
 
@@ -38,7 +37,7 @@ func (t *TxAdapter) Exec(ctx context.Context, sql string, args ...any) (pgconn.C
 	return t.tx.Exec(ctx, sql, args...)
 }
 
-func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repository.Logger) (*pgxpool.Pool, error) {
+func NewConnection(ctx context.Context, cfg *config.DatabaseConfig) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 	poolConfig, err := pgxpool.ParseConfig(dsn)
@@ -54,6 +53,5 @@ func NewConnection(ctx context.Context, cfg *config.DatabaseConfig, logger repos
 	if err := pool.Ping(ctx); err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
-	logger.Info(ctx, "database connection sucessfully")
 	return pool, nil
 }

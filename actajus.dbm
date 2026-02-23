@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,368" last-zoom="0.9" scene-rect="0,-60.7679,2690.55,2746.68"
+	 last-position="0,145" last-zoom="0.9" scene-rect="0,-60.7679,2690.55,2746.68"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -109,13 +109,13 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="574.398" y="906.572"/>
-	<column name="password" not-null="true">
+	<column name="password_hash" not-null="true">
 		<type name="text" length="0"/>
 	</column>
 	<column name="avatar">
 		<type name="text" length="0"/>
 	</column>
-	<column name="is_blocked" not-null="true">
+	<column name="is_blocked" not-null="true" default-value="FALSE">
 		<type name="boolean" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">

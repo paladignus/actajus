@@ -11,4 +11,5 @@ import (
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email vo.Email) (*identity.User, error)
 	FindByID(ctx context.Context, id identity.IDUser) (*identity.User, error)
+	UpdatePasswordHash(ctx context.Context, idUser identity.IDUser, passwordHash string) error
 }

@@ -1,0 +1,79 @@
+// Package usecase
+package usecase
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
+	"github.com/paladignus/actajus/internal/module/identity/application/repository"
+	"github.com/paladignus/actajus/internal/module/identity/application/service"
+	identity "github.com/paladignus/actajus/internal/module/identity/domain"
+)
+
+type ConfirmPasswordReset struct {
+	user              repository.UserRepository
+	session           repository.SessionRepository
+	reset             repository.PasswordResetRepository
+	hasher            service.PasswordHasher
+	refresh           service.RefreshTokenService
+	clock             service.Clock
+	mapper            mapper.AuthMapper
+	RevokeAllSessions bool
+}
+
+func NewConfirmPasswordReset(
+	user repository.UserRepository,
+	session repository.SessionRepository,
+	reset repository.PasswordResetRepository,
+	hasher service.PasswordHasher,
+	refresh service.RefreshTokenService,
+	clock service.Clock,
+	mapper mapper.AuthMapper,
+	revokeAll bool,
+) ConfirmPasswordReset {
+	return ConfirmPasswordReset{
+		user, session, reset,
+		hasher, refresh, clock, mapper,
+		revokeAll,
+	}
+}
+
+func (uc ConfirmPasswordReset) Execute(ctx context.Context, input dto.ConfirmPasswordResetCommand) error {
+	norm, err := uc.mapper.ConfirmPasswordResetInputToNormalized(input)
+	if err != nil {
+		return fmt.Errorf("invalid password reset confirm data: %w", err)
+	}
+	now := uc.clock.Now()
+	rid := identity.IDPasswordReset(norm.IDReset)
+	rec, err := uc.reset.GetByID(ctx, rid)
+	if err != nil || rec == nil {
+		return identity.ErrResetTokenNotFound
+	}
+	if rec.UsedAt != nil {
+		return identity.ErrResetTokenUsed
+	}
+	if !now.Before(rec.ExpiresAt) {
+		_ = uc.reset.MarkUsed(ctx, rid, now)
+		return identity.ErrResetTokenExpired
+	}
+	if ok := uc.refresh.Compare(norm.ResetToken, rec.Hash); !ok {
+		return identity.ErrResetTokenInvalid
+	}
+	newHash, err := uc.hasher.Hash(norm.NewPassword)
+	if err != nil {
+		return err
+	}
+	if err := uc.user.UpdatePasswordHash(ctx, rec.IDUser, newHash); err != nil {
+		return err
+	}
+	if err := uc.reset.MarkUsed(ctx, rid, now); err != nil {
+		return err
+	}
+	if uc.RevokeAllSessions {
+		_ = uc.session.RevokeAllByUser(ctx, rec.IDUser)
+	}
+
+	return nil
+}

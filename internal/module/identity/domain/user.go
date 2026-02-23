@@ -25,3 +25,7 @@ func (u *User) ID() IDUser                 { return u.id }
 func (u *User) PrimaryEmail() vo.Email     { return u.primaryEmail }
 func (u *User) PasswordHash() PasswordHash { return u.passwordHash }
 func (u *User) IsBlocked() bool            { return u.isBlocked }
+
+func (u *User) SetPasswordHash(hash PasswordHash) {
+	u.passwordHash = PasswordHash(hash.Value())
+}

@@ -12,4 +12,8 @@ var (
 	ErrInvalidToken       = errors.New("invalid_token")
 	ErrRefreshReuse       = errors.New("refresh_reuse_detected")
 	ErrSessionLimit       = errors.New("session_limit_reached")
+	ErrResetTokenNotFound = errors.New("reset_token_not_found")
+	ErrResetTokenExpired  = errors.New("reset_token_expired")
+	ErrResetTokenUsed     = errors.New("reset_token_used")
+	ErrResetTokenInvalid  = errors.New("reset_token_invalid")
 )

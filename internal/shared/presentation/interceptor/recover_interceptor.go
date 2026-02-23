@@ -3,33 +3,32 @@ package interceptor
 
 import (
 	"context"
-	"log/slog"
 	"runtime/debug"
 
 	"connectrpc.com/connect"
+	"github.com/paladignus/actajus/internal/shared/domain/repository"
 )
 
 type RecoverInterceptor struct {
-	logger *slog.Logger
+	logger repository.Logger
 }
 
-func NewRecoverInterceptor(logger *slog.Logger) *RecoverInterceptor {
-	return &RecoverInterceptor{logger: logger}
+func NewRecoverInterceptor(logger repository.Logger) *RecoverInterceptor {
+	return &RecoverInterceptor{logger}
 }
 
 func (r *RecoverInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return func(ctx context.Context, req connect.AnyRequest) (resp connect.AnyResponse, err error) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				if r.logger != nil {
-					r.logger.Error("panic recovered",
-						slog.Any("panic", rec),
-						slog.String("procedure", req.Spec().Procedure),
-						slog.String("stack", string(debug.Stack())),
-					)
-				}
-				err = connect.NewError(connect.CodeInternal, nil)
+				r.logger.Error(ctx,
+					"panic recovered",
+					"procedure", req.Spec().Procedure,
+					"panic", rec,
+					"stack", string(debug.Stack()),
+				)
 				resp = nil
+				err = connect.NewError(connect.CodeInternal, nil)
 			}
 		}()
 		return next(ctx, req)
@@ -44,13 +43,12 @@ func (r *RecoverInterceptor) WrapStreamingHandler(next connect.StreamingHandlerF
 	return func(ctx context.Context, shc connect.StreamingHandlerConn) (err error) {
 		defer func() {
 			if rec := recover(); rec != nil {
-				if r.logger != nil {
-					r.logger.Error("panic recovered",
-						slog.Any("panic", rec),
-						slog.String("procedure", shc.Spec().Procedure),
-						slog.String("stack", string(debug.Stack())),
-					)
-				}
+				r.logger.Error(ctx,
+					"panic recovered",
+					"procedure", shc.Spec().Procedure,
+					"panic", rec,
+					"stack", string(debug.Stack()),
+				)
 				err = connect.NewError(connect.CodeInternal, nil)
 			}
 		}()

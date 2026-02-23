@@ -27,8 +27,8 @@ type Login struct {
 }
 
 func NewLogin(
-	users repository.UserRepository,
-	sessions repository.SessionRepository,
+	user repository.UserRepository,
+	session repository.SessionRepository,
 	hasher service.PasswordHasher,
 	refresh service.RefreshTokenService,
 	access service.AccessTokenService,
@@ -39,7 +39,7 @@ func NewLogin(
 	projection mapper.AuthProjectionMapper,
 ) Login {
 	return Login{
-		users, sessions, hasher, refresh, access,
+		user, session, hasher, refresh, access,
 		clock, jwtCfg, sessionCfg, mapper, projection,
 	}
 }
@@ -59,6 +59,11 @@ func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*dto.AuthT
 	if err := uc.hasher.Compare(user.PasswordHash().Value(), norm.Password); err != nil {
 		return nil, identity.ErrInvalidCredentials
 	}
+	// if hasher.NeedsRehash(user.PasswordHash().Value()) {
+	// 	newHash := hasher.Hash(plain);
+	// 	repo.UpdatePasswordHash(...)
+	// }
+	// Fazer rehash detection no futuro
 	if uc.sessionCfg.MaxSessions > 0 {
 		n, err := uc.sessions.CountActiveByUser(ctx, user.ID())
 		if err != nil {

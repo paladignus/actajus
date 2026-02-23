@@ -1,41 +1,115 @@
+// Package main
 package main
 
-// Package main
+import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"connectrpc.com/connect"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
+	"github.com/paladignus/actajus/internal/module/person"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
+	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+	// identityv1connect "github.com/paladignus/actajus/gen/identity/v1/identityv1connect"
+	// personv1connect "github.com/paladignus/actajus/gen/person/v1/personv1connect"
+)
+
 func main() {
-	// authI := interceptor.NewAuthInterceptor(
-	// 	validateAccessUsecase,
-	// 	interceptor.WithWhitelist(
-	// 		"/identity.v1.AuthService/Login",
-	// 		"/identity.v1.AuthService/Refresh",
-	// 		"/grpc.health.v1.Health/Check",
-	// 	),
+	config := config.Load()
+	ctx := context.Background()
+	logger := logger.NewDefaultLogger()
+	db, err := postgres.NewConnection(ctx, &config.Database)
+	if err != nil {
+		logger.Error(ctx, "❌ error initializing the database connection.", "error", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+	logger.Info(ctx, "✅ Database connected successfully")
+	person := person.NewModule(db, logger)
+	logger.Info(ctx, "✅ Modules initialized successfully")
+	mux := http.NewServeMux()
+	recoverI := interceptor.NewRecoverInterceptor(logger)
+	loggingI := interceptor.NewLoggingInterceptor(logger)
+	// Quando o módulo identity estiver pronto e você tiver o usecase ValidateAccess:
+	// authI (para proteger os endpoints fora Login/Refresh e Health)
+	// - whitelista apenas Login/Refresh/Health
+	// authI := interceptor.NewAuthInterceptor(validateAccessUsecase, logger,
+	//   interceptor.WithWhitelistProcedures(
+	//     "/identity.v1.AuthService/Login",
+	//     "/identity.v1.AuthService/Refresh",
+	//     "/grpc.health.v1.Health/Check",
+	//   ),
 	// )
-	//
-	// mux := http.NewServeMux()
-	// mux.Handle(identityv1connect.NewAuthServiceHandler(authHandler, connect.WithInterceptors(authI)))
+	interceptors := connect.WithInterceptors(
+		recoverI,
+		loggingI,
+		// authI,
+	)
+	hasher := security.NewArgon2idPasswordHasher()
+	clk := clock.NewSystemClock()
+	refreshSvc := security.NewRefreshTokenService()
+	accessSvc, err := security.NewHS256AccessTokenService(
+		config.JWT.AccessSecret,
+		config.JWT.Issuer,
+		config.JWT.Audience,
+	)
+	if err != nil {
+		logger.Error(ctx, "❌ error initializing the access token service.", "error", err)
+		os.Exit(1)
+	}
+	fmt.Println(accessSvc, clk, refreshSvc, hasher)
+	mux.Handle(identityv1connect.NewAuthServiceHandler(identity.Handler, interceptors))
+	mux.Handle(person.Route(interceptors))
+	handler := corsMiddleware(mux)
+	srv := &http.Server{
+		Addr:              config.Server.Port,
+		Handler:           h2c.NewHandler(handler, &http2.Server{}),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	go func() {
+		logger.Info(ctx, "🚀 Server starting on", "addr", config.Server.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("❌ Server error: %v", err)
+		}
+	}()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.Info(ctx, "❌ Server is shutting down...")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error(ctx, "❌ Server forced to shutdown", "error", err)
+		os.Exit(1)
+	}
+	logger.Info(ctx, "❌ Server stopped")
 }
 
-// Dica: o valor exato de Procedure depende do serviço gerado.
-// Se você logar req.Spec().Procedure, você pega os nomes certinhos para whitelist.
-
-// authI := interceptor.NewAuthInterceptor(
-// 	validateAccessUsecase,
-// 	interceptor.WithLogger(logger),
-// 	interceptor.WithProcedureLogging(true),
-//
-// 	// whitelist por prefixo é MUITO mais fácil de manter:
-// 	interceptor.WithWhitelistPrefixes(
-// 		"/identity.v1.AuthService/",     // login/refresh/logout/logout-all etc (se quiser liberar só alguns, use procedures)
-// 		"/grpc.health.v1.Health/",       // health checks
-// 	),
-//
-// 	// ou whitelist pontual:
-// 	interceptor.WithWhitelistProcedures(
-// 		"/identity.v1.AuthService/Login",
-// 		"/identity.v1.AuthService/Refresh",
-// 	),
-// )
-
-// Dica: Eu recomendo prefixo só para health e procedures específicos para auth.
-// Ex: você normalmente quer proteger /identity.v1.AuthService/Logout e
-// /LogoutAll com auth, então não libere o prefixo inteiro do AuthService.
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Connect-Protocol-Version")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+		w.Header().Set("Access-Control-Expose-Headers", "Connect-Protocol-Version")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}

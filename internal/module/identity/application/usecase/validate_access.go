@@ -16,7 +16,7 @@ type ValidateAccess struct {
 	access       service.AccessTokenService
 	session      repository.SessionRepository
 	clock        service.Clock
-	mapper       *mapper.AuthMapper
+	mapper       mapper.AuthMapper
 	CheckSession bool
 }
 
@@ -24,7 +24,7 @@ func NewValidateAccess(
 	access service.AccessTokenService,
 	session repository.SessionRepository,
 	clock service.Clock,
-	mapper *mapper.AuthMapper,
+	mapper mapper.AuthMapper,
 	checkSession bool,
 ) ValidateAccess {
 	return ValidateAccess{

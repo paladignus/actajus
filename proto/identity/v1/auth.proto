@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package identity.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/paladignus/actajus/proto/identity/v1;identityv1";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Refresh(RefreshRequest) returns (RefreshResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc LogoutAll(LogoutAllRequest) returns (LogoutAllResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse);
+  rpc ConfirmPasswordReset(ConfirmPasswordResetRequest) returns (ConfirmPasswordResetResponse);
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+  // opcionais (web/mobile)
+  string ip = 3;
+  string user_agent = 4;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  google.protobuf.Timestamp access_expires_at = 2;
+  string refresh_token = 3;
+  google.protobuf.Timestamp refresh_expires_at = 4;
+  int64 id_session = 5;
+}
+
+message RefreshRequest {
+  int64 id_session = 1;
+  string refresh_token = 2;
+  string ip = 3;
+  string user_agent = 4;
+}
+
+message RefreshResponse {
+  string access_token = 1;
+  google.protobuf.Timestamp access_expires_at = 2;
+  string refresh_token = 3;
+  google.protobuf.Timestamp refresh_expires_at = 4;
+  int64 id_session = 5;
+}
+
+message LogoutRequest {
+  // em geral virá do access token (claim sid),
+  // mas deixo no transporte pra mobile/diagnóstico.
+  int64 id_session = 1;
+}
+
+message LogoutResponse {
+  bool ok = 1;
+}
+
+message LogoutAllRequest {
+  // em geral virá do access token (claim sub)
+  int64 id_user = 1;
+}
+
+message LogoutAllResponse {
+  bool ok = 1;
+}
+
+message ChangePasswordRequest {
+  // virá do access token (claim sub)
+  int64 id_user = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message ChangePasswordResponse {
+  bool ok = 1;
+}
+
+message RequestPasswordResetRequest {
+  string email = 1;
+}
+
+message RequestPasswordResetResponse {
+  // Obs: em produção pode manter isso vazio e só retornar ok=true
+  bool ok = 1;
+  int64 id_reset = 2;
+  string reset_token = 3;
+  google.protobuf.Timestamp expires_at = 4;
+}
+
+message ConfirmPasswordResetRequest {
+  int64 id_reset = 1;
+  string reset_token = 2;
+  string new_password = 3;
+}
+
+message ConfirmPasswordResetResponse {
+  bool ok = 1;
+}

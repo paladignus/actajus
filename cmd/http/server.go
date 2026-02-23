@@ -36,7 +36,7 @@ func main() {
 	config := config.Load()
 	ctx := context.Background()
 	logger := adapter.NewDefaultLogger()
-	db, err := postgres.NewConnection(ctx, &config.Database, logger)
+	db, err := postgres.NewConnection(ctx, &config.Database)
 	if err != nil {
 		logger.Error(ctx, "error initializing the database connection.", "error", err)
 		os.Exit(1)
