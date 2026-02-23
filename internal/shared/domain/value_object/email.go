@@ -3,6 +3,11 @@ package valueobject
 
 import "regexp"
 
+var (
+	emailRegex = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	re         = regexp.MustCompile(emailRegex)
+)
+
 type Email string
 
 func (e Email) Value() string {
@@ -10,7 +15,7 @@ func (e Email) Value() string {
 }
 
 func (e Email) IsEmpty() bool {
-	return len(e) == 0
+	return e.Value() == ""
 }
 
 func (e Email) Equals(other Email) bool {
@@ -18,7 +23,5 @@ func (e Email) Equals(other Email) bool {
 }
 
 func (e Email) IsValid() bool {
-	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-	re := regexp.MustCompile(emailRegex)
 	return !e.IsEmpty() && re.MatchString(e.Value())
 }

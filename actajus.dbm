@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="27"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="350,801" last-zoom="0.9" scene-rect="0,-60.7679,2690.55,2746.68"
+	 last-position="0,368" last-zoom="0.9" scene-rect="0,-60.7679,2690.55,2746.68"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -115,8 +115,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="avatar">
 		<type name="text" length="0"/>
 	</column>
-	<column name="last_login_at">
-		<type name="timestamptz" length="0"/>
+	<column name="is_blocked" not-null="true">
+		<type name="boolean" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">
 		<type name="timestamptz" length="0"/>
@@ -224,7 +224,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="role_user" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="524.398" y="600.848"/>
+	<position x="524.398" y="599.737"/>
 	<column name="created_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>

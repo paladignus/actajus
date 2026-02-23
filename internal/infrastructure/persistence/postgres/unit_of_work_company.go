@@ -49,33 +49,33 @@ func (u *UnitOfWorkCompany) GetPgxPool() PgxPool {
 	return u.db
 }
 
-func (u *UnitOfWorkCompany) Company() repository.ICompany {
-	return NewCompany(u.GetPgxPool())
-}
+// func (u *UnitOfWorkCompany) Company() repository.ICompany {
+// 	return NewCompany(u.GetPgxPool())
+// }
 
 func (u *UnitOfWorkCompany) Address() repository.IAddress {
 	return NewAddress(u.GetPgxPool())
 }
 
-func (u *UnitOfWorkCompany) CompanyAddress() repository.ICompanyAddress {
-	return NewCompanyAddress(u.GetPgxPool())
-}
+// func (u *UnitOfWorkCompany) CompanyAddress() repository.ICompanyAddress {
+// 	return NewCompanyAddress(u.GetPgxPool())
+// }
 
 func (u *UnitOfWorkCompany) Phone() repository.IPhone {
 	return NewPhone(u.GetPgxPool())
 }
 
-func (u *UnitOfWorkCompany) CompanyPhone() repository.ICompanyPhone {
-	return NewCompanyPhone(u.GetPgxPool())
-}
+// func (u *UnitOfWorkCompany) CompanyPhone() repository.ICompanyPhone {
+// 	return NewCompanyPhone(u.GetPgxPool())
+// }
 
 func (u *UnitOfWorkCompany) Email() repository.IEmail {
 	return NewEmail(u.GetPgxPool())
 }
 
-func (u *UnitOfWorkCompany) CompanyEmail() repository.ICompanyEmail {
-	return NewCompanyEmail(u.GetPgxPool())
-}
+// func (u *UnitOfWorkCompany) CompanyEmail() repository.ICompanyEmail {
+// 	return NewCompanyEmail(u.GetPgxPool())
+// }
 
 func (u *UnitOfWorkCompany) SocialMedia() repository.ISocialMedia {
 	return NewSocialMedia(u.GetPgxPool())

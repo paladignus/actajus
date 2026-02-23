@@ -11,13 +11,13 @@ type UnitOfWork interface {
 
 type UnitOfWorkCompany interface {
 	UnitOfWork
-	Company() ICompany
+	// Company() ICompany
 	Address() IAddress
-	CompanyAddress() ICompanyAddress
+	// CompanyAddress() ICompanyAddress
 	Phone() IPhone
-	CompanyPhone() ICompanyPhone
+	// CompanyPhone() ICompanyPhone
 	Email() IEmail
-	CompanyEmail() ICompanyEmail
+	// CompanyEmail() ICompanyEmail
 	SocialMedia() ISocialMedia
 }
 

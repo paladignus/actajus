@@ -4,107 +4,75 @@ package validation
 import (
 	"reflect"
 	"strings"
-
-	"github.com/paladignus/actajus/internal/shared/domain"
+	"time"
 )
 
 type Validator struct {
-	lang   Lang
-	errors map[string]*domain.FieldError
+	shortCircuitGlobal bool
 }
 
-func New(lang Lang) *Validator {
-	return &Validator{
-		lang:   lang,
-		errors: make(map[string]*domain.FieldError),
+type Option func(*Validator)
+
+func New(opts ...Option) *Validator {
+	v := &Validator{}
+	for _, opt := range opts {
+		opt(v)
 	}
+	return v
 }
 
-func (v *Validator) addError(field, message string) {
-	if _, exists := v.errors[field]; exists {
+func (v *Validator) ValidateStruct(input any) []Violation {
+	var out []Violation
+	v.validateStruct(input, "", &out)
+	return out
+}
+
+func (v *Validator) validateStruct(input any, prefix string, out *[]Violation) {
+	if v.shortCircuitGlobal && len(*out) > 0 {
 		return
 	}
-	v.errors[field] = domain.NewFieldError(field, message)
-}
-
-func (v *Validator) ValidateStruct(input any) error {
-	return v.validateStruct(input)
-}
-
-func (v *Validator) validateStruct(input any) error {
 	val := reflect.ValueOf(input)
 	typ := reflect.TypeOf(input)
+	if !val.IsValid() {
+		return
+	}
 	if val.Kind() == reflect.Pointer {
 		if val.IsNil() {
-			return nil
+			return
 		}
 		val = val.Elem()
 		typ = typ.Elem()
 	}
 	for i := 0; i < val.NumField(); i++ {
+		if v.shortCircuitGlobal && len(*out) > 0 {
+			return
+		}
 		fieldVal := val.Field(i)
 		fieldType := typ.Field(i)
+		if fieldType.PkgPath != "" {
+			continue
+		}
 		field := fieldType.Tag.Get("json")
 		if field == "" || field == "-" {
 			field = strings.ToLower(fieldType.Name)
 		}
-		if tag := fieldType.Tag.Get("validate"); tag != "" {
-			v.applyRules(field, fieldVal.Interface(), tag)
+		path := field
+		if prefix != "" {
+			path = prefix + "." + path
 		}
-		if fieldVal.Kind() == reflect.Struct && !isTime(fieldVal.Type()) {
-			v.validateStruct(fieldVal.Interface())
+		if tag := fieldType.Tag.Get("validate"); tag != "" {
+			applyRules(path, input, fieldVal.Interface(), tag, out)
+		}
+		if fieldVal.Kind() == reflect.Struct && fieldVal.Type() != reflect.TypeOf(time.Time{}) {
+			v.validateStruct(fieldVal.Interface(), path, out)
 		}
 		if fieldVal.Kind() == reflect.Slice {
-			for i := 0; i < fieldVal.Len(); i++ {
-				item := fieldVal.Index(i)
+			for j := 0; j < fieldVal.Len(); j++ {
+				item := fieldVal.Index(j)
 				if item.Kind() == reflect.Struct {
-					v.validateStruct(
-						item.Interface(),
-					)
+					v.validateStruct(item.Interface(), path+"["+itoa(j)+"]", out)
 				}
 			}
 		}
 	}
-	if len(v.errors) > 0 {
-		return domain.NewValidationErrors(v.toSlice())
-	}
-	return nil
-}
-
-func isTime(t reflect.Type) bool {
-	return t.PkgPath() == "time" && t.Name() == "Time"
-}
-
-//	func (v *Validator) ValidateStruct(input any) error {
-//		val := reflect.ValueOf(input)
-//		typ := reflect.TypeOf(input)
-//		if val.Kind() == reflect.Pointer {
-//			val = val.Elem()
-//			typ = typ.Elem()
-//		}
-//		for i := 0; i < val.NumField(); i++ {
-//			fieldVal := val.Field(i)
-//			fieldType := typ.Field(i)
-//			tag := fieldType.Tag.Get("validate")
-//			if tag == "" {
-//				continue
-//			}
-//			field := fieldType.Tag.Get("json")
-//			if field == "" {
-//				field = fieldType.Name
-//			}
-//			v.applyRules(field, fieldVal.Interface(), tag)
-//		}
-//
-//		if len(v.errors) > 0 {
-//			return sharedDomain.NewValidationErrors(v.toSlice())
-//		}
-//		return nil
-//	}
-func (v *Validator) toSlice() []*domain.FieldError {
-	out := make([]*domain.FieldError, 0, len(v.errors))
-	for _, e := range v.errors {
-		out = append(out, e)
-	}
-	return out
 }

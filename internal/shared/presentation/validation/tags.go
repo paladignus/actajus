@@ -1,15 +1,35 @@
 // Package validation
 package validation
 
-import (
-	"strings"
-)
+import "strings"
 
-func parseRule(rule string) (name string, param int) {
-	parts := strings.Split(rule, "=")
+func parseRuleRaw(rule string) (name, raw string) {
+	parts := strings.SplitN(rule, "=", 2)
 	name = parts[0]
 	if len(parts) == 2 {
-		param = atoi(parts[1])
+		raw = parts[1]
 	}
 	return
+}
+
+func splitCSV(s string) []string {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+func parseRequiredIf(raw string) (field, expected string) {
+	parts := strings.SplitN(raw, ",", 2)
+	if len(parts) != 2 {
+		return "", ""
+	}
+	return strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
 }
