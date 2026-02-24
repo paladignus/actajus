@@ -22,8 +22,6 @@ import (
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-	// identityv1connect "github.com/paladignus/actajus/gen/identity/v1/identityv1connect"
-	// personv1connect "github.com/paladignus/actajus/gen/person/v1/personv1connect"
 )
 
 func main() {

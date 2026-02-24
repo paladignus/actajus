@@ -33,6 +33,11 @@ func NewSessionBuilder(now time.Time) *SessionBuilder {
 	}
 }
 
+func (b *SessionBuilder) WithID(id int64) *SessionBuilder {
+	b.s.id = IDSession(id)
+	return b
+}
+
 func (b *SessionBuilder) WithUserID(id IDUser) *SessionBuilder {
 	b.s.idUser = id
 	return b

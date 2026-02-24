@@ -36,6 +36,7 @@ func NewModule(
 	pool *pgxpool.Pool,
 	logger repository.Logger,
 ) Module {
+	// h := handler.NewPersonHandler(usecase, logger)
 	return Module{}
 }
 

@@ -3,13 +3,12 @@ package handler
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	"connectrpc.com/connect"
 	"github.com/paladignus/actajus/internal/module/person/application/usecase"
 	"github.com/paladignus/actajus/internal/module/person/presentation/grpc/adapter"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
-	"github.com/paladignus/actajus/internal/shared/domain"
 	"github.com/paladignus/actajus/internal/shared/domain/repository"
 	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 	personv1 "github.com/paladignus/actajus/proto/person/v1"
@@ -39,11 +38,11 @@ func (p PersonHandler) CreatePerson(
 	vs := validation.New().ValidateStruct(input)
 	// if err := mapper.ValidateCreatePersonDTO(input); err != nil {
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
-		var ve domain.ValidationError
-		if errors.As(err, &ve) {
-			return nil, err
-			// return nil, sharedAdapter.ViolationsToDomainError(ve)
-		}
+		// var ve domain.ValidationError
+		// if errors.As(err, &ve) {
+		// 	return nil, err
+		// 	// return nil, sharedAdapter.ViolationsToDomainError(ve)
+		// }
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 	// person, err := mapper.PersonInputToDomain(dtoIn)
@@ -56,15 +55,15 @@ func (p PersonHandler) CreatePerson(
 	// }
 	person, err := p.person.Execute(ctx, input)
 	if err != nil {
-		var ve domain.ValidationError
-		if errors.As(err, &ve) {
-			return nil, err
-			// return nil, sharedAdapter.ViolationsToDomainError(ve)
-		}
-		return nil, connect.NewError(connect.CodeFailedPrecondition, err)
+		fmt.Println(err, "ERRR")
+		// var ve domain.ValidationError
+		// if errors.As(err, &ve) {
+		// 	return nil, sharedAdapter.ViolationsToDomainError(ve)
+		// }
+		// return nil, connect.NewError(connect.CodeFailedPrecondition, err)
 	}
-	// if err != nil {
-	// 	return nil, connect.NewError(connect.CodeUnknown, err)
-	// }
+	if err != nil {
+		return nil, connect.NewError(connect.CodeUnknown, err)
+	}
 	return connect.NewResponse(&personv1.CreatePersonResponse{Id: uint32(person.ID)}), nil
 }
