@@ -14,9 +14,9 @@ type ValidateAccessNormalized struct {
 
 func (m *AuthMapper) ValidateAccessInputToNormalized(input dto.ValidateAccessCommand) (ValidateAccessNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
-	token := strings.TrimSpace(strings.ToLower(input.AccessToken))
-	if after, ok := strings.CutPrefix(token, "bearer "); ok {
-		token = after
+	token := strings.TrimSpace(input.AccessToken)
+	if strings.HasPrefix(strings.ToLower(token), "bearer ") {
+		token = strings.TrimSpace(token[7:])
 	}
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return ValidateAccessNormalized{}, err

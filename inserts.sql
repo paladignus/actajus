@@ -62,7 +62,7 @@ WITH people AS (
         (SELECT idpeople FROM people WHERE first_name = 'Jane' AND last_name = 'Editor' LIMIT 1) AS id_editor,
         (SELECT idpeople FROM people WHERE first_name = 'Bob' AND last_name = 'Customer' LIMIT 1) AS id_customer
 )
-INSERT INTO users (idusers, password, avatar)
+INSERT INTO users (idusers, password_hash, avatar)
 SELECT
     CASE v.role
         WHEN 'root' THEN p.id_root
@@ -71,7 +71,7 @@ SELECT
         WHEN 'editor' THEN p.id_editor
         WHEN 'customer' THEN p.id_customer
     END AS id_people,
-    v.password,
+    v.password_hash,
     v.avatar
 FROM people p
 CROSS JOIN (
@@ -81,10 +81,10 @@ CROSS JOIN (
         ('manager',  crypt('admin123', gen_salt('bf')), 'default.png'),
         ('editor',   crypt('admin123', gen_salt('bf')), 'default.png'),
         ('customer', crypt('admin123', gen_salt('bf')), 'default.png')
-) AS v(role, password, avatar) RETURNING *;
+) AS v(role, password_hash, avatar) RETURNING *;
 
 
-INSERT INTO roles (name, description)
+INSERT INTO roles (code, description)
 VALUES
 ('root', 'Administrador com acesso total'),
 ('admin', 'Administrador do sistema'),
@@ -179,7 +179,7 @@ people_map AS (
    AND p.last_name  = m.last_name
 ),
 role_ids AS (
-  SELECT name AS role, idroles
+  SELECT code AS role, idroles
   FROM roles
 ),
 role_map AS (

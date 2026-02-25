@@ -47,7 +47,7 @@ func (c Company) Create(ctx context.Context, company *domain.Company) error {
 }
 
 func (c Company) Update(ctx context.Context, company *domain.Company) error {
-	query := `
+	const query = `
 		UPDATE companies
 		SET name = $1, trade_name = $2, cnpj = $3, updated_at = $4 
 		WHERE idcompanies = $5 AND deleted_at IS NULL`
@@ -66,7 +66,7 @@ func (c Company) Update(ctx context.Context, company *domain.Company) error {
 }
 
 func (c Company) Delete(ctx context.Context, company *domain.Company) error {
-	query := `UPDATE companies SET updated_at = $1, deleted_at = $2 WHERE idcompanies = $3 AND deleted_at IS NULL`
+	const query = `UPDATE companies SET updated_at = $1, deleted_at = $2 WHERE idcompanies = $3 AND deleted_at IS NULL`
 	_, err := c.pool.Exec(ctx, query,
 		company.UpdatedAt(),
 		company.DeletedAt(),
@@ -80,11 +80,11 @@ func (c Company) Delete(ctx context.Context, company *domain.Company) error {
 }
 
 func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error) {
-	query := `
-			SELECT
-					idcompanies, registered_by, name, trade_name, created_at, updated_at
-			FROM companies
-			WHERE cnpj = $1 AND deleted_at IS NULL`
+	const query = `
+		SELECT
+			idcompanies, registered_by, name, trade_name, created_at, updated_at
+		FROM companies
+		WHERE cnpj = $1 AND deleted_at IS NULL`
 	var (
 		id           uint
 		registeredBy uint
@@ -115,7 +115,7 @@ func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, 
 }
 
 func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error) {
-	query := `
+	const query = `
 			SELECT
 					registered_by, name, trade_name, cnpj, created_at, updated_at
 			FROM companies

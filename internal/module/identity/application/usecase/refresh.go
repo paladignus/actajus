@@ -19,10 +19,25 @@ type Refresh struct {
 	refresh    service.RefreshTokenService
 	access     service.AccessTokenService
 	clock      service.Clock
-	jwtCfg     config.JWTConfig
-	sessionCfg config.SessionConfig
+	config     config.AuthConfig
 	mapper     mapper.AuthMapper
 	projection mapper.AuthProjectionMapper
+}
+
+func NewRefresh(
+	session repository.SessionRepository,
+	user repository.UserRepository,
+	refresh service.RefreshTokenService,
+	access service.AccessTokenService,
+	clock service.Clock,
+	config config.AuthConfig,
+	mapper mapper.AuthMapper,
+	projection mapper.AuthProjectionMapper,
+) Refresh {
+	return Refresh{
+		session, user, refresh, access, clock,
+		config, mapper, projection,
+	}
 }
 
 func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.AuthTokensReadModel, error) {
@@ -51,16 +66,16 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 	if err != nil {
 		return nil, err
 	}
-	newRefreshExp := now.Add(uc.sessionCfg.RefreshTTL)
-	if err := uc.session.RotateRefresh(ctx, sid, newHash, newRefreshExp); err != nil {
+	newRefreshExp := now.Add(uc.config.RefreshTTL)
+	if err := uc.session.RotateRefreshToken(ctx, sid, newHash, newRefreshExp); err != nil {
 		return nil, err
 	}
-	accessExp := now.Add(uc.jwtCfg.AccessTTL)
+	accessExp := now.Add(uc.config.AccessTTL)
 	accessToken, err := uc.access.Sign(dto.AccessTokenClaims{
 		IDUser:    sess.IDUser().Value(),
 		IDSession: sess.ID().Value(),
-		Issuer:    uc.jwtCfg.Issuer,
-		Audience:  uc.jwtCfg.Audience,
+		Issuer:    uc.config.Issuer,
+		Audience:  uc.config.Audience,
 		IssuedAt:  now,
 		ExpiresAt: accessExp,
 	})

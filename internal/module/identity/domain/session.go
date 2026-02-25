@@ -24,7 +24,8 @@ type SessionBuilder struct {
 	s *Session
 }
 
-func NewSessionBuilder(now time.Time) *SessionBuilder {
+func NewSessionBuilder() *SessionBuilder {
+	now := time.Now()
 	return &SessionBuilder{
 		&Session{
 			createdAt: now,
@@ -33,12 +34,12 @@ func NewSessionBuilder(now time.Time) *SessionBuilder {
 	}
 }
 
-func (b *SessionBuilder) WithID(id int64) *SessionBuilder {
-	b.s.id = IDSession(id)
+func (b *SessionBuilder) WithID(id IDSession) *SessionBuilder {
+	b.s.id = id
 	return b
 }
 
-func (b *SessionBuilder) WithUserID(id IDUser) *SessionBuilder {
+func (b *SessionBuilder) WithIDUser(id IDUser) *SessionBuilder {
 	b.s.idUser = id
 	return b
 }
@@ -53,6 +54,16 @@ func (b *SessionBuilder) WithExpiresAt(t time.Time) *SessionBuilder {
 	return b
 }
 
+func (b *SessionBuilder) WithRevokedAt(t *time.Time) *SessionBuilder {
+	b.s.revokedAt = t
+	return b
+}
+
+func (b *SessionBuilder) WithRotatedAt(t *time.Time) *SessionBuilder {
+	b.s.rotatedAt = t
+	return b
+}
+
 func (b *SessionBuilder) WithIP(ip string) *SessionBuilder {
 	b.s.ip = ip
 	return b
@@ -60,6 +71,16 @@ func (b *SessionBuilder) WithIP(ip string) *SessionBuilder {
 
 func (b *SessionBuilder) WithUserAgent(ua string) *SessionBuilder {
 	b.s.userAgent = ua
+	return b
+}
+
+func (b *SessionBuilder) WithCreatedAt(t time.Time) *SessionBuilder {
+	b.s.createdAt = t
+	return b
+}
+
+func (b *SessionBuilder) WithUpdatedAt(t time.Time) *SessionBuilder {
+	b.s.updatedAt = t
 	return b
 }
 
@@ -83,6 +104,8 @@ func (s *Session) IP() string                   { return s.ip }
 func (s *Session) UserAgent() string            { return s.userAgent }
 func (s *Session) IsRevoked() bool              { return s.revokedAt != nil }
 func (s *Session) IsExpired(now time.Time) bool { return !now.Before(s.expiresAt) }
+func (s *Session) CreatedAt() time.Time         { return s.createdAt }
+func (s *Session) UpdatedAt() time.Time         { return s.updatedAt }
 
 func (s *Session) SetID(id IDSession) error {
 	if s.id != 0 {

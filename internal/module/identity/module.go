@@ -6,26 +6,21 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
+	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	"github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
 	"github.com/paladignus/actajus/internal/shared/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
+	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 )
 
-// Dependencies são as dependências que vêm de fora (infra repos etc).
-// Assim você consegue montar o módulo em k8s com Postgres/Redis depois,
-// sem mudar nada na aplicação.
-// type Dependencies struct {
-// 	logger        repository.Logger
-// 	users         repository.UserRepository
-// 	Sessions      repository.SessionRepository
-// 	PasswordReset repository.PasswordResetRepository
-// 	JWTConfig     config.JWTConfig
-// 	SessionConfig config.SessionConfig
-// 	ResetConfig   config.PasswordResetConfig
-// }
-
 type Module struct {
-	Handler handler.AuthHandler
+	Handler        handler.AuthHandler
+	ValidateAccess usecase.ValidateAccess
 }
 
 func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
@@ -35,84 +30,95 @@ func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
 func NewModule(
 	pool *pgxpool.Pool,
 	logger repository.Logger,
-) Module {
-	// h := handler.NewPersonHandler(usecase, logger)
-	return Module{}
+	config config.AuthConfig,
+) (Module, error) {
+	clk := clock.NewSystemClock()
+	refresh := security.NewRefreshTokenService()
+	hasher := security.NewArgon2idPasswordHasher()
+	accessSvc, err := security.NewHS256AccessTokenService(
+		config.AccessSecret,
+		config.Issuer,
+		config.Audience,
+	)
+	if err != nil {
+		return Module{}, err
+	}
+	// validation := validation.New(nil))
+	v := validation.New()
+	projection := mapper.NewAuthProjectionMapper()
+	mapper := mapper.NewAuthMapper(v)
+	userRepo := postgres.NewUser(pool)
+	sessionRepo := postgres.NewSession(pool)
+	passResetRepo := postgres.NewPasswordReset(pool)
+	loginUC := usecase.NewLogin(
+		userRepo,
+		sessionRepo,
+		hasher,
+		refresh,
+		accessSvc,
+		clk,
+		config,
+		*mapper,
+		*projection,
+	)
+	refreshUC := usecase.NewRefresh(
+		sessionRepo,
+		userRepo,
+		refresh,
+		accessSvc,
+		clk,
+		config,
+		*mapper,
+		*projection,
+	)
+	logoutUC := usecase.NewLogout(sessionRepo, *mapper)
+	logoutAllUC := usecase.NewLogoutAll(sessionRepo, *mapper)
+	changePasswordUC := usecase.NewChangePassword(
+		userRepo,
+		sessionRepo,
+		hasher,
+		clk,
+		mapper,
+		true,
+	)
+	requestResetUC := usecase.NewRequestPasswordReset(
+		userRepo,
+		passResetRepo,
+		refresh,
+		clk,
+		config.PasswordResetConfig,
+		*mapper,
+		true,
+	)
+	confirmResetUC := usecase.NewConfirmPasswordReset(
+		userRepo,
+		sessionRepo,
+		passResetRepo,
+		hasher,
+		refresh,
+		clk,
+		*mapper,
+		true, // revoke all sessions on reset confirm
+	)
+	validateAccessUC := usecase.NewValidateAccess(
+		accessSvc,
+		sessionRepo,
+		clk,
+		*mapper,
+		true, // checkSession=true (bom para revogação)
+	)
+	h := handler.NewAuthHandler(
+		loginUC,
+		refreshUC,
+		logoutUC,
+		logoutAllUC,
+		changePasswordUC,
+		requestResetUC,
+		confirmResetUC,
+	)
+	return Module{h, validateAccessUC}, nil
 }
 
-// mapper (validação/normalização)
-// Aqui eu assumo que você já tem um validator injetável no mapper.
-// Se o seu AuthMapper ainda cria validator internamente, ok também.
-// authMapper := mapper.NewAuthMapper() // ajuste pro seu construtor real
-// usecases
-// loginUC := usecase.NewLogin(
-// 	dep.Users,
-// 	dep.Sessions,
-// 	hasher,
-// 	accessSvc,
-// 	refreshSvc,
-// 	service.JWTConfig{
-// 		Issuer:    dep.JWTConfig.Issuer,
-// 		Audience:  dep.JWTConfig.Audience,
-// 		AccessTTL: dep.JWTConfig.AccessTTL,
-// 	},
-// 	service.SessionConfig{
-// 		RefreshTTL:  dep.SessionConfig.RefreshTTL,
-// 		MaxSessions: dep.SessionConfig.MaxSessions,
-// 	},
-// 	clk,
-// 	authMapper,
-// )
-//
-// refreshUC := usecase.NewRefresh(
-// 	dep.Sessions,
-// 	accessSvc,
-// 	refreshSvc,
-// 	service.JWTConfig{
-// 		Issuer:    dep.JWTConfig.Issuer,
-// 		Audience:  dep.JWTConfig.Audience,
-// 		AccessTTL: dep.JWTConfig.AccessTTL,
-// 	},
-// 	service.SessionConfig{
-// 		RefreshTTL:  dep.SessionConfig.RefreshTTL,
-// 		MaxSessions: dep.SessionConfig.MaxSessions,
-// 	},
-// 	clk,
-// 	authMapper,
-// 	true, // revoke session on refresh mismatch (você pediu revogar automaticamente)
-// )
-//
-// logoutUC := usecase.NewLogout(dep.Sessions, clk, authMapper)
-// logoutAllUC := usecase.NewLogoutAll(dep.Sessions, clk, authMapper)
-// changePasswordUC := usecase.NewChangePassword(
-// 	dep.Users,
-// 	dep.Sessions,
-// 	hasher,
-// 	clk,
-// 	authMapper,
-// 	true, // revoke all sessions on password change
-// )
-//
-// requestResetUC := usecase.NewRequestPasswordReset(
-// 	dep.Users,
-// 	dep.PasswordReset,
-// 	refreshSvc,
-// 	clk,
-// 	usecase.PasswordResetConfig{ResetTTL: dep.ResetConfig.ResetTTL},
-// 	authMapper,
-// 	true, // revoke previous reset tokens
-// )
-//
-// confirmResetUC := usecase.NewConfirmPasswordReset(
-// 	dep.Users,
-// 	dep.Sessions,
-// 	dep.PasswordReset,
-// 	hasher,
-// 	refreshSvc,
-// 	clk,
-// 	authMapper,
-// 	true, // revoke all sessions on reset confirm
-// )
 //
 // validateAccessUC := usecase.NewValidateAccess(
 // 	accessSvc,

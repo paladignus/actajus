@@ -12,12 +12,15 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	JWT      JWTConfig
-	SMTP     SMTPConfig
-	NATS     NATSConfig
-	Tracing  TracingConfig
+	Server        ServerConfig
+	Database      DatabaseConfig
+	JWT           JWTConfig
+	Session       SessionConfig
+	PasswordReset PasswordResetConfig
+	Auth          AuthConfig
+	SMTP          SMTPConfig
+	NATS          NATSConfig
+	Tracing       TracingConfig
 }
 
 type ServerConfig struct {
@@ -45,6 +48,17 @@ type JWTConfig struct {
 type SessionConfig struct {
 	MaxSessions int
 	RefreshTTL  time.Duration
+}
+
+type PasswordResetConfig struct {
+	MaxResetAttempts int
+	ResetTTL         time.Duration
+}
+
+type AuthConfig struct {
+	JWTConfig
+	SessionConfig
+	PasswordResetConfig
 }
 
 type SMTPConfig struct {
@@ -127,6 +141,30 @@ func Load() Config {
 			Issuer:       getEnv("JWT_ISSUER", "example.com.br"), // Exemplo de valor
 			AccessTTL:    time.Duration(getEnvAsInt("ACCESS_TTL", 15)) * time.Minute,
 			Audience:     getEnv("JWT_AUDIENCE", "example.com.br"),
+		},
+		Session: SessionConfig{
+			MaxSessions: getEnvAsInt("MAX_SESSIONS", 10),
+			RefreshTTL:  time.Duration(getEnvAsInt("REFRESH_TTL", 24)) * time.Hour,
+		},
+		PasswordReset: PasswordResetConfig{
+			MaxResetAttempts: getEnvAsInt("MAX_RESET_ATTEMPTS", 5),
+			ResetTTL:         time.Duration(getEnvAsInt("RESET_TTL", 15)) * time.Minute,
+		},
+		Auth: AuthConfig{
+			JWTConfig{
+				AccessSecret: accessSecret,                           // Usando a variável verificada acima
+				Issuer:       getEnv("JWT_ISSUER", "example.com.br"), // Exemplo de valor
+				AccessTTL:    time.Duration(getEnvAsInt("ACCESS_TTL", 15)) * time.Minute,
+				Audience:     getEnv("JWT_AUDIENCE", "example.com.br"),
+			},
+			SessionConfig{
+				MaxSessions: getEnvAsInt("MAX_SESSIONS", 10),
+				RefreshTTL:  time.Duration(getEnvAsInt("REFRESH_TTL", 24)) * time.Hour,
+			},
+			PasswordResetConfig{
+				MaxResetAttempts: getEnvAsInt("MAX_RESET_ATTEMPTS", 5),
+				ResetTTL:         time.Duration(getEnvAsInt("RESET_TTL", 15)) * time.Minute,
+			},
 		},
 		SMTP: SMTPConfig{
 			Host: getEnv("SMTP_HOST", "smtp.gmail.com"),

@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,9 +12,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/paladignus/actajus/internal/module/identity"
-	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	"github.com/paladignus/actajus/internal/module/person"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
@@ -36,7 +33,7 @@ func main() {
 	defer db.Close()
 	logger.Info(ctx, "✅ Database connected successfully")
 	person := person.NewModule(db, logger)
-	identity := identity.NewModule(db, logger)
+	identity, err := identity.NewModule(db, logger, config.Auth)
 	logger.Info(ctx, "✅ Modules initialized successfully")
 	mux := http.NewServeMux()
 	recoverI := interceptor.NewRecoverInterceptor(logger)
@@ -44,32 +41,34 @@ func main() {
 	// Quando o módulo identity estiver pronto e você tiver o usecase ValidateAccess:
 	// authI (para proteger os endpoints fora Login/Refresh e Health)
 	// - whitelista apenas Login/Refresh/Health
-	// authI := interceptor.NewAuthInterceptor(validateAccessUsecase, logger,
-	//   interceptor.WithWhitelistProcedures(
-	//     "/identity.v1.AuthService/Login",
-	//     "/identity.v1.AuthService/Refresh",
-	//     "/grpc.health.v1.Health/Check",
-	//   ),
-	// )
+	authI := interceptor.NewAuthInterceptor(
+		identity.ValidateAccess,
+		logger,
+		interceptor.WithWhitelistProcedures(
+			"/identity.v1.AuthService/Login",
+			"/identity.v1.AuthService/Refresh",
+			"/identity.v1.AuthService/RequestPasswordReset",
+			"/identity.v1.AuthService/ConfirmPasswordReset",
+			"/grpc.health.v1.Health/Check",
+		),
+	)
 	interceptors := connect.WithInterceptors(
 		recoverI,
 		loggingI,
-		// authI,
+		authI,
 	)
-	hasher := security.NewArgon2idPasswordHasher()
-	clk := clock.NewSystemClock()
-	refreshSvc := security.NewRefreshTokenService()
-	accessSvc, err := security.NewHS256AccessTokenService(
-		config.JWT.AccessSecret,
-		config.JWT.Issuer,
-		config.JWT.Audience,
-	)
+	// hasher := security.NewArgon2idPasswordHasher()
+	// clk := clock.NewSystemClock()
+	// refreshSvc := security.NewRefreshTokenService()
+	// accessSvc, err := security.NewHS256AccessTokenService(
+	// 	config.JWT.AccessSecret,
+	// 	config.JWT.Issuer,
+	// 	config.JWT.Audience,
+	// )
 	if err != nil {
 		logger.Error(ctx, "❌ error initializing the access token service.", "error", err)
 		os.Exit(1)
 	}
-	fmt.Println(accessSvc, clk, refreshSvc, hasher)
-	// mux.Handle(identityv1connect.NewAuthServiceHandler(identity.Handler, interceptors))
 	mux.Handle(identity.Route(interceptors))
 	mux.Handle(person.Route(interceptors))
 	handler := corsMiddleware(mux)

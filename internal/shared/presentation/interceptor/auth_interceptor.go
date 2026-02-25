@@ -124,9 +124,8 @@ func extractBearer(v string) string {
 	if v == "" {
 		return ""
 	}
-	after, ok := strings.CutPrefix(v, strings.ToLower("Bearer "))
-	if ok {
-		return after
+	if strings.HasPrefix(strings.ToLower(v), "bearer ") {
+		return strings.TrimSpace(v[7:])
 	}
 	return v
 }

@@ -11,7 +11,7 @@ import (
 type SessionRepository interface {
 	Create(ctx context.Context, s *identity.Session) error
 	GetByID(ctx context.Context, sid identity.IDSession) (*identity.Session, error)
-	RotateRefresh(ctx context.Context, sid identity.IDSession, newHash [32]byte, newExpiryUnix time.Time) error
+	RotateRefreshToken(ctx context.Context, sid identity.IDSession, newHash [32]byte, newExpiryAtTime time.Time) error
 	Revoke(ctx context.Context, sid identity.IDSession) error
 	RevokeAllByUser(ctx context.Context, uid identity.IDUser) error
 	CountActiveByUser(ctx context.Context, uid identity.IDUser) (int, error)

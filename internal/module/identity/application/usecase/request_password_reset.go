@@ -11,18 +11,19 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/model"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 )
 
-type PasswordResetConfig struct {
-	ResetTTL time.Duration
-}
+// type PasswordResetConfig struct {
+// 	ResetTTL time.Duration
+// }
 
 type RequestPasswordReset struct {
 	user           repository.UserRepository
 	reset          repository.PasswordResetRepository
 	refresh        service.RefreshTokenService // reutiliza gerador/hash (mesmo do refresh!)
 	clock          service.Clock
-	cfg            PasswordResetConfig
+	cfg            config.PasswordResetConfig
 	mapper         mapper.AuthMapper
 	RevokePrevious bool
 }
@@ -32,7 +33,7 @@ func NewRequestPasswordReset(
 	reset repository.PasswordResetRepository,
 	refresh service.RefreshTokenService,
 	clock service.Clock,
-	cfg PasswordResetConfig,
+	cfg config.PasswordResetConfig,
 	mapper mapper.AuthMapper,
 	revokePrevious bool,
 ) RequestPasswordReset {

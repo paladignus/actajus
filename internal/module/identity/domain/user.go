@@ -2,51 +2,44 @@
 package domain
 
 import (
-	"time"
-
 	"github.com/paladignus/actajus/internal/shared/domain"
+	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
 type User struct {
 	id           IDUser
+	primaryEmail vo.Email
 	passwordHash PasswordHash
 	isBlocked    bool
-	createdAt    time.Time
-	updatedAt    time.Time
-	deletedAt    time.Time
 }
 
 type UserBuilder struct {
 	u *User
 }
 
-func (b *UserBuilder) WithID(id int64) *UserBuilder {
-	b.u.id = IDUser(id)
+func NewUserBuilder() *UserBuilder {
+	return &UserBuilder{
+		&User{},
+	}
+}
+
+func (b *UserBuilder) WithID(id IDUser) *UserBuilder {
+	b.u.id = id
 	return b
 }
 
-func (b *UserBuilder) WithPasswordHash(hash string) *UserBuilder {
-	b.u.passwordHash = PasswordHash(hash)
+func (b *UserBuilder) WithPrimaryEmail(email vo.Email) *UserBuilder {
+	b.u.primaryEmail = email
 	return b
 }
 
-func (b *UserBuilder) WithIsBlocked(isBlocked bool) *UserBuilder {
-	b.u.isBlocked = isBlocked
+func (b *UserBuilder) WithPasswordHash(hash PasswordHash) *UserBuilder {
+	b.u.passwordHash = hash
 	return b
 }
 
-func (b *UserBuilder) WithCreatedAt(t time.Time) *UserBuilder {
-	b.u.createdAt = t
-	return b
-}
-
-func (b *UserBuilder) WithUpdatedAt(t time.Time) *UserBuilder {
-	b.u.updatedAt = t
-	return b
-}
-
-func (b *UserBuilder) WithDeletedAt(t time.Time) *UserBuilder {
-	b.u.deletedAt = t
+func (b *UserBuilder) WithIsBlocked(blocked bool) *UserBuilder {
+	b.u.isBlocked = blocked
 	return b
 }
 
@@ -54,21 +47,28 @@ func (b *UserBuilder) Build() (*User, error) {
 	return b.u, nil
 }
 
+func NewUser(id IDUser, primaryEmail vo.Email, hash PasswordHash, blocked bool) (*User, error) {
+	return &User{
+		id:           id,
+		primaryEmail: primaryEmail,
+		passwordHash: hash,
+		isBlocked:    blocked,
+	}, nil
+}
+
 func (u *User) ID() IDUser                 { return u.id }
+func (u *User) PrimaryEmail() vo.Email     { return u.primaryEmail }
 func (u *User) PasswordHash() PasswordHash { return u.passwordHash }
 func (u *User) IsBlocked() bool            { return u.isBlocked }
-func (u *User) CreatedAt() time.Time       { return u.createdAt }
-func (u *User) UpdatedAt() time.Time       { return u.updatedAt }
-func (u *User) DeletedAt() time.Time       { return u.deletedAt }
 
-func (u *User) SetID(id int64) error {
+func (u *User) SetID(id IDUser) error {
 	if u.id != 0 {
 		return domain.NewFieldError("id", "user id is already set")
 	}
 	if id == 0 {
 		return domain.NewFieldError("id", "user id is invalid")
 	}
-	u.id = IDUser(id)
+	u.id = id
 	return nil
 }
 
