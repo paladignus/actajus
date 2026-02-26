@@ -121,18 +121,6 @@ func (c CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*doma
 					WithIDUser(uid).
 					WithExpiresAt(exp).
 					Build()
-				// return model.NewSessionFromPersistence(
-				// 	sid,
-				// 	uid,
-				// 	[32]byte{}, // refresh hash não precisa no cache para validate access
-				// 	exp,
-				// 	nil, // revokedAt nil
-				// 	nil, // rotatedAt nil
-				// 	"",  // ip
-				// 	"",  // userAgent
-				// 	time.Time{},
-				// 	time.Time{},
-				// ), nil
 			}
 		}
 	}
@@ -213,8 +201,6 @@ func (c CachedSession) RevokeAllByUser(ctx context.Context, userID domain.IDUser
 }
 
 func (c CachedSession) CountActiveByUser(ctx context.Context, idUser domain.IDUser) (int, error) {
-	// Para manter simples e correto: usa Postgres (source of truth).
-	// Otimização futura: count via Redis set (mas precisa limpar entradas expiradas).
 	return c.pg.CountActiveByUser(ctx, idUser)
 }
 
@@ -224,23 +210,23 @@ func (c CachedSession) IsActive(ctx context.Context, sid domain.IDSession, idUse
 	v, err := c.rdb.Get(ctx, key).Result()
 	if err == nil {
 		uid, exp, ok := decodeSessionCache(v)
-		if ok && uid.Value() == idUser.Value() && now.Before(exp) {
-			c.logger.Info(ctx, "session.is_active cache_hit",
+		if !ok || uid.Value() != idUser.Value() || !now.Before(exp) {
+			_, _ = c.rdb.Del(ctx, key).Result()
+			c.logger.Info(ctx, "session.is_active cache_stale",
 				"sid", sid.Value(),
 				"user_id", idUser.Value(),
 				"took", time.Since(start).String(),
 			)
-			return true, nil
+			return false, nil
 		}
-		_, _ = c.rdb.Del(ctx, key).Result()
-		c.logger.Info(ctx, "session.is_active cache_stale",
+		c.logger.Info(ctx, "session.is_active cache_hit",
 			"sid", sid.Value(),
 			"user_id", idUser.Value(),
 			"took", time.Since(start).String(),
 		)
-		return false, nil
+		return true, nil
 	}
-	if err != nil && err != redis.Nil {
+	if err != redis.Nil {
 		c.logger.Error(ctx, "session.is_active redis_error_fallback_pg",
 			"sid", sid.Value(),
 			"user_id", idUser.Value(),
@@ -254,19 +240,17 @@ func (c CachedSession) IsActive(ctx context.Context, sid domain.IDSession, idUse
 			"took", time.Since(start).String(),
 		)
 	}
-	ok, err2 := c.pg.IsActive(ctx, sid, idUser, now)
-	if err2 != nil {
-		return false, err2
+	ok, err := c.pg.IsActive(ctx, sid, idUser, now)
+	if err != nil || !ok {
+		return ok, err
 	}
-	if !ok {
-		return false, nil
-	}
-	sess, err3 := c.pg.GetByID(ctx, sid)
-	if err3 == nil && sess != nil && sess.RevokedAt() == nil && now.Before(sess.ExpiresAt()) {
+	sess, err := c.pg.GetByID(ctx, sid)
+	if err == nil && sess.RevokedAt() == nil && now.Before(sess.ExpiresAt()) {
 		ttl := ttlUntil(now, sess.ExpiresAt())
 		if ttl > 0 {
+			val := encodeSessionCache(sess.IDUser(), sess.ExpiresAt())
 			pipe := c.rdb.Pipeline()
-			pipe.Set(ctx, key, encodeSessionCache(sess.IDUser(), sess.ExpiresAt()), ttl)
+			pipe.Set(ctx, key, val, ttl)
 			pipe.SAdd(ctx, c.kUserSessions(sess.IDUser()), sid.Value())
 			_, _ = pipe.Exec(ctx)
 		}

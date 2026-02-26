@@ -420,12 +420,13 @@ content-type: application/json
 }
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjExMjc2MywiaWF0IjoxNzcyMTExODYzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.NStsyRmWIzekw9GQ9xKDlCxyxttZkT_qry59pawB_iE",
-  "accessExpiresAt": "2026-02-26T13:32:43.192002466Z",
-  "refreshToken": "xBRBgSOMxARVfM7kqL24AgLlpMiN-ANmVFDhuWeR1ls",
-  "refreshExpiresAt": "2026-02-27T13:17:43.192002466Z",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjEzOTExOSwiaWF0IjoxNzcyMTM4MjE5LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.IVmzA-4m-km3oUd0PVqj2KqnDWDdj-819rhUBSayijI",
+  "accessExpiresAt": "2026-02-26T20:51:59.673413216Z",
+  "refreshToken": "Tnw8QCoUHHA3NsYuNn8E-oIunN1MHxhiAiDL6GYUxao",
+  "refreshExpiresAt": "2026-02-27T20:36:59.673413216Z",
   "idSession": "1"
 }
+
 
 
 
@@ -436,7 +437,7 @@ localhost:50051 identity.v1.AuthService/Login
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjExMjc2MywiaWF0IjoxNzcyMTExODYzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.NStsyRmWIzekw9GQ9xKDlCxyxttZkT_qry59pawB_iE" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjEyNjAxNCwiaWF0IjoxNzcyMTI1MTE0LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.EZs_gWPpXzCat5NonqDwc3w1dFGuvQvFlKXJj9iEL30" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
 localhost:50051 person.v1.PersonService/CreatePerson
 
@@ -449,7 +450,7 @@ localhost:50051 person.v1.PersonService/CreatePerson
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":1,"refresh_token":"_Cm1OhiIMulYm4F5UrMdW3hzkUbvX5gyK7diCPyw7bo","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":1,"refresh_token":"xBRBgSOMxARVfM7kqL24AgLlpMiN-ANmVFDhuWeR1ls","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 grpcurl -v \

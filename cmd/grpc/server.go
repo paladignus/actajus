@@ -12,10 +12,13 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/paladignus/actajus/internal/module/identity"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
+	"github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
 	"github.com/paladignus/actajus/internal/module/person"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
+	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/net/http2"
@@ -26,7 +29,7 @@ func main() {
 	config := config.Load()
 	ctx := context.Background()
 	logger := logger.NewDefaultLogger()
-	db, err := postgres.NewConnection(ctx, &config.Database)
+	db, err := postgresShared.NewConnection(ctx, &config.Database)
 	if err != nil {
 		logger.Error(ctx, "❌ error initializing the database connection.", "error", err)
 		os.Exit(1)
@@ -46,12 +49,18 @@ func main() {
 	logger.Info(ctx, "✅ Cache connected successfully")
 	person := person.NewModule(db, logger)
 	identity, err := identity.NewModule(db, logger, config.Auth, rdb)
+	authzRepo := postgres.NewAuthorization(db)
+	authzSvc := security.NewAuthorizationService(
+		authzRepo,
+		rdb,
+		security.WithAuthzPrefix("rbac:"),     // opcional
+		security.WithAuthzTTL(10*time.Minute), // ajuste conforme quiser
+	)
+	rbacChecker := rbac.NewChecker(authzSvc)
 	logger.Info(ctx, "✅ Modules initialized successfully")
 	mux := http.NewServeMux()
 	recoverI := interceptor.NewRecoverInterceptor(logger)
 	loggingI := interceptor.NewLoggingInterceptor(logger)
-	// authI (para proteger os endpoints fora Login/Refresh e Health)
-	// - whitelista apenas Login/Refresh/Health
 	authI := interceptor.NewAuthInterceptor(
 		identity.ValidateAccess,
 		interceptor.WithWhitelistProcedures(
@@ -62,10 +71,16 @@ func main() {
 			"/grpc.health.v1.Health/Check",
 		),
 	)
+	rbacRules := map[string]string{
+		"/person.v1.PersonService/CreatePerson": "person:create",
+		// ...
+	}
+	rbacI := interceptor.NewRBACInterceptor(rbacChecker, rbacRules)
 	interceptors := connect.WithInterceptors(
 		recoverI,
 		loggingI,
 		authI,
+		rbacI,
 	)
 	if err != nil {
 		logger.Error(ctx, "❌ error initializing the access token service.", "error", err)

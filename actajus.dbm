@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="28"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="288,790" last-zoom="1.1" scene-rect="0,-50.7679,2733.34,3378.89"
+	 last-position="0,54" last-zoom="0.65" scene-rect="0,-50.7679,2733.34,3378.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -890,6 +890,22 @@ CAUTION: Do not modify this file unless you know what you are doing.
 			<column name="id_users"/>
 		</idxelement>
 	<predicate> <![CDATA[revoked_at IS NULL]]> </predicate>
+</index>
+
+<index name="role_user_id_users_idx" table="public.role_user"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="id_users"/>
+		</idxelement>
+</index>
+
+<index name="permission_role_id_roles_idx" table="public.permission_role"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="id_roles"/>
+		</idxelement>
 </index>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"

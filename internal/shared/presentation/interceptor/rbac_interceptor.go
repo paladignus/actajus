@@ -5,53 +5,29 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	sharedAdapter "github.com/paladignus/actajus/internal/shared/presentation/adapter"
 	"github.com/paladignus/actajus/internal/shared/presentation/authctx"
 )
 
 type PermissionChecker interface {
-	HasPermission(ctx context.Context, idUser int64, permission string) (bool, error)
+	HasPermission(ctx context.Context, userID int64, perm string) (bool, error)
 }
 
 type RBACInterceptor struct {
 	checker PermissionChecker
-	rules   map[string]string
+	rules   map[string]string // procedure -> perm
 }
 
-type RBACRule map[string]string
-
-func NewRBACInterceptor(checker PermissionChecker, rules RBACRule) *RBACInterceptor {
-	return &RBACInterceptor{
-		checker: checker,
-		rules:   rules,
-	}
+func NewRBACInterceptor(checker PermissionChecker, rules map[string]string) *RBACInterceptor {
+	return &RBACInterceptor{checker: checker, rules: rules}
 }
 
 func (i *RBACInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		perm, ok := i.rules[req.Spec().Procedure]
-		if !ok || perm == "" {
-			return next(ctx, req)
-		}
-		claims, ok := authctx.GetClaims(ctx)
-		if !ok {
-			return nil, sharedAdapter.ToConnectIdentityError(errUnauthenticated())
-		}
-		allowed, err := i.checker.HasPermission(ctx, claims.IDUser, perm)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInternal, err)
-		}
-		if !allowed {
-			return nil, sharedAdapter.ToConnectIdentityError(errPermissionDenied())
+		if err := i.authorize(ctx, req.Spec().Procedure); err != nil {
+			return nil, err
 		}
 		return next(ctx, req)
 	}
-}
-
-func errUnauthenticated() error { return connect.NewError(connect.CodeUnauthenticated, nil) }
-
-func errPermissionDenied() error {
-	return connect.NewError(connect.CodePermissionDenied, connect.NewError(connect.CodePermissionDenied, nil))
 }
 
 func (i *RBACInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
@@ -59,5 +35,29 @@ func (i *RBACInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) 
 }
 
 func (i *RBACInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
-	return next
+	return func(ctx context.Context, shc connect.StreamingHandlerConn) error {
+		if err := i.authorize(ctx, shc.Spec().Procedure); err != nil {
+			return err
+		}
+		return next(ctx, shc)
+	}
+}
+
+func (i *RBACInterceptor) authorize(ctx context.Context, procedure string) error {
+	perm, ok := i.rules[procedure]
+	if !ok || perm == "" {
+		return nil
+	}
+	claims, ok := authctx.GetClaims(ctx)
+	if !ok {
+		return connect.NewError(connect.CodeUnauthenticated, nil)
+	}
+	allowed, err := i.checker.HasPermission(ctx, claims.IDUser, perm)
+	if err != nil {
+		return connect.NewError(connect.CodeInternal, err)
+	}
+	if !allowed {
+		return connect.NewError(connect.CodePermissionDenied, nil)
+	}
+	return nil
 }

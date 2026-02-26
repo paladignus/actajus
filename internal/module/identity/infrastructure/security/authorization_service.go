@@ -42,19 +42,23 @@ func (s *AuthorizationService) kUserPerms(uid domain.IDUser) string {
 	return s.prefix + "user_perms:" + itoa64(uid.Value())
 }
 
-func (s *AuthorizationService) HasPermission(ctx context.Context, idUser domain.IDUser, perm string) (bool, error) {
-	key := s.kUserPerms(idUser)
+// HasPermission: Redis SISMEMBER -> fallback Postgres ListPermissionsByUser -> repopula cache
+func (s *AuthorizationService) HasPermission(ctx context.Context, userID domain.IDUser, perm string) (bool, error) {
+	key := s.kUserPerms(userID)
+
 	ok, err := s.rdb.SIsMember(ctx, key, perm).Result()
 	if err == nil {
 		return ok, nil
 	}
-	if err != nil && err != redis.Nil {
-		// redis erro => fallback pg
-	}
-	perms, err2 := s.repo.ListPermissionsByUser(ctx, idUser)
+	// redis.Nil não é comum em SIsMember, mas redis pode falhar.
+	// Se falhar, segue fallback no Postgres.
+
+	perms, err2 := s.repo.ListPermissionsByUser(ctx, userID)
 	if err2 != nil {
 		return false, err2
 	}
+
+	// repopula cache (best-effort)
 	if len(perms) > 0 {
 		members := make([]any, 0, len(perms))
 		for _, p := range perms {
@@ -68,6 +72,7 @@ func (s *AuthorizationService) HasPermission(ctx context.Context, idUser domain.
 	} else {
 		_ = s.rdb.Expire(ctx, key, s.ttl).Err()
 	}
+
 	for _, p := range perms {
 		if p == perm {
 			return true, nil
@@ -76,6 +81,11 @@ func (s *AuthorizationService) HasPermission(ctx context.Context, idUser domain.
 	return false, nil
 }
 
+func (s *AuthorizationService) InvalidateUser(ctx context.Context, userID domain.IDUser) {
+	_, _ = s.rdb.Del(ctx, s.kUserPerms(userID)).Result()
+}
+
+// helper sem fmt (hot path)
 func itoa64(v int64) string {
 	if v == 0 {
 		return "0"

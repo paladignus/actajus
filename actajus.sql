@@ -180,8 +180,10 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE TABLE public.emails (
 	idemails bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
 	address text NOT NULL,
+	is_primary bool NOT NULL DEFAULT FALSE,
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
+	deleted_at timestamptz,
 	CONSTRAINT emails_pk PRIMARY KEY (idemails),
 	CONSTRAINT emails_name_uq UNIQUE (address)
 );
@@ -471,10 +473,11 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 -- DROP TABLE IF EXISTS public.sessions CASCADE;
 CREATE TABLE public.sessions (
 	idsessions bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
-	id_users bigint NOT NULL,
+	id_users bigint,
 	refresh_token_hash bytea NOT NULL,
 	expires_at timestamptz NOT NULL,
-	revoked_at timestamptz NOT NULL,
+	revoked_at timestamptz,
+	rotated_at timestamptz,
 	ip text,
 	user_agent text,
 	created_at timestamptz NOT NULL,
@@ -483,16 +486,6 @@ CREATE TABLE public.sessions (
 );
 -- ddl-end --
 ALTER TABLE public.sessions OWNER TO postgres;
--- ddl-end --
-
--- object: idx_sessions_id_users | type: INDEX --
--- DROP INDEX IF EXISTS public.idx_sessions_id_users CASCADE;
-CREATE INDEX idx_sessions_id_users ON public.sessions
-USING btree
-(
-	id_users
-)
-WHERE (revoked_at IS NULL);
 -- ddl-end --
 
 -- object: idx_sessions_expires_at | type: INDEX --
@@ -540,6 +533,23 @@ USING btree
 (
 	token_hash
 );
+-- ddl-end --
+
+-- object: users_fk | type: CONSTRAINT --
+-- ALTER TABLE public.sessions DROP CONSTRAINT IF EXISTS users_fk CASCADE;
+ALTER TABLE public.sessions ADD CONSTRAINT users_fk FOREIGN KEY (id_users)
+REFERENCES public.users (idusers) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: idx_sessions_id_users | type: INDEX --
+-- DROP INDEX IF EXISTS public.idx_sessions_id_users CASCADE;
+CREATE INDEX idx_sessions_id_users ON public.sessions
+USING btree
+(
+	id_users
+)
+WHERE (revoked_at IS NULL);
 -- ddl-end --
 
 -- object: mother_fk | type: CONSTRAINT --
