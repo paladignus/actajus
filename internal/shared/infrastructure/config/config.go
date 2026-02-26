@@ -14,6 +14,7 @@ import (
 type Config struct {
 	Server        ServerConfig
 	Database      DatabaseConfig
+	Redis         RedisConfig
 	JWT           JWTConfig
 	Session       SessionConfig
 	PasswordReset PasswordResetConfig
@@ -36,6 +37,13 @@ type DatabaseConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
+}
+
+type RedisConfig struct {
+	Addr     string
+	Password string
+	Prefix   string
+	Fallback string
 }
 
 type JWTConfig struct {
@@ -135,6 +143,12 @@ func Load() Config {
 			Password: password,                   // Usando a variável verificada acima
 			DBName:   getEnv("DB_NAME", "sidof"), // Nome do banco de dados padrão
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+		},
+		Redis: RedisConfig{
+			Addr:     getEnv("REDIS_ADDR", "localhost:6379"),
+			Password: getEnv("REDIS_PASSWORD", ""),
+			Prefix:   getEnv("REDIS_PREFIX", "actajus:"),
+			Fallback: getEnv("REDIS_FALLBACK", "true"),
 		},
 		JWT: JWTConfig{
 			AccessSecret: accessSecret,                           // Usando a variável verificada acima

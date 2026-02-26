@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/cache"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	"github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
@@ -16,6 +17,7 @@ import (
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
+	"github.com/redis/go-redis/v9"
 )
 
 type Module struct {
@@ -31,6 +33,7 @@ func NewModule(
 	pool *pgxpool.Pool,
 	logger repository.Logger,
 	config config.AuthConfig,
+	rdb *redis.Client,
 ) (Module, error) {
 	clk := clock.NewSystemClock()
 	refresh := security.NewRefreshTokenService()
@@ -49,10 +52,16 @@ func NewModule(
 	mapper := mapper.NewAuthMapper(v)
 	userRepo := postgres.NewUser(pool)
 	sessionRepo := postgres.NewSession(pool)
+	cacheRepo := cache.NewCachedSession(
+		sessionRepo,
+		rdb,
+		cache.WithPrefix("actajus:"),
+		cache.WithFallbackToPostgress(true),
+	)
 	passResetRepo := postgres.NewPasswordReset(pool)
 	loginUC := usecase.NewLogin(
 		userRepo,
-		sessionRepo,
+		cacheRepo,
 		hasher,
 		refresh,
 		accessSvc,
@@ -62,7 +71,7 @@ func NewModule(
 		*projection,
 	)
 	refreshUC := usecase.NewRefresh(
-		sessionRepo,
+		cacheRepo,
 		userRepo,
 		refresh,
 		accessSvc,
@@ -92,7 +101,7 @@ func NewModule(
 	)
 	confirmResetUC := usecase.NewConfirmPasswordReset(
 		userRepo,
-		sessionRepo,
+		cacheRepo,
 		passResetRepo,
 		hasher,
 		refresh,
@@ -102,7 +111,7 @@ func NewModule(
 	)
 	validateAccessUC := usecase.NewValidateAccess(
 		accessSvc,
-		sessionRepo,
+		cacheRepo,
 		clk,
 		*mapper,
 		true, // checkSession=true (bom para revogação)

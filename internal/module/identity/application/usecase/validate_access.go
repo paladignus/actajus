@@ -13,7 +13,7 @@ import (
 )
 
 type ValidateAccess struct {
-	access       service.AccessTokenService
+	token        service.AccessTokenService
 	session      repository.SessionRepository
 	clock        service.Clock
 	mapper       mapper.AuthMapper
@@ -21,15 +21,15 @@ type ValidateAccess struct {
 }
 
 func NewValidateAccess(
-	access service.AccessTokenService,
+	token service.AccessTokenService,
 	session repository.SessionRepository,
 	clock service.Clock,
 	mapper mapper.AuthMapper,
 	checkSession bool,
 ) ValidateAccess {
 	return ValidateAccess{
-		access: access, session: session, clock: clock,
-		mapper: mapper, CheckSession: checkSession,
+		token, session, clock,
+		mapper, checkSession,
 	}
 }
 
@@ -38,7 +38,7 @@ func (uc ValidateAccess) Execute(ctx context.Context, input dto.ValidateAccessCo
 	if err != nil {
 		return nil, fmt.Errorf("invalid access token data: %w", err)
 	}
-	claims, err := uc.access.Verify(norm.Token)
+	claims, err := uc.token.Verify(norm.Token)
 	if err != nil {
 		return nil, identity.ErrInvalidToken
 	}

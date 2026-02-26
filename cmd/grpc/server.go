@@ -17,6 +17,7 @@ import (
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
@@ -32,13 +33,23 @@ func main() {
 	}
 	defer db.Close()
 	logger.Info(ctx, "✅ Database connected successfully")
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     config.Redis.Addr,
+		Password: config.Redis.Password,
+		DB:       0,
+	})
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		logger.Error(ctx, "redis ping failed", "err", err)
+		os.Exit(1)
+	}
+	defer rdb.Close()
+	logger.Info(ctx, "✅ Cache connected successfully")
 	person := person.NewModule(db, logger)
-	identity, err := identity.NewModule(db, logger, config.Auth)
+	identity, err := identity.NewModule(db, logger, config.Auth, rdb)
 	logger.Info(ctx, "✅ Modules initialized successfully")
 	mux := http.NewServeMux()
 	recoverI := interceptor.NewRecoverInterceptor(logger)
 	loggingI := interceptor.NewLoggingInterceptor(logger)
-	// Quando o módulo identity estiver pronto e você tiver o usecase ValidateAccess:
 	// authI (para proteger os endpoints fora Login/Refresh e Health)
 	// - whitelista apenas Login/Refresh/Health
 	authI := interceptor.NewAuthInterceptor(
@@ -57,14 +68,6 @@ func main() {
 		loggingI,
 		authI,
 	)
-	// hasher := security.NewArgon2idPasswordHasher()
-	// clk := clock.NewSystemClock()
-	// refreshSvc := security.NewRefreshTokenService()
-	// accessSvc, err := security.NewHS256AccessTokenService(
-	// 	config.JWT.AccessSecret,
-	// 	config.JWT.Issuer,
-	// 	config.JWT.Audience,
-	// )
 	if err != nil {
 		logger.Error(ctx, "❌ error initializing the access token service.", "error", err)
 		os.Exit(1)
@@ -73,7 +76,7 @@ func main() {
 	mux.Handle(person.Route(interceptors))
 	handler := corsMiddleware(mux)
 	srv := &http.Server{
-		Addr:              config.Server.Port,
+		Addr:              config.Server.GRPCPort,
 		Handler:           h2c.NewHandler(handler, &http2.Server{}),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
@@ -81,7 +84,7 @@ func main() {
 		IdleTimeout:       120 * time.Second,
 	}
 	go func() {
-		logger.Info(ctx, "🚀 Server starting on", "addr", config.Server.Port)
+		logger.Info(ctx, "🚀 Server starting on", "addr", config.Server.GRPCPort)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ Server error: %v", err)
 		}

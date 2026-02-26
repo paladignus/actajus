@@ -16,4 +16,5 @@ var (
 	ErrResetTokenExpired  = errors.New("reset_token_expired")
 	ErrResetTokenUsed     = errors.New("reset_token_used")
 	ErrResetTokenInvalid  = errors.New("reset_token_invalid")
+	ErrMissingAccessToken = errors.New("missing_access_token")
 )
