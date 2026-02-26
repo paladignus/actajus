@@ -10,32 +10,40 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
+	"github.com/paladignus/actajus/internal/shared/domain/repository"
 	"github.com/redis/go-redis/v9"
 )
 
 type CachedSession struct {
 	pg                 postgres.Session
 	rdb                redis.UniversalClient
+	logger             repository.Logger
 	prefix             string
 	fallbackToPostgres bool
 }
 
-type Option func(*CachedSession)
+type Option func(CachedSession)
 
 func WithPrefix(prefix string) Option {
-	return func(c *CachedSession) { c.prefix = prefix }
+	return func(c CachedSession) { c.prefix = prefix }
 }
 
 func WithFallbackToPostgress(v bool) Option {
-	return func(c *CachedSession) { c.fallbackToPostgres = v }
+	return func(c CachedSession) { c.fallbackToPostgres = v }
 }
 
-func NewCachedSession(pg postgres.Session, rdb redis.UniversalClient, opts ...Option) *CachedSession {
-	c := &CachedSession{
-		pg:                 pg,
-		rdb:                rdb,
-		prefix:             "",
-		fallbackToPostgres: true,
+func NewCachedSession(
+	pg postgres.Session,
+	rdb redis.UniversalClient,
+	logger repository.Logger,
+	opts ...Option,
+) CachedSession {
+	c := CachedSession{
+		pg,
+		rdb,
+		logger,
+		"",
+		true,
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -43,11 +51,11 @@ func NewCachedSession(pg postgres.Session, rdb redis.UniversalClient, opts ...Op
 	return c
 }
 
-func (c *CachedSession) kSession(sid domain.IDSession) string {
+func (c CachedSession) kSession(sid domain.IDSession) string {
 	return c.prefix + "session:" + strconv.FormatInt(sid.Value(), 10)
 }
 
-func (c *CachedSession) kUserSessions(uid domain.IDUser) string {
+func (c CachedSession) kUserSessions(uid domain.IDUser) string {
 	return c.prefix + "user_sessions:" + strconv.FormatInt(uid.Value(), 10)
 }
 
@@ -79,7 +87,7 @@ func ttlUntil(now, exp time.Time) time.Duration {
 	return d
 }
 
-func (c *CachedSession) Create(ctx context.Context, s *domain.Session) error {
+func (c CachedSession) Create(ctx context.Context, s *domain.Session) error {
 	if err := c.pg.Create(ctx, s); err != nil {
 		return err
 	}
@@ -96,7 +104,7 @@ func (c *CachedSession) Create(ctx context.Context, s *domain.Session) error {
 	return nil
 }
 
-func (c *CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Session, error) {
+func (c CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Session, error) {
 	key := c.kSession(sid)
 	v, err := c.rdb.Get(ctx, key).Result()
 	if err == nil {
@@ -153,7 +161,7 @@ func (c *CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*dom
 	return s, nil
 }
 
-func (c *CachedSession) RotateRefreshToken(ctx context.Context, sid domain.IDSession, newHash [32]byte, newExpiresAt time.Time) error {
+func (c CachedSession) RotateRefreshToken(ctx context.Context, sid domain.IDSession, newHash [32]byte, newExpiresAt time.Time) error {
 	if err := c.pg.RotateRefreshToken(ctx, sid, newHash, newExpiresAt); err != nil {
 		return err
 	}
@@ -177,7 +185,7 @@ func (c *CachedSession) RotateRefreshToken(ctx context.Context, sid domain.IDSes
 	return nil
 }
 
-func (c *CachedSession) Revoke(ctx context.Context, sid domain.IDSession) error {
+func (c CachedSession) Revoke(ctx context.Context, sid domain.IDSession) error {
 	if err := c.pg.Revoke(ctx, sid); err != nil {
 		return err
 	}
@@ -185,7 +193,7 @@ func (c *CachedSession) Revoke(ctx context.Context, sid domain.IDSession) error 
 	return nil
 }
 
-func (c *CachedSession) RevokeAllByUser(ctx context.Context, userID domain.IDUser) error {
+func (c CachedSession) RevokeAllByUser(ctx context.Context, userID domain.IDUser) error {
 	if err := c.pg.RevokeAllByUser(ctx, userID); err != nil {
 		return err
 	}
@@ -204,8 +212,64 @@ func (c *CachedSession) RevokeAllByUser(ctx context.Context, userID domain.IDUse
 	return nil
 }
 
-func (c *CachedSession) CountActiveByUser(ctx context.Context, userID domain.IDUser) (int, error) {
+func (c CachedSession) CountActiveByUser(ctx context.Context, idUser domain.IDUser) (int, error) {
 	// Para manter simples e correto: usa Postgres (source of truth).
 	// Otimização futura: count via Redis set (mas precisa limpar entradas expiradas).
-	return c.pg.CountActiveByUser(ctx, userID)
+	return c.pg.CountActiveByUser(ctx, idUser)
+}
+
+func (c CachedSession) IsActive(ctx context.Context, sid domain.IDSession, idUser domain.IDUser, now time.Time) (bool, error) {
+	start := time.Now()
+	key := c.kSession(sid)
+	v, err := c.rdb.Get(ctx, key).Result()
+	if err == nil {
+		uid, exp, ok := decodeSessionCache(v)
+		if ok && uid.Value() == idUser.Value() && now.Before(exp) {
+			c.logger.Info(ctx, "session.is_active cache_hit",
+				"sid", sid.Value(),
+				"user_id", idUser.Value(),
+				"took", time.Since(start).String(),
+			)
+			return true, nil
+		}
+		_, _ = c.rdb.Del(ctx, key).Result()
+		c.logger.Info(ctx, "session.is_active cache_stale",
+			"sid", sid.Value(),
+			"user_id", idUser.Value(),
+			"took", time.Since(start).String(),
+		)
+		return false, nil
+	}
+	if err != nil && err != redis.Nil {
+		c.logger.Error(ctx, "session.is_active redis_error_fallback_pg",
+			"sid", sid.Value(),
+			"user_id", idUser.Value(),
+			"error", err,
+			"took", time.Since(start).String(),
+		)
+	} else {
+		c.logger.Info(ctx, "session.is_active cache_miss_fallback_pg",
+			"sid", sid.Value(),
+			"user_id", idUser.Value(),
+			"took", time.Since(start).String(),
+		)
+	}
+	ok, err2 := c.pg.IsActive(ctx, sid, idUser, now)
+	if err2 != nil {
+		return false, err2
+	}
+	if !ok {
+		return false, nil
+	}
+	sess, err3 := c.pg.GetByID(ctx, sid)
+	if err3 == nil && sess != nil && sess.RevokedAt() == nil && now.Before(sess.ExpiresAt()) {
+		ttl := ttlUntil(now, sess.ExpiresAt())
+		if ttl > 0 {
+			pipe := c.rdb.Pipeline()
+			pipe.Set(ctx, key, encodeSessionCache(sess.IDUser(), sess.ExpiresAt()), ttl)
+			pipe.SAdd(ctx, c.kUserSessions(sess.IDUser()), sid.Value())
+			_, _ = pipe.Exec(ctx)
+		}
+	}
+	return true, nil
 }

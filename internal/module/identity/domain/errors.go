@@ -17,4 +17,5 @@ var (
 	ErrResetTokenUsed     = errors.New("reset_token_used")
 	ErrResetTokenInvalid  = errors.New("reset_token_invalid")
 	ErrMissingAccessToken = errors.New("missing_access_token")
+	ErrSessionNotActive   = errors.New("session_not_active")
 )

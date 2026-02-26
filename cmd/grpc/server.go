@@ -54,7 +54,6 @@ func main() {
 	// - whitelista apenas Login/Refresh/Health
 	authI := interceptor.NewAuthInterceptor(
 		identity.ValidateAccess,
-		logger,
 		interceptor.WithWhitelistProcedures(
 			"/identity.v1.AuthService/Login",
 			"/identity.v1.AuthService/Refresh",

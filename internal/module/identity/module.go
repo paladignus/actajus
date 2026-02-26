@@ -55,6 +55,7 @@ func NewModule(
 	cacheRepo := cache.NewCachedSession(
 		sessionRepo,
 		rdb,
+		logger,
 		cache.WithPrefix("actajus:"),
 		cache.WithFallbackToPostgress(true),
 	)
@@ -80,11 +81,11 @@ func NewModule(
 		*mapper,
 		*projection,
 	)
-	logoutUC := usecase.NewLogout(sessionRepo, *mapper)
-	logoutAllUC := usecase.NewLogoutAll(sessionRepo, *mapper)
+	logoutUC := usecase.NewLogout(&sessionRepo, *mapper)
+	logoutAllUC := usecase.NewLogoutAll(&sessionRepo, *mapper)
 	changePasswordUC := usecase.NewChangePassword(
 		userRepo,
-		sessionRepo,
+		&sessionRepo,
 		hasher,
 		clk,
 		mapper,
@@ -113,7 +114,7 @@ func NewModule(
 		accessSvc,
 		cacheRepo,
 		clk,
-		*mapper,
+		// *mapper,
 		true, // checkSession=true (bom para revogação)
 	)
 	h := handler.NewAuthHandler(

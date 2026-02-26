@@ -3,9 +3,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
@@ -144,6 +146,21 @@ func scanSHA256(b []byte) ([32]byte, error) {
 	}
 	copy(out[:], b)
 	return out, nil
+}
+
+func (r *Session) IsActive(ctx context.Context, sid domain.IDSession, idUser domain.IDUser, now time.Time) (bool, error) {
+	const query = `SELECT 1
+	FROM sessions
+	WHERE idsessions = $1 AND user_id = $2 AND revoked_at IS NULL AND expires_at > $3 LIMIT 1;`
+	var one int
+	err := r.db.QueryRow(ctx, query, sid.Value(), idUser.Value(), now).Scan(&one)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 // func nullableText(s string) any {

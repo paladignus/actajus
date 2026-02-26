@@ -15,4 +15,5 @@ type SessionRepository interface {
 	Revoke(ctx context.Context, sid identity.IDSession) error
 	RevokeAllByUser(ctx context.Context, uid identity.IDUser) error
 	CountActiveByUser(ctx context.Context, uid identity.IDUser) (int, error)
+	IsActive(ctx context.Context, sid identity.IDSession, uid identity.IDUser, now time.Time) (bool, error)
 }
