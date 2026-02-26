@@ -443,7 +443,7 @@ localhost:8080 person.v1.PersonService/CreatePerson
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":1,"refresh_token":"nGFso5bC_UHtYtGA9YHEfKNOdxFL_XA959Bt8USG-Sw","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":1,"refresh_token":"_Cm1OhiIMulYm4F5UrMdW3hzkUbvX5gyK7diCPyw7bo","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:8080 identity.v1.AuthService/Refresh
 
 grpcurl -v \
@@ -454,7 +454,7 @@ localhost:8080 identity.v1.AuthService/Logout
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA0NzM0NiwiaWF0IjoxNzcyMDQ2NDQ2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxMiIsInN1YiI6IjMifQ.F-lPTM4qNSpQxLsBuoKKFa0doVlFEXTOfOqLJg5PYXA" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MTQwOCwiaWF0IjoxNzcyMDcwNTA4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.KDknSWJ2-w-Qm5zulCYe3qTBfxpruZFdbmooBIYceks" \
 -d '{"id_user":3}' \
 localhost:8080 identity.v1.AuthService/LogoutAll
 
