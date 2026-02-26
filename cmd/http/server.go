@@ -12,7 +12,7 @@ import (
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/module/company"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 func main() {

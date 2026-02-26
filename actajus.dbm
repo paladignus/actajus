@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="28"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,1707" last-zoom="0.7" scene-rect="0,-50.7679,2733.34,3378.89"
+	 last-position="288,790" last-zoom="1.1" scene-rect="0,-50.7679,2733.34,3378.89"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -786,7 +786,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.social_media"
 	 src-required="true" dst-required="false"/>
 
-<table name="sessions" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
+<table name="sessions" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1280" y="760"/>
@@ -800,7 +800,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="expires_at" not-null="true">
 		<type name="timestamptz" length="0"/>
 	</column>
-	<column name="revoked_at" not-null="true">
+	<column name="revoked_at">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="rotated_at">
 		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="ip">

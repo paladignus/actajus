@@ -1,5 +1,5 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	"context"
@@ -8,15 +8,15 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	addr "github.com/paladignus/actajus/internal/module/address/domain"
-	addrDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database"
+	addrDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company/domain"
 	email "github.com/paladignus/actajus/internal/module/email/domain"
-	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database"
+	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database/postgres"
 	phone "github.com/paladignus/actajus/internal/module/phone/domain"
-	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database"
+	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database/postgres"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/domain"
-	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type CompanyUnitOfWork struct {

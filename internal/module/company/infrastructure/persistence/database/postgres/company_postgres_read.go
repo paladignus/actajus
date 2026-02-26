@@ -1,5 +1,5 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	sharedDto "github.com/paladignus/actajus/internal/shared/application/dto"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type CompanyReadRepository struct {

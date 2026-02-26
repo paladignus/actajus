@@ -1,5 +1,5 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	companyDTO "github.com/paladignus/actajus/internal/module/company/application/dto"

@@ -5,7 +5,7 @@ import (
 	"context"
 
 	"github.com/paladignus/actajus/internal/module/person/domain"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type Person struct {

@@ -1,11 +1,11 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	"context"
 	"time"
 
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type CompanyEmail struct {

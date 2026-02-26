@@ -76,11 +76,16 @@ SELECT
 FROM people p
 CROSS JOIN (
     VALUES
-        ('root',     crypt('admin123', gen_salt('bf')), 'default.png'),
-        ('admin',    crypt('admin123', gen_salt('bf')), 'default.png'),
-        ('manager',  crypt('admin123', gen_salt('bf')), 'default.png'),
-        ('editor',   crypt('admin123', gen_salt('bf')), 'default.png'),
-        ('customer', crypt('admin123', gen_salt('bf')), 'default.png')
+        ('root',     'argon2id$v=19$m=65536,t=3,p=2$IvkxoyWMT0Pcna3n2OxPgw$SA2GIBtpRPYG6Ikt7PyS5PPfU2oPE6Dmwd9V8Ok7lqU
+', 'default.png'),
+        ('admin',    'argon2id$v=19$m=65536,t=3,p=2$IvkxoyWMT0Pcna3n2OxPgw$SA2GIBtpRPYG6Ikt7PyS5PPfU2oPE6Dmwd9V8Ok7lqU
+', 'default.png'),
+        ('manager',  'argon2id$v=19$m=65536,t=3,p=2$IvkxoyWMT0Pcna3n2OxPgw$SA2GIBtpRPYG6Ikt7PyS5PPfU2oPE6Dmwd9V8Ok7lqU
+', 'default.png'),
+        ('editor',   'argon2id$v=19$m=65536,t=3,p=2$IvkxoyWMT0Pcna3n2OxPgw$SA2GIBtpRPYG6Ikt7PyS5PPfU2oPE6Dmwd9V8Ok7lqU
+', 'default.png'),
+        ('customer', 'argon2id$v=19$m=65536,t=3,p=2$IvkxoyWMT0Pcna3n2OxPgw$SA2GIBtpRPYG6Ikt7PyS5PPfU2oPE6Dmwd9V8Ok7lqU
+', 'default.png')
 ) AS v(role, password_hash, avatar) RETURNING *;
 
 

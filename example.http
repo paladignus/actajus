@@ -405,33 +405,79 @@ content-type: application/json
 
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA0NzY5NiwiaWF0IjoxNzcyMDQ2Nzk2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxMiIsInN1YiI6IjMifQ.4LGK63Gc90wFB0FGMYB7QQyr7IudoPtiZMx_7EwT7Ew",
-  "accessExpiresAt": "2026-02-25T19:28:16.504961384Z",
-  "refreshToken": "5Ye1kkG9QAUV4FHgyZWHMr-8cTjgBprNfFb7DivuZCA",
-  "refreshExpiresAt": "2026-02-26T19:13:16.504961384Z",
-  "idSession": "12"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MDkyMywiaWF0IjoxNzcyMDcwMDIzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.XwAOUPpfBIArwnTKY5izGgVkjYNQthQuVF3ixJCWxZc",
+  "accessExpiresAt": "2026-02-26T01:55:23.685650484Z",
+  "refreshToken": "BMiFphUzT0mlXqS7pwZGqu74bRo7l-cLywkL5nqvHdU",
+  "refreshExpiresAt": "2026-02-27T01:40:23.685650484Z",
+  "idSession": "1"
 }
 
 
- grpcurl -v \
+Response contents:
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MTQwOCwiaWF0IjoxNzcyMDcwNTA4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.KDknSWJ2-w-Qm5zulCYe3qTBfxpruZFdbmooBIYceks",
+  "accessExpiresAt": "2026-02-26T02:03:28.292358691Z",
+  "refreshToken": "_Cm1OhiIMulYm4F5UrMdW3hzkUbvX5gyK7diCPyw7bo",
+  "refreshExpiresAt": "2026-02-27T01:48:28.292358691Z",
+  "idSession": "2"
+}
+
+
+grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
 -d '{"email":"marcelo@marcelo.eti.br","password":"Senha@123","ip":"127.0.0.1","user_agent":"grpcurl"}' \
-  localhost:8080 identity.v1.AuthService/Login
+localhost:8080 identity.v1.AuthService/Login
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA0NzM0NiwiaWF0IjoxNzcyMDQ2NDQ2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxMiIsInN1YiI6IjMifQ.F-lPTM4qNSpQxLsBuoKKFa0doVlFEXTOfOqLJg5PYXA" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MDkyMywiaWF0IjoxNzcyMDcwMDIzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.XwAOUPpfBIArwnTKY5izGgVkjYNQthQuVF3ixJCWxZc" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
-  localhost:8080 person.v1.PersonService/CreatePerson
+localhost:8080 person.v1.PersonService/CreatePerson
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
-  -d '{"id_session":12,"refresh_token":"PGCF_H84pD55tkCjwzIY8HzQd7srTpnHbhRIxlZkHdM","ip":"127.0.0.1","user_agent":"grpcurl"}' \
-  localhost:8080 identity.v1.AuthService/Refresh
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MTQwOCwiaWF0IjoxNzcyMDcwNTA4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.KDknSWJ2-w-Qm5zulCYe3qTBfxpruZFdbmooBIYceks" \
+-d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
+localhost:8080 person.v1.PersonService/CreatePerson
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"id_session":1,"refresh_token":"nGFso5bC_UHtYtGA9YHEfKNOdxFL_XA959Bt8USG-Sw","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+localhost:8080 identity.v1.AuthService/Refresh
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MDkyMywiaWF0IjoxNzcyMDcwMDIzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.XwAOUPpfBIArwnTKY5izGgVkjYNQthQuVF3ixJCWxZc" \
+-d '{"id_session":1}' \
+localhost:8080 identity.v1.AuthService/Logout
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
 -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA0NzM0NiwiaWF0IjoxNzcyMDQ2NDQ2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxMiIsInN1YiI6IjMifQ.F-lPTM4qNSpQxLsBuoKKFa0doVlFEXTOfOqLJg5PYXA" \
-  -d '{"id_user":3}' \
-  localhost:8080 identity.v1.AuthService/LogoutAll
+-d '{"id_user":3}' \
+localhost:8080 identity.v1.AuthService/LogoutAll
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"email":"marcelo@marcelo.eti.br2"}' \
+localhost:8080 identity.v1.AuthService/RequestPasswordReset
+
+
+Response contents:
+{
+  "ok": true,
+  "idReset": "4",
+  "resetToken": "aIxpTNxP-AdVC61g8hMiU6KlxYpGOS9kUiFQ66kNqD8",
+  "expiresAt": "2026-02-26T01:50:11.935385030Z"
+}
+
+
+
+
+
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"id_reset": 4, "reset_token":"aIxpTNxP-AdVC61g8hMiU6KlxYpGOS9kUiFQ66kNqD8","new_password":"Senha@123"}' \
+localhost:8080 identity.v1.AuthService/ConfirmPasswordReset

@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type User struct {

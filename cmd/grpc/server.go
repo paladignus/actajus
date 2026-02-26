@@ -15,7 +15,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/person"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"

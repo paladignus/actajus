@@ -4,17 +4,17 @@ package company
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	address "github.com/paladignus/actajus/internal/module/address/application/mapper"
-	addressDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database"
+	addressDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
-	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database"
+	"github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company/presentation/handler"
 	email "github.com/paladignus/actajus/internal/module/email/application/mapper"
-	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database"
+	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database/postgres"
 	phone "github.com/paladignus/actajus/internal/module/phone/application/mapper"
-	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database"
+	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database/postgres"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
-	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database"
+	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database/postgres"
 )
 
 type Module struct {
@@ -22,9 +22,9 @@ type Module struct {
 }
 
 func NewModule(pool *pgxpool.Pool) Module {
-	uow := database.NewCompanyUnitOfWork(pool)
-	companyRepository := database.NewCompany(pool)
-	companyReadRepository := database.NewCompanyReadRepository(pool)
+	uow := postgres.NewCompanyUnitOfWork(pool)
+	companyRepository := postgres.NewCompany(pool)
+	companyReadRepository := postgres.NewCompanyReadRepository(pool)
 	addressRepository := addressDB.NewAddress(pool)
 	phoneRepository := phoneDB.NewPhone(pool)
 	emailRepository := emailDB.NewEmail(pool)

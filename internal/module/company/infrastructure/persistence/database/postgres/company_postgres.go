@@ -1,5 +1,5 @@
-// Package database
-package database
+// Package postgres
+package postgres
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/paladignus/actajus/internal/module/company/domain"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type Company struct {
