@@ -3,7 +3,9 @@ package usecase
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
+	"log"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
@@ -48,6 +50,9 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 	now := uc.clock.Now()
 	sid := identity.IDSession(norm.IDSession)
 	sess, err := uc.session.GetByID(ctx, sid)
+	got := sha256.Sum256([]byte(norm.RefreshToken)) // ou exponha um método no refresh service pra calcular
+	stored := sess.RefreshHash()
+	log.Printf("refresh hash stored=%x got=%x", stored[:6], got[:6])
 	if err != nil {
 		return nil, identity.ErrSessionNotFound
 	}

@@ -4,6 +4,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"log"
 
 	"connectrpc.com/connect"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
@@ -56,9 +57,13 @@ func (h AuthHandler) Refresh(
 	ctx context.Context,
 	req *connect.Request[identityv1.RefreshRequest],
 ) (*connect.Response[identityv1.RefreshResponse], error) {
+	log.Printf("refresh sid=%d token_prefix=%s", req.Msg.IdSession, req.Msg.RefreshToken[:8])
 	cmd := adapter.ProtoToRefreshCommand(req.Msg)
+	log.Println(req.Msg)
 	rm, err := h.refresh.Execute(ctx, cmd)
+	log.Println(rm)
 	if err != nil {
+		log.Println(err)
 		return nil, mapErr(err)
 	}
 	return connect.NewResponse(adapter.RefreshReadModelToProto(rm)), nil

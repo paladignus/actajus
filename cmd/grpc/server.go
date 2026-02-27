@@ -12,14 +12,19 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/paladignus/actajus/internal/module/identity"
+	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
+	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
+	"github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
 	"github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
 	"github.com/paladignus/actajus/internal/module/person"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
+	"github.com/paladignus/actajus/internal/shared/presentation/validation"
+	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -56,6 +61,21 @@ func main() {
 		security.WithAuthzPrefix("rbac:"),     // opcional
 		security.WithAuthzTTL(10*time.Minute), // ajuste conforme quiser
 	)
+	roleUserRepo := postgres.NewRoleUserAdminRepository(db)
+	permRoleRepo := postgres.NewPermissionRoleAdminRepository(db)
+
+	// RBAC cache invalidator (você já tem authzSvc)
+	cacheInvalidator := authzSvc // se ele já expõe InvalidateUser(ctx, IDUser)
+	v := validation.New()
+	rbacMapper := mapper.NewRBACAdminMapper(v)
+	// usecases
+	assignUC := usecase.NewAssignRoleToUser(roleUserRepo, cacheInvalidator, rbacMapper)
+	removeUC := usecase.NewRemoveRoleFromUser(roleUserRepo, cacheInvalidator, rbacMapper)
+	grantUC := usecase.NewGrantPermissionToRole(roleUserRepo, permRoleRepo, cacheInvalidator, rbacMapper)
+	revokeUC := usecase.NewRevokePermissionFromRole(roleUserRepo, permRoleRepo, cacheInvalidator, rbacMapper)
+
+	// 2) Handler connect
+	rbacAdminHandler := handler.NewRbacAdminHandler(assignUC, removeUC, grantUC, revokeUC)
 	rbacChecker := rbac.NewChecker(authzSvc)
 	logger.Info(ctx, "✅ Modules initialized successfully")
 	mux := http.NewServeMux()
@@ -72,8 +92,13 @@ func main() {
 		),
 	)
 	rbacRules := map[string]string{
+		"/identity.v1.RbacAdminService/AssignRoleToUser":         "rbac:admin",
+		"/identity.v1.RbacAdminService/RemoveRoleFromUser":       "rbac:admin",
+		"/identity.v1.RbacAdminService/GrantPermissionToRole":    "rbac:admin",
+		"/identity.v1.RbacAdminService/RevokePermissionFromRole": "rbac:admin",
+		// "/identity.v1.AuthService/Refresh":                       "auth:refresh",
 		"/person.v1.PersonService/CreatePerson": "person:create",
-		// ...
+		"/person.v1.PersonService/DeletePerson": "person:delete",
 	}
 	rbacI := interceptor.NewRBACInterceptor(rbacChecker, rbacRules)
 	interceptors := connect.WithInterceptors(
@@ -86,8 +111,11 @@ func main() {
 		logger.Error(ctx, "❌ error initializing the access token service.", "error", err)
 		os.Exit(1)
 	}
+	rbacPath, rbacHTTPHandler := identityv1connect.NewRbacAdminServiceHandler(rbacAdminHandler)
+	mux.Handle(rbacPath, rbacHTTPHandler)
 	mux.Handle(identity.Route(interceptors))
 	mux.Handle(person.Route(interceptors))
+	// mux.Handle(identity.RbacAdminRoute(interceptors))
 	handler := corsMiddleware(mux)
 	srv := &http.Server{
 		Addr:              config.Server.GRPCPort,
