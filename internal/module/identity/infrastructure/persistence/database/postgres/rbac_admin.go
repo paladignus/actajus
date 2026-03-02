@@ -4,7 +4,6 @@ package postgres
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 )
@@ -13,7 +12,7 @@ type RoleUserAdminRepository struct {
 	db postgres.PgxPool
 }
 
-func NewRoleUserAdminRepository(db *pgxpool.Pool) RoleUserAdminRepository {
+func NewRoleUserAdminRepository(db postgres.PgxPool) RoleUserAdminRepository {
 	return RoleUserAdminRepository{db}
 }
 

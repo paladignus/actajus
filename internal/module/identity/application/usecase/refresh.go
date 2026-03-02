@@ -3,9 +3,7 @@ package usecase
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
-	"log"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
@@ -50,9 +48,6 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 	now := uc.clock.Now()
 	sid := identity.IDSession(norm.IDSession)
 	sess, err := uc.session.GetByID(ctx, sid)
-	got := sha256.Sum256([]byte(norm.RefreshToken)) // ou exponha um método no refresh service pra calcular
-	stored := sess.RefreshHash()
-	log.Printf("refresh hash stored=%x got=%x", stored[:6], got[:6])
 	if err != nil {
 		return nil, identity.ErrSessionNotFound
 	}
@@ -63,7 +58,8 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 		_ = uc.session.Revoke(ctx, sid)
 		return nil, identity.ErrSessionExpired
 	}
-	if ok := uc.refresh.Compare(norm.RefreshToken, sess.RefreshHash()); !ok {
+	oldHash, ok := uc.refresh.Hash(norm.RefreshToken)
+	if !ok {
 		_ = uc.session.Revoke(ctx, sid)
 		return nil, identity.ErrRefreshReuse
 	}
@@ -72,8 +68,18 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 		return nil, err
 	}
 	newRefreshExp := now.Add(uc.config.RefreshTTL)
-	if err := uc.session.RotateRefreshToken(ctx, sid, newHash, newRefreshExp); err != nil {
+	rotated, err := uc.session.RotateRefreshTokenAtomic(ctx,
+		sid,
+		oldHash,
+		newHash,
+		newRefreshExp,
+		now)
+	if err != nil {
 		return nil, err
+	}
+	if !rotated {
+		_ = uc.session.Revoke(ctx, sid)
+		return nil, identity.ErrRefreshReuse
 	}
 	accessExp := now.Add(uc.config.AccessTTL)
 	accessToken, err := uc.access.Sign(dto.AccessTokenClaims{
@@ -89,7 +95,6 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 	}
 	user, err := uc.user.FindByID(ctx, sess.IDUser())
 	if err != nil {
-		// não vazar
 		_ = uc.session.Revoke(ctx, sid)
 		return nil, identity.ErrInvalidToken
 	}

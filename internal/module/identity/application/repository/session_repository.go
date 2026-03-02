@@ -16,4 +16,5 @@ type SessionRepository interface {
 	RevokeAllByUser(ctx context.Context, uid identity.IDUser) error
 	CountActiveByUser(ctx context.Context, uid identity.IDUser) (int, error)
 	IsActive(ctx context.Context, sid identity.IDSession, uid identity.IDUser, now time.Time) (bool, error)
+	RotateRefreshTokenAtomic(ctx context.Context, sid identity.IDSession, expectedOldHash [32]byte, newHash [32]byte, newExpiresAt time.Time, now time.Time) (rotated bool, err error)
 }

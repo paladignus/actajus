@@ -14,15 +14,22 @@ import (
 type RemoveRoleFromUser struct {
 	repo   repository.RoleUserAdminRepository
 	cache  service.RBACCacheInvalidator
+	index  service.RBACRoleUsersIndex
 	mapper *mapper.RBACAdminMapper
 }
 
 func NewRemoveRoleFromUser(
 	repo repository.RoleUserAdminRepository,
 	cache service.RBACCacheInvalidator,
+	index service.RBACRoleUsersIndex,
 	mapper *mapper.RBACAdminMapper,
 ) RemoveRoleFromUser {
-	return RemoveRoleFromUser{repo, cache, mapper}
+	return RemoveRoleFromUser{
+		repo,
+		cache,
+		index,
+		mapper,
+	}
 }
 
 func (uc RemoveRoleFromUser) Execute(ctx context.Context, input dto.RemoveRoleFromUserCommand) error {
@@ -33,7 +40,7 @@ func (uc RemoveRoleFromUser) Execute(ctx context.Context, input dto.RemoveRoleFr
 	if err := uc.repo.RemoveRole(ctx, norm.IDUser, norm.IDRole); err != nil {
 		return err
 	}
-
+	uc.index.RemoveUserFromRole(ctx, norm.IDRole, norm.IDUser.Value())
 	uc.cache.InvalidateUser(ctx, norm.IDUser)
 	return nil
 }

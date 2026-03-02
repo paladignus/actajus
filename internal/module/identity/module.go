@@ -2,122 +2,196 @@
 package identity
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"connectrpc.com/connect"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
-	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/cache"
-	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
-	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
-	"github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
-	"github.com/paladignus/actajus/internal/shared/domain/repository"
+	sharedrepo "github.com/paladignus/actajus/internal/shared/domain/repository"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
-	"github.com/paladignus/actajus/internal/shared/presentation/validation"
-	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
+	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
+	identityv1connect "github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 	"github.com/redis/go-redis/v9"
 )
 
+type JWTConfig struct {
+	Issuer       string
+	Audience     string
+	AccessTTL    time.Duration
+	AccessSecret string
+}
+
+type SessionConfig struct {
+	RefreshTTL  time.Duration
+	MaxSessions int
+}
+
+type PasswordResetConfig struct {
+	ResetTTL time.Duration
+}
+
+type Dependencies struct {
+	Logger sharedrepo.Logger
+
+	DB  postgresShared.PgxPool
+	RDB redis.UniversalClient
+
+	Users identityrepo.UserRepository
+
+	JWT              JWTConfig
+	Session          SessionConfig
+	PasswordResetTTL PasswordResetConfig
+}
+
 type Module struct {
-	Handler        handler.AuthHandler
 	ValidateAccess usecase.ValidateAccess
+	RBACChecker    interceptor.PermissionChecker
+
+	authImpl      *identityhandler.AuthHandler
+	rbacAdminImpl *identityhandler.RbacAdminHandler
 }
 
-func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
-	return identityv1connect.NewAuthServiceHandler(m.Handler, opts...)
+func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
+	authPath, authHTTPHandler := identityv1connect.NewAuthServiceHandler(m.authImpl, opts...)
+	mux.Handle(authPath, authHTTPHandler)
+
+	rbacAdminPath, rbacAdminHTTPHandler := identityv1connect.NewRbacAdminServiceHandler(m.rbacAdminImpl, opts...)
+	mux.Handle(rbacAdminPath, rbacAdminHTTPHandler)
 }
 
-func NewModule(
-	pool *pgxpool.Pool,
-	logger repository.Logger,
-	config config.AuthConfig,
-	rdb *redis.Client,
-) (Module, error) {
+func NewModule(dep Dependencies) (Module, error) {
+	// shared infra/services
 	clk := clock.NewSystemClock()
-	refresh := security.NewRefreshTokenService()
+
+	authValidator := validation.New(validation.WithLang(validation.PT))
+	authMapper := mapper.NewAuthMapper(authValidator)
+
+	rbacValidator := validation.New(validation.WithLang(validation.PT))
+	rbacMapper := mapper.NewRBACAdminMapper(rbacValidator)
+
+	refreshSvc := security.NewRefreshTokenService()
 	hasher := security.NewArgon2idPasswordHasher()
+
 	accessSvc, err := security.NewHS256AccessTokenService(
-		config.AccessSecret,
-		config.Issuer,
-		config.Audience,
+		dep.JWT.AccessSecret,
+		dep.JWT.Issuer,
+		dep.JWT.Audience,
 	)
 	if err != nil {
 		return Module{}, err
 	}
-	// validation := validation.New(nil))
-	v := validation.New()
-	projection := mapper.NewAuthProjectionMapper()
-	mapper := mapper.NewAuthMapper(v)
-	userRepo := postgres.NewUser(pool)
-	sessionRepo := postgres.NewSession(pool)
-	cacheRepo := cache.NewCachedSession(
-		sessionRepo,
-		rdb,
-		logger,
-		cache.WithPrefix("actajus:"),
-		cache.WithFallbackToPostgress(true),
+
+	// repos infra
+	pgSessionRepo := identitypg.NewSession(dep.DB)
+	cachedSessionRepo := security.NewCachedSessionRepository(
+		pgSessionRepo,
+		dep.RDB,
+		dep.Logger,
+		security.WithPrefix("actajus:"),
+		security.WithFallbackToPostgres(true),
 	)
-	passResetRepo := postgres.NewPasswordReset(pool)
+
+	passwordResetRepo := identitypg.NewPasswordReset(dep.DB)
+
+	authzRepo := identitypg.NewAuthorization(dep.DB)
+	authzSvc := security.NewAuthorizationService(
+		authzRepo,
+		dep.RDB,
+		security.WithAuthzPrefix("rbac:"),
+		security.WithAuthzTTL(10*time.Minute),
+	)
+
+	roleUsersIndex := security.NewRBACRoleUsersIndex(
+		dep.RDB,
+		security.WithRoleUsersIndexPrefix("rbac:"),
+	)
+
+	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
+	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
+
+	// auth usecases
 	loginUC := usecase.NewLogin(
-		userRepo,
-		cacheRepo,
+		dep.Users,
+		cachedSessionRepo,
 		hasher,
-		refresh,
 		accessSvc,
+		refreshSvc,
+		usecase.JWTConfig{
+			Issuer:    dep.JWT.Issuer,
+			Audience:  dep.JWT.Audience,
+			AccessTTL: dep.JWT.AccessTTL,
+		},
+		usecase.SessionConfig{
+			RefreshTTL:  dep.Session.RefreshTTL,
+			MaxSessions: dep.Session.MaxSessions,
+		},
 		clk,
-		config,
-		*mapper,
-		*projection,
+		authMapper,
 	)
+
 	refreshUC := usecase.NewRefresh(
-		cacheRepo,
-		userRepo,
-		refresh,
+		cachedSessionRepo,
+		dep.Users,
 		accessSvc,
+		refreshSvc,
+		usecase.JWTConfig{
+			Issuer:    dep.JWT.Issuer,
+			Audience:  dep.JWT.Audience,
+			AccessTTL: dep.JWT.AccessTTL,
+		},
+		usecase.SessionConfig{
+			RefreshTTL:  dep.Session.RefreshTTL,
+			MaxSessions: dep.Session.MaxSessions,
+		},
 		clk,
-		config,
-		*mapper,
-		*projection,
+		authMapper,
 	)
-	logoutUC := usecase.NewLogout(&sessionRepo, *mapper)
-	logoutAllUC := usecase.NewLogoutAll(&sessionRepo, *mapper)
+
+	logoutUC := usecase.NewLogout(cachedSessionRepo, clk, authMapper)
+	logoutAllUC := usecase.NewLogoutAll(cachedSessionRepo, clk, authMapper)
+
 	changePasswordUC := usecase.NewChangePassword(
-		userRepo,
-		&sessionRepo,
+		dep.Users,
+		cachedSessionRepo,
 		hasher,
 		clk,
-		mapper,
+		authMapper,
 		true,
 	)
+
 	requestResetUC := usecase.NewRequestPasswordReset(
-		userRepo,
-		passResetRepo,
-		refresh,
+		dep.Users,
+		passwordResetRepo,
+		refreshSvc,
 		clk,
-		config.PasswordResetConfig,
-		*mapper,
+		usecase.PasswordResetConfig{
+			ResetTTL: dep.PasswordResetTTL.ResetTTL,
+		},
+		authMapper,
 		true,
 	)
+
 	confirmResetUC := usecase.NewConfirmPasswordReset(
-		userRepo,
-		cacheRepo,
-		passResetRepo,
+		dep.Users,
+		cachedSessionRepo,
+		passwordResetRepo,
 		hasher,
-		refresh,
+		refreshSvc,
 		clk,
-		*mapper,
-		true, // revoke all sessions on reset confirm
+		authMapper,
+		true,
 	)
+
 	validateAccessUC := usecase.NewValidateAccess(
 		accessSvc,
-		cacheRepo,
+		cachedSessionRepo,
 		clk,
-		// *mapper,
-		true, // checkSession=true (bom para revogação)
+		true,
 	)
-	h := handler.NewAuthHandler(
+
+	authImpl := identityhandler.NewAuthHandler(
 		loginUC,
 		refreshUC,
 		logoutUC,
@@ -126,31 +200,177 @@ func NewModule(
 		requestResetUC,
 		confirmResetUC,
 	)
-	return Module{h, validateAccessUC}, nil
+
+	// rbac admin usecases
+	assignUC := usecase.NewAssignRoleToUser(
+		roleUserAdminRepo,
+		authzSvc,
+		roleUsersIndex,
+		rbacMapper,
+	)
+
+	removeUC := usecase.NewRemoveRoleFromUser(
+		roleUserAdminRepo,
+		authzSvc,
+		roleUsersIndex,
+		rbacMapper,
+	)
+
+	grantUC := usecase.NewGrantPermissionToRole(
+		roleUserAdminRepo,
+		permRoleAdminRepo,
+		authzSvc,
+		roleUsersIndex,
+		rbacMapper,
+	)
+
+	revokeUC := usecase.NewRevokePermissionFromRole(
+		roleUserAdminRepo,
+		permRoleAdminRepo,
+		authzSvc,
+		roleUsersIndex,
+		rbacMapper,
+	)
+
+	rbacAdminImpl := identityhandler.NewRbacAdminHandler(
+		assignUC,
+		removeUC,
+		grantUC,
+		revokeUC,
+	)
+
+	rbacChecker := identityrbac.NewChecker(authzSvc)
+
+	return Module{
+		ValidateAccess: validateAccessUC,
+		RBACChecker:    rbacChecker,
+		authImpl:       authImpl,
+		rbacAdminImpl:  rbacAdminImpl,
+	}, nil
 }
 
-//
-// validateAccessUC := usecase.NewValidateAccess(
-// 	accessSvc,
-// 	dep.Sessions,
-// 	clk,
-// 	authMapper,
-// 	true, // checkSession=true (bom para revogação)
-// )
-//
-// // handler Connect-Go (impl do service)
-// h := handler.NewAuthHandler(
-// 	loginUC,
-// 	refreshUC,
-// 	logoutUC,
-// 	logoutAllUC,
-// 	changePasswordUC,
-// 	requestResetUC,
-// 	confirmResetUC,
-// )
+func RebuildRBACIndexes(ctx context.Context, dep Dependencies) error {
+	pairs, err := identitypg.ListAllRoleUsers(ctx, dep.DB)
+	if err != nil {
+		return err
+	}
 
-// return Module{
-// 	Handler:        *h,
-// 	ValidateAccess: validateAccessUC,
-// }, nil
+	roleUsersIndex := security.NewRBACRoleUsersIndex(
+		dep.RDB,
+		security.WithRoleUsersIndexPrefix("rbac:"),
+	)
+
+	rolePairs := make([]security.RoleUserPair, 0, len(pairs))
+	for _, p := range pairs {
+		rolePairs = append(rolePairs, security.RoleUserPair{
+			IDRole: p.IDRole,
+			IDUser: p.IDUser,
+		})
+	}
+
+	return security.RebuildRoleUsersIndex(ctx, roleUsersIndex, rolePairs)
+}
+
+// func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
+// 	return identityv1connect.NewAuthServiceHandler(m.Handler, opts...)
+// }
+
+// func NewModule(
+// 	pool *pgxpool.Pool,
+// 	logger repository.Logger,
+// 	config config.AuthConfig,
+// 	rdb *redis.Client,
+// ) (Module, error) {
+// 	clk := clock.NewSystemClock()
+// 	refresh := security.NewRefreshTokenService()
+// 	hasher := security.NewArgon2idPasswordHasher()
+// 	accessSvc, err := security.NewHS256AccessTokenService(
+// 		config.AccessSecret,
+// 		config.Issuer,
+// 		config.Audience,
+// 	)
+// 	if err != nil {
+// 		return Module{}, err
+// 	}
+// 	// validation := validation.New(nil))
+// 	v := validation.New()
+// 	projection := mapper.NewAuthProjectionMapper()
+// 	mapper := mapper.NewAuthMapper(v)
+// 	userRepo := postgres.NewUser(pool)
+// 	sessionRepo := postgres.NewSession(pool)
+// 	cacheRepo := cache.NewCachedSession(
+// 		sessionRepo,
+// 		rdb,
+// 		logger,
+// 		cache.WithPrefix("actajus:"),
+// 		cache.WithFallbackToPostgress(true),
+// 	)
+// 	passResetRepo := postgres.NewPasswordReset(pool)
+// 	loginUC := usecase.NewLogin(
+// 		userRepo,
+// 		cacheRepo,
+// 		hasher,
+// 		refresh,
+// 		accessSvc,
+// 		clk,
+// 		config,
+// 		*mapper,
+// 		*projection,
+// 	)
+// 	refreshUC := usecase.NewRefresh(
+// 		cacheRepo,
+// 		userRepo,
+// 		refresh,
+// 		accessSvc,
+// 		clk,
+// 		config,
+// 		*mapper,
+// 		*projection,
+// 	)
+// 	logoutUC := usecase.NewLogout(&sessionRepo, *mapper)
+// 	logoutAllUC := usecase.NewLogoutAll(&sessionRepo, *mapper)
+// 	changePasswordUC := usecase.NewChangePassword(
+// 		userRepo,
+// 		&sessionRepo,
+// 		hasher,
+// 		clk,
+// 		mapper,
+// 		true,
+// 	)
+// 	requestResetUC := usecase.NewRequestPasswordReset(
+// 		userRepo,
+// 		passResetRepo,
+// 		refresh,
+// 		clk,
+// 		config.PasswordResetConfig,
+// 		*mapper,
+// 		true,
+// 	)
+// 	confirmResetUC := usecase.NewConfirmPasswordReset(
+// 		userRepo,
+// 		cacheRepo,
+// 		passResetRepo,
+// 		hasher,
+// 		refresh,
+// 		clk,
+// 		*mapper,
+// 		true, // revoke all sessions on reset confirm
+// 	)
+// 	validateAccessUC := usecase.NewValidateAccess(
+// 		accessSvc,
+// 		cacheRepo,
+// 		clk,
+// 		// *mapper,
+// 		true, // checkSession=true (bom para revogação)
+// 	)
+// 	h := handler.NewAuthHandler(
+// 		loginUC,
+// 		refreshUC,
+// 		logoutUC,
+// 		logoutAllUC,
+// 		changePasswordUC,
+// 		requestResetUC,
+// 		confirmResetUC,
+// 	)
+// 	return Module{h, validateAccessUC}, nil
 // }

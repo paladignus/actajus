@@ -42,3 +42,12 @@ func (s *RefreshTokenService) Compare(token string, expectedHash [32]byte) bool 
 	got := sha256.Sum256(b)
 	return subtle.ConstantTimeCompare(got[:], expectedHash[:]) == 1
 }
+
+func (s *RefreshTokenService) Hash(token string) ([32]byte, bool) {
+	b, err := base64.RawURLEncoding.DecodeString(token)
+	if err != nil {
+		return [32]byte{}, false
+	}
+	h := sha256.Sum256(b)
+	return h, true
+}

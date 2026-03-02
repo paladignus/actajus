@@ -163,6 +163,35 @@ func (r *Session) IsActive(ctx context.Context, sid domain.IDSession, idUser dom
 	return true, nil
 }
 
+func (r *Session) RotateRefreshTokenAtomic(
+	ctx context.Context,
+	sid domain.IDSession,
+	expectedOldHash [32]byte,
+	newHash [32]byte,
+	newExpiresAt time.Time,
+	now time.Time,
+) (bool, error) {
+	const query = `UPDATE sessions
+	SET refresh_token_hash = $1, expires_at = $2, rotated_at = $3, updated_at = $3
+	WHERE idsessions = $4 AND revoked_at IS NULL AND refresh_token_hash = $5
+	RETURNING idsessions;`
+	old := expectedOldHash
+	nw := newHash
+	var outID int64
+	if err := r.db.QueryRow(ctx, query,
+		nw[:],
+		newExpiresAt,
+		now,
+		sid.Value(),
+		old[:]).Scan(&outID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 // func nullableText(s string) any {
 // 	if s == "" {
 // 		return nil

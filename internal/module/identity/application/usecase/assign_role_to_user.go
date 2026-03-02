@@ -14,15 +14,22 @@ import (
 type AssignRoleToUser struct {
 	repo   repository.RoleUserAdminRepository
 	cache  service.RBACCacheInvalidator
+	index  service.RBACRoleUsersIndex
 	mapper *mapper.RBACAdminMapper
 }
 
 func NewAssignRoleToUser(
 	repo repository.RoleUserAdminRepository,
 	cache service.RBACCacheInvalidator,
+	index service.RBACRoleUsersIndex,
 	mapper *mapper.RBACAdminMapper,
 ) AssignRoleToUser {
-	return AssignRoleToUser{repo, cache, mapper}
+	return AssignRoleToUser{
+		repo,
+		cache,
+		index,
+		mapper,
+	}
 }
 
 func (uc AssignRoleToUser) Execute(ctx context.Context, input dto.AssignRoleToUserCommand) error {
@@ -33,6 +40,7 @@ func (uc AssignRoleToUser) Execute(ctx context.Context, input dto.AssignRoleToUs
 	if err := uc.repo.AssignRole(ctx, norm.IDUser, norm.IDRole, norm.AssignedBy); err != nil {
 		return err
 	}
+	uc.index.AddUserToRole(ctx, norm.IDRole, norm.IDUser.Value())
 	uc.cache.InvalidateUser(ctx, norm.IDUser)
 	return nil
 }

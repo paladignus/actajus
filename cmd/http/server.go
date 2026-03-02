@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/internal/module/company"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
@@ -35,7 +35,7 @@ func main() {
 	// defer pool.Close()
 	config := config.Load()
 	ctx := context.Background()
-	logger := adapter.NewDefaultLogger()
+	logger := logger.NewDefaultLogger()
 	db, err := postgres.NewConnection(ctx, &config.Database)
 	if err != nil {
 		logger.Error(ctx, "error initializing the database connection.", "error", err)

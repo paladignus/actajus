@@ -104,7 +104,6 @@ func (c CachedSession) Create(ctx context.Context, s *domain.Session) error {
 }
 
 func (c CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Session, error) {
-	// SEM CACHE AQUI — Refresh precisa do refresh_token_hash do Postgres.
 	return c.pg.GetByID(ctx, sid)
 }
 
@@ -270,6 +269,58 @@ func (c CachedSession) IsActive(ctx context.Context, sid domain.IDSession, idUse
 			val := encodeSessionCache(sess.IDUser(), sess.ExpiresAt())
 			pipe := c.rdb.Pipeline()
 			pipe.Set(ctx, key, val, ttl)
+			pipe.SAdd(ctx, c.kUserSessions(sess.IDUser()), sid.Value())
+			_, _ = pipe.Exec(ctx)
+		}
+	}
+	return true, nil
+}
+
+func (c CachedSession) RotateRefreshTokenAtomic(
+	ctx context.Context,
+	sid domain.IDSession,
+	expectedOldHash [32]byte,
+	newHash [32]byte,
+	newExpiryAtTime time.Time,
+	now time.Time,
+) (bool, error) {
+	rotated, err := c.pg.RotateRefreshTokenAtomic(
+		ctx,
+		sid,
+		expectedOldHash,
+		newHash,
+		newExpiryAtTime,
+		now,
+	)
+	if err != nil {
+		return false, err
+	}
+	if !rotated {
+		return false, nil
+	}
+	key := c.kSession(sid)
+	v, err := c.rdb.Get(ctx, key).Result()
+	if err == nil {
+		uid, _, ok := decodeSessionCache(v)
+		if ok {
+			ttl := ttlUntil(now, newExpiryAtTime)
+			if ttl > 0 {
+				pipe := c.rdb.Pipeline()
+				pipe.Set(ctx, key, encodeSessionCache(uid, newExpiryAtTime), ttl)
+				pipe.SAdd(ctx, c.kUserSessions(uid), sid.Value())
+				_, _ = pipe.Exec(ctx)
+			} else {
+				_, _ = c.rdb.Del(ctx, key).Result()
+			}
+			return true, nil
+		}
+	}
+	sess, err := c.pg.GetByID(ctx, sid)
+	if err == nil && sess != nil && sess.RevokedAt() == nil && now.Before(sess.ExpiresAt()) {
+		ttl := ttlUntil(now, sess.ExpiresAt())
+		if ttl > 0 {
+			pipe := c.rdb.Pipeline()
+			pipe.Set(ctx, key, encodeSessionCache(sess.IDUser(), sess.ExpiresAt()), ttl)
 			pipe.SAdd(ctx, c.kUserSessions(sess.IDUser()), sid.Value())
 			_, _ = pipe.Exec(ctx)
 		}
