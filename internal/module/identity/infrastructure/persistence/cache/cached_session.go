@@ -104,66 +104,73 @@ func (c CachedSession) Create(ctx context.Context, s *domain.Session) error {
 }
 
 func (c CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Session, error) {
-	return c.pg.GetByID(ctx, sid)
-}
+	key := c.kSession(sid)
 
-//
-// func (c CachedSession) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Session, error) {
-// 	key := c.kSession(sid)
-// 	v, err := c.rdb.Get(ctx, key).Result()
-// 	if err == nil {
-// 		uid, exp, ok := decodeSessionCache(v)
-// 		if ok {
-// 			now := time.Now()
-// 			if !now.Before(exp) {
-// 				_, _ = c.rdb.Del(ctx, key).Result()
-// 			} else {
-// 				// Observação: para ValidateAccess, normalmente basta saber que existe/exp>now.
-// 				// Mas como interface exige *identity.Session, retornamos um objeto “mínimo”.
-// 				return domain.NewSessionBuilder().
-// 					WithID(sid).
-// 					WithIDUser(uid).
-// 					WithExpiresAt(exp).
-// 					Build()
-// 				// return model.NewSessionFromPersistence(
-// 				// 	sid,
-// 				// 	uid,
-// 				// 	[32]byte{}, // refresh hash não precisa no cache para validate access
-// 				// 	exp,
-// 				// 	nil, // revokedAt nil
-// 				// 	nil, // rotatedAt nil
-// 				// 	"",  // ip
-// 				// 	"",  // userAgent
-// 				// 	time.Time{},
-// 				// 	time.Time{},
-// 				// ), nil
-// 			}
-// 		}
-// 	}
-// 	if err != nil && err != redis.Nil {
-// 		// erro de redis -> fallback no Postgres (não derruba request)
-// 	}
-// 	if !c.fallbackToPostgres {
-// 		return nil, fmt.Errorf("session cache miss")
-// 	}
-// 	s, err2 := c.pg.GetByID(ctx, sid)
-// 	if err2 != nil {
-// 		return nil, err2
-// 	}
-// 	// Se estiver revogada/expirada, não cacheia
-// 	now := time.Now()
-// 	if s.RevokedAt() == nil && now.Before(s.ExpiresAt()) {
-// 		ttl := ttlUntil(now, s.ExpiresAt())
-// 		if ttl > 0 {
-// 			val := encodeSessionCache(s.IDUser(), s.ExpiresAt())
-// 			pipe := c.rdb.Pipeline()
-// 			pipe.Set(ctx, key, val, ttl)
-// 			pipe.SAdd(ctx, c.kUserSessions(s.IDUser()), s.ID().Value())
-// 			_, _ = pipe.Exec(ctx)
-// 		}
-// 	}
-// 	return s, nil
-// }
+	// 1) Tentar cache Redis
+	v, err := c.rdb.Get(ctx, key).Result()
+	if err == nil {
+		uid, exp, ok := decodeSessionCache(v)
+		if ok {
+			now := time.Now()
+			if !now.Before(exp) {
+				// Cache expirado, remover
+				_ = c.rdb.Del(ctx, key).Err()
+				c.logger.Info(ctx, "session cache expired",
+					"sid", sid.Value(),
+					"user_id", uid.Value(),
+				)
+			} else {
+				// Cache hit válido
+				c.logger.Info(ctx, "session cache hit",
+					"sid", sid.Value(),
+					"user_id", uid.Value(),
+				)
+				// Retornar sessão completa do Postgres para garantir dados completos
+				// O cache armazena apenas dados mínimos (uid, exp)
+				sess, err := c.pg.GetByID(ctx, sid)
+				if err == nil {
+					return sess, nil
+				}
+				// Se falhou no Postgres, remover do Redis
+				_ = c.rdb.Del(ctx, key).Err()
+				return nil, err
+			}
+		}
+	}
+
+	// 2) Cache miss ou erro no Redis
+	if err != nil && err != redis.Nil {
+		c.logger.Error(ctx, "session cache error, falling back to postgres",
+			"sid", sid.Value(),
+			"error", err,
+		)
+	}
+
+	// 3) Fallback para Postgres
+	if !c.fallbackToPostgres {
+		return nil, domain.ErrSessionNotFound
+	}
+
+	sess, err := c.pg.GetByID(ctx, sid)
+	if err != nil {
+		return nil, err
+	}
+
+	// 4) Cacheia se sessão estiver ativa (não revogada e não expirada)
+	now := time.Now()
+	if sess.RevokedAt() == nil && now.Before(sess.ExpiresAt()) {
+		ttl := ttlUntil(now, sess.ExpiresAt())
+		if ttl > 0 {
+			val := encodeSessionCache(sess.IDUser(), sess.ExpiresAt())
+			pipe := c.rdb.Pipeline()
+			pipe.Set(ctx, key, val, ttl)
+			pipe.SAdd(ctx, c.kUserSessions(sess.IDUser()), sid.Value())
+			_, _ = pipe.Exec(ctx)
+		}
+	}
+
+	return sess, nil
+}
 
 func (c CachedSession) RotateRefreshToken(ctx context.Context, sid domain.IDSession, newHash [32]byte, newExpiresAt time.Time) error {
 	if err := c.pg.RotateRefreshToken(ctx, sid, newHash, newExpiresAt); err != nil {

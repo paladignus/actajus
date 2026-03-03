@@ -6,7 +6,7 @@ import (
 	email "github.com/paladignus/actajus/internal/module/email/domain"
 	phone "github.com/paladignus/actajus/internal/module/phone/domain"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/domain"
-	uow "github.com/paladignus/actajus/internal/shared/domain/unit_of_work"
+	uow "github.com/paladignus/actajus/internal/shared/domain/unitofwork"
 )
 
 type CompanyUnitOfWork interface {

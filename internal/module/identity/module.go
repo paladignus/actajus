@@ -17,7 +17,9 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	identityhandler "github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
 	identityrbac "github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
+	"github.com/paladignus/actajus/internal/shared/domain/dispatcher"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/domain/unitofwork"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
@@ -27,11 +29,14 @@ import (
 )
 
 type Dependencies struct {
-	Logger sharedrepo.Logger
-	DB     postgresShared.PgxPool
-	RDB    redis.UniversalClient
-	Users  identityrepo.UserRepository
-	Config config.AuthConfig
+	Logger          sharedrepo.Logger
+	DB              postgresShared.PgxPool
+	RDB             redis.UniversalClient
+	Users           identityrepo.UserRepository
+	Config          config.AuthConfig
+	UoW             unitofwork.UnitOfWork
+	EventDispatcher *dispatcher.SimpleEventDispatcher
+	SkipRBACRebuild bool // Se true, não reconstrói índices RBAC automaticamente
 }
 
 type Module struct {
@@ -39,6 +44,9 @@ type Module struct {
 	RBACChecker    interceptor.PermissionChecker
 	authImpl       *identityhandler.AuthHandler
 	rbacAdminImpl  *identityhandler.RbacAdminHandler
+	logger         sharedrepo.Logger
+	db             postgresShared.PgxPool
+	rdb            redis.UniversalClient
 }
 
 func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
@@ -87,6 +95,13 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
 	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
+
+	// Inicializar Event Dispatcher se não fornecido
+	eventDispatcher := dep.EventDispatcher
+	if eventDispatcher == nil {
+		eventDispatcher = dispatcher.NewSimpleEventDispatcher()
+	}
+
 	loginUC := usecase.NewLogin(
 		dep.Users,
 		cachedSessionRepo,
@@ -169,6 +184,8 @@ func NewModule(dep Dependencies) (Module, error) {
 		authzSvc,
 		roleUsersIndex,
 		rbacMapper,
+		dep.UoW,
+		eventDispatcher,
 	)
 
 	removeUC := usecase.NewRemoveRoleFromUser(
@@ -203,14 +220,54 @@ func NewModule(dep Dependencies) (Module, error) {
 
 	rbacChecker := identityrbac.NewChecker(authzSvc)
 
-	return Module{
+	module := Module{
 		ValidateAccess: validateAccessUC,
 		RBACChecker:    rbacChecker,
 		authImpl:       &authImpl,
 		rbacAdminImpl:  rbacAdminImpl,
-	}, nil
+		logger:         dep.Logger,
+		db:             dep.DB,
+		rdb:            dep.RDB,
+	}
+
+	// Rebuild RBAC indexes automaticamente (a menos que seja explicitamente desabilitado)
+	if !dep.SkipRBACRebuild {
+		if err := module.rebuildRBACIndexes(context.Background()); err != nil {
+			dep.Logger.Error(context.Background(), "⚠️ failed to rebuild RBAC indexes", "error", err)
+		} else {
+			dep.Logger.Info(context.Background(), "✅ RBAC indexes rebuilt successfully")
+		}
+	}
+
+	return module, nil
 }
 
+// rebuildRBACIndexes reconstrói os índices RBAC no Redis a partir dos dados do Postgres.
+// Este método é chamado automaticamente durante a inicialização do módulo.
+func (m Module) rebuildRBACIndexes(ctx context.Context) error {
+	pairs, err := identitypg.ListAllRoleUsers(ctx, m.db)
+	if err != nil {
+		return err
+	}
+
+	roleUsersIndex := security.NewRBACRoleUsersIndex(
+		m.rdb,
+		security.WithRoleUsersIndexPrefix("rbac:"),
+	)
+
+	rolePairs := make([]security.RoleUserPair, 0, len(pairs))
+	for _, p := range pairs {
+		rolePairs = append(rolePairs, security.RoleUserPair{
+			IDRole: p.IDRole,
+			IDUser: p.IDUser,
+		})
+	}
+
+	return security.RebuildRoleUsersIndex(ctx, roleUsersIndex, rolePairs)
+}
+
+// RebuildRBACIndexes reconstrói os índices RBAC no Redis.
+// Deprecated: Use o rebuild automático via NewModule ou chame diretamente no módulo.
 func RebuildRBACIndexes(ctx context.Context, dep Dependencies) error {
 	pairs, err := identitypg.ListAllRoleUsers(ctx, dep.DB)
 	if err != nil {

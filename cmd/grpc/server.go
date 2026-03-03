@@ -13,6 +13,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/person"
+	"github.com/paladignus/actajus/internal/shared/domain/dispatcher"
 
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
@@ -45,6 +46,23 @@ func main() {
 	}
 	defer rdb.Close()
 	appLogger.Info(ctx, "✅ Cache connected successfully")
+	
+	// Inicializar Unit of Work para transações
+	uow := postgresShared.NewSimpleUnitOfWork(db)
+	
+	// Inicializar Event Dispatcher para domain events
+	eventDispatcher := dispatcher.NewSimpleEventDispatcher()
+	
+	// Registrar listeners de exemplo (opcional)
+	eventDispatcher.Register("role_assigned", func(event any) {
+		if e, ok := event.(dispatcher.RoleAssignedEvent); ok {
+			appLogger.Info(ctx, "📧 Domain Event: Role Assigned",
+				"user_id", e.ID,
+				"role_id", e.IDRole,
+			)
+		}
+	})
+	
 	mux := http.NewServeMux()
 	personMod := person.NewModule(db, appLogger)
 	// userMod := user.NewModule(db)
@@ -55,19 +73,15 @@ func main() {
 		RDB:    rdb,
 		Config: cfg.Auth,
 		Users:  userRepo,
+		UoW:    uow,
+		EventDispatcher: eventDispatcher,
+		// SkipRBACRebuild: true, // Descomente para desabilitar o rebuild automático
 	})
 	if err != nil {
 		appLogger.Error(ctx, "❌ failed to init identity module", "error", err)
 		os.Exit(1)
 	}
-	if err := identity.RebuildRBACIndexes(ctx, identity.Dependencies{
-		DB:  db,
-		RDB: rdb,
-	}); err != nil {
-		appLogger.Error(ctx, "⚠️ failed to rebuild RBAC indexes", "error", err)
-	} else {
-		appLogger.Info(ctx, "✅ RBAC indexes rebuilt successfully")
-	}
+	// O rebuild dos índices RBAC é feito automaticamente dentro de identity.NewModule
 	recoverI := interceptor.NewRecoverInterceptor(appLogger)
 	loggingI := interceptor.NewLoggingInterceptor(appLogger)
 	authI := interceptor.NewAuthInterceptor(
