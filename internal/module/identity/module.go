@@ -26,31 +26,12 @@ import (
 	identityv1connect "github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 )
 
-// type JWTConfig struct {
-// 	Issuer       string
-// 	Audience     string
-// 	AccessTTL    time.Duration
-// 	AccessSecret string
-// }
-
-// type SessionConfig struct {
-// 	RefreshTTL  time.Duration
-// 	MaxSessions int
-// }
-
-// type PasswordResetConfig struct {
-// 	ResetTTL time.Duration
-// }
-
 type Dependencies struct {
 	Logger sharedrepo.Logger
 	DB     postgresShared.PgxPool
 	RDB    redis.UniversalClient
 	Users  identityrepo.UserRepository
 	Config config.AuthConfig
-	// JWT              JWTConfig
-	// Session          SessionConfig
-	// PasswordResetTTL PasswordResetConfig
 }
 
 type Module struct {
@@ -63,7 +44,6 @@ type Module struct {
 func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
 	authPath, authHTTPHandler := identityv1connect.NewAuthServiceHandler(m.authImpl, opts...)
 	mux.Handle(authPath, authHTTPHandler)
-
 	rbacAdminPath, rbacAdminHTTPHandler := identityv1connect.NewRbacAdminServiceHandler(m.rbacAdminImpl, opts...)
 	mux.Handle(rbacAdminPath, rbacAdminHTTPHandler)
 }

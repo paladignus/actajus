@@ -96,8 +96,9 @@ func main() {
 		rbacI,
 	)
 	identityMod.Mount(mux, opts)
-	personPath, personHandler := personMod.Route(opts)
-	mux.Handle(personPath, personHandler)
+	personMod.Mount(mux, opts)
+	// personPath, personHandler := personMod.Route(opts)
+	// mux.Handle(personPath, personHandler)
 	appLogger.Info(ctx, "✅ Modules initialized successfully")
 	handler := corsMiddleware(mux)
 	srv := &http.Server{

@@ -405,12 +405,23 @@ content-type: application/json
 
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MDkyMywiaWF0IjoxNzcyMDcwMDIzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.XwAOUPpfBIArwnTKY5izGgVkjYNQthQuVF3ixJCWxZc",
-  "accessExpiresAt": "2026-02-26T01:55:23.685650484Z",
-  "refreshToken": "BMiFphUzT0mlXqS7pwZGqu74bRo7l-cLywkL5nqvHdU",
-  "refreshExpiresAt": "2026-02-27T01:40:23.685650484Z",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao",
+  "accessExpiresAt": "2026-03-03T16:01:38.911216822Z",
+  "refreshToken": "wN2ZKAW9Seq3WW698xU7chRM0klEIFPnozIp-LCw864",
+  "refreshExpiresAt": "2026-03-04T15:46:38.911216822Z",
   "idSession": "1"
 }
+
+
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzE0MCwiaWF0IjoxNzcyNTUyMjQwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.6_ukPhfkguJCZ8w-V3Ltqq-ovC-z67D1gw8VJ9vxfSM",
+  "accessExpiresAt": "2026-03-03T15:52:20.074822256Z",
+  "refreshToken": "LHEPQ735PkEiRmPc4eFQ4YzS95W0Ghn4Qy2kFaOAHm0",
+  "refreshExpiresAt": "2026-03-04T15:37:20.074822256Z",
+  "idSession": "2"
+}
+
+
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MTQwOCwiaWF0IjoxNzcyMDcwNTA4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.KDknSWJ2-w-Qm5zulCYe3qTBfxpruZFdbmooBIYceks",
   "accessExpiresAt": "2026-02-26T02:03:28.292358691Z",
@@ -420,98 +431,12 @@ content-type: application/json
 }
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMjAyMCwiaWF0IjoxNzcyNTAxMTIwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.VnhHtCoL6g4AdFqecVtZFsiMfLpjWuyZVDQgmGagnEc",
-  "accessExpiresAt": "2026-03-03T01:40:20.492344024Z",
-  "refreshToken": "PNZlFOSH0mAe3aLXcJEGd33z3VQC1oCu-Dol9YfGKyc",
-  "refreshExpiresAt": "2026-03-04T01:25:20.492344024Z",
-  "idSession": "3"
-}
-
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMjA4NSwiaWF0IjoxNzcyNTAxMTg1LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI0Iiwic3ViIjoiMyJ9.TycGkNWBkNocP6VLiA_u83ui-pvw6oYKssBkLcbeagw",
-  "accessExpiresAt": "2026-03-03T01:41:25.447738016Z",
-  "refreshToken": "DEOM8dLDZoqSrFA8hNCmpppd6q0yPjX4myxZ9tdyMeg",
-  "refreshExpiresAt": "2026-03-04T01:26:25.447738016Z",
-  "idSession": "4"
-}
-
-
-
-
-
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjEzOTExOSwiaWF0IjoxNzcyMTM4MjE5LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.IVmzA-4m-km3oUd0PVqj2KqnDWDdj-819rhUBSayijI",
-  "accessExpiresAt": "2026-02-26T20:51:59.673413216Z",
-  "refreshToken": "Tnw8QCoUHHA3NsYuNn8E-oIunN1MHxhiAiDL6GYUxao",
-  "refreshExpiresAt": "2026-02-27T20:36:59.673413216Z",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MTM1NiwiaWF0IjoxNzcyNTUwNDU2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.Kl_73jVrCKUPNr2T_fr9Tdw1q-mDVEIVcV089UQM7hY",
+  "accessExpiresAt": "2026-03-03T15:22:36.743371188Z",
+  "refreshToken": "d-7m2i9nGltcVbR46dC3j1UVVS9R3xqzOCqmJW_DMKU",
+  "refreshExpiresAt": "2026-03-04T15:07:36.743371188Z",
   "idSession": "1"
 }
-
-Response contents:
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwMjIwNywiaWF0IjoxNzcyMjAxMzA3LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.hHl4MTlxogXvyyUTtg-DG5LuWRn-1qEB7e2O6npO82s",
-  "accessExpiresAt": "2026-02-27T14:23:27.496397350Z",
-  "refreshToken": "id7IhG2JDktOyQQ7r8WX260PT1q__GPqJIs7_UxGAME",
-  "refreshExpiresAt": "2026-02-28T14:08:27.496397350Z",
-  "idSession": "2"
-}
-
-Response contents:
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwNDMyNCwiaWF0IjoxNzcyMjAzNDI0LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.RMEV9Qh-zJV1H1C9bVtKGOd5gg3188EjPP4XHtuNR9A",
-  "accessExpiresAt": "2026-02-27T14:58:44.045300544Z",
-  "refreshToken": "KwE3ej-rdioJWeQ2zer7-zARnmwkFy8AZx8hYAL1DWM",
-  "refreshExpiresAt": "2026-02-28T14:43:44.045300544Z",
-  "idSession": "3"
-}
-
-Response contents:
-Response contents:
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwNjEzMCwiaWF0IjoxNzcyMjA1MjMwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI1Iiwic3ViIjoiMyJ9.Yk65pK7ChcJ47PTOuibCw-HCI4tgxvhMi1Fgq6nH5xg",
-  "accessExpiresAt": "2026-02-27T15:28:50.287986655Z",
-  "refreshToken": "XBUzuDVHbiMRavgseraSrBSdD_suVl6ogXrVA5bryho",
-  "refreshExpiresAt": "2026-02-28T15:13:50.287986655Z",
-  "idSession": "5"
-}
-
-
-
-
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwNzU0NCwiaWF0IjoxNzcyMjA2NjQ0LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI1Iiwic3ViIjoiMyJ9.owtK2QmVR2HwbwHl_H8mDoYdNNBuMdZboaRZofNLnow",
-  "accessExpiresAt": "2026-02-27T15:52:24.599648819Z",
-  "refreshToken": "RDn2gDIEqRL6-sKPRoZwG70Dbs6Ca6c2o0Dzv9htjpE",
-  "refreshExpiresAt": "2026-02-28T15:37:24.599648819Z",
-  "idSession": "5"
-}
-
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIxMDA5MSwiaWF0IjoxNzcyMjA5MTkxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI2Iiwic3ViIjoiMyJ9.O3AiPrAj30inQDnBw_3gua2Tr18y5zIfOEiCbNB64F8",
-  "accessExpiresAt": "2026-02-27T16:34:51.183963851Z",
-  "refreshToken": "iyZV3lgOZqv5QFUBTyJJuQQi-ypg55YQ3ddrPmWsmBY",
-  "refreshExpiresAt": "2026-02-28T16:19:51.183963851Z",
-  "idSession": "6"
-}
-
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIxMDQ2NCwiaWF0IjoxNzcyMjA5NTY0LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI2Iiwic3ViIjoiMyJ9.z9u1p65VVd-RTZXprJ3iD6ckVBhgaXcX7a9OfypvzUw",
-  "accessExpiresAt": "2026-02-27T16:41:04.414324248Z",
-  "refreshToken": "d2cRsvXPhy1amV0f0UiKNeSe3T5CNoET4SHfa5qke0I",
-  "refreshExpiresAt": "2026-02-28T16:26:04.414324248Z",
-  "idSession": "6"
-}
-
-
-Response contents:
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjQ2ODU1NCwiaWF0IjoxNzcyNDY3NjU0LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI3Iiwic3ViIjoiMyJ9.6eJHwJKwf_kIvyuRpXCLvl8d0tlDb_JGIIp3_4x5USw",
-  "accessExpiresAt": "2026-03-02T16:22:34.465561159Z",
-  "refreshToken": "RS1rjkjijIju2Elx512E_noAAXXhQQORPyO8SKjRDcc",
-  "refreshExpiresAt": "2026-03-03T16:07:34.465561159Z",
-  "idSession": "7"
-}
-
 
 
 grpcurl -v \
@@ -521,33 +446,27 @@ localhost:50051 identity.v1.AuthService/Login
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMjAyMCwiaWF0IjoxNzcyNTAxMTIwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.VnhHtCoL6g4AdFqecVtZFsiMfLpjWuyZVDQgmGagnEc" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MTM1NiwiaWF0IjoxNzcyNTUwNDU2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.Kl_73jVrCKUPNr2T_fr9Tdw1q-mDVEIVcV089UQM7hY" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
 localhost:50051 person.v1.PersonService/CreatePerson
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMDk3NSwiaWF0IjoxNzcyNTAwMDc1LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.vUsZX-2fDcmCrUgCwmy3cU323uVhHt9BjYpy9bHZsI4" \
--d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
-localhost:50051 person.v1.PersonService/CreatePerson
-
-grpcurl -v \
--protoset <(buf build -o -) -plaintext \
--d '{"id_session":3,"refresh_token":"BKnbb7CQr-oo-vHkXMTfOOCc21kn20psx0cFXnLXXfk","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":7,"refresh_token":"hivT9lu1BYS-UT0_YrIMWMziq5GdfzD9IFxJBd_TPe8","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MDkyMywiaWF0IjoxNzcyMDcwMDIzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.XwAOUPpfBIArwnTKY5izGgVkjYNQthQuVF3ixJCWxZc" \
--d '{"id_session":1}' \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzE0MCwiaWF0IjoxNzcyNTUyMjQwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.6_ukPhfkguJCZ8w-V3Ltqq-ovC-z67D1gw8VJ9vxfSM" \
+-d '{"id_session":2}' \
 localhost:50051 identity.v1.AuthService/Logout
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjA3MTQwOCwiaWF0IjoxNzcyMDcwNTA4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.KDknSWJ2-w-Qm5zulCYe3qTBfxpruZFdbmooBIYceks" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzE0MCwiaWF0IjoxNzcyNTUyMjQwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.6_ukPhfkguJCZ8w-V3Ltqq-ovC-z67D1gw8VJ9vxfSM" \
 -d '{"id_user":3}' \
 localhost:50051 identity.v1.AuthService/LogoutAll
 
@@ -558,28 +477,35 @@ localhost:50051 identity.v1.AuthService/RequestPasswordReset
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwMjIwNywiaWF0IjoxNzcyMjAxMzA3LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.hHl4MTlxogXvyyUTtg-DG5LuWRn-1qEB7e2O6npO82s" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
 -d '{"id_user":4,"id_role":3,"assigned_by":3}' \
 localhost:50051 identity.v1.RbacAdminService/AssignRoleToUser
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwMjIwNywiaWF0IjoxNzcyMjAxMzA3LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.hHl4MTlxogXvyyUTtg-DG5LuWRn-1qEB7e2O6npO82s" \
--d '{ "id_user":4,"id_role":3 }' \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
+-d '{ "id_user":3,"id_role":6 }' \
 localhost:50051 identity.v1.RbacAdminService/RemoveRoleFromUser
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
+  -d '{"id_role":1,"id_permission":5}' \
+  localhost:50051 identity.v1.RbacAdminService/GrantPermissionToRole
 
 Response contents:
 {
   "ok": true,
-  "idReset": "4",
-  "resetToken": "aIxpTNxP-AdVC61g8hMiU6KlxYpGOS9kUiFQ66kNqD8",
-  "expiresAt": "2026-02-26T01:50:11.935385030Z"
+  "idReset": "1",
+  "resetToken": "h651SFQgycaEdRYXzhcAgdx_NpIdHUxJDZb74tkei4U",
+  "expiresAt": "2026-03-03T15:57:32.662358383Z"
 }
+
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_reset": 4, "reset_token":"aIxpTNxP-AdVC61g8hMiU6KlxYpGOS9kUiFQ66kNqD8","new_password":"Senha@123"}' \
+-d '{"id_reset": 4, "reset_token":"h651SFQgycaEdRYXzhcAgdx_NpIdHUxJDZb74tkei4U","new_password":"Senha@123"}' \
 localhost:50051 identity.v1.AuthService/ConfirmPasswordReset
 
   curl --request POST \
@@ -593,5 +519,43 @@ localhost:50051 identity.v1.AuthService/ConfirmPasswordReset
   "delay": 123
 }
 '
+
+
+redis-cli KEYS "rbac:*"
+redis-cli KEYS "actajus:session:*"
+
+redis-cli SMEMBERS rbac:user_perms:3
+redis-cli TTL rbac:user_perms:3
+
+redis-cli SMEMBERS rbac:role_users:1
+
+redis-cli GET actajus:session:5
+redis-cli DEL rbac:user_perms:3
+redis-cli DEL actajus:session:5
+
+
+-- sessões
+SELECT idsessions, id_users, revoked_at, rotated_at, expires_at, updated_at
+FROM sessions
+ORDER BY idsessions DESC;
+
+-- resets
+SELECT idpassword_resets, id_users, used_at, expires_at, created_at
+FROM password_resets
+ORDER BY idpassword_resets DESC;
+
+-- roles do user
+SELECT ru.id_users, ru.id_roles, r.code
+FROM role_user ru
+JOIN roles r ON r.idroles = ru.id_roles
+WHERE ru.id_users = 3;
+
+-- permissões efetivas do user
+SELECT DISTINCT (p.resource || ':' || p.action) AS perm
+FROM role_user ru
+JOIN permission_role pr ON pr.id_roles = ru.id_roles
+JOIN permissions p ON p.idpermissions = pr.id_permissions
+WHERE ru.id_users = 3
+ORDER BY perm;
 
 
