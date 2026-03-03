@@ -7,50 +7,57 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/redis/go-redis/v9"
+
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
+	identityrepo "github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/cache"
+	identitypg "github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
+	identityhandler "github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
+	identityrbac "github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/domain/repository"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
+	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
+	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 	identityv1connect "github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
-	"github.com/redis/go-redis/v9"
 )
 
-type JWTConfig struct {
-	Issuer       string
-	Audience     string
-	AccessTTL    time.Duration
-	AccessSecret string
-}
+// type JWTConfig struct {
+// 	Issuer       string
+// 	Audience     string
+// 	AccessTTL    time.Duration
+// 	AccessSecret string
+// }
 
-type SessionConfig struct {
-	RefreshTTL  time.Duration
-	MaxSessions int
-}
+// type SessionConfig struct {
+// 	RefreshTTL  time.Duration
+// 	MaxSessions int
+// }
 
-type PasswordResetConfig struct {
-	ResetTTL time.Duration
-}
+// type PasswordResetConfig struct {
+// 	ResetTTL time.Duration
+// }
 
 type Dependencies struct {
 	Logger sharedrepo.Logger
-
-	DB  postgresShared.PgxPool
-	RDB redis.UniversalClient
-
-	Users identityrepo.UserRepository
-
-	JWT              JWTConfig
-	Session          SessionConfig
-	PasswordResetTTL PasswordResetConfig
+	DB     postgresShared.PgxPool
+	RDB    redis.UniversalClient
+	Users  identityrepo.UserRepository
+	Config config.AuthConfig
+	// JWT              JWTConfig
+	// Session          SessionConfig
+	// PasswordResetTTL PasswordResetConfig
 }
 
 type Module struct {
 	ValidateAccess usecase.ValidateAccess
 	RBACChecker    interceptor.PermissionChecker
-
-	authImpl      *identityhandler.AuthHandler
-	rbacAdminImpl *identityhandler.RbacAdminHandler
+	authImpl       *identityhandler.AuthHandler
+	rbacAdminImpl  *identityhandler.RbacAdminHandler
 }
 
 func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
@@ -62,39 +69,31 @@ func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
 }
 
 func NewModule(dep Dependencies) (Module, error) {
-	// shared infra/services
 	clk := clock.NewSystemClock()
-
-	authValidator := validation.New(validation.WithLang(validation.PT))
+	authValidator := validation.New()
+	projection := mapper.NewAuthProjectionMapper()
 	authMapper := mapper.NewAuthMapper(authValidator)
-
-	rbacValidator := validation.New(validation.WithLang(validation.PT))
+	rbacValidator := validation.New()
 	rbacMapper := mapper.NewRBACAdminMapper(rbacValidator)
-
 	refreshSvc := security.NewRefreshTokenService()
 	hasher := security.NewArgon2idPasswordHasher()
-
 	accessSvc, err := security.NewHS256AccessTokenService(
-		dep.JWT.AccessSecret,
-		dep.JWT.Issuer,
-		dep.JWT.Audience,
+		dep.Config.AccessSecret,
+		dep.Config.Issuer,
+		dep.Config.Audience,
 	)
 	if err != nil {
 		return Module{}, err
 	}
-
-	// repos infra
 	pgSessionRepo := identitypg.NewSession(dep.DB)
-	cachedSessionRepo := security.NewCachedSessionRepository(
+	cachedSessionRepo := cache.NewCachedSession(
 		pgSessionRepo,
 		dep.RDB,
 		dep.Logger,
-		security.WithPrefix("actajus:"),
-		security.WithFallbackToPostgres(true),
+		cache.WithPrefix("actajus:"),
+		cache.WithFallbackToPostgres(true),
 	)
-
 	passwordResetRepo := identitypg.NewPasswordReset(dep.DB)
-
 	authzRepo := identitypg.NewAuthorization(dep.DB)
 	authzSvc := security.NewAuthorizationService(
 		authzRepo,
@@ -102,55 +101,37 @@ func NewModule(dep Dependencies) (Module, error) {
 		security.WithAuthzPrefix("rbac:"),
 		security.WithAuthzTTL(10*time.Minute),
 	)
-
 	roleUsersIndex := security.NewRBACRoleUsersIndex(
 		dep.RDB,
 		security.WithRoleUsersIndexPrefix("rbac:"),
 	)
-
 	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
 	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
-
-	// auth usecases
 	loginUC := usecase.NewLogin(
 		dep.Users,
 		cachedSessionRepo,
 		hasher,
-		accessSvc,
 		refreshSvc,
-		usecase.JWTConfig{
-			Issuer:    dep.JWT.Issuer,
-			Audience:  dep.JWT.Audience,
-			AccessTTL: dep.JWT.AccessTTL,
-		},
-		usecase.SessionConfig{
-			RefreshTTL:  dep.Session.RefreshTTL,
-			MaxSessions: dep.Session.MaxSessions,
-		},
+		accessSvc,
 		clk,
-		authMapper,
+		dep.Config,
+		*authMapper,
+		*projection,
 	)
 
 	refreshUC := usecase.NewRefresh(
 		cachedSessionRepo,
 		dep.Users,
-		accessSvc,
 		refreshSvc,
-		usecase.JWTConfig{
-			Issuer:    dep.JWT.Issuer,
-			Audience:  dep.JWT.Audience,
-			AccessTTL: dep.JWT.AccessTTL,
-		},
-		usecase.SessionConfig{
-			RefreshTTL:  dep.Session.RefreshTTL,
-			MaxSessions: dep.Session.MaxSessions,
-		},
+		accessSvc,
 		clk,
-		authMapper,
+		dep.Config,
+		*authMapper,
+		*projection,
 	)
 
-	logoutUC := usecase.NewLogout(cachedSessionRepo, clk, authMapper)
-	logoutAllUC := usecase.NewLogoutAll(cachedSessionRepo, clk, authMapper)
+	logoutUC := usecase.NewLogout(cachedSessionRepo, *authMapper)
+	logoutAllUC := usecase.NewLogoutAll(cachedSessionRepo, *authMapper)
 
 	changePasswordUC := usecase.NewChangePassword(
 		dep.Users,
@@ -166,10 +147,11 @@ func NewModule(dep Dependencies) (Module, error) {
 		passwordResetRepo,
 		refreshSvc,
 		clk,
-		usecase.PasswordResetConfig{
-			ResetTTL: dep.PasswordResetTTL.ResetTTL,
-		},
-		authMapper,
+		dep.Config.PasswordResetConfig,
+		// usecase.PasswordResetConfig{
+		// 	ResetTTL: dep.PasswordResetTTL.ResetTTL,
+		// },
+		*authMapper,
 		true,
 	)
 
@@ -180,7 +162,7 @@ func NewModule(dep Dependencies) (Module, error) {
 		hasher,
 		refreshSvc,
 		clk,
-		authMapper,
+		*authMapper,
 		true,
 	)
 
@@ -244,7 +226,7 @@ func NewModule(dep Dependencies) (Module, error) {
 	return Module{
 		ValidateAccess: validateAccessUC,
 		RBACChecker:    rbacChecker,
-		authImpl:       authImpl,
+		authImpl:       &authImpl,
 		rbacAdminImpl:  rbacAdminImpl,
 	}, nil
 }

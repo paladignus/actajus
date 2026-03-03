@@ -420,6 +420,16 @@ content-type: application/json
 }
 
 {
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMDk3NSwiaWF0IjoxNzcyNTAwMDc1LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.vUsZX-2fDcmCrUgCwmy3cU323uVhHt9BjYpy9bHZsI4",
+  "accessExpiresAt": "2026-03-03T01:22:55.478595393Z",
+  "refreshToken": "BKnbb7CQr-oo-vHkXMTfOOCc21kn20psx0cFXnLXXfk",
+  "refreshExpiresAt": "2026-03-04T01:07:55.478595393Z",
+  "idSession": "3"
+}
+
+
+
+{
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjEzOTExOSwiaWF0IjoxNzcyMTM4MjE5LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.IVmzA-4m-km3oUd0PVqj2KqnDWDdj-819rhUBSayijI",
   "accessExpiresAt": "2026-02-26T20:51:59.673413216Z",
   "refreshToken": "Tnw8QCoUHHA3NsYuNn8E-oIunN1MHxhiAiDL6GYUxao",
@@ -501,20 +511,20 @@ localhost:50051 identity.v1.AuthService/Login
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjQ2ODU1NCwiaWF0IjoxNzcyNDY3NjU0LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI3Iiwic3ViIjoiMyJ9.6eJHwJKwf_kIvyuRpXCLvl8d0tlDb_JGIIp3_4x5USw" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMDQ2OSwiaWF0IjoxNzcyNDk5NTY5LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.DRgr89z-k7f9iHZibEq5B_3IZmC7pIx4ZKeow5sWr2c" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
 localhost:50051 person.v1.PersonService/CreatePerson
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjIwNDM5OCwiaWF0IjoxNzcyMjAzNDk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiI0Iiwic3ViIjoiMyJ9.zdD4vgD71f11qzXYJR6SimNGSSAl-e09cVEVRVvB5oU" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjUwMDQ2OSwiaWF0IjoxNzcyNDk5NTY5LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIzIiwic3ViIjoiMyJ9.DRgr89z-k7f9iHZibEq5B_3IZmC7pIx4ZKeow5sWr2c" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
 localhost:50051 person.v1.PersonService/CreatePerson
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":7,"refresh_token":"qsGgo3fGcOZESXE-fRoUjxN4TnQTgmsdtERexVQEulM","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":3,"refresh_token":"o9GvA_maZS4SusgVY7ldmnlNcHBd5uX09EdoUU76YQM","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 
