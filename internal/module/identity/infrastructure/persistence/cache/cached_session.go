@@ -27,7 +27,7 @@ func WithPrefix(prefix string) Option {
 	return func(c CachedSession) { c.prefix = prefix }
 }
 
-func WithFallbackToPostgress(v bool) Option {
+func WithFallbackToPostgres(v bool) Option {
 	return func(c CachedSession) { c.fallbackToPostgres = v }
 }
 
