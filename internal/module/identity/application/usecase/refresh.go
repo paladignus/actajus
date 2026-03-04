@@ -46,8 +46,7 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 		return nil, fmt.Errorf("invalid refresh data: %w", err)
 	}
 	now := uc.clock.Now()
-	sid := identity.IDSession(norm.IDSession)
-	sess, err := uc.session.GetByID(ctx, sid)
+	sess, err := uc.session.GetByID(ctx, norm.IDSession)
 	if err != nil {
 		return nil, identity.ErrSessionNotFound
 	}
@@ -55,12 +54,12 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 		return nil, identity.ErrSessionRevoked
 	}
 	if sess.IsExpired(now) {
-		_ = uc.session.Revoke(ctx, sid)
+		_ = uc.session.Revoke(ctx, norm.IDSession)
 		return nil, identity.ErrSessionExpired
 	}
 	oldHash, ok := uc.refresh.Hash(norm.RefreshToken)
 	if !ok {
-		_ = uc.session.Revoke(ctx, sid)
+		_ = uc.session.Revoke(ctx, norm.IDSession)
 		return nil, identity.ErrRefreshReuse
 	}
 	newRefreshToken, newHash, err := uc.refresh.Generate()
@@ -69,7 +68,7 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 	}
 	newRefreshExp := now.Add(uc.config.RefreshTTL)
 	rotated, err := uc.session.RotateRefreshTokenAtomic(ctx,
-		sid,
+		norm.IDSession,
 		oldHash,
 		newHash,
 		newRefreshExp,
@@ -78,7 +77,7 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 		return nil, err
 	}
 	if !rotated {
-		_ = uc.session.Revoke(ctx, sid)
+		_ = uc.session.Revoke(ctx, norm.IDSession)
 		return nil, identity.ErrRefreshReuse
 	}
 	accessExp := now.Add(uc.config.AccessTTL)
@@ -93,18 +92,18 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 	if err != nil {
 		return nil, err
 	}
-	user, err := uc.user.FindByID(ctx, sess.IDUser())
+	user, err := uc.user.FindByID(ctx, sess.IDUser().Value())
 	if err != nil {
-		_ = uc.session.Revoke(ctx, sid)
+		_ = uc.session.Revoke(ctx, norm.IDSession)
 		return nil, identity.ErrInvalidToken
 	}
 	if user.IsBlocked() {
-		_ = uc.session.Revoke(ctx, sid)
+		_ = uc.session.Revoke(ctx, norm.IDSession)
 		return nil, identity.ErrUserBlocked
 	}
 	return uc.projection.ProjectTokens(
-		sess.ID(),
-		sess.IDUser(),
+		sess.ID().Value(),
+		sess.IDUser().Value(),
 		accessToken,
 		newRefreshToken,
 		accessExp,

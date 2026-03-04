@@ -8,7 +8,6 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
-	identity "github.com/paladignus/actajus/internal/module/identity/domain"
 )
 
 type LogoutAll struct {
@@ -28,8 +27,7 @@ func (uc LogoutAll) Execute(ctx context.Context, input dto.LogoutAllCommand) err
 	if err != nil {
 		return fmt.Errorf("invalid logout-all data: %w", err)
 	}
-	uid := identity.IDUser(norm.IDUser)
-	if err := uc.session.RevokeAllByUser(ctx, uid); err != nil {
+	if err := uc.session.RevokeAllByUser(ctx, norm.IDUser); err != nil {
 		return err
 	}
 

@@ -8,7 +8,6 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
-	identity "github.com/paladignus/actajus/internal/module/identity/domain"
 )
 
 type Logout struct {
@@ -28,8 +27,7 @@ func (uc Logout) Execute(ctx context.Context, input dto.LogoutCommand) error {
 	if err != nil {
 		return fmt.Errorf("invalid logout data: %w", err)
 	}
-	sid := identity.IDSession(norm.IDSession)
-	if err := uc.sessions.Revoke(ctx, sid); err != nil {
+	if err := uc.sessions.Revoke(ctx, norm.IDSession); err != nil {
 		return err
 	}
 	return nil

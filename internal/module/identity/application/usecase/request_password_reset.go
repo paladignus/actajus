@@ -58,7 +58,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 	}
 	now := uc.clock.Now()
 	if uc.RevokePrevious {
-		_ = uc.reset.RevokeAllByUser(ctx, user.ID(), now)
+		_ = uc.reset.RevokeAllByUser(ctx, user.ID().Value(), now)
 	}
 	token, hash, err := uc.refresh.Generate()
 	if err != nil {
@@ -66,7 +66,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 	}
 	expiresAt := now.Add(uc.cfg.ResetTTL)
 	in := model.PasswordResetTokenCreate{
-		IDUser:    user.ID(),
+		IDUser:    user.ID().Value(),
 		Hash:      hash,
 		ExpiresAt: expiresAt,
 		CreatedAt: now,
@@ -76,7 +76,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 		return nil, err
 	}
 	return &dto.RequestPasswordResetReadModel{
-		IDReset:    rid.Value(),
+		IDReset:    rid,
 		ResetToken: token,
 		ExpiresAt:  expiresAt,
 	}, nil

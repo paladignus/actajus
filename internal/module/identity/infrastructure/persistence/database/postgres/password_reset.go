@@ -24,7 +24,7 @@ func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTok
   VALUES ($1, $2, $3, $4) RETURNING idpassword_resets;`
 	var id int64
 	if err := r.db.QueryRow(ctx, query,
-		input.IDUser.Value(),
+		input.IDUser,
 		input.Hash[:],
 		input.ExpiresAt,
 		input.CreatedAt,
@@ -40,13 +40,13 @@ func (r PasswordReset) GetByID(ctx context.Context, id domain.IDPasswordReset) (
 	FROM password_resets
 	WHERE idpassword_resets = $1 LIMIT 1;`
 	var (
-		idUsers   int64
+		uid       int64
 		hashBytes []byte
 		expiresAt time.Time
 		usedAt    *time.Time
 	)
 	if err := r.db.QueryRow(ctx, query, id.Value()).Scan(
-		&idUsers, &hashBytes, &expiresAt, &usedAt,
+		&uid, &hashBytes, &expiresAt, &usedAt,
 	); err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (r PasswordReset) GetByID(ctx context.Context, id domain.IDPasswordReset) (
 		return nil, err
 	}
 	return &model.PasswordResetToken{
-		IDUser:    domain.IDUser(idUsers),
+		IDUser:    uid,
 		Hash:      hash,
 		ExpiresAt: expiresAt,
 		UsedAt:    usedAt,
@@ -84,13 +84,13 @@ func (r PasswordReset) GetActiveByUser(ctx context.Context, idUsers domain.IDUse
 	FROM password_resets
 	WHERE id_users = $1 LIMIT 1;`
 	var (
-		idPasswordResets int64
-		hashBytes        []byte
-		expiresAt        time.Time
-		usedAt           *time.Time
+		prid      int64
+		hashBytes []byte
+		expiresAt time.Time
+		usedAt    *time.Time
 	)
 	if err := r.db.QueryRow(ctx, query, idUsers.Value()).Scan(
-		&idPasswordResets, &hashBytes, &expiresAt, &usedAt,
+		&prid, &hashBytes, &expiresAt, &usedAt,
 	); err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (r PasswordReset) GetActiveByUser(ctx context.Context, idUsers domain.IDUse
 		return nil, err
 	}
 	return &model.PasswordResetToken{
-		ID:        domain.IDPasswordReset(idPasswordResets),
+		ID:        prid,
 		Hash:      hash,
 		ExpiresAt: expiresAt,
 		UsedAt:    usedAt,

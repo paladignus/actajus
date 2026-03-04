@@ -5,7 +5,6 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
 	"github.com/paladignus/actajus/internal/module/identity/application/model"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
-	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
 func (m *AuthMapper) ChangePasswordInputToNormalized(input dto.ChangePasswordCommand) (model.ChangePasswordNormalized, error) {
@@ -25,14 +24,14 @@ func (m *AuthMapper) ChangePasswordInputToNormalized(input dto.ChangePasswordCom
 
 func (m *AuthMapper) RequestPasswordResetInputToNormalized(input dto.RequestPasswordResetCommand) (model.RequestPasswordResetNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
-	email := vo.Email(input.Email)
+	// email := vo.Email(input.Email)
 	// if !email.IsEmpty() && !email.IsValid() && !hasViolation(vs, "email") {
 	// 	vs = append(vs, validation.Violation{Path: "email", Code: "invalid", Meta: map[string]string{"format": "email"}})
 	// }
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return model.RequestPasswordResetNormalized{}, err
 	}
-	return model.RequestPasswordResetNormalized{Email: email}, nil
+	return model.RequestPasswordResetNormalized{Email: input.Email}, nil
 }
 
 func (m *AuthMapper) ConfirmPasswordResetInputToNormalized(input dto.ConfirmPasswordResetCommand) (model.ConfirmPasswordResetNormalized, error) {
