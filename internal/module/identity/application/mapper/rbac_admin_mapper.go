@@ -3,7 +3,6 @@ package mapper
 
 import (
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
-	"github.com/paladignus/actajus/internal/module/identity/domain"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 )
@@ -17,13 +16,13 @@ func NewRBACAdminMapper(v *validation.Validator) *RBACAdminMapper {
 }
 
 type AssignRoleNormalized struct {
-	IDUser     domain.IDUser
+	IDUser     int64
 	IDRole     int16
 	AssignedBy int64
 }
 
 type RemoveRoleNormalized struct {
-	IDUser domain.IDUser
+	IDUser int64
 	IDRole int16
 }
 
@@ -43,7 +42,7 @@ func (m *RBACAdminMapper) AssignRoleInputToNormalized(input dto.AssignRoleToUser
 		return AssignRoleNormalized{}, err
 	}
 	return AssignRoleNormalized{
-		IDUser:     domain.IDUser(input.IDUser),
+		IDUser:     input.IDUser,
 		IDRole:     input.IDRole,
 		AssignedBy: input.AssignedBy,
 	}, nil
@@ -55,7 +54,7 @@ func (m *RBACAdminMapper) RemoveRoleInputToNormalized(input dto.RemoveRoleFromUs
 		return RemoveRoleNormalized{}, err
 	}
 	return RemoveRoleNormalized{
-		IDUser: domain.IDUser(input.IDUser),
+		IDUser: input.IDUser,
 		IDRole: input.IDRole,
 	}, nil
 }

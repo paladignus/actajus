@@ -6,7 +6,6 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
-	"github.com/paladignus/actajus/internal/module/identity/domain"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
 )
 
@@ -45,61 +44,57 @@ func NewCachedRoleUserQueryRepository(
 // 4. Retorna os dados
 func (r *CachedRoleUserQueryRepository) ListUserIDsByRole(
 	ctx context.Context,
-	idRole int16,
-) ([]domain.IDUser, error) {
+	rid int16,
+) ([]int64, error) {
 	// 1) Tentar cache primeiro (leitura rápida)
-	userIDs, err := r.index.ListUsersByRole(ctx, idRole)
-	if err == nil && len(userIDs) > 0 {
+	uid, err := r.index.ListUsersByRole(ctx, rid)
+	if err == nil && len(uid) > 0 {
 		r.logger.Debug(ctx, "RBAC role users cache hit",
-			"role_id", idRole,
-			"count", len(userIDs),
+			"role_id", rid,
+			"count", len(uid),
 		)
-		return r.toIDUsers(userIDs), nil
+		return uid, nil
 	}
-
 	// 2) Cache miss ou erro - log para observabilidade
 	r.logger.Debug(ctx, "RBAC role users cache miss, fallback to database",
-		"role_id", idRole,
+		"role_id", rid,
 		"cache_error", err,
 	)
-
 	// 3) Fallback: busca no banco de dados
-	dbUsers, err := r.repo.ListUserIDsByRole(ctx, idRole)
+	uid, err = r.repo.ListUserIDsByRole(ctx, rid)
 	if err != nil {
 		r.logger.Error(ctx, "RBAC role users database query failed",
-			"role_id", idRole,
+			"role_id", rid,
 			"error", err,
 		)
 		return nil, err
 	}
-
 	// 4) Repopula cache se houver dados
-	if len(dbUsers) > 0 {
-		idUsers := r.toInt64Slice(dbUsers)
-		r.index.AddUsersToRole(ctx, idRole, idUsers)
+	if len(uid) > 0 {
+		// idUsers := r.toInt64Slice(dbUsers)
+		r.index.AddUsersToRole(ctx, rid, uid)
 		r.logger.Debug(ctx, "RBAC role users cache repopulated",
-			"role_id", idRole,
-			"count", len(dbUsers),
+			"role_id", rid,
+			"count", len(uid),
 		)
 	}
-
-	return dbUsers, nil
+	return uid, nil
 }
 
 // toIDUsers converte []int64 para []domain.IDUser
-func (r *CachedRoleUserQueryRepository) toIDUsers(ids []int64) []domain.IDUser {
-	out := make([]domain.IDUser, 0, len(ids))
-	for _, id := range ids {
-		out = append(out, domain.IDUser(id))
-	}
-	return out
-}
+// func (r *CachedRoleUserQueryRepository) toIDUsers(ids []int64) []int64 {
+// 	out := make([]int64, 0, len(ids))
+// 	for _, id := range ids {
+// 		out = append(out, id)
+// 	}
+// 	return out
+// }
 
 // toInt64Slice converte []domain.IDUser para []int64
-func (r *CachedRoleUserQueryRepository) toInt64Slice(ids []domain.IDUser) []int64 {
-	out := make([]int64, 0, len(ids))
-	for _, id := range ids {
-		out = append(out, id.Value())
-	}
-	return out
-}
+// func (r *CachedRoleUserQueryRepository) toInt64Slice(ids []int64) []int64 {
+// 	out := make([]int64, 0, len(ids))
+// 	for _, id := range ids {
+// 		out = append(out, id)
+// 	}
+// 	return out
+// }

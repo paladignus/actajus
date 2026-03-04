@@ -21,14 +21,14 @@ type CachedSession struct {
 	fallbackToPostgres bool
 }
 
-type Option func(CachedSession)
+type Option func(*CachedSession)
 
 func WithPrefix(prefix string) Option {
-	return func(c CachedSession) { c.prefix = prefix }
+	return func(c *CachedSession) { c.prefix = prefix }
 }
 
 func WithFallbackToPostgres(v bool) Option {
-	return func(c CachedSession) { c.fallbackToPostgres = v }
+	return func(c *CachedSession) { c.fallbackToPostgres = v }
 }
 
 func NewCachedSession(
@@ -45,7 +45,7 @@ func NewCachedSession(
 		true,
 	}
 	for _, opt := range opts {
-		opt(c)
+		opt(&c)
 	}
 	return c
 }

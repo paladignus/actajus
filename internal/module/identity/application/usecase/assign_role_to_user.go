@@ -15,12 +15,12 @@ import (
 )
 
 type AssignRoleToUser struct {
-	repo        identityrepo.RoleUserAdminRepository
-	cache       service.RBACCacheInvalidator
-	index       service.RBACRoleUsersIndex
-	mapper      *mapper.RBACAdminMapper
-	uow         unitofwork.UnitOfWork
-	dispatcher  *dispatcher.SimpleEventDispatcher
+	repo       identityrepo.RoleUserAdminRepository
+	cache      service.RBACCacheInvalidator
+	index      service.RBACRoleUsersIndex
+	mapper     *mapper.RBACAdminMapper
+	uow        unitofwork.UnitOfWork
+	dispatcher *dispatcher.SimpleEventDispatcher
 }
 
 func NewAssignRoleToUser(
@@ -32,12 +32,12 @@ func NewAssignRoleToUser(
 	dispatcher *dispatcher.SimpleEventDispatcher,
 ) AssignRoleToUser {
 	return AssignRoleToUser{
-		repo:        repo,
-		cache:       cache,
-		index:       index,
-		mapper:      mapper,
-		uow:         uow,
-		dispatcher:  dispatcher,
+		repo:       repo,
+		cache:      cache,
+		index:      index,
+		mapper:     mapper,
+		uow:        uow,
+		dispatcher: dispatcher,
 	}
 }
 
@@ -56,12 +56,12 @@ func (uc AssignRoleToUser) Execute(ctx context.Context, input dto.AssignRoleToUs
 	if err := uc.repo.AssignRole(ctx, norm.IDUser, norm.IDRole, norm.AssignedBy); err != nil {
 		return err
 	}
-	uc.index.AddUserToRole(ctx, norm.IDRole, norm.IDUser.Value())
+	uc.index.AddUserToRole(ctx, norm.IDRole, norm.IDUser)
 	uc.cache.InvalidateUser(ctx, norm.IDUser)
-	
+
 	// Publicar evento de domínio
 	uc.publishRoleAssignedEvent(norm)
-	
+
 	return nil
 }
 
@@ -69,14 +69,14 @@ func (uc AssignRoleToUser) executeWithTransaction(ctx context.Context, norm mapp
 	// Nota: Esta implementação requer que o UnitOfWork seja do tipo concreto
 	// Para uma implementação mais limpa, o repositório deveria aceitar um contexto com transação
 	// Por enquanto, mantemos a estrutura atual como placeholder para futura refatoração
-	
+
 	// A implementação real dependeria de uma interface mais rica que expusesse o pgx.Tx
 	// ou de repositórios que aceitem transação como parâmetro
 	if err := uc.repo.AssignRole(ctx, norm.IDUser, norm.IDRole, norm.AssignedBy); err != nil {
 		return err
 	}
-	
-	uc.index.AddUserToRole(ctx, norm.IDRole, norm.IDUser.Value())
+
+	uc.index.AddUserToRole(ctx, norm.IDRole, norm.IDUser)
 	uc.cache.InvalidateUser(ctx, norm.IDUser)
 
 	// Publicar evento de domínio após operação bem-sucedida
@@ -89,9 +89,9 @@ func (uc AssignRoleToUser) publishRoleAssignedEvent(norm mapper.AssignRoleNormal
 	if uc.dispatcher == nil {
 		return
 	}
-	
+
 	uc.dispatcher.Publish(dispatcher.RoleAssignedEvent{
-		ID:         norm.IDUser.Value(),
+		ID:         norm.IDUser,
 		IDRole:     norm.IDRole,
 		AssignedBy: norm.AssignedBy,
 		AssignedAt: time.Now(),

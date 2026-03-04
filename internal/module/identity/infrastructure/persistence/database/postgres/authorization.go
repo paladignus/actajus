@@ -4,7 +4,6 @@ package postgres
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/module/identity/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
@@ -16,14 +15,14 @@ func NewAuthorization(db postgres.PgxPool) Authorization {
 	return Authorization{db}
 }
 
-func (r Authorization) ListPermissionsByUser(ctx context.Context, idUser domain.IDUser) ([]string, error) {
+func (r Authorization) ListPermissionsByUser(ctx context.Context, uid int64) ([]string, error) {
 	const query = `SELECT
 		DISTINCT (p.resource || ':' || p.action) AS perm
 	FROM role_user ru
 	JOIN permission_role pr ON pr.id_roles = ru.id_roles
 	JOIN permissions p ON p.idpermissions = pr.id_permissions
 	WHERE ru.id_users = $1;`
-	rows, err := r.db.Query(ctx, query, idUser.Value())
+	rows, err := r.db.Query(ctx, query, uid)
 	if err != nil {
 		return nil, err
 	}

@@ -3,8 +3,6 @@ package repository
 
 import (
 	"context"
-
-	"github.com/paladignus/actajus/internal/module/identity/domain"
 )
 
 // RoleUserQueryRepository é responsável por consultar usuários de uma role
@@ -16,5 +14,5 @@ import (
 type RoleUserQueryRepository interface {
 	// ListUserIDsByRole retorna todos os usuários de uma role,
 	// usando cache quando disponível e fazendo fallback para o banco.
-	ListUserIDsByRole(ctx context.Context, idRole int16) ([]domain.IDUser, error)
+	ListUserIDsByRole(ctx context.Context, rid int16) ([]int64, error)
 }

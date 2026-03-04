@@ -40,7 +40,7 @@ func (uc RemoveRoleFromUser) Execute(ctx context.Context, input dto.RemoveRoleFr
 	if err := uc.repo.RemoveRole(ctx, norm.IDUser, norm.IDRole); err != nil {
 		return err
 	}
-	uc.index.RemoveUserFromRole(ctx, norm.IDRole, norm.IDUser.Value())
+	uc.index.RemoveUserFromRole(ctx, norm.IDRole, norm.IDUser)
 	uc.cache.InvalidateUser(ctx, norm.IDUser)
 	return nil
 }
