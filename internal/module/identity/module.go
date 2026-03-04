@@ -17,8 +17,8 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	identityhandler "github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
 	identityrbac "github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
+	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/paladignus/actajus/internal/shared/domain/dispatcher"
-	sharedrepo "github.com/paladignus/actajus/internal/shared/domain/repository"
 	"github.com/paladignus/actajus/internal/shared/domain/unitofwork"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
@@ -95,7 +95,7 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
 	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
-	
+
 	// Repository com cache fallback para consultas de usuários por role
 	roleUserQueryRepo := cache.NewCachedRoleUserQueryRepository(
 		roleUserAdminRepo,

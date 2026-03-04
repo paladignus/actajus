@@ -8,9 +8,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/paladignus/actajus/internal/module/person/application/usecase"
 	personAdapter "github.com/paladignus/actajus/internal/module/person/presentation/grpc/adapter"
-	sharedAdapter "github.com/paladignus/actajus/internal/shared/presentation/adapter"
+	"github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/paladignus/actajus/internal/shared/domain"
-	"github.com/paladignus/actajus/internal/shared/domain/repository"
+	sharedAdapter "github.com/paladignus/actajus/internal/shared/presentation/adapter"
 	personv1 "github.com/paladignus/actajus/proto/person/v1"
 )
 

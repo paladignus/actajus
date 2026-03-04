@@ -7,7 +7,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
-	sharedrepo "github.com/paladignus/actajus/internal/shared/domain/repository"
+	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
 )
 
 // CachedRoleUserQueryRepository implementa RoleUserQueryRepository com cache Redis

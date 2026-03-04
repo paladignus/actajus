@@ -9,7 +9,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/person/application/usecase"
 	"github.com/paladignus/actajus/internal/module/person/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/person/presentation/grpc/handler"
-	"github.com/paladignus/actajus/internal/shared/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/application/repository"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/proto/person/v1/personv1connect"
 )

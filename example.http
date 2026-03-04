@@ -405,12 +405,13 @@ content-type: application/json
 
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao",
-  "accessExpiresAt": "2026-03-03T16:01:38.911216822Z",
-  "refreshToken": "wN2ZKAW9Seq3WW698xU7chRM0klEIFPnozIp-LCw864",
-  "refreshExpiresAt": "2026-03-04T15:46:38.911216822Z",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjYzNDkxMywiaWF0IjoxNzcyNjM0MDEzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.gcT8FKQIMKy2SrKzZ4gjBxPVppTpNnmWJHKqisrEkBQ",
+  "accessExpiresAt": "2026-03-04T14:35:13.375798087Z",
+  "refreshToken": "5X_hZcy83JNJiKr5wUhS1Q2JyXXuziGvtc9OgqywQSI",
+  "refreshExpiresAt": "2026-03-05T14:20:13.375798087Z",
   "idSession": "1"
 }
+
 
 
 {
@@ -446,14 +447,14 @@ localhost:50051 identity.v1.AuthService/Login
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MTM1NiwiaWF0IjoxNzcyNTUwNDU2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.Kl_73jVrCKUPNr2T_fr9Tdw1q-mDVEIVcV089UQM7hY" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjYzNDkxMywiaWF0IjoxNzcyNjM0MDEzLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.gcT8FKQIMKy2SrKzZ4gjBxPVppTpNnmWJHKqisrEkBQ" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
 localhost:50051 person.v1.PersonService/CreatePerson
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":7,"refresh_token":"hivT9lu1BYS-UT0_YrIMWMziq5GdfzD9IFxJBd_TPe8","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":1,"refresh_token":"wN2ZKAW9Seq3WW698xU7chRM0klEIFPnozIp-LCw864","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 
@@ -521,17 +522,17 @@ localhost:50051 identity.v1.AuthService/ConfirmPasswordReset
 '
 
 
-redis-cli KEYS "rbac:*"
-redis-cli KEYS "actajus:session:*"
+KEYS "rbac:*"
+KEYS "actajus:session:*"
 
-redis-cli SMEMBERS rbac:user_perms:3
-redis-cli TTL rbac:user_perms:3
+SMEMBERS rbac:user_perms:3
+TTL rbac:user_perms:3
 
-redis-cli SMEMBERS rbac:role_users:1
+SMEMBERS rbac:role_users:1
 
-redis-cli GET actajus:session:5
-redis-cli DEL rbac:user_perms:3
-redis-cli DEL actajus:session:5
+GET actajus:session:5
+DEL rbac:user_perms:3
+DEL actajus:session:5
 
 
 -- sessões

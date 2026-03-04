@@ -9,7 +9,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
-	"github.com/paladignus/actajus/internal/shared/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/redis/go-redis/v9"
 )
 

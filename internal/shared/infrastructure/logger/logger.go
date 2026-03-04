@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/paladignus/actajus/internal/shared/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/application/repository"
 )
 
 type Level int
