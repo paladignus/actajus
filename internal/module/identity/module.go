@@ -95,6 +95,13 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
 	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
+	
+	// Repository com cache fallback para consultas de usuários por role
+	roleUserQueryRepo := cache.NewCachedRoleUserQueryRepository(
+		roleUserAdminRepo,
+		roleUsersIndex,
+		dep.Logger,
+	)
 
 	// Inicializar Event Dispatcher se não fornecido
 	eventDispatcher := dep.EventDispatcher
@@ -196,18 +203,16 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 
 	grantUC := usecase.NewGrantPermissionToRole(
-		roleUserAdminRepo,
+		roleUserQueryRepo,
 		permRoleAdminRepo,
 		authzSvc,
-		roleUsersIndex,
 		rbacMapper,
 	)
 
 	revokeUC := usecase.NewRevokePermissionFromRole(
-		roleUserAdminRepo,
+		roleUserQueryRepo,
 		permRoleAdminRepo,
 		authzSvc,
-		roleUsersIndex,
 		rbacMapper,
 	)
 

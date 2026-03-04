@@ -9,29 +9,25 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
-	"github.com/paladignus/actajus/internal/module/identity/domain"
 )
 
 type GrantPermissionToRole struct {
-	roleUsers repository.RoleUserAdminRepository
+	roleUsers repository.RoleUserQueryRepository
 	permRole  repository.PermissionRoleAdminRepository
 	cache     service.RBACCacheInvalidator
-	index     service.RBACRoleUsersIndex
 	mapper    *mapper.RBACAdminMapper
 }
 
 func NewGrantPermissionToRole(
-	roleUsers repository.RoleUserAdminRepository,
+	roleUsers repository.RoleUserQueryRepository,
 	permRole repository.PermissionRoleAdminRepository,
 	cache service.RBACCacheInvalidator,
-	index service.RBACRoleUsersIndex,
 	mapper *mapper.RBACAdminMapper,
 ) GrantPermissionToRole {
 	return GrantPermissionToRole{
 		roleUsers,
 		permRole,
 		cache,
-		index,
 		mapper,
 	}
 }
@@ -44,12 +40,12 @@ func (uc GrantPermissionToRole) Execute(ctx context.Context, input dto.GrantPerm
 	if err := uc.permRole.GrantPermission(ctx, norm.IDRole, norm.IDPermission); err != nil {
 		return err
 	}
-	idUsers, err := resolveRoleUsersWithFallback(ctx, norm.IDRole, uc.index, uc.roleUsers)
+	idUsers, err := uc.roleUsers.ListUserIDsByRole(ctx, norm.IDRole)
 	if err != nil {
 		return err
 	}
 	for _, uid := range idUsers {
-		uc.cache.InvalidateUser(ctx, domain.IDUser(uid))
+		uc.cache.InvalidateUser(ctx, uid)
 	}
 	return nil
 }
