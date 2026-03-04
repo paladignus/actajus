@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/paladignus/actajus/internal/shared/domain"
+	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
 type Session struct {
-	id          IDSession
-	idUser      IDUser
+	id          vo.ID
+	idUser      vo.ID
 	refreshHash [32]byte
 	expiresAt   time.Time
 	revokedAt   *time.Time
@@ -34,13 +35,13 @@ func NewSessionBuilder() *SessionBuilder {
 	}
 }
 
-func (b *SessionBuilder) WithID(id IDSession) *SessionBuilder {
-	b.s.id = id
+func (b *SessionBuilder) WithID(id int64) *SessionBuilder {
+	b.s.id = vo.ID(id)
 	return b
 }
 
-func (b *SessionBuilder) WithIDUser(id IDUser) *SessionBuilder {
-	b.s.idUser = id
+func (b *SessionBuilder) WithIDUser(id int64) *SessionBuilder {
+	b.s.idUser = vo.ID(id)
 	return b
 }
 
@@ -94,8 +95,8 @@ func (b *SessionBuilder) Build() (*Session, error) {
 	return b.s, nil
 }
 
-func (s *Session) ID() IDSession                { return s.id }
-func (s *Session) IDUser() IDUser               { return s.idUser }
+func (s *Session) ID() vo.ID                    { return s.id }
+func (s *Session) IDUser() vo.ID                { return s.idUser }
 func (s *Session) RefreshHash() [32]byte        { return s.refreshHash }
 func (s *Session) ExpiresAt() time.Time         { return s.expiresAt }
 func (s *Session) RevokedAt() *time.Time        { return s.revokedAt }
@@ -107,14 +108,14 @@ func (s *Session) IsExpired(now time.Time) bool { return !now.Before(s.expiresAt
 func (s *Session) CreatedAt() time.Time         { return s.createdAt }
 func (s *Session) UpdatedAt() time.Time         { return s.updatedAt }
 
-func (s *Session) SetID(id IDSession) error {
+func (s *Session) SetID(id int64) error {
 	if s.id != 0 {
 		return domain.NewFieldError("id", "session id is already set")
 	}
 	if id == 0 {
 		return domain.NewFieldError("id", "session id is invalid")
 	}
-	s.id = id
+	s.id = vo.ID(id)
 	return nil
 }
 

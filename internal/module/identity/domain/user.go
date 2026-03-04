@@ -7,9 +7,9 @@ import (
 )
 
 type User struct {
-	id           IDUser
+	id           vo.ID
 	primaryEmail vo.Email
-	passwordHash PasswordHash
+	passwordHash vo.PasswordHash
 	isBlocked    bool
 }
 
@@ -23,18 +23,18 @@ func NewUserBuilder() *UserBuilder {
 	}
 }
 
-func (b *UserBuilder) WithID(id IDUser) *UserBuilder {
-	b.u.id = id
+func (b *UserBuilder) WithID(id int64) *UserBuilder {
+	b.u.id = vo.ID(id)
 	return b
 }
 
-func (b *UserBuilder) WithPrimaryEmail(email vo.Email) *UserBuilder {
-	b.u.primaryEmail = email
+func (b *UserBuilder) WithPrimaryEmail(email string) *UserBuilder {
+	b.u.primaryEmail = vo.Email(email)
 	return b
 }
 
-func (b *UserBuilder) WithPasswordHash(hash PasswordHash) *UserBuilder {
-	b.u.passwordHash = hash
+func (b *UserBuilder) WithPasswordHash(hash string) *UserBuilder {
+	b.u.passwordHash = vo.PasswordHash(hash)
 	return b
 }
 
@@ -44,24 +44,18 @@ func (b *UserBuilder) WithIsBlocked(blocked bool) *UserBuilder {
 }
 
 func (b *UserBuilder) Build() (*User, error) {
+	if b.u.primaryEmail.IsEmpty() && !b.u.primaryEmail.IsValid() {
+		return nil, domain.NewFieldError("email", "email is invalid")
+	}
 	return b.u, nil
 }
 
-func NewUser(id IDUser, primaryEmail vo.Email, hash PasswordHash, blocked bool) (*User, error) {
-	return &User{
-		id:           id,
-		primaryEmail: primaryEmail,
-		passwordHash: hash,
-		isBlocked:    blocked,
-	}, nil
-}
+func (u *User) ID() vo.ID                     { return u.id }
+func (u *User) PrimaryEmail() vo.Email        { return u.primaryEmail }
+func (u *User) PasswordHash() vo.PasswordHash { return u.passwordHash }
+func (u *User) IsBlocked() bool               { return u.isBlocked }
 
-func (u *User) ID() IDUser                 { return u.id }
-func (u *User) PrimaryEmail() vo.Email     { return u.primaryEmail }
-func (u *User) PasswordHash() PasswordHash { return u.passwordHash }
-func (u *User) IsBlocked() bool            { return u.isBlocked }
-
-func (u *User) SetID(id IDUser) error {
+func (u *User) SetID(id vo.ID) error {
 	if u.id != 0 {
 		return domain.NewFieldError("id", "user id is already set")
 	}
@@ -72,6 +66,6 @@ func (u *User) SetID(id IDUser) error {
 	return nil
 }
 
-func (u *User) SetPasswordHash(hash PasswordHash) {
-	u.passwordHash = PasswordHash(hash.Value())
+func (u *User) SetPasswordHash(hash string) {
+	u.passwordHash = vo.PasswordHash(hash)
 }
