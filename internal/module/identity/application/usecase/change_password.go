@@ -40,8 +40,7 @@ func (uc ChangePassword) Execute(ctx context.Context, input dto.ChangePasswordCo
 	if err != nil {
 		return fmt.Errorf("invalid change password data: %w", err)
 	}
-	uid := identity.IDUser(norm.IDUser)
-	user, err := uc.user.FindByID(ctx, uid)
+	user, err := uc.user.FindByID(ctx, norm.IDUser)
 	if err != nil {
 		return identity.ErrInvalidToken
 	}
@@ -55,11 +54,11 @@ func (uc ChangePassword) Execute(ctx context.Context, input dto.ChangePasswordCo
 	if err != nil {
 		return err
 	}
-	if err = uc.user.UpdatePasswordHash(ctx, uid, newHash); err != nil {
+	if err = uc.user.UpdatePasswordHash(ctx, norm.IDUser, newHash); err != nil {
 		return err
 	}
 	if uc.RevokeAllSessions {
-		_ = uc.session.RevokeAllByUser(ctx, uid)
+		_ = uc.session.RevokeAllByUser(ctx, norm.IDUser)
 	}
 	return nil
 }
