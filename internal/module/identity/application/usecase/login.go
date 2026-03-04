@@ -64,7 +64,7 @@ func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*dto.AuthT
 	// }
 	// Fazer rehash detection no futuro
 	if uc.config.MaxSessions > 0 {
-		n, err := uc.session.CountActiveByUser(ctx, user.ID())
+		n, err := uc.session.CountActiveByUser(ctx, user.ID().Value())
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +79,7 @@ func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*dto.AuthT
 	now := uc.clock.Now()
 	refreshExp := now.Add(uc.config.RefreshTTL)
 	sess, err := identity.NewSessionBuilder().
-		WithIDUser(user.ID()).
+		WithIDUser(user.ID().Value()).
 		WithRefreshHash(refreshHash).
 		WithExpiresAt(refreshExp).
 		WithIP(norm.IP).
@@ -104,8 +104,8 @@ func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*dto.AuthT
 		return nil, err
 	}
 	return uc.projection.ProjectTokens(
-		sess.ID(),
-		user.ID(),
+		sess.ID().Value(),
+		user.ID().Value(),
 		accessToken,
 		refreshToken,
 		accessExp,

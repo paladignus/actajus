@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
-	identity "github.com/paladignus/actajus/internal/module/identity/domain"
 )
 
 type AuthProjectionMapper struct{}
@@ -15,16 +14,16 @@ func NewAuthProjectionMapper() *AuthProjectionMapper {
 }
 
 func (p *AuthProjectionMapper) ProjectTokens(
-	idSession identity.IDSession,
-	idUser identity.IDUser,
+	sid int64,
+	uid int64,
 	accessToken string,
 	refreshToken string,
 	accessExp time.Time,
 	refreshExp time.Time,
 ) *dto.AuthTokensReadModel {
 	return &dto.AuthTokensReadModel{
-		IDSession:        idSession.Value(),
-		IDUser:           idUser.Value(),
+		IDSession:        sid,
+		IDUser:           uid,
 		AccessToken:      accessToken,
 		RefreshToken:     refreshToken,
 		AccessExpiresAt:  accessExp,
