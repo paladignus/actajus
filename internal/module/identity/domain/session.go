@@ -131,15 +131,15 @@ func (s *Session) Revoke(now time.Time) error {
 	return nil
 }
 
-func (s *Session) Rotate(newHash [32]byte, newExp time.Time, now time.Time) error {
+func (s *Session) Rotate(hash [32]byte, exp time.Time, now time.Time) error {
 	if s.id == 0 {
 		return domain.NewFieldError("id", "session id is invalid")
 	}
 	if s.IsRevoked() {
 		return ErrSessionRevoked
 	}
-	s.refreshHash = newHash
-	s.expiresAt = newExp
+	s.refreshHash = hash
+	s.expiresAt = exp
 	s.rotatedAt = &now
 	s.updatedAt = now
 	return nil

@@ -43,17 +43,17 @@ func (r Session) Create(ctx context.Context, s *domain.Session) error {
 	).Scan(&id); err != nil {
 		return err
 	}
-	return s.SetID(domain.IDSession(id))
+	return s.SetID(id)
 }
 
-func (r Session) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Session, error) {
+func (r Session) GetByID(ctx context.Context, id int64) (*domain.Session, error) {
 	const q = `SELECT
 	id_users, refresh_token_hash, expires_at, revoked_at, rotated_at,
 	COALESCE(ip, ''), COALESCE(user_agent, ''), created_at, updated_at
 	FROM sessions
 	WHERE idsessions = $1 LIMIT 1;`
 	var (
-		idUser    int64
+		uid       int64
 		hashBytes []byte
 		expiresAt time.Time
 		revokedAt *time.Time
@@ -63,8 +63,8 @@ func (r Session) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Ses
 		createdAt time.Time
 		updatedAt time.Time
 	)
-	if err := r.db.QueryRow(ctx, q, sid.Value()).Scan(
-		&idUser, &hashBytes, &expiresAt, &revokedAt, &rotatedAt,
+	if err := r.db.QueryRow(ctx, q, id).Scan(
+		&uid, &hashBytes, &expiresAt, &revokedAt, &rotatedAt,
 		&ip, &userAgent, &createdAt, &updatedAt,
 	); err != nil {
 		return nil, err
@@ -74,8 +74,8 @@ func (r Session) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Ses
 		return nil, err
 	}
 	return domain.NewSessionBuilder().
-		WithID(sid).
-		WithIDUser(domain.IDUser(idUser)).
+		WithID(id).
+		WithIDUser(uid).
 		WithRefreshHash(hash).
 		WithExpiresAt(expiresAt).
 		WithRevokedAt(revokedAt).
@@ -87,15 +87,15 @@ func (r Session) GetByID(ctx context.Context, sid domain.IDSession) (*domain.Ses
 		Build()
 }
 
-func (r Session) RotateRefreshToken(ctx context.Context, sid domain.IDSession, newHash [32]byte, newExpiresAt time.Time) error {
+func (r Session) RotateRefreshToken(ctx context.Context, id int64, hash [32]byte, expiresAt time.Time) error {
 	const q = `UPDATE sessions
 	SET refresh_token_hash = $2, expires_at = $3, rotated_at = $4, updated_at = $4
 	WHERE idsessions = $1 AND revoked_at IS NULL;`
 	now := time.Now()
 	if _, err := r.db.Exec(ctx, q,
-		sid.Value(),
-		newHash[:],
-		newExpiresAt,
+		id,
+		hash[:],
+		expiresAt,
 		now,
 	); err != nil {
 		return err
@@ -103,37 +103,37 @@ func (r Session) RotateRefreshToken(ctx context.Context, sid domain.IDSession, n
 	return nil
 }
 
-func (r Session) Revoke(ctx context.Context, sid domain.IDSession) error {
+func (r Session) Revoke(ctx context.Context, id int64) error {
 	const q = `UPDATE sessions
 	SET revoked_at = $2, updated_at = $2
 	WHERE idsessions = $1 AND revoked_at IS NULL;`
 	now := time.Now()
 	if _, err := r.db.Exec(ctx, q,
-		sid.Value(), now); err != nil {
+		id, now); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r Session) RevokeAllByUser(ctx context.Context, idUser domain.IDUser) error {
+func (r Session) RevokeAllByUser(ctx context.Context, uid int64) error {
 	const q = `UPDATE sessions
 	SET revoked_at = $2, updated_at = $2
 	WHERE id_users = $1 AND revoked_at IS NULL;`
 	now := time.Now()
 	if _, err := r.db.Exec(ctx, q,
-		idUser.Value(), now); err != nil {
+		uid, now); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r Session) CountActiveByUser(ctx context.Context, idUser domain.IDUser) (int, error) {
+func (r Session) CountActiveByUser(ctx context.Context, uid int64) (int, error) {
 	const q = `SELECT COUNT(*)
 	FROM sessions
 	WHERE id_users = $1 AND revoked_at IS NULL AND expires_at > NOW();`
 	var n int
 	if err := r.db.QueryRow(ctx, q,
-		idUser.Value()).Scan(&n); err != nil {
+		uid).Scan(&n); err != nil {
 		return 0, err
 	}
 	return n, nil
@@ -148,12 +148,12 @@ func scanSHA256(b []byte) ([32]byte, error) {
 	return out, nil
 }
 
-func (r *Session) IsActive(ctx context.Context, sid domain.IDSession, idUser domain.IDUser, now time.Time) (bool, error) {
+func (r *Session) IsActive(ctx context.Context, id int64, uid int64, now time.Time) (bool, error) {
 	const query = `SELECT 1
 	FROM sessions
 	WHERE idsessions = $1 AND user_id = $2 AND revoked_at IS NULL AND expires_at > $3 LIMIT 1;`
 	var one int
-	err := r.db.QueryRow(ctx, query, sid.Value(), idUser.Value(), now).Scan(&one)
+	err := r.db.QueryRow(ctx, query, id, uid, now).Scan(&one)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return false, nil
@@ -165,24 +165,24 @@ func (r *Session) IsActive(ctx context.Context, sid domain.IDSession, idUser dom
 
 func (r *Session) RotateRefreshTokenAtomic(
 	ctx context.Context,
-	sid domain.IDSession,
-	expectedOldHash [32]byte,
-	newHash [32]byte,
-	newExpiresAt time.Time,
+	id int64,
+	oldHash [32]byte,
+	hash [32]byte,
+	expiresAt time.Time,
 	now time.Time,
 ) (bool, error) {
 	const query = `UPDATE sessions
 	SET refresh_token_hash = $1, expires_at = $2, rotated_at = $3, updated_at = $3
 	WHERE idsessions = $4 AND revoked_at IS NULL AND refresh_token_hash = $5
 	RETURNING idsessions;`
-	old := expectedOldHash
-	nw := newHash
+	old := oldHash
+	nw := hash
 	var outID int64
 	if err := r.db.QueryRow(ctx, query,
 		nw[:],
-		newExpiresAt,
+		expiresAt,
 		now,
-		sid.Value(),
+		id,
 		old[:]).Scan(&outID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return false, nil

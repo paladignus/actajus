@@ -5,11 +5,10 @@ import (
 	"context"
 
 	identity "github.com/paladignus/actajus/internal/module/identity/domain"
-	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
 type UserRepository interface {
-	FindByEmail(ctx context.Context, email vo.Email) (*identity.User, error)
-	FindByID(ctx context.Context, id identity.IDUser) (*identity.User, error)
-	UpdatePasswordHash(ctx context.Context, idUser identity.IDUser, passwordHash string) error
+	FindByEmail(ctx context.Context, email string) (*identity.User, error)
+	FindByID(ctx context.Context, id int64) (*identity.User, error)
+	UpdatePasswordHash(ctx context.Context, id int64, passwordHash string) error
 }

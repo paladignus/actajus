@@ -7,7 +7,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
-	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
@@ -19,7 +18,7 @@ func NewUser(db postgres.PgxPool) User {
 	return User{db}
 }
 
-func (r User) FindByEmail(ctx context.Context, email vo.Email) (*domain.User, error) {
+func (r User) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	const query = `
 		SELECT
 			u.idusers, u.password_hash, u.is_blocked 
@@ -32,7 +31,7 @@ func (r User) FindByEmail(ctx context.Context, email vo.Email) (*domain.User, er
 		passwordHash string
 		isBlocked    bool
 	)
-	err := r.db.QueryRow(ctx, query, email.Value()).Scan(
+	err := r.db.QueryRow(ctx, query, email).Scan(
 		&id, &passwordHash, &isBlocked,
 	)
 	if err != nil {
@@ -42,14 +41,14 @@ func (r User) FindByEmail(ctx context.Context, email vo.Email) (*domain.User, er
 		return nil, err
 	}
 	return domain.NewUserBuilder().
-		WithID(domain.IDUser(id)).
+		WithID(id).
 		WithPrimaryEmail(email).
-		WithPasswordHash(domain.PasswordHash(passwordHash)).
+		WithPasswordHash(passwordHash).
 		WithIsBlocked(isBlocked).
 		Build()
 }
 
-func (r User) FindByID(ctx context.Context, id domain.IDUser) (*domain.User, error) {
+func (r User) FindByID(ctx context.Context, id int64) (*domain.User, error) {
 	const query = `
 		SELECT
 			u.password_hash, u.is_blocked, e.address 
@@ -62,7 +61,7 @@ func (r User) FindByID(ctx context.Context, id domain.IDUser) (*domain.User, err
 		isBlocked    bool
 		email        string
 	)
-	err := r.db.QueryRow(ctx, query, id.Value()).Scan(
+	err := r.db.QueryRow(ctx, query, id).Scan(
 		&passwordHash, &isBlocked, &email,
 	)
 	if err != nil {
@@ -72,16 +71,16 @@ func (r User) FindByID(ctx context.Context, id domain.IDUser) (*domain.User, err
 		return nil, err
 	}
 	return domain.NewUserBuilder().
-		WithID(domain.IDUser(id)).
-		WithPrimaryEmail(vo.Email(email)).
-		WithPasswordHash(domain.PasswordHash(passwordHash)).
+		WithID(id).
+		WithPrimaryEmail(email).
+		WithPasswordHash(passwordHash).
 		WithIsBlocked(isBlocked).
 		Build()
 }
 
-func (r User) UpdatePasswordHash(ctx context.Context, idUser domain.IDUser, passwordHash string) error {
+func (r User) UpdatePasswordHash(ctx context.Context, id int64, passwordHash string) error {
 	const query = `UPDATE users SET password_hash = $1, updated_at = NOW() WHERE idusers = $2 AND deleted_at IS NULL`
-	ct, err := r.db.Exec(ctx, query, passwordHash, idUser.Value())
+	ct, err := r.db.Exec(ctx, query, passwordHash, id)
 	if err != nil {
 		return err
 	}
