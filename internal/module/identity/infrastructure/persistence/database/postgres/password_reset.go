@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/model"
-	"github.com/paladignus/actajus/internal/module/identity/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
@@ -18,7 +17,7 @@ func NewPasswordReset(db postgres.PgxPool) PasswordReset {
 	return PasswordReset{db}
 }
 
-func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTokenCreate) (domain.IDPasswordReset, error) {
+func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTokenCreate) (int64, error) {
 	const query = `INSERT INTO
   password_resets (id_users, token_hash, expires_at, created_at)
   VALUES ($1, $2, $3, $4) RETURNING idpassword_resets;`
@@ -31,12 +30,12 @@ func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTok
 	).Scan(&id); err != nil {
 		return 0, err
 	}
-	return domain.IDPasswordReset(id), nil
+	return id, nil
 }
 
-func (r PasswordReset) GetByID(ctx context.Context, id domain.IDPasswordReset) (*model.PasswordResetToken, error) {
+func (r PasswordReset) GetByID(ctx context.Context, id int64) (*model.PasswordResetToken, error) {
 	const query = `SELECT
-	  id_users, token_hash, expires_at, used_at
+	id_users, token_hash, expires_at, used_at
 	FROM password_resets
 	WHERE idpassword_resets = $1 LIMIT 1;`
 	var (
@@ -45,7 +44,7 @@ func (r PasswordReset) GetByID(ctx context.Context, id domain.IDPasswordReset) (
 		expiresAt time.Time
 		usedAt    *time.Time
 	)
-	if err := r.db.QueryRow(ctx, query, id.Value()).Scan(
+	if err := r.db.QueryRow(ctx, query, id).Scan(
 		&uid, &hashBytes, &expiresAt, &usedAt,
 	); err != nil {
 		return nil, err
@@ -62,23 +61,23 @@ func (r PasswordReset) GetByID(ctx context.Context, id domain.IDPasswordReset) (
 	}, nil
 }
 
-func (r PasswordReset) MarkUsed(ctx context.Context, id domain.IDPasswordReset, usedAt time.Time) error {
+func (r PasswordReset) MarkUsed(ctx context.Context, id int64, usedAt time.Time) error {
 	const query = `UPDATE password_resets
   SET used_at = $2
   WHERE idpassword_resets = $1 AND used_at IS NULL;`
-	_, err := r.db.Exec(ctx, query, id.Value(), usedAt)
+	_, err := r.db.Exec(ctx, query, id, usedAt)
 	return err
 }
 
-func (r PasswordReset) RevokeAllByUser(ctx context.Context, userID domain.IDUser, now time.Time) error {
+func (r PasswordReset) RevokeAllByUser(ctx context.Context, uid int64, now time.Time) error {
 	const query = `UPDATE password_resets
   SET used_at = $1
   WHERE id_users = $2 AND used_at IS NULL;`
-	_, err := r.db.Exec(ctx, query, now, userID.Value())
+	_, err := r.db.Exec(ctx, query, now, uid)
 	return err
 }
 
-func (r PasswordReset) GetActiveByUser(ctx context.Context, idUsers domain.IDUser) (*model.PasswordResetToken, error) {
+func (r PasswordReset) GetActiveByUser(ctx context.Context, uid int64) (*model.PasswordResetToken, error) {
 	const query = `SELECT
 	  idpassword_resets, token_hash, expires_at, used_at
 	FROM password_resets
@@ -89,7 +88,7 @@ func (r PasswordReset) GetActiveByUser(ctx context.Context, idUsers domain.IDUse
 		expiresAt time.Time
 		usedAt    *time.Time
 	)
-	if err := r.db.QueryRow(ctx, query, idUsers.Value()).Scan(
+	if err := r.db.QueryRow(ctx, query, uid).Scan(
 		&prid, &hashBytes, &expiresAt, &usedAt,
 	); err != nil {
 		return nil, err
