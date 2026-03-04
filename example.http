@@ -508,10 +508,18 @@ Response contents:
   "expiresAt": "2026-03-03T15:57:32.662358383Z"
 }
 
+{
+  "ok": true,
+  "idReset": "2",
+  "resetToken": "Qv0p90IZEjlW8VW2DjXvq_Cr6_w5bWeJ2g1WwDnYI3g",
+  "expiresAt": "2026-03-04T20:28:24.619084248Z"
+}
+
+
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_reset": 4, "reset_token":"h651SFQgycaEdRYXzhcAgdx_NpIdHUxJDZb74tkei4U","new_password":"Senha@123"}' \
+-d '{"id_reset": 2, "reset_token":"Qv0p90IZEjlW8VW2DjXvq_Cr6_w5bWeJ2g1WwDnYI3g","new_password":"Senha@123"}' \
 localhost:50051 identity.v1.AuthService/ConfirmPasswordReset
 
   curl --request POST \
