@@ -3,13 +3,11 @@ package model
 
 import (
 	"time"
-
-	identity "github.com/paladignus/actajus/internal/module/identity/domain"
 )
 
 type PasswordResetToken struct {
-	ID        identity.IDPasswordReset
-	IDUser    identity.IDUser
+	ID        int64
+	IDUser    int64
 	Hash      [32]byte
 	ExpiresAt time.Time
 	UsedAt    *time.Time

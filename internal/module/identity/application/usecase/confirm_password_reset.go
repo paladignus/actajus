@@ -46,8 +46,7 @@ func (uc ConfirmPasswordReset) Execute(ctx context.Context, input dto.ConfirmPas
 		return fmt.Errorf("invalid password reset confirm data: %w", err)
 	}
 	now := uc.clock.Now()
-	rid := identity.IDPasswordReset(norm.IDReset)
-	rec, err := uc.reset.GetByID(ctx, rid)
+	rec, err := uc.reset.GetByID(ctx, norm.IDReset)
 	if err != nil || rec == nil {
 		return identity.ErrResetTokenNotFound
 	}
@@ -55,7 +54,7 @@ func (uc ConfirmPasswordReset) Execute(ctx context.Context, input dto.ConfirmPas
 		return identity.ErrResetTokenUsed
 	}
 	if !now.Before(rec.ExpiresAt) {
-		_ = uc.reset.MarkUsed(ctx, rid, now)
+		_ = uc.reset.MarkUsed(ctx, norm.IDReset, now)
 		return identity.ErrResetTokenExpired
 	}
 	if ok := uc.refresh.Compare(norm.ResetToken, rec.Hash); !ok {
@@ -68,12 +67,11 @@ func (uc ConfirmPasswordReset) Execute(ctx context.Context, input dto.ConfirmPas
 	if err := uc.user.UpdatePasswordHash(ctx, rec.IDUser, newHash); err != nil {
 		return err
 	}
-	if err := uc.reset.MarkUsed(ctx, rid, now); err != nil {
+	if err := uc.reset.MarkUsed(ctx, norm.IDReset, now); err != nil {
 		return err
 	}
 	if uc.RevokeAllSessions {
 		_ = uc.session.RevokeAllByUser(ctx, rec.IDUser)
 	}
-
 	return nil
 }
