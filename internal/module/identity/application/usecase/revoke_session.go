@@ -27,7 +27,6 @@ func (uc RevokeSession) Execute(ctx context.Context, input dto.RevokeSessionComm
 	if err != nil {
 		return fmt.Errorf("invalid revoke data: %w", err)
 	}
-	// sid := identity.IDSession(norm.IDSession)
 	if err := uc.sessions.Revoke(ctx, norm.IDSession); err != nil {
 		return err
 	}

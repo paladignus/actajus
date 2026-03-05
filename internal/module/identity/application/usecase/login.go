@@ -55,14 +55,8 @@ func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*dto.AuthT
 		return nil, identity.ErrUserBlocked
 	}
 	if err := uc.hasher.Compare(user.PasswordHash().Value(), norm.Password); err != nil {
-		fmt.Println(err)
 		return nil, identity.ErrInvalidCredentials
 	}
-	// if hasher.NeedsRehash(user.PasswordHash().Value()) {
-	// 	newHash := hasher.Hash(plain);
-	// 	repo.UpdatePasswordHash(...)
-	// }
-	// Fazer rehash detection no futuro
 	if uc.config.MaxSessions > 0 {
 		n, err := uc.session.CountActiveByUser(ctx, user.ID().Value())
 		if err != nil {

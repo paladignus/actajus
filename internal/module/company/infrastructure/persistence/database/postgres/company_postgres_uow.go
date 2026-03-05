@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	addr "github.com/paladignus/actajus/internal/module/address/domain"
 	addrDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company/domain"
@@ -20,11 +19,11 @@ import (
 )
 
 type CompanyUnitOfWork struct {
-	db *pgxpool.Pool
+	db postgres.PgxPool
 	tx pgx.Tx
 }
 
-func NewCompanyUnitOfWork(db *pgxpool.Pool) CompanyUnitOfWork {
+func NewCompanyUnitOfWork(db postgres.PgxPool) CompanyUnitOfWork {
 	return CompanyUnitOfWork{db: db}
 }
 

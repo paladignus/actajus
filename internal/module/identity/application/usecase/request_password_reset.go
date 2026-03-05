@@ -14,10 +14,6 @@ import (
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 )
 
-// type PasswordResetConfig struct {
-// 	ResetTTL time.Duration
-// }
-
 type RequestPasswordReset struct {
 	user           repository.UserRepository
 	reset          repository.PasswordResetRepository

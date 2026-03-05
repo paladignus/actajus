@@ -191,10 +191,3 @@ func (r *Session) RotateRefreshTokenAtomic(
 	}
 	return true, nil
 }
-
-// func nullableText(s string) any {
-// 	if s == "" {
-// 		return nil
-// 	}
-// 	return s
-// }

@@ -18,8 +18,6 @@ import (
 	identityhandler "github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
 	identityrbac "github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
-	"github.com/paladignus/actajus/internal/shared/domain/dispatcher"
-	"github.com/paladignus/actajus/internal/shared/domain/unitofwork"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
@@ -34,8 +32,6 @@ type Dependencies struct {
 	RDB             redis.UniversalClient
 	Users           identityrepo.UserRepository
 	Config          config.AuthConfig
-	UoW             unitofwork.UnitOfWork
-	EventDispatcher *dispatcher.SimpleEventDispatcher
 	SkipRBACRebuild bool // Se true, não reconstrói índices RBAC automaticamente
 }
 
@@ -50,10 +46,8 @@ type Module struct {
 }
 
 func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
-	authPath, authHTTPHandler := identityv1connect.NewAuthServiceHandler(m.authImpl, opts...)
-	mux.Handle(authPath, authHTTPHandler)
-	rbacAdminPath, rbacAdminHTTPHandler := identityv1connect.NewRbacAdminServiceHandler(m.rbacAdminImpl, opts...)
-	mux.Handle(rbacAdminPath, rbacAdminHTTPHandler)
+	mux.Handle(identityv1connect.NewAuthServiceHandler(m.authImpl, opts...))
+	mux.Handle(identityv1connect.NewRbacAdminServiceHandler(m.rbacAdminImpl, opts...))
 }
 
 func NewModule(dep Dependencies) (Module, error) {
@@ -95,20 +89,12 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
 	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
-
 	// Repository com cache fallback para consultas de usuários por role
 	roleUserQueryRepo := cache.NewCachedRoleUserQueryRepository(
 		roleUserAdminRepo,
 		roleUsersIndex,
 		dep.Logger,
 	)
-
-	// Inicializar Event Dispatcher se não fornecido
-	eventDispatcher := dep.EventDispatcher
-	if eventDispatcher == nil {
-		eventDispatcher = dispatcher.NewSimpleEventDispatcher()
-	}
-
 	loginUC := usecase.NewLogin(
 		dep.Users,
 		cachedSessionRepo,
@@ -120,7 +106,6 @@ func NewModule(dep Dependencies) (Module, error) {
 		*authMapper,
 		*projection,
 	)
-
 	refreshUC := usecase.NewRefresh(
 		cachedSessionRepo,
 		dep.Users,
@@ -131,10 +116,8 @@ func NewModule(dep Dependencies) (Module, error) {
 		*authMapper,
 		*projection,
 	)
-
 	logoutUC := usecase.NewLogout(cachedSessionRepo, *authMapper)
 	logoutAllUC := usecase.NewLogoutAll(cachedSessionRepo, *authMapper)
-
 	changePasswordUC := usecase.NewChangePassword(
 		dep.Users,
 		cachedSessionRepo,
@@ -143,20 +126,15 @@ func NewModule(dep Dependencies) (Module, error) {
 		authMapper,
 		true,
 	)
-
 	requestResetUC := usecase.NewRequestPasswordReset(
 		dep.Users,
 		passwordResetRepo,
 		refreshSvc,
 		clk,
 		dep.Config.PasswordResetConfig,
-		// usecase.PasswordResetConfig{
-		// 	ResetTTL: dep.PasswordResetTTL.ResetTTL,
-		// },
 		*authMapper,
 		true,
 	)
-
 	confirmResetUC := usecase.NewConfirmPasswordReset(
 		dep.Users,
 		cachedSessionRepo,
@@ -167,14 +145,12 @@ func NewModule(dep Dependencies) (Module, error) {
 		*authMapper,
 		true,
 	)
-
 	validateAccessUC := usecase.NewValidateAccess(
 		accessSvc,
 		cachedSessionRepo,
 		clk,
 		true,
 	)
-
 	authImpl := identityhandler.NewAuthHandler(
 		loginUC,
 		refreshUC,
@@ -184,47 +160,38 @@ func NewModule(dep Dependencies) (Module, error) {
 		requestResetUC,
 		confirmResetUC,
 	)
-
 	// rbac admin usecases
 	assignUC := usecase.NewAssignRoleToUser(
 		roleUserAdminRepo,
 		authzSvc,
 		roleUsersIndex,
 		rbacMapper,
-		dep.UoW,
-		eventDispatcher,
 	)
-
 	removeUC := usecase.NewRemoveRoleFromUser(
 		roleUserAdminRepo,
 		authzSvc,
 		roleUsersIndex,
 		rbacMapper,
 	)
-
 	grantUC := usecase.NewGrantPermissionToRole(
 		roleUserQueryRepo,
 		permRoleAdminRepo,
 		authzSvc,
 		rbacMapper,
 	)
-
 	revokeUC := usecase.NewRevokePermissionFromRole(
 		roleUserQueryRepo,
 		permRoleAdminRepo,
 		authzSvc,
 		rbacMapper,
 	)
-
 	rbacAdminImpl := identityhandler.NewRbacAdminHandler(
 		assignUC,
 		removeUC,
 		grantUC,
 		revokeUC,
 	)
-
 	rbacChecker := identityrbac.NewChecker(authzSvc)
-
 	module := Module{
 		ValidateAccess: validateAccessUC,
 		RBACChecker:    rbacChecker,
@@ -243,7 +210,6 @@ func NewModule(dep Dependencies) (Module, error) {
 			dep.Logger.Info(context.Background(), "✅ RBAC indexes rebuilt successfully")
 		}
 	}
-
 	return module, nil
 }
 
@@ -254,12 +220,10 @@ func (m Module) rebuildRBACIndexes(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	roleUsersIndex := security.NewRBACRoleUsersIndex(
 		m.rdb,
 		security.WithRoleUsersIndexPrefix("rbac:"),
 	)
-
 	rolePairs := make([]security.RoleUserPair, 0, len(pairs))
 	for _, p := range pairs {
 		rolePairs = append(rolePairs, security.RoleUserPair{
@@ -267,7 +231,6 @@ func (m Module) rebuildRBACIndexes(ctx context.Context) error {
 			IDUser: p.IDUser,
 		})
 	}
-
 	return security.RebuildRoleUsersIndex(ctx, roleUsersIndex, rolePairs)
 }
 
@@ -278,12 +241,10 @@ func RebuildRBACIndexes(ctx context.Context, dep Dependencies) error {
 	if err != nil {
 		return err
 	}
-
 	roleUsersIndex := security.NewRBACRoleUsersIndex(
 		dep.RDB,
 		security.WithRoleUsersIndexPrefix("rbac:"),
 	)
-
 	rolePairs := make([]security.RoleUserPair, 0, len(pairs))
 	for _, p := range pairs {
 		rolePairs = append(rolePairs, security.RoleUserPair{
@@ -291,110 +252,5 @@ func RebuildRBACIndexes(ctx context.Context, dep Dependencies) error {
 			IDUser: p.IDUser,
 		})
 	}
-
 	return security.RebuildRoleUsersIndex(ctx, roleUsersIndex, rolePairs)
 }
-
-// func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
-// 	return identityv1connect.NewAuthServiceHandler(m.Handler, opts...)
-// }
-
-// func NewModule(
-// 	pool *pgxpool.Pool,
-// 	logger repository.Logger,
-// 	config config.AuthConfig,
-// 	rdb *redis.Client,
-// ) (Module, error) {
-// 	clk := clock.NewSystemClock()
-// 	refresh := security.NewRefreshTokenService()
-// 	hasher := security.NewArgon2idPasswordHasher()
-// 	accessSvc, err := security.NewHS256AccessTokenService(
-// 		config.AccessSecret,
-// 		config.Issuer,
-// 		config.Audience,
-// 	)
-// 	if err != nil {
-// 		return Module{}, err
-// 	}
-// 	// validation := validation.New(nil))
-// 	v := validation.New()
-// 	projection := mapper.NewAuthProjectionMapper()
-// 	mapper := mapper.NewAuthMapper(v)
-// 	userRepo := postgres.NewUser(pool)
-// 	sessionRepo := postgres.NewSession(pool)
-// 	cacheRepo := cache.NewCachedSession(
-// 		sessionRepo,
-// 		rdb,
-// 		logger,
-// 		cache.WithPrefix("actajus:"),
-// 		cache.WithFallbackToPostgress(true),
-// 	)
-// 	passResetRepo := postgres.NewPasswordReset(pool)
-// 	loginUC := usecase.NewLogin(
-// 		userRepo,
-// 		cacheRepo,
-// 		hasher,
-// 		refresh,
-// 		accessSvc,
-// 		clk,
-// 		config,
-// 		*mapper,
-// 		*projection,
-// 	)
-// 	refreshUC := usecase.NewRefresh(
-// 		cacheRepo,
-// 		userRepo,
-// 		refresh,
-// 		accessSvc,
-// 		clk,
-// 		config,
-// 		*mapper,
-// 		*projection,
-// 	)
-// 	logoutUC := usecase.NewLogout(&sessionRepo, *mapper)
-// 	logoutAllUC := usecase.NewLogoutAll(&sessionRepo, *mapper)
-// 	changePasswordUC := usecase.NewChangePassword(
-// 		userRepo,
-// 		&sessionRepo,
-// 		hasher,
-// 		clk,
-// 		mapper,
-// 		true,
-// 	)
-// 	requestResetUC := usecase.NewRequestPasswordReset(
-// 		userRepo,
-// 		passResetRepo,
-// 		refresh,
-// 		clk,
-// 		config.PasswordResetConfig,
-// 		*mapper,
-// 		true,
-// 	)
-// 	confirmResetUC := usecase.NewConfirmPasswordReset(
-// 		userRepo,
-// 		cacheRepo,
-// 		passResetRepo,
-// 		hasher,
-// 		refresh,
-// 		clk,
-// 		*mapper,
-// 		true, // revoke all sessions on reset confirm
-// 	)
-// 	validateAccessUC := usecase.NewValidateAccess(
-// 		accessSvc,
-// 		cacheRepo,
-// 		clk,
-// 		// *mapper,
-// 		true, // checkSession=true (bom para revogação)
-// 	)
-// 	h := handler.NewAuthHandler(
-// 		loginUC,
-// 		refreshUC,
-// 		logoutUC,
-// 		logoutAllUC,
-// 		changePasswordUC,
-// 		requestResetUC,
-// 		confirmResetUC,
-// 	)
-// 	return Module{h, validateAccessUC}, nil
-// }
