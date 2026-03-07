@@ -14,4 +14,7 @@ type PasswordResetRepository interface {
 	MarkUsed(ctx context.Context, id int64, usedAt time.Time) error
 	RevokeAllByUser(ctx context.Context, uid int64, now time.Time) error
 	GetActiveByUser(ctx context.Context, uid int64) (*model.PasswordResetToken, error)
+
+	// RevokeAllByUser(ctx context.Context, tx uow.Tx, userID int64, now time.Time) error
+	// Create(ctx context.Context, tx uow.Tx, in *model.PasswordResetTokenCreate) (int64, error)
 }

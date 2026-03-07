@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="28"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,54" last-zoom="0.65" scene-rect="0,-50.7679,2733.34,3378.89"
+	 last-position="0,14" last-zoom="0.65" scene-rect="0,-60.5,2733.34,3411.22"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -907,6 +907,73 @@ CAUTION: Do not modify this file unless you know what you are doing.
 			<column name="id_roles"/>
 		</idxelement>
 </index>
+
+<table name="outbox_messages" layers="0" collapse-mode="2" max-obj-count="10" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="2040" y="840"/>
+	<column name="idoutbox_messages" not-null="true"
+	 identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="subject" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="payload" not-null="true">
+		<type name="jsonb" length="0"/>
+	</column>
+	<column name="occurred_at" not-null="true">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="published_at">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="last_attempt_at">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="attempts" not-null="true" default-value="0">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="error_message">
+		<type name="text" length="0"/>
+	</column>
+	<column name="created_at" not-null="true" default-value="NOW()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<constraint name="outbox_messages_pk" type="pk-constr" table="public.outbox_messages">
+		<columns names="idoutbox_messages" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<index name="idx_outbox_messages_unpublished" table="public.outbox_messages"
+	 concurrent="false" unique="false" fast-update="false" buffering="false" nulls-not-distinct="false"
+	 index-type="btree" factor="0">
+		<idxelement use-sorting="false">
+			<column name="created_at"/>
+		</idxelement>
+	<predicate> <![CDATA[published_at IS NULL]]> </predicate>
+</index>
+
+<table name="sent_emails" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="2100" y="620"/>
+	<column name="id_message" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="recipient" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="template" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="sent_at" not-null="true" default-value="NOW()">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<constraint name="sent_emails_pk" type="pk-constr" table="public.sent_emails">
+		<columns names="id_message" ref-type="src-columns"/>
+	</constraint>
+</table>
 
 <constraint name="mother_fk" type="fk-constr" comparison-type="MATCH FULL"
 	 upd-action="CASCADE" del-action="SET NULL" ref-table="public.people" table="public.people">
