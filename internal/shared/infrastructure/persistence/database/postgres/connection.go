@@ -5,42 +5,40 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 )
 
-type PgxPool interface {
-	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
-	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
-	Begin(ctx context.Context) (pgx.Tx, error)
-}
-
-type TxAdapter struct {
-	tx PgxPool
-}
-
-func NewTxAdapter(tx PgxPool) *TxAdapter {
-	return &TxAdapter{tx: tx}
-}
-
-func (t *TxAdapter) Begin(ctx context.Context) (pgx.Tx, error) {
-	return t.tx.Begin(ctx)
-}
-
-func (t *TxAdapter) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	return t.tx.Query(ctx, sql, args...)
-}
-
-func (t *TxAdapter) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	return t.tx.QueryRow(ctx, sql, args...)
-}
-
-func (t *TxAdapter) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
-	return t.tx.Exec(ctx, sql, args...)
-}
+// type PgxPool interface {
+// 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+// 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+// 	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
+// 	Begin(ctx context.Context) (pgx.Tx, error)
+// }
+//
+// type TxAdapter struct {
+// 	tx PgxPool
+// }
+//
+// func NewTxAdapter(tx PgxPool) *TxAdapter {
+// 	return &TxAdapter{tx: tx}
+// }
+//
+// func (t *TxAdapter) Begin(ctx context.Context) (pgx.Tx, error) {
+// 	return t.tx.Begin(ctx)
+// }
+//
+// func (t *TxAdapter) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+// 	return t.tx.Query(ctx, sql, args...)
+// }
+//
+// func (t *TxAdapter) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+// 	return t.tx.QueryRow(ctx, sql, args...)
+// }
+//
+// func (t *TxAdapter) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+// 	return t.tx.Exec(ctx, sql, args...)
+// }
 
 func NewConnection(ctx context.Context, cfg *config.DatabaseConfig) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",

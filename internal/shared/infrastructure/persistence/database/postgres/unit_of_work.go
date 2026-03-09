@@ -5,34 +5,29 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 )
 
 type UnitOfWork struct {
-	pool *pgxpool.Pool
+	db Transactor
 }
 
-func NewUnitOfWork(pool *pgxpool.Pool) *UnitOfWork {
-	return &UnitOfWork{pool: pool}
+func NewUnitOfWork(db Transactor) *UnitOfWork {
+	return &UnitOfWork{db}
 }
 
 func (u *UnitOfWork) Do(ctx context.Context, fn func(tx uow.Tx) error) error {
-	tx, err := u.pool.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := u.db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("begin tx: %w", err)
 	}
 	defer tx.Rollback(ctx)
-
 	if err := fn(tx); err != nil {
 		return err
 	}
-
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("commit tx: %w", err)
 	}
-
 	return nil
 }
 
