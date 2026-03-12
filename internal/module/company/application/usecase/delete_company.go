@@ -5,49 +5,54 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/company/domain"
+	"github.com/paladignus/actajus/internal/module/company/application/repository"
+	"github.com/paladignus/actajus/internal/shared/application/uow"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
 )
 
 type DeleteCompany struct {
-	uow domain.CompanyUnitOfWork
+	uow        uow.UnitOfWork
+	repository repository.Factory
 }
 
-func NewDeleteCompany(uow domain.CompanyUnitOfWork) DeleteCompany {
-	return DeleteCompany{uow}
+func NewDeleteCompany(
+	uow uow.UnitOfWork,
+	repository repository.Factory,
+) DeleteCompany {
+	return DeleteCompany{uow, repository}
 }
 
-func (d DeleteCompany) Execute(ctx context.Context, id uint) error {
-	if err := d.uow.Begin(ctx); err != nil {
-		return err
-	}
-	defer d.uow.Rollback(ctx)
-	company, err := d.uow.Company().FindByID(ctx, id)
+func (u DeleteCompany) Execute(ctx context.Context, id uint) error {
+	company, err := u.repository.Company().FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
 	if company == nil {
 		return sharedDomain.NewFieldError("id", "company not found")
 	}
-	if err := d.uow.CompanyAddress().DeleteByIDCompany(ctx, id); err != nil {
-		return fmt.Errorf("failed to delete company address relationship: %w", err)
-	}
-	if err := d.uow.CompanyPhone().DeleteByIDCompany(ctx, id); err != nil {
-		return fmt.Errorf("failed to delete company phone relationship: %w", err)
-	}
-	if err := d.uow.CompanyEmail().DeleteByIDCompany(ctx, id); err != nil {
-		return fmt.Errorf("failed to delete company email relationship: %w", err)
-	}
-	if err := d.uow.SocialMedia().DeleteByIDCompany(ctx, id); err != nil {
-		return fmt.Errorf("failed to delete company social media relationship: %w", err)
-	}
 	if err := company.Delete(); err != nil {
 		return err
 	}
-	if err := d.uow.Company().Delete(ctx, company); err != nil {
-		return err
-	}
-	if err := d.uow.Commit(ctx); err != nil {
+	err = u.uow.Do(ctx, func(tx uow.Tx) error {
+		r := u.repository.WithTx(tx)
+		if err := r.CompanyAddress().DeleteByIDCompany(ctx, id); err != nil {
+			return fmt.Errorf("failed to delete company address relationship: %w", err)
+		}
+		if err := r.CompanyPhone().DeleteByIDCompany(ctx, id); err != nil {
+			return fmt.Errorf("failed to delete company phone relationship: %w", err)
+		}
+		if err := r.CompanyEmail().DeleteByIDCompany(ctx, id); err != nil {
+			return fmt.Errorf("failed to delete company email relationship: %w", err)
+		}
+		if err := r.SocialMedia().DeleteByIDCompany(ctx, id); err != nil {
+			return fmt.Errorf("failed to delete company social media relationship: %w", err)
+		}
+		if err := r.Company().Delete(ctx, company); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
 		return err
 	}
 	return nil

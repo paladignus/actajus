@@ -54,7 +54,7 @@ func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*d
 		Build()
 }
 
-func (m *CompanyMapper) UpdateInputDomain(input dto.UpdateCompanyRequest) (*domain.Company, error) {
+func (m *CompanyMapper) UpdateInputToDomain(input dto.UpdateCompanyRequest) (*domain.Company, error) {
 	// v := validation.New(validation.PT)
 	// if err := v.ValidateStruct(input); err != nil {
 	// 	return nil, err

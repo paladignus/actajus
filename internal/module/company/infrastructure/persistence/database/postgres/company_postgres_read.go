@@ -12,12 +12,12 @@ import (
 )
 
 type CompanyReadRepository struct {
-	pool postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewCompanyReadRepository(pool postgres.PgxPool) CompanyReadRepository {
+func NewCompanyReadRepository(db postgres.Executor) CompanyReadRepository {
 	return CompanyReadRepository{
-		pool: pool,
+		db: db,
 	}
 }
 
@@ -76,7 +76,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 	}
 	query := fmt.Sprintf(baseQuery, whereClause, innerOrder, argPosition)
 	args = append(args, limit+1)
-	rows, err := r.pool.Query(ctx, query, args...)
+	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query companies: %w", err)
 	}

@@ -9,10 +9,10 @@ import (
 )
 
 type Person struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewPerson(db postgres.PgxPool) Person {
+func NewPerson(db postgres.Executor) Person {
 	return Person{db}
 }
 

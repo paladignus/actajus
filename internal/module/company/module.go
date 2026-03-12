@@ -15,6 +15,7 @@ import (
 	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database/postgres"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
 	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database/postgres"
+	sharedPostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type Module struct {
@@ -22,7 +23,8 @@ type Module struct {
 }
 
 func NewModule(pool *pgxpool.Pool) Module {
-	uow := postgres.NewCompanyUnitOfWork(pool)
+	uow := sharedPostgres.NewUnitOfWork(pool)
+	repository := postgres.NewFactory(pool)
 	companyRepository := postgres.NewCompany(pool)
 	companyReadRepository := postgres.NewCompanyReadRepository(pool)
 	addressRepository := addressDB.NewAddress(pool)
@@ -49,9 +51,9 @@ func NewModule(pool *pgxpool.Pool) Module {
 		email,
 		socialMedia,
 	)
-	createUC := usecase.NewCreateCompany(&uow, *mapper, projection)
-	updateUC := usecase.NewUpdateCompany(&uow, *mapper, projection)
-	deleteUC := usecase.NewDeleteCompany(&uow)
+	createUC := usecase.NewCreateCompany(uow, repository, *mapper, projection)
+	updateUC := usecase.NewUpdateCompany(uow, repository, *mapper, projection)
+	deleteUC := usecase.NewDeleteCompany(uow, repository)
 	listUC := usecase.NewListCompanies(companyReadRepository)
 	findByCNPJ := usecase.NewFindByCNPJ(
 		companyRepository,

@@ -7,21 +7,24 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
-	"github.com/paladignus/actajus/internal/module/company/domain"
+	"github.com/paladignus/actajus/internal/module/company/application/repository"
+	"github.com/paladignus/actajus/internal/shared/application/uow"
 )
 
 type CreateCompany struct {
-	uow        domain.CompanyUnitOfWork
+	uow        uow.UnitOfWork
+	repository repository.Factory
 	mapper     mapper.CompanyMapper
 	projection mapper.CompanyProjectionMapper
 }
 
 func NewCreateCompany(
-	uow domain.CompanyUnitOfWork,
+	uow uow.UnitOfWork,
+	repository repository.Factory,
 	mapper mapper.CompanyMapper,
 	projection mapper.CompanyProjectionMapper,
 ) CreateCompany {
-	return CreateCompany{uow, mapper, projection}
+	return CreateCompany{uow, repository, mapper, projection}
 }
 
 func (c CreateCompany) Execute(
@@ -48,41 +51,41 @@ func (c CreateCompany) Execute(
 	if err != nil {
 		return nil, fmt.Errorf("invalid social media data: %w", err)
 	}
-	if err := c.uow.Begin(ctx); err != nil {
+	err = c.uow.Do(ctx, func(tx uow.Tx) error {
+		r := c.repository.WithTx(tx)
+		if err := r.Company().Create(ctx, company); err != nil {
+			return fmt.Errorf("failed to create company: %w", err)
+		}
+		if err := r.Address().Create(ctx, address); err != nil {
+			return fmt.Errorf("failed to create address: %w", err)
+		}
+		if err := r.Phone().Create(ctx, phone); err != nil {
+			return fmt.Errorf("failed to create phone: %w", err)
+		}
+		if err := r.Email().Create(ctx, email); err != nil {
+			return fmt.Errorf("failed to create email: %w", err)
+		}
+		if err := r.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
+			return fmt.Errorf("failed to create relationship company address: %w", err)
+		}
+		if err := r.CompanyPhone().Create(ctx, company.ID(), phone.ID()); err != nil {
+			return fmt.Errorf("failed to create relationship company phone: %w", err)
+		}
+		if err := r.CompanyEmail().Create(ctx, company.ID(), email.ID()); err != nil {
+			return fmt.Errorf("failed to create relationship company email: %w", err)
+		}
+		for _, sm := range socialMedia {
+			if err := sm.SetCompanyID(company.ID()); err != nil {
+				return fmt.Errorf("failed to set company id: %w", err)
+			}
+			if err := r.SocialMedia().Create(ctx, sm); err != nil {
+				return fmt.Errorf("failed to create social media: %w", err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, err
-	}
-	defer c.uow.Rollback(ctx)
-	if err := c.uow.Company().Create(ctx, company); err != nil {
-		return nil, fmt.Errorf("failed to create company: %w", err)
-	}
-	if err := c.uow.Address().Create(ctx, address); err != nil {
-		return nil, fmt.Errorf("failed to create address: %w", err)
-	}
-	if err := c.uow.Phone().Create(ctx, phone); err != nil {
-		return nil, fmt.Errorf("failed to create phone: %w", err)
-	}
-	if err := c.uow.Email().Create(ctx, email); err != nil {
-		return nil, fmt.Errorf("failed to create email: %w", err)
-	}
-	if err := c.uow.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
-		return nil, fmt.Errorf("failed to create relationship company address: %w", err)
-	}
-	if err := c.uow.CompanyPhone().Create(ctx, company.ID(), phone.ID()); err != nil {
-		return nil, fmt.Errorf("failed to create relationship company phone: %w", err)
-	}
-	if err := c.uow.CompanyEmail().Create(ctx, company.ID(), email.ID()); err != nil {
-		return nil, fmt.Errorf("failed to create relationship company email: %w", err)
-	}
-	for _, sm := range socialMedia {
-		if err := sm.SetCompanyID(company.ID()); err != nil {
-			return nil, fmt.Errorf("failed to set company id: %w", err)
-		}
-		if err := c.uow.SocialMedia().Create(ctx, sm); err != nil {
-			return nil, fmt.Errorf("failed to create social media: %w", err)
-		}
-	}
-	if err := c.uow.Commit(ctx); err != nil {
-		return nil, fmt.Errorf("failed to commit: %w", err)
 	}
 	return c.projection.ProjectCompanyToReadModel(
 		company,

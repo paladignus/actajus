@@ -7,14 +7,14 @@ import (
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
-	"github.com/paladignus/actajus/internal/module/company/domain"
+	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
 	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 )
 
 type FindByID struct {
-	company     domain.CompanyRepository
+	company     repository.CompanyRepository
 	address     addrDomain.AddressRepository
 	phone       phoneDomain.PhoneRepository
 	email       emailDomain.EmailRepository
@@ -23,7 +23,7 @@ type FindByID struct {
 }
 
 func NewFindByID(
-	company domain.CompanyRepository,
+	company repository.CompanyRepository,
 	address addrDomain.AddressRepository,
 	phone phoneDomain.PhoneRepository,
 	email emailDomain.EmailRepository,

@@ -14,12 +14,12 @@ import (
 )
 
 type Company struct {
-	pool postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewCompany(pool postgres.PgxPool) Company {
+func NewCompany(db postgres.Executor) Company {
 	return Company{
-		pool,
+		db,
 	}
 }
 
@@ -29,7 +29,7 @@ func (c Company) Create(ctx context.Context, company *domain.Company) error {
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING idcompanies`
 	var id uint
-	if err := c.pool.QueryRow(ctx, query,
+	if err := c.db.QueryRow(ctx, query,
 		company.RegisteredBy(),
 		company.Name().Value(),
 		company.TradeName().Value(),
@@ -51,7 +51,7 @@ func (c Company) Update(ctx context.Context, company *domain.Company) error {
 		UPDATE companies
 		SET name = $1, trade_name = $2, cnpj = $3, updated_at = $4 
 		WHERE idcompanies = $5 AND deleted_at IS NULL`
-	_, err := c.pool.Exec(ctx, query,
+	_, err := c.db.Exec(ctx, query,
 		company.Name().Value(),
 		company.TradeName().Value(),
 		company.CNPJ().Value(),
@@ -67,7 +67,7 @@ func (c Company) Update(ctx context.Context, company *domain.Company) error {
 
 func (c Company) Delete(ctx context.Context, company *domain.Company) error {
 	const query = `UPDATE companies SET updated_at = $1, deleted_at = $2 WHERE idcompanies = $3 AND deleted_at IS NULL`
-	_, err := c.pool.Exec(ctx, query,
+	_, err := c.db.Exec(ctx, query,
 		company.UpdatedAt(),
 		company.DeletedAt(),
 		company.ID(),
@@ -93,7 +93,7 @@ func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, 
 		createdAt    time.Time
 		updatedAt    time.Time
 	)
-	err := c.pool.QueryRow(ctx, query, cnpj).
+	err := c.db.QueryRow(ctx, query, cnpj).
 		Scan(
 			&id, &registeredBy, &name, &tradeName, &createdAt, &updatedAt,
 		)
@@ -128,7 +128,7 @@ func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error)
 		createdAt    time.Time
 		updatedAt    time.Time
 	)
-	err := c.pool.QueryRow(ctx, query, id).
+	err := c.db.QueryRow(ctx, query, id).
 		Scan(
 			&registeredBy, &name, &tradeName, &cnpj, &createdAt, &updatedAt,
 		)

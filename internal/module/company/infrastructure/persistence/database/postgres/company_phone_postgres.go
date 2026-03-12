@@ -9,24 +9,24 @@ import (
 )
 
 type CompanyPhone struct {
-	pool postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewCompanyPhone(pool postgres.PgxPool) *CompanyPhone {
+func NewCompanyPhone(db postgres.Executor) *CompanyPhone {
 	return &CompanyPhone{
-		pool,
+		db,
 	}
 }
 
 func (c CompanyPhone) Create(ctx context.Context, idCompany, idPhone uint) error {
 	query := `INSERT INTO company_phone (id_companies, id_phones, started_at)
 		VALUES ($1, $2, $3)`
-	_, err := c.pool.Exec(ctx, query, idCompany, idPhone, time.Now())
+	_, err := c.db.Exec(ctx, query, idCompany, idPhone, time.Now())
 	return err
 }
 
 func (c CompanyPhone) DeleteByIDCompany(ctx context.Context, idCompany uint) error {
 	query := `UPDATE company_phone SET ended_at = $1 WHERE id_companies = $2 AND ended_at IS NULL`
-	_, err := c.pool.Exec(ctx, query, time.Now(), idCompany)
+	_, err := c.db.Exec(ctx, query, time.Now(), idCompany)
 	return err
 }
