@@ -71,14 +71,14 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 		return nil, err
 	}
 	err = uc.uow.Do(ctx, func(tx uow.Tx) error {
-		r := uc.repository.WithTx(tx)
-		o := uc.outbox.WithTx(tx)
+		r := uc.repository.WithTx(tx).PasswordReset()
+		o := uc.outbox.WithTx(tx).Outbox()
 		if uc.revokePrevious {
-			if err := r.PasswordReset().RevokeAllByUser(ctx, user.ID().Value(), now); err != nil {
+			if err := r.RevokeAllByUser(ctx, user.ID().Value(), now); err != nil {
 				return err
 			}
 		}
-		resetID, err := r.PasswordReset().Create(ctx, &model.PasswordResetTokenCreate{
+		idReset, err := r.Create(ctx, &model.PasswordResetTokenCreate{
 			IDUser:    user.ID().Value(),
 			Hash:      hash,
 			ExpiresAt: expiresAt,
@@ -93,7 +93,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 			Template:  "password-reset",
 			To:        user.PrimaryEmail().Value(),
 			Data: map[string]any{
-				"reset_id":   resetID,
+				"id_reset":   idReset,
 				"token":      rawToken,
 				"expires_at": expiresAt,
 				"id_user":    user.ID().Value(),
@@ -106,7 +106,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 		if err != nil {
 			return err
 		}
-		return o.Outbox().Add(ctx, messaging.OutboxMessage{
+		return o.Add(ctx, messaging.OutboxMessage{
 			ID:         idMessage,
 			Subject:    event.SubjectEmailSendRequested,
 			Payload:    payload,

@@ -14,8 +14,8 @@ type User struct {
 	db postgres.Executor
 }
 
-func NewUser(db postgres.Executor) User {
-	return User{db}
+func NewUser(db postgres.Executor) *User {
+	return &User{db}
 }
 
 func (r User) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
