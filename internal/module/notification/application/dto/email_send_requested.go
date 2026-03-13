@@ -8,6 +8,6 @@ type EmailSendRequested struct {
 	Template  string            `json:"template"`
 	To        string            `json:"to"`
 	Data      map[string]any    `json:"data"`
-	Meta      map[string]string `json:"meta,omitempty"`
-	SentAfter *time.Time        `json:"sent_after,omitempty"`
+	Meta      map[string]string `json:"meta,omitzero"`
+	SentAfter *time.Time        `json:"sent_after,omitzero"`
 }

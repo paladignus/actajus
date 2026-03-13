@@ -8,24 +8,24 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/paladignus/actajus/internal/module/notification/application/dto"
 	"github.com/paladignus/actajus/internal/module/notification/application/usecase"
-	sharedsvc "github.com/paladignus/actajus/internal/shared/application/service"
+	"github.com/paladignus/actajus/internal/shared/application/service"
 )
 
 type EmailSendRequestedConsumer struct {
 	consumer   jetstream.Consumer
-	serializer sharedsvc.MessageSerializer
+	serializer service.MessageSerializer
 	usecase    usecase.ProcessEmailSendRequested
 }
 
 func NewEmailSendRequestedConsumer(
 	consumer jetstream.Consumer,
-	serializer sharedsvc.MessageSerializer,
+	serializer service.MessageSerializer,
 	usecase usecase.ProcessEmailSendRequested,
 ) *EmailSendRequestedConsumer {
 	return &EmailSendRequestedConsumer{
-		consumer:   consumer,
-		serializer: serializer,
-		usecase:    usecase,
+		consumer,
+		serializer,
+		usecase,
 	}
 }
 

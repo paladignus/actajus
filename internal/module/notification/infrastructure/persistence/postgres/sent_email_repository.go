@@ -4,38 +4,27 @@ package postgres
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type SentEmailRepository struct {
-	pool *pgxpool.Pool
+	db postgres.Executor
 }
 
-func NewSentEmailRepository(pool *pgxpool.Pool) *SentEmailRepository {
-	return &SentEmailRepository{pool: pool}
+func NewSentEmailRepository(db postgres.Executor) *SentEmailRepository {
+	return &SentEmailRepository{db}
 }
 
 func (r *SentEmailRepository) ExistsByMessageID(ctx context.Context, mid string) (bool, error) {
 	var exists bool
-
-	err := r.pool.QueryRow(ctx, `
-		SELECT EXISTS(
-			SELECT 1
-			FROM sent_emails
-			WHERE id_message = $1
-		)
-	`, mid).Scan(&exists)
-
+	err := r.db.QueryRow(ctx, `
+		SELECT EXISTS(SELECT 1 FROM sent_emails WHERE id_message = $1)`,
+		mid).Scan(&exists)
 	return exists, err
 }
 
-func (r *SentEmailRepository) MarkSent(
-	ctx context.Context,
-	mid string,
-	recipient string,
-	template string,
-) error {
-	_, err := r.pool.Exec(ctx, `
+func (r *SentEmailRepository) MarkSent(ctx context.Context, mid string, recipient string, template string) error {
+	_, err := r.db.Exec(ctx, `
 		INSERT INTO sent_emails (id_message, recipient, template)
 		VALUES ($1, $2, $3)
 		ON CONFLICT (id_message) DO NOTHING
