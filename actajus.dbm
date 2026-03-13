@@ -334,7 +334,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="expires_at" not-null="true">
 		<type name="timestamptz" length="0"/>
 	</column>
-	<column name="used_at">
+	<column name="revoked_at">
 		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="NOW()">
@@ -862,7 +862,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<idxelement use-sorting="false">
 			<column name="expires_at"/>
 		</idxelement>
-	<predicate> <![CDATA[used_at IS NULL]]> </predicate>
+	<predicate> <![CDATA[revoked_at IS NULL]]> </predicate>
 </index>
 
 <index name="password_resets_token_hash_uniq" table="public.password_resets"

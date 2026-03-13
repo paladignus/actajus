@@ -13,10 +13,10 @@ import (
 )
 
 type Session struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewSession(db postgres.PgxPool) Session {
+func NewSession(db postgres.Executor) Session {
 	return Session{db}
 }
 

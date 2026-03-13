@@ -11,10 +11,10 @@ import (
 )
 
 type User struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewUser(db postgres.PgxPool) User {
+func NewUser(db postgres.Executor) User {
 	return User{db}
 }
 
@@ -36,7 +36,7 @@ func (r User) FindByEmail(ctx context.Context, email string) (*domain.User, erro
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, err
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r User) FindByID(ctx context.Context, id int64) (*domain.User, error) {
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, err
+			return nil, nil
 		}
 		return nil, err
 	}

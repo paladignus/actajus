@@ -4,7 +4,7 @@ package spy
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/domain/entity"
+	"github.com/paladignus/actajus/internal/module/company/domain"
 )
 
 type Company struct {
@@ -16,6 +16,6 @@ func NewCompany() *Company {
 	return &Company{}
 }
 
-func (e Company) Create(ctx context.Context, company entity.Company) (id string, err error) {
+func (e Company) Create(ctx context.Context, company domain.Company) (id string, err error) {
 	return e.IDCompany, e.CreateError
 }

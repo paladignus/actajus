@@ -4,7 +4,7 @@ package spy
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/stretchr/testify/mock"
 )
 

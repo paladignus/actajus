@@ -4,14 +4,14 @@ package postgres
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type RoleUserAdminRepository struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewRoleUserAdminRepository(db postgres.PgxPool) RoleUserAdminRepository {
+func NewRoleUserAdminRepository(db postgres.Executor) RoleUserAdminRepository {
 	return RoleUserAdminRepository{db}
 }
 
@@ -53,10 +53,10 @@ func (r RoleUserAdminRepository) ListUserIDsByRole(ctx context.Context, rid int1
 }
 
 type PermissionRoleAdminRepository struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewPermissionRoleAdminRepository(db postgres.PgxPool) PermissionRoleAdminRepository {
+func NewPermissionRoleAdminRepository(db postgres.Executor) PermissionRoleAdminRepository {
 	return PermissionRoleAdminRepository{db}
 }
 

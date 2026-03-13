@@ -29,15 +29,16 @@ func RefreshReadModelToProto(rm *identityDTO.AuthTokensReadModel) *identityv1.Re
 
 func RequestPasswordResetReadModelToProto(rm *identityDTO.RequestPasswordResetReadModel) *identityv1.RequestPasswordResetResponse {
 	resp := &identityv1.RequestPasswordResetResponse{
-		Ok: true,
+		Ok:      true,
+		Message: rm.Message,
 	}
-	if rm == nil {
-		return resp
-	}
-	resp.IdReset = rm.IDReset
-	resp.ResetToken = rm.ResetToken
-	if !rm.ExpiresAt.IsZero() {
-		resp.ExpiresAt = timestamppb.New(rm.ExpiresAt)
-	}
+	// if rm == nil {
+	// 	return resp
+	// }
+	// resp.IdReset = rm.IDReset
+	// resp.ResetToken = rm.ResetToken
+	// if !rm.ExpiresAt.IsZero() {
+	// 	resp.ExpiresAt = timestamppb.New(rm.ExpiresAt)
+	// }
 	return resp
 }

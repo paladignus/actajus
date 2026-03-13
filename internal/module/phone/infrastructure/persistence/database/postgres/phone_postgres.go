@@ -8,18 +8,18 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/phone/domain"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type Phone struct {
-	pool postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewPhone(pool postgres.PgxPool) Phone {
+func NewPhone(db postgres.Executor) Phone {
 	return Phone{
-		pool,
+		db,
 	}
 }
 
@@ -27,7 +27,7 @@ func (p Phone) Create(ctx context.Context, phone *domain.Phone) error {
 	query := `INSERT INTO phones (number, kind, department, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING idphones`
 	var id uint
-	if err := p.pool.QueryRow(ctx, query,
+	if err := p.db.QueryRow(ctx, query,
 		phone.Number(),
 		phone.Kind(),
 		phone.Department(),
@@ -40,7 +40,7 @@ func (p Phone) Create(ctx context.Context, phone *domain.Phone) error {
 
 func (p Phone) Update(ctx context.Context, phone domain.Phone) error {
 	query := `UPDATE phones SET number = $1, kind = $2, department = $3, updated_at = $4 WHERE idphones = $5`
-	_, err := p.pool.Exec(ctx, query,
+	_, err := p.db.Exec(ctx, query,
 		phone.Number(),
 		phone.Kind(),
 		phone.Department(),
@@ -51,7 +51,7 @@ func (p Phone) Update(ctx context.Context, phone domain.Phone) error {
 
 func (p Phone) Delete(ctx context.Context, phone domain.Phone) error {
 	query := `UPDATE phones SET updated_at = $1, deleted_at = $2 WHERE idphones = $3 AND deleted_at IS NULL`
-	_, err := p.pool.Exec(ctx, query,
+	_, err := p.db.Exec(ctx, query,
 		phone.UpdatedAt(),
 		phone.DeletedAt(),
 		phone.ID())
@@ -77,7 +77,7 @@ func (p Phone) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Pho
 		createdAt  time.Time
 		updatedAt  time.Time
 	)
-	err := p.pool.QueryRow(ctx, query, idCompany).
+	err := p.db.QueryRow(ctx, query, idCompany).
 		Scan(&id, &number, &kind, &department, &createdAt, &updatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

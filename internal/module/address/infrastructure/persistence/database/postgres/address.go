@@ -8,18 +8,18 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/address/domain"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type Address struct {
-	pool postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewAddress(pool postgres.PgxPool) Address {
+func NewAddress(db postgres.Executor) Address {
 	return Address{
-		pool,
+		db,
 	}
 }
 
@@ -32,7 +32,7 @@ func (a Address) Create(ctx context.Context, address *domain.Address) error {
 		(zip, title, street, number, complement, reference, neighborhood, city, state, country, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING idaddresses`
 	var id uint
-	if err := a.pool.QueryRow(ctx, query,
+	if err := a.db.QueryRow(ctx, query,
 		address.ZIP().Value(),
 		address.Title().Value(),
 		address.Street().Value(),
@@ -57,7 +57,7 @@ func (a Address) Update(ctx context.Context, address domain.Address) error {
 		SET zip = $1, title = $2, street = $3, number = $4, complement = $5,
 		reference = $6, neighborhood = $7, city = $8, state = $9, country = $10, updated_at = $11
 		WHERE idaddresses = $12`
-	_, err := a.pool.Exec(ctx, query,
+	_, err := a.db.Exec(ctx, query,
 		address.ZIP().Value(),
 		address.Title().Value(),
 		address.Street().Value(),
@@ -76,7 +76,7 @@ func (a Address) Update(ctx context.Context, address domain.Address) error {
 
 func (a Address) Delete(ctx context.Context, address domain.Address) error {
 	query := `UPDATE companies SET updated_at = $1 deleted_at = $2 WHERE idcompanies = $3 AND deleted_at IS NULL`
-	_, err := a.pool.Exec(ctx, query,
+	_, err := a.db.Exec(ctx, query,
 		address.UpdatedAt(),
 		address.DeletedAt(),
 		address.ID(),
@@ -111,7 +111,7 @@ func (a Address) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.A
 		createdAt    time.Time
 		updatedAt    time.Time
 	)
-	err := a.pool.QueryRow(ctx, query, idCompany).
+	err := a.db.QueryRow(ctx, query, idCompany).
 		Scan(&id, &zip, &title, &street, &number, &complement, &reference, &neighborhood, &city, &state, &country, &createdAt, &updatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

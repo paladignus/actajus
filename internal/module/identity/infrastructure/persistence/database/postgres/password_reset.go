@@ -10,11 +10,11 @@ import (
 )
 
 type PasswordReset struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewPasswordReset(db postgres.PgxPool) PasswordReset {
-	return PasswordReset{db}
+func NewPasswordReset(db postgres.Executor) *PasswordReset {
+	return &PasswordReset{db}
 }
 
 func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTokenCreate) (int64, error) {
@@ -72,7 +72,7 @@ func (r PasswordReset) MarkUsed(ctx context.Context, id int64, usedAt time.Time)
 func (r PasswordReset) RevokeAllByUser(ctx context.Context, uid int64, now time.Time) error {
 	const query = `UPDATE password_resets
   SET used_at = $1
-  WHERE id_users = $2 AND used_at IS NULL;`
+  WHERE id_users = $2 AND revoked_at IS NULL;`
 	_, err := r.db.Exec(ctx, query, now, uid)
 	return err
 }
@@ -81,7 +81,7 @@ func (r PasswordReset) GetActiveByUser(ctx context.Context, uid int64) (*model.P
 	const query = `SELECT
 	  idpassword_resets, token_hash, expires_at, used_at
 	FROM password_resets
-	WHERE id_users = $1 LIMIT 1;`
+	WHERE id_users = $1 AND used_at IS NULL AND expires_at > NOW() LIMIT 1;`
 	var (
 		prid      int64
 		hashBytes []byte

@@ -19,7 +19,7 @@ type Module struct {
 }
 
 func NewModule(
-	db postgresShared.PgxPool,
+	db postgresShared.Executor,
 	logger repository.Logger,
 ) Module {
 	personRepo := postgres.NewPerson(db)

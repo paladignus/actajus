@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/paladignus/actajus/internal/infrastructure/http/handler"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
 	"github.com/paladignus/actajus/internal/shared/domain"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/http/handler"
 )
 
 type CompanyHandler struct {

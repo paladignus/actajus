@@ -84,9 +84,10 @@ message RequestPasswordResetRequest {
 message RequestPasswordResetResponse {
   // Obs: em produção pode manter isso vazio e só retornar ok=true
   bool ok = 1;
-  int64 id_reset = 2;
-  string reset_token = 3;
-  google.protobuf.Timestamp expires_at = 4;
+  string message = 2;
+  // int64 id_reset = 2;
+  // string reset_token = 3;
+  // google.protobuf.Timestamp expires_at = 4;
 }
 
 message ConfirmPasswordResetRequest {

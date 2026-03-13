@@ -12,7 +12,7 @@ type RoleUserPair struct {
 	IDUser int64
 }
 
-func ListAllRoleUsers(ctx context.Context, db postgres.PgxPool) ([]RoleUserPair, error) {
+func ListAllRoleUsers(ctx context.Context, db postgres.Executor) ([]RoleUserPair, error) {
 	const query = `SELECT
 	id_roles, id_users
 	FROM role_user;`

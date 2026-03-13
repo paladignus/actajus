@@ -8,18 +8,18 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/paladignus/actajus/internal/infrastructure/persistence/postgres"
 	"github.com/paladignus/actajus/internal/module/social_media/domain"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type SocialMedia struct {
-	pool postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewSocialMedia(pool postgres.PgxPool) SocialMedia {
+func NewSocialMedia(db postgres.Executor) SocialMedia {
 	return SocialMedia{
-		pool,
+		db,
 	}
 }
 
@@ -27,7 +27,7 @@ func (s SocialMedia) Create(ctx context.Context, socialMedia *domain.SocialMedia
 	query := `INSERT INTO social_media (id_companies, platform, url, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING idsocial_media`
 	var id uint
-	if err := s.pool.QueryRow(ctx, query,
+	if err := s.db.QueryRow(ctx, query,
 		socialMedia.IDCompany(),
 		socialMedia.Platform(),
 		socialMedia.URL(),
@@ -40,7 +40,7 @@ func (s SocialMedia) Create(ctx context.Context, socialMedia *domain.SocialMedia
 
 func (s SocialMedia) Update(ctx context.Context, socialMedia domain.SocialMedia) error {
 	query := `UPDATE social_media SET platform = $1, url = $2, updated_at = $3 WHERE idsocial_media = $4 AND deleted_at IS NULL`
-	_, err := s.pool.Exec(ctx, query,
+	_, err := s.db.Exec(ctx, query,
 		socialMedia.Platform(),
 		socialMedia.URL(),
 		socialMedia.UpdatedAt(),
@@ -55,7 +55,7 @@ func (s SocialMedia) Update(ctx context.Context, socialMedia domain.SocialMedia)
 
 func (s SocialMedia) Delete(ctx context.Context, socialMedia domain.SocialMedia) error {
 	query := `UPDATE social_media SET updated_at = $1, deleted_at = $2 WHERE idsocial_media = $3 AND deleted_at IS NULL`
-	_, err := s.pool.Exec(ctx, query,
+	_, err := s.db.Exec(ctx, query,
 		socialMedia.UpdatedAt(),
 		socialMedia.DeletedAt(),
 		socialMedia.ID())
@@ -69,7 +69,7 @@ func (s SocialMedia) Delete(ctx context.Context, socialMedia domain.SocialMedia)
 func (s SocialMedia) DeleteByIDCompany(ctx context.Context, idCompany uint) error {
 	now := time.Now()
 	query := `UPDATE social_media SET updated_at = $1, deleted_at = $2 WHERE id_companies = $3 AND deleted_at IS NULL`
-	_, err := s.pool.Exec(ctx, query, now, now, idCompany)
+	_, err := s.db.Exec(ctx, query, now, now, idCompany)
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return nil
@@ -89,7 +89,7 @@ func (s SocialMedia) FindByIDCompany(ctx context.Context, idCompany uint) ([]*do
 		createdAt     time.Time
 		updatedAt     time.Time
 	)
-	rows, err := s.pool.Query(ctx, query, idCompany)
+	rows, err := s.db.Query(ctx, query, idCompany)
 	if err != nil {
 		return nil, err
 	}

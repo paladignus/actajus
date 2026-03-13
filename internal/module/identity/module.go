@@ -28,7 +28,7 @@ import (
 
 type Dependencies struct {
 	Logger          sharedrepo.Logger
-	DB              postgresShared.PgxPool
+	DB              postgresShared.Executor
 	RDB             redis.UniversalClient
 	Users           identityrepo.UserRepository
 	Config          config.AuthConfig
@@ -41,7 +41,7 @@ type Module struct {
 	authImpl       *identityhandler.AuthHandler
 	rbacAdminImpl  *identityhandler.RbacAdminHandler
 	logger         sharedrepo.Logger
-	db             postgresShared.PgxPool
+	db             postgresShared.Executor
 	rdb            redis.UniversalClient
 }
 
@@ -51,6 +51,11 @@ func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
 }
 
 func NewModule(dep Dependencies) (Module, error) {
+	// uow := sharedPostgres.NewUnitOfWork(pool)
+	// repository := postgres.NewFactory(pool)
+	// companyRepository := postgres.NewCompany(pool)
+	// companyReadRepository := postgres.NewCompanyReadRepository(pool)
+
 	clk := clock.NewSystemClock()
 	authValidator := validation.New()
 	projection := mapper.NewAuthProjectionMapper()
@@ -127,7 +132,7 @@ func NewModule(dep Dependencies) (Module, error) {
 		true,
 	)
 	requestResetUC := usecase.NewRequestPasswordReset(
-		dep.Users,
+		nil,
 		passwordResetRepo,
 		refreshSvc,
 		clk,

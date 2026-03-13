@@ -8,10 +8,10 @@ import (
 )
 
 type Authorization struct {
-	db postgres.PgxPool
+	db postgres.Executor
 }
 
-func NewAuthorization(db postgres.PgxPool) Authorization {
+func NewAuthorization(db postgres.Executor) Authorization {
 	return Authorization{db}
 }
 
