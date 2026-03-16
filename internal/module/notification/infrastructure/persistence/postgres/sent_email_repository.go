@@ -15,7 +15,7 @@ func NewSentEmailRepository(db postgres.Executor) *SentEmailRepository {
 	return &SentEmailRepository{db}
 }
 
-func (r *SentEmailRepository) ExistsByMessageID(ctx context.Context, mid string) (bool, error) {
+func (r *SentEmailRepository) ExistsByIDMessage(ctx context.Context, mid string) (bool, error) {
 	var exists bool
 	err := r.db.QueryRow(ctx, `
 		SELECT EXISTS(SELECT 1 FROM sent_emails WHERE id_message = $1)`,

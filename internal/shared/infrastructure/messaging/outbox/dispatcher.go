@@ -44,7 +44,7 @@ func (d *Dispatcher) DispatchPending(ctx context.Context) error {
 	}
 	defer tx.Rollback(ctx)
 	rows, err := tx.Query(ctx, `
-		SELECT id, subject, payload
+		SELECT idoutbox_messages, subject, payload
 		FROM outbox_messages
 		WHERE published_at IS NULL
 		ORDER BY created_at
@@ -70,7 +70,7 @@ func (d *Dispatcher) DispatchPending(ctx context.Context) error {
 				SET error_message = $2,
 				    last_attempt_at = NOW(),
 				    attempts = attempts + 1
-				WHERE id = $1
+				WHERE idoutbox_messages = $1
 			`, item.ID, err.Error())
 			return fmt.Errorf("publish outbox message %s: %w", item.ID, err)
 		}
@@ -80,7 +80,7 @@ func (d *Dispatcher) DispatchPending(ctx context.Context) error {
 			    error_message = NULL,
 			    last_attempt_at = NOW(),
 			    attempts = attempts + 1
-			WHERE id = $1
+			WHERE idoutbox_messages = $1
 		`, item.ID)
 		if err != nil {
 			return fmt.Errorf("mark outbox message published %s: %w", item.ID, err)

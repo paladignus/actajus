@@ -10,14 +10,17 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
-	identityrepo "github.com/paladignus/actajus/internal/module/identity/application/repository"
+	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/cache"
 	identitypg "github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
 	identityhandler "github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
 	identityrbac "github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
+	"github.com/paladignus/actajus/internal/shared/application/messaging"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
+	sharedsvc "github.com/paladignus/actajus/internal/shared/application/service"
+	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
@@ -25,15 +28,6 @@ import (
 	"github.com/paladignus/actajus/internal/shared/presentation/validation"
 	identityv1connect "github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 )
-
-type Dependencies struct {
-	Logger          sharedrepo.Logger
-	DB              postgresShared.Executor
-	RDB             redis.UniversalClient
-	Users           identityrepo.UserRepository
-	Config          config.AuthConfig
-	SkipRBACRebuild bool // Se true, não reconstrói índices RBAC automaticamente
-}
 
 type Module struct {
 	ValidateAccess usecase.ValidateAccess
@@ -45,17 +39,25 @@ type Module struct {
 	rdb            redis.UniversalClient
 }
 
+type Dependencies struct {
+	Logger          sharedrepo.Logger
+	DB              postgresShared.Executor
+	RDB             redis.UniversalClient
+	Config          config.AuthConfig
+	UoW             uow.UnitOfWork
+	Repository      repository.Factory
+	OutboxFactory   messaging.OutboxFactory
+	Serializer      sharedsvc.MessageSerializer
+	IDGenerator     sharedsvc.IDGenerator
+	SkipRBACRebuild bool
+}
+
 func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
 	mux.Handle(identityv1connect.NewAuthServiceHandler(m.authImpl, opts...))
 	mux.Handle(identityv1connect.NewRbacAdminServiceHandler(m.rbacAdminImpl, opts...))
 }
 
 func NewModule(dep Dependencies) (Module, error) {
-	// uow := sharedPostgres.NewUnitOfWork(pool)
-	// repository := postgres.NewFactory(pool)
-	// companyRepository := postgres.NewCompany(pool)
-	// companyReadRepository := postgres.NewCompanyReadRepository(pool)
-
 	clk := clock.NewSystemClock()
 	authValidator := validation.New()
 	projection := mapper.NewAuthProjectionMapper()
@@ -101,7 +103,7 @@ func NewModule(dep Dependencies) (Module, error) {
 		dep.Logger,
 	)
 	loginUC := usecase.NewLogin(
-		dep.Users,
+		dep.Repository.User(),
 		cachedSessionRepo,
 		hasher,
 		refreshSvc,
@@ -113,7 +115,7 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	refreshUC := usecase.NewRefresh(
 		cachedSessionRepo,
-		dep.Users,
+		dep.Repository.User(),
 		refreshSvc,
 		accessSvc,
 		clk,
@@ -124,7 +126,7 @@ func NewModule(dep Dependencies) (Module, error) {
 	logoutUC := usecase.NewLogout(cachedSessionRepo, *authMapper)
 	logoutAllUC := usecase.NewLogoutAll(cachedSessionRepo, *authMapper)
 	changePasswordUC := usecase.NewChangePassword(
-		dep.Users,
+		dep.Repository.User(),
 		cachedSessionRepo,
 		hasher,
 		clk,
@@ -132,16 +134,19 @@ func NewModule(dep Dependencies) (Module, error) {
 		true,
 	)
 	requestResetUC := usecase.NewRequestPasswordReset(
-		nil,
-		passwordResetRepo,
+		dep.UoW,
+		dep.Repository,
+		dep.OutboxFactory,
 		refreshSvc,
 		clk,
 		dep.Config.PasswordResetConfig,
 		*authMapper,
+		dep.Serializer,
+		dep.IDGenerator,
 		true,
 	)
 	confirmResetUC := usecase.NewConfirmPasswordReset(
-		dep.Users,
+		dep.Repository.User(),
 		cachedSessionRepo,
 		passwordResetRepo,
 		hasher,

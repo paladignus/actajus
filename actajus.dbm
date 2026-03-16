@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="28"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="0,14" last-zoom="0.65" scene-rect="0,-60.5,2733.34,3411.22"
+	 last-position="991,353" last-zoom="1.1" scene-rect="0,-60.5,2733.34,3411.22"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -912,9 +912,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="2040" y="840"/>
-	<column name="idoutbox_messages" not-null="true"
-	 identity-type="ALWAYS">
-		<type name="bigint" length="0"/>
+	<column name="idoutbox_messages" not-null="true">
+		<type name="uuid" length="0"/>
 	</column>
 	<column name="subject" not-null="true">
 		<type name="text" length="0"/>

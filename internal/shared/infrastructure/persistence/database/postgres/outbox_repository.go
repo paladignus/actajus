@@ -16,7 +16,7 @@ func (r *OutboxRepository) Add(ctx context.Context, msg messaging.OutboxMessage)
 	// payload já vem como []byte JSON, mas vamos garantir que é JSONB no insert
 	var raw json.RawMessage = msg.Payload
 	_, err := r.exec.Exec(ctx, `
-		INSERT INTO outbox_messages (id, subject, payload, occurred_at)
+		INSERT INTO outbox_messages (idoutbox_messages, subject, payload, occurred_at)
 		VALUES ($1, $2, $3, $4)
 	`, msg.ID, msg.Subject, raw, msg.OccurredAt)
 	if err != nil {

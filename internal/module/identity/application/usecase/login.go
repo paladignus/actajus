@@ -48,7 +48,7 @@ func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*dto.AuthT
 		return nil, fmt.Errorf("invalid login data: %w", err)
 	}
 	user, err := uc.user.FindByEmail(ctx, norm.Email)
-	if err != nil {
+	if err != nil || user == nil {
 		return nil, identity.ErrInvalidCredentials
 	}
 	if user.IsBlocked() {
