@@ -70,11 +70,12 @@ type AuthConfig struct {
 }
 
 type SMTPConfig struct {
-	Host string
-	Port string
-	User string
-	Pass string
-	From string
+	Host          string
+	Port          string
+	User          string
+	Pass          string
+	From          string
+	PublicBaseURL string
 }
 
 type NATSConfig struct {
@@ -162,7 +163,7 @@ func Load() Config {
 		},
 		PasswordReset: PasswordResetConfig{
 			MaxResetAttempts: getEnvAsInt("MAX_RESET_ATTEMPTS", 5),
-			ResetTTL:         time.Duration(getEnvAsInt("RESET_TTL", 15)) * time.Minute,
+			ResetTTL:         time.Duration(getEnvAsInt("RESET_TTL", 30)) * time.Minute,
 		},
 		Auth: AuthConfig{
 			JWTConfig{
@@ -177,15 +178,16 @@ func Load() Config {
 			},
 			PasswordResetConfig{
 				MaxResetAttempts: getEnvAsInt("MAX_RESET_ATTEMPTS", 5),
-				ResetTTL:         time.Duration(getEnvAsInt("RESET_TTL", 15)) * time.Minute,
+				ResetTTL:         time.Duration(getEnvAsInt("RESET_TTL", 30)) * time.Minute,
 			},
 		},
 		SMTP: SMTPConfig{
-			Host: getEnv("SMTP_HOST", "smtp.gmail.com"),
-			Port: getEnv("SMTP_PORT", "587"),
-			User: getEnv("SMTP_USER", ""), // Sem valor padrão sensível
-			Pass: getEnv("SMTP_PASS", ""), // Sem valor padrão sensível
-			From: getEnv("SMTP_FROM", ""), // Sem valor padrão sensível
+			Host:          getEnv("SMTP_HOST", "smtp.gmail.com"),
+			Port:          getEnv("SMTP_PORT", "587"),
+			User:          getEnv("SMTP_USER", ""), // Sem valor padrão sensível
+			Pass:          getEnv("SMTP_PASS", ""), // Sem valor padrão sensível
+			From:          getEnv("SMTP_FROM", ""), // Sem valor padrão sensível
+			PublicBaseURL: getEnv("PUBLIC_BASE_URL", "http://localhost:5173"),
 		},
 		NATS: NATSConfig{
 			Subjects:          strings.Split(getEnv("NATS_SUBJECTS", "events.>"), ","),

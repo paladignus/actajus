@@ -10,17 +10,19 @@ import (
 	"github.com/paladignus/actajus/internal/module/notification/application/usecase"
 	"github.com/paladignus/actajus/internal/module/notification/infrastructure/consumer"
 	"github.com/paladignus/actajus/internal/module/notification/infrastructure/persistence/postgres"
+	"github.com/paladignus/actajus/internal/module/notification/infrastructure/template"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
 	sharedsvc "github.com/paladignus/actajus/internal/shared/application/service"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 type Dependencies struct {
-	Logger      sharedrepo.Logger
-	DB          postgresShared.Executor
-	Serializer  sharedsvc.MessageSerializer
-	Consumer    jetstream.Consumer
-	EmailSender service.EmailSender // injeta o adapter (smtp/ses/sendgrid)
+	Logger        sharedrepo.Logger
+	DB            postgresShared.Executor
+	Serializer    sharedsvc.MessageSerializer
+	Consumer      jetstream.Consumer
+	EmailSender   service.EmailSender
+	PublicBaseURL string
 }
 
 type Module struct {
@@ -35,13 +37,25 @@ func NewModule(dep Dependencies) (Module, error) {
 	if dep.EmailSender == nil {
 		return Module{}, fmt.Errorf("notification: missing EmailSender")
 	}
-	sentRepo := postgres.NewSentEmailRepository(dep.DB) // usa postgres.Executor (pool)
-	uc := usecase.NewProcessEmailSendRequested(dep.EmailSender, sentRepo)
+	if dep.PublicBaseURL == "" {
+		return Module{}, fmt.Errorf("notification: missing PublicBaseURL")
+	}
+	sentRepo := postgres.NewSentEmailRepository(dep.DB)
+	renderer, err := template.NewHTMLRenderer()
+	if err != nil {
+		return Module{}, fmt.Errorf("notification: %w", err)
+	}
+	uc := usecase.NewProcessEmailSendRequested(
+		dep.EmailSender,
+		renderer,
+		sentRepo,
+		dep.PublicBaseURL,
+	)
 	cons := consumer.NewEmailSendRequestedConsumer(
 		dep.Consumer,
 		dep.Serializer,
 		uc,
-		// dep.Logger, // opcional, se você quiser log no consumer
+		// dep.Logger,
 	)
 	return Module{
 		logger:   dep.Logger,

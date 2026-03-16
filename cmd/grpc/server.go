@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -78,21 +79,25 @@ func main() {
 			appLogger.Error(context.Background(), "outbox dispatcher stopped", "error", err)
 		}
 	}()
-	// smtpPort, _ := strconv.Atoi(cfg.SMTP.Port) // se der erro, fica 0; pode tratar melhor se quiser
-	// emailSender := notificationemail.NewSMTPSender(
-	// 	cfg.SMTP.Host,
-	// 	smtpPort,
-	// 	cfg.SMTP.User,
-	// 	cfg.SMTP.Pass,
-	// 	cfg.SMTP.From,
-	// )
-	emailSender := email.NewLogSender()
+	smtpPort, err := strconv.Atoi(cfg.SMTP.Port)
+	if err != nil {
+		appLogger.Error(ctx, "❌ invalid SMTP_PORT", "value", cfg.SMTP.Port, "error", err)
+		os.Exit(1)
+	}
+	emailSender := email.NewSMTPSender(
+		cfg.SMTP.Host,
+		smtpPort,
+		cfg.SMTP.User,
+		cfg.SMTP.Pass,
+		cfg.SMTP.From,
+	)
 	notificationMod, err := notification.NewModule(notification.Dependencies{
-		Logger:      appLogger,
-		DB:          db,
-		Serializer:  serializer,
-		Consumer:    emailConsumer,
-		EmailSender: emailSender,
+		Logger:        appLogger,
+		DB:            db,
+		Serializer:    serializer,
+		Consumer:      emailConsumer,
+		EmailSender:   emailSender,
+		PublicBaseURL: cfg.SMTP.PublicBaseURL,
 	})
 	if err != nil {
 		appLogger.Error(ctx, "❌ failed to init notification module", "error", err)

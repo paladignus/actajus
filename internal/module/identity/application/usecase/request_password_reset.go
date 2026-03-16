@@ -95,7 +95,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 			Data: map[string]any{
 				"id_reset":   idReset,
 				"token":      rawToken,
-				"expires_at": expiresAt,
+				"expires_at": expiresAt.Sub(now).Minutes(),
 				"id_user":    user.ID().Value(),
 			},
 			Meta: map[string]string{

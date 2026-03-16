@@ -4,5 +4,5 @@ package service
 import "context"
 
 type EmailSender interface {
-	SendTemplate(ctx context.Context, to string, template string, data map[string]any) error
+	SendHTML(ctx context.Context, to string, subject string, body string) error
 }
