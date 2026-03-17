@@ -26,7 +26,7 @@ func NewPhone(db postgres.Executor) Phone {
 func (p Phone) Create(ctx context.Context, phone *domain.Phone) error {
 	query := `INSERT INTO phones (number, kind, department, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING idphones`
-	var id uint
+	var id int64
 	if err := p.db.QueryRow(ctx, query,
 		phone.Number(),
 		phone.Kind(),
@@ -62,7 +62,7 @@ func (p Phone) Delete(ctx context.Context, phone domain.Phone) error {
 	return err
 }
 
-func (p Phone) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Phone, error) {
+func (p Phone) FindByIDCompany(ctx context.Context, idCompany int64) (*domain.Phone, error) {
 	query := `
 			SELECT
 				p.idphones, p.number, p.kind, p.department, p.created_at, p.updated_at
@@ -70,7 +70,7 @@ func (p Phone) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Pho
 			LEFT JOIN company_phone cp ON p.idphones = cp.id_phones AND cp.ended_at IS NULL
 			WHERE id_companies = $1`
 	var (
-		id         uint
+		id         int64
 		number     string
 		kind       string
 		department string

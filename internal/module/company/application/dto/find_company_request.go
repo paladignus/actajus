@@ -6,5 +6,5 @@ type FindCompanyByCNPJRequest struct {
 }
 
 type FindCompanyByIDRequest struct {
-	ID uint `json:"id"`
+	ID int64 `json:"id"`
 }

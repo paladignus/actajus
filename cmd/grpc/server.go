@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/paladignus/actajus/internal/module/company"
+	companypg "github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/identity"
 	identitypg "github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/notification"
@@ -57,6 +59,7 @@ func main() {
 	uow := postgresShared.NewUnitOfWork(db)
 	identityFactory := identitypg.NewFactory(db)
 	outboxFactory := postgresShared.NewOutboxFactory(db)
+	companyFactory := companypg.NewFactory(db)
 	natsBoot, err := sharednats.NewBootstrap(cfg.NATS.URL)
 	if err != nil {
 		appLogger.Error(ctx, "❌ nats connect failed", "error", err)
@@ -106,7 +109,16 @@ func main() {
 	notificationMod.Start(ctx)
 	mux := http.NewServeMux()
 	personMod := person.NewModule(db, appLogger)
-	// userRepo := identitypg.NewUser(db) // mantém por compatibilidade com Login/Refresh
+	companyMod, err := company.NewModule(company.Dependencies{
+		DB:         db,
+		Logger:     appLogger,
+		UoW:        uow,
+		Repository: companyFactory,
+	})
+	if err != nil {
+		appLogger.Error(ctx, "❌ failed to init company module", "error", err)
+		os.Exit(1)
+	}
 	identityMod, err := identity.NewModule(identity.Dependencies{
 		Logger:        appLogger,
 		DB:            db,
@@ -146,6 +158,7 @@ func main() {
 	opts := connect.WithInterceptors(recoverI, loggingI, authI, rbacI)
 	identityMod.Mount(mux, opts)
 	personMod.Mount(mux, opts)
+	companyMod.Mount(mux, opts)
 	appLogger.Info(ctx, "✅ Modules initialized successfully")
 	handler := corsMiddleware(mux)
 	srv := &http.Server{

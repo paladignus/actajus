@@ -9,10 +9,11 @@ import (
 	"syscall"
 	"time"
 
+	companypg "github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
-	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
+	sharedPostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
 func main() {
@@ -36,23 +37,28 @@ func main() {
 	config := config.Load()
 	ctx := context.Background()
 	logger := logger.NewDefaultLogger()
-	db, err := postgres.NewConnection(ctx, &config.Database)
+	db, err := sharedPostgres.NewConnection(ctx, &config.Database)
 	if err != nil {
 		logger.Error(ctx, "error initializing the database connection.", "error", err)
 		os.Exit(1)
 	}
-	// defer db.Close(ctx, logger)
 	defer db.Close()
-	// persistence := postgres.NewPersistence(db)
-	// persistence := postgres.NewPersistence(db)
 
 	log.Println("✅ Database connected successfully")
 
 	// Initialize modules
-	// companyMod := companyModule.NewModule(pool)
-	// addressMod := addressModule.NewModule(pool)
+	uow := sharedPostgres.NewUnitOfWork(db)
+	companyFactory := companypg.NewFactory(db)
 
-	companyModule := company.NewModule(db)
+	companyModule, err := company.NewModule(company.Dependencies{
+		DB:         db,
+		Logger:     logger,
+		UoW:        uow,
+		Repository: companyFactory,
+	})
+	if err != nil {
+		log.Fatalf("Failed to initialize company module: %v", err)
+	}
 
 	log.Println("✅ Modules initialized")
 
@@ -67,7 +73,7 @@ func main() {
 	})
 
 	// Register module routes
-	companyModule.Handler.RegisterRoutes(mux)
+	companyModule.Mount(mux)
 	// addressMod.Handler.RegisterRoutes(mux)
 
 	// Middleware wrapper

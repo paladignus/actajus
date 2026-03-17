@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package email.v1;
+
+option go_package = "github.com/paladignus/actajus/proto/email/v1;emailv1";
+
+service EmailService {
+  rpc CreateEmail(CreateEmailRequest) returns (CreateEmailResponse);
+}
+
+message CreateEmailRequest {
+  string address = 1;
+}
+
+message CreateEmailResponse {
+  int64 id = 1;
+}

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package company.v1;
+
+import "address/v1/address.proto";
+import "phone/v1/phone.proto";
+import "email/v1/email.proto";
+import "social_media/v1/social_media.proto";
+
+option go_package = "github.com/paladignus/actajus/proto/company/v1;companyv1";
+
+service CompanyService {
+  rpc CreateCompany(CreateCompanyRequest) returns (CreateCompanyResponse);
+}
+
+message CreateCompanyRequest {
+  string name = 1;
+  string trade_name = 2;
+  string cnpj = 3;
+  address.v1.CreateAddressRequest address = 4;
+  phone.v1.CreatePhoneRequest phone = 5;
+  email.v1.CreateEmailRequest email = 6;
+  social_media.v1.CreateSocialMediaRequest social_media = 7;
+}
+
+message CreateCompanyResponse {
+  int64 id = 1;
+}

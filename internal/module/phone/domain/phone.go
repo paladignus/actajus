@@ -9,7 +9,7 @@ import (
 )
 
 type Phone struct {
-	id         uint
+	id         int64
 	number     vo.PhoneNumber
 	kind       vo.Text
 	department vo.Text
@@ -32,7 +32,7 @@ func NewPhoneBuilder() *PhoneBuilder {
 	}
 }
 
-func (p *PhoneBuilder) WithID(id uint) *PhoneBuilder {
+func (p *PhoneBuilder) WithID(id int64) *PhoneBuilder {
 	p.phone.id = id
 	return p
 }
@@ -82,7 +82,7 @@ func (p *PhoneBuilder) Build() (*Phone, error) {
 // 	return nil
 // }
 
-func (p *Phone) ID() uint               { return p.id }
+func (p *Phone) ID() int64              { return p.id }
 func (p *Phone) Number() vo.PhoneNumber { return p.number }
 func (p *Phone) Kind() vo.Text          { return p.kind }
 func (p *Phone) Department() vo.Text    { return p.department }
@@ -107,7 +107,7 @@ func (p *Phone) IsDeleted() bool {
 	return p.deletedAt != nil
 }
 
-func (p *Phone) SetID(id uint) error {
+func (p *Phone) SetID(id int64) error {
 	if p.id != 0 {
 		return domain.NewFieldError("id", "phone ID is already set")
 	}

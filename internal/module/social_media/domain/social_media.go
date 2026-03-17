@@ -9,8 +9,8 @@ import (
 )
 
 type SocialMedia struct {
-	id        uint
-	idCompany uint
+	id        int64
+	idCompany int64
 	platform  vo.Text
 	url       vo.URL
 	createdAt time.Time
@@ -32,12 +32,12 @@ func NewSocialMediaBuilder() *SocialMediaBuilder {
 	}
 }
 
-func (s *SocialMediaBuilder) WithID(id uint) *SocialMediaBuilder {
+func (s *SocialMediaBuilder) WithID(id int64) *SocialMediaBuilder {
 	s.socialMedia.id = id
 	return s
 }
 
-func (s *SocialMediaBuilder) WithIDCompany(id uint) *SocialMediaBuilder {
+func (s *SocialMediaBuilder) WithIDCompany(id int64) *SocialMediaBuilder {
 	s.socialMedia.idCompany = id
 	return s
 }
@@ -82,8 +82,8 @@ func (s *SocialMediaBuilder) Apply() error {
 	return nil
 }
 
-func (s *SocialMedia) ID() uint              { return s.id }
-func (s *SocialMedia) IDCompany() uint       { return s.idCompany }
+func (s *SocialMedia) ID() int64             { return s.id }
+func (s *SocialMedia) IDCompany() int64      { return s.idCompany }
 func (s *SocialMedia) Platform() vo.Text     { return s.platform }
 func (s *SocialMedia) URL() vo.URL           { return s.url }
 func (s *SocialMedia) CreatedAt() time.Time  { return s.createdAt }
@@ -107,7 +107,7 @@ func (s *SocialMedia) IsDeleted() bool {
 	return s.deletedAt != nil
 }
 
-func (s *SocialMedia) SetID(id uint) error {
+func (s *SocialMedia) SetID(id int64) error {
 	if s.id != 0 {
 		return domain.NewFieldError("id", "social media ID is already set")
 	}
@@ -118,7 +118,7 @@ func (s *SocialMedia) SetID(id uint) error {
 	return nil
 }
 
-func (s *SocialMedia) SetCompanyID(id uint) error {
+func (s *SocialMedia) SetCompanyID(id int64) error {
 	if s.idCompany != 0 {
 		return domain.NewFieldError("id", "company ID is already set")
 	}

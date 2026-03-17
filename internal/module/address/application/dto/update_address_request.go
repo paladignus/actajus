@@ -2,7 +2,7 @@
 package dto
 
 type UpdateAddressRequest struct {
-	ID           uint   `json:"id_address" validate:"required|numeric"`
+	ID           int64  `json:"id_address" validate:"required|numeric"`
 	ZIP          string `json:"zip" validate:"required|len=9|numeric"`
 	Title        string `json:"title" validate:"required|min=3|max=100"`
 	Street       string `json:"street" validate:"required|min=3|max=100"`

@@ -22,7 +22,7 @@ func NewDeleteCompany(
 	return DeleteCompany{uow, repository}
 }
 
-func (u DeleteCompany) Execute(ctx context.Context, id uint) error {
+func (u DeleteCompany) Execute(ctx context.Context, id int64) error {
 	company, err := u.repository.Company().FindByID(ctx, id)
 	if err != nil {
 		return err

@@ -14,8 +14,8 @@ func mergeCompanyScanWithRelations(
 	e *emailScan,
 	p *phoneScan,
 	sm *socialMediaScan,
-	companiesMap map[uint]*companyDTO.CompanyReadModel,
-	order *[]uint,
+	companiesMap map[int64]*companyDTO.CompanyReadModel,
+	order *[]int64,
 ) *companyDTO.CompanyReadModel {
 	company := cp.companyToDTO()
 	if company == nil {
@@ -50,7 +50,7 @@ func mergeCompanyScanWithRelations(
 	return existing
 }
 
-func hasEmail(emails []*emailDTO.EmailReadModel, id uint) bool {
+func hasEmail(emails []*emailDTO.EmailReadModel, id int64) bool {
 	for _, e := range emails {
 		if e.ID == id {
 			return true
@@ -59,7 +59,7 @@ func hasEmail(emails []*emailDTO.EmailReadModel, id uint) bool {
 	return false
 }
 
-func hasPhone(phones []*phoneDTO.PhoneReadModel, id uint) bool {
+func hasPhone(phones []*phoneDTO.PhoneReadModel, id int64) bool {
 	for _, p := range phones {
 		if p.ID == id {
 			return true
@@ -68,7 +68,7 @@ func hasPhone(phones []*phoneDTO.PhoneReadModel, id uint) bool {
 	return false
 }
 
-func hasSocialMedia(sms []*socialMediaDTO.SocialMediaReadModel, id uint) bool {
+func hasSocialMedia(sms []*socialMediaDTO.SocialMediaReadModel, id int64) bool {
 	for _, s := range sms {
 		if s.ID == id {
 			return true

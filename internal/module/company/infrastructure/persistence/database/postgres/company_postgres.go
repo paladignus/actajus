@@ -28,7 +28,7 @@ func (c Company) Create(ctx context.Context, company *domain.Company) error {
 		INSERT INTO companies (registered_by, name, trade_name, cnpj, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING idcompanies`
-	var id uint
+	var id int64
 	if err := c.db.QueryRow(ctx, query,
 		company.RegisteredBy(),
 		company.Name().Value(),
@@ -86,8 +86,8 @@ func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, 
 		FROM companies
 		WHERE cnpj = $1 AND deleted_at IS NULL`
 	var (
-		id           uint
-		registeredBy uint
+		id           int64
+		registeredBy int64
 		name         string
 		tradeName    string
 		createdAt    time.Time
@@ -114,14 +114,14 @@ func (c Company) FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, 
 		Build()
 }
 
-func (c Company) FindByID(ctx context.Context, id uint) (*domain.Company, error) {
+func (c Company) FindByID(ctx context.Context, id int64) (*domain.Company, error) {
 	const query = `
 			SELECT
 					registered_by, name, trade_name, cnpj, created_at, updated_at
 			FROM companies
 			WHERE idcompanies = $1 AND deleted_at IS NULL`
 	var (
-		registeredBy uint
+		registeredBy int64
 		name         string
 		tradeName    string
 		cnpj         string

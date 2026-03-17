@@ -81,8 +81,8 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 		return nil, fmt.Errorf("failed to query companies: %w", err)
 	}
 	defer rows.Close()
-	companiesMap := make(map[uint]*dto.CompanyReadModel)
-	order := make([]uint, 0, limit)
+	companiesMap := make(map[int64]*dto.CompanyReadModel)
+	order := make([]int64, 0, limit)
 	for rows.Next() {
 		var (
 			cp companyScan
@@ -123,8 +123,8 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 		HasPreviousPage: hasPreviousPage,
 	}
 	if len(companies) > 0 {
-		id := strconv.FormatUint(uint64(companies[0].ID), 10)
-		idLen := strconv.FormatUint(uint64(companies[len(companies)-1].ID), 10)
+		id := strconv.FormatInt(int64(companies[0].ID), 10)
+		idLen := strconv.FormatInt(int64(companies[len(companies)-1].ID), 10)
 		if hasNextPage {
 			endCursor := postgres.EncodeCursor(
 				companies[len(companies)-1].CreatedAt,

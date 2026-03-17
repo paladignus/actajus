@@ -9,7 +9,7 @@ import (
 )
 
 type Address struct {
-	id           uint
+	id           int64
 	number       uint
 	zip          vo.ZIP
 	title        vo.Text
@@ -39,7 +39,7 @@ func NewAddressBuilder() *AddressBuilder {
 	}
 }
 
-func (b *AddressBuilder) WithID(id uint) *AddressBuilder {
+func (b *AddressBuilder) WithID(id int64) *AddressBuilder {
 	b.address.id = id
 	return b
 }
@@ -124,7 +124,7 @@ func (b *AddressBuilder) Build() (*Address, error) {
 // 	return nil
 // }
 
-func (a *Address) ID() uint              { return a.id }
+func (a *Address) ID() int64             { return a.id }
 func (a *Address) Number() uint          { return a.number }
 func (a *Address) ZIP() vo.ZIP           { return a.zip }
 func (a *Address) Title() vo.Text        { return a.title }
@@ -156,7 +156,7 @@ func (a *Address) IsDeleted() bool {
 	return a.deletedAt != nil
 }
 
-func (a *Address) SetID(id uint) error {
+func (a *Address) SetID(id int64) error {
 	if a.id != 0 {
 		return domain.NewFieldError("id", "address ID is already set")
 	}

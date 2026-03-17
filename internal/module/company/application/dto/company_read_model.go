@@ -11,7 +11,7 @@ import (
 )
 
 type CompanyReadModel struct {
-	ID               uint                                   `json:"id"`
+	ID               int64                                  `json:"id"`
 	Name             string                                 `json:"name"`
 	TradeName        string                                 `json:"trade_name"`
 	CNPJ             string                                 `json:"cnpj"`

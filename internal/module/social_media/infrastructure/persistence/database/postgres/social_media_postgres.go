@@ -26,7 +26,7 @@ func NewSocialMedia(db postgres.Executor) SocialMedia {
 func (s SocialMedia) Create(ctx context.Context, socialMedia *domain.SocialMedia) error {
 	query := `INSERT INTO social_media (id_companies, platform, url, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING idsocial_media`
-	var id uint
+	var id int64
 	if err := s.db.QueryRow(ctx, query,
 		socialMedia.IDCompany(),
 		socialMedia.Platform(),
@@ -66,7 +66,7 @@ func (s SocialMedia) Delete(ctx context.Context, socialMedia domain.SocialMedia)
 	return err
 }
 
-func (s SocialMedia) DeleteByIDCompany(ctx context.Context, idCompany uint) error {
+func (s SocialMedia) DeleteByIDCompany(ctx context.Context, idCompany int64) error {
 	now := time.Now()
 	query := `UPDATE social_media SET updated_at = $1, deleted_at = $2 WHERE id_companies = $3 AND deleted_at IS NULL`
 	_, err := s.db.Exec(ctx, query, now, now, idCompany)
@@ -77,13 +77,13 @@ func (s SocialMedia) DeleteByIDCompany(ctx context.Context, idCompany uint) erro
 	return err
 }
 
-func (s SocialMedia) FindByIDCompany(ctx context.Context, idCompany uint) ([]*domain.SocialMedia, error) {
+func (s SocialMedia) FindByIDCompany(ctx context.Context, idCompany int64) ([]*domain.SocialMedia, error) {
 	query := `
 			SELECT
 				idsocial_media, platform, url, created_at, updated_at
 			FROM social_media WHERE id_companies = $1 AND deleted_at IS NULL`
 	var (
-		idsocialMedia uint
+		idsocialMedia int64
 		platform      string
 		url           string
 		createdAt     time.Time

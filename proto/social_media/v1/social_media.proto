@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package social_media.v1;
+
+option go_package = "github.com/paladignus/actajus/proto/social_media/v1;socialmediav1";
+
+service SocialMediaService {
+  rpc CreateSocialMedia(CreateSocialMediaRequest) returns (CreateSocialMediaResponse);
+}
+
+message CreateSocialMediaRequest {
+  repeated string platform = 1;
+  repeated string url = 2;
+}
+
+message CreateSocialMediaResponse {
+  repeated int64 id = 1;
+}

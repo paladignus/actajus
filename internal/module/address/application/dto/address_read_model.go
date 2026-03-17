@@ -4,7 +4,7 @@ package dto
 import "time"
 
 type AddressReadModel struct {
-	ID           uint      `json:"id"`
+	ID           int64     `json:"id"`
 	ZIP          string    `json:"zip"`
 	Title        string    `json:"title"`
 	Street       string    `json:"street"`

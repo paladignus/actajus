@@ -2,5 +2,5 @@
 package dto
 
 type DeleteCompanyRequest struct {
-	IDCompany uint `json:"id_company" validate:"required|numeric"`
+	IDCompany int64 `json:"id_company" validate:"required|numeric"`
 }

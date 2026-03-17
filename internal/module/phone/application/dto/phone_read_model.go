@@ -4,7 +4,7 @@ package dto
 import "time"
 
 type PhoneReadModel struct {
-	ID         uint      `json:"id"`
+	ID         int64     `json:"id"`
 	Number     string    `json:"number"`
 	Kind       string    `json:"kind"`
 	Department string    `json:"department"`

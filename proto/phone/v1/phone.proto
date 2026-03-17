@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package phone.v1;
+
+option go_package = "github.com/paladignus/actajus/proto/phone/v1;phonev1";
+
+service PhoneService {
+  rpc CreatePhone(CreatePhoneRequest) returns (CreatePhoneResponse);
+}
+
+message CreatePhoneRequest {
+  string number = 1;
+  string kind = 2;
+  string department = 3;
+}
+
+message CreatePhoneResponse{
+  int64 id = 1;
+}

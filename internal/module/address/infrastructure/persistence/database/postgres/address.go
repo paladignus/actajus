@@ -31,7 +31,7 @@ func (a Address) Create(ctx context.Context, address *domain.Address) error {
 	query := `INSERT INTO addresses
 		(zip, title, street, number, complement, reference, neighborhood, city, state, country, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING idaddresses`
-	var id uint
+	var id int64
 	if err := a.db.QueryRow(ctx, query,
 		address.ZIP().Value(),
 		address.Title().Value(),
@@ -88,7 +88,7 @@ func (a Address) Delete(ctx context.Context, address domain.Address) error {
 	return err
 }
 
-func (a Address) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Address, error) {
+func (a Address) FindByIDCompany(ctx context.Context, idCompany int64) (*domain.Address, error) {
 	query := `
 			SELECT
 				a.idaddresses, a.zip, a.title, a.street, a.number, a.complement, a.reference,
@@ -97,7 +97,7 @@ func (a Address) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.A
 			LEFT JOIN company_address ca ON a.idaddresses = ca.id_addresses AND ca.ended_at IS NULL 
 			WHERE id_companies = $1`
 	var (
-		id           uint
+		id           int64
 		zip          string
 		title        string
 		street       string

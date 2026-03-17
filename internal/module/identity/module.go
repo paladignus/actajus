@@ -13,27 +13,27 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/cache"
-	identitypg "github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
+	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
-	identityhandler "github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
-	identityrbac "github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
+	"github.com/paladignus/actajus/internal/module/identity/presentation/grpc/handler"
+	"github.com/paladignus/actajus/internal/module/identity/presentation/rbac"
 	"github.com/paladignus/actajus/internal/shared/application/messaging"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
-	sharedsvc "github.com/paladignus/actajus/internal/shared/application/service"
+	"github.com/paladignus/actajus/internal/shared/application/service"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/clock"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	postgresShared "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/presentation/interceptor"
 	"github.com/paladignus/actajus/internal/shared/presentation/validation"
-	identityv1connect "github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
+	"github.com/paladignus/actajus/proto/identity/v1/identityv1connect"
 )
 
 type Module struct {
 	ValidateAccess usecase.ValidateAccess
 	RBACChecker    interceptor.PermissionChecker
-	authImpl       *identityhandler.AuthHandler
-	rbacAdminImpl  *identityhandler.RbacAdminHandler
+	authImpl       *handler.AuthHandler
+	rbacAdminImpl  *handler.RbacAdminHandler
 	logger         sharedrepo.Logger
 	db             postgresShared.Executor
 	rdb            redis.UniversalClient
@@ -47,8 +47,8 @@ type Dependencies struct {
 	UoW             uow.UnitOfWork
 	Repository      repository.Factory
 	OutboxFactory   messaging.OutboxFactory
-	Serializer      sharedsvc.MessageSerializer
-	IDGenerator     sharedsvc.IDGenerator
+	Serializer      service.MessageSerializer
+	IDGenerator     service.IDGenerator
 	SkipRBACRebuild bool
 }
 
@@ -74,7 +74,7 @@ func NewModule(dep Dependencies) (Module, error) {
 	if err != nil {
 		return Module{}, err
 	}
-	pgSessionRepo := identitypg.NewSession(dep.DB)
+	pgSessionRepo := postgres.NewSession(dep.DB)
 	cachedSessionRepo := cache.NewCachedSession(
 		pgSessionRepo,
 		dep.RDB,
@@ -82,8 +82,8 @@ func NewModule(dep Dependencies) (Module, error) {
 		cache.WithPrefix("actajus:"),
 		cache.WithFallbackToPostgres(true),
 	)
-	passwordResetRepo := identitypg.NewPasswordReset(dep.DB)
-	authzRepo := identitypg.NewAuthorization(dep.DB)
+	passwordResetRepo := postgres.NewPasswordReset(dep.DB)
+	authzRepo := postgres.NewAuthorization(dep.DB)
 	authzSvc := security.NewAuthorizationService(
 		authzRepo,
 		dep.RDB,
@@ -94,8 +94,8 @@ func NewModule(dep Dependencies) (Module, error) {
 		dep.RDB,
 		security.WithRoleUsersIndexPrefix("rbac:"),
 	)
-	roleUserAdminRepo := identitypg.NewRoleUserAdminRepository(dep.DB)
-	permRoleAdminRepo := identitypg.NewPermissionRoleAdminRepository(dep.DB)
+	roleUserAdminRepo := postgres.NewRoleUserAdminRepository(dep.DB)
+	permRoleAdminRepo := postgres.NewPermissionRoleAdminRepository(dep.DB)
 	// Repository com cache fallback para consultas de usuários por role
 	roleUserQueryRepo := cache.NewCachedRoleUserQueryRepository(
 		roleUserAdminRepo,
@@ -161,7 +161,7 @@ func NewModule(dep Dependencies) (Module, error) {
 		clk,
 		true,
 	)
-	authImpl := identityhandler.NewAuthHandler(
+	authImpl := handler.NewAuthHandler(
 		loginUC,
 		refreshUC,
 		logoutUC,
@@ -195,13 +195,13 @@ func NewModule(dep Dependencies) (Module, error) {
 		authzSvc,
 		rbacMapper,
 	)
-	rbacAdminImpl := identityhandler.NewRbacAdminHandler(
+	rbacAdminImpl := handler.NewRbacAdminHandler(
 		assignUC,
 		removeUC,
 		grantUC,
 		revokeUC,
 	)
-	rbacChecker := identityrbac.NewChecker(authzSvc)
+	rbacChecker := rbac.NewChecker(authzSvc)
 	module := Module{
 		ValidateAccess: validateAccessUC,
 		RBACChecker:    rbacChecker,
@@ -226,7 +226,7 @@ func NewModule(dep Dependencies) (Module, error) {
 // rebuildRBACIndexes reconstrói os índices RBAC no Redis a partir dos dados do Postgres.
 // Este método é chamado automaticamente durante a inicialização do módulo.
 func (m Module) rebuildRBACIndexes(ctx context.Context) error {
-	pairs, err := identitypg.ListAllRoleUsers(ctx, m.db)
+	pairs, err := postgres.ListAllRoleUsers(ctx, m.db)
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func (m Module) rebuildRBACIndexes(ctx context.Context) error {
 // RebuildRBACIndexes reconstrói os índices RBAC no Redis.
 // Deprecated: Use o rebuild automático via NewModule ou chame diretamente no módulo.
 func RebuildRBACIndexes(ctx context.Context, dep Dependencies) error {
-	pairs, err := identitypg.ListAllRoleUsers(ctx, dep.DB)
+	pairs, err := postgres.ListAllRoleUsers(ctx, dep.DB)
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 type companyScan struct {
-	id               *uint
+	id               *int64
 	registeredByName *string
 	name             *string
 	tradeName        *string
@@ -42,7 +42,7 @@ func (c companyScan) companyToDTO() *companyDTO.CompanyReadModel {
 
 // interno ao repositório, não exportado
 type addressScan struct {
-	id           *uint
+	id           *int64
 	zip          *string
 	title        *string
 	street       *string
@@ -79,7 +79,7 @@ func (a *addressScan) addressToDTO() *addrDTO.AddressReadModel {
 }
 
 type emailScan struct {
-	id        *uint
+	id        *int64
 	address   *string
 	createdAt *time.Time
 	updatedAt *time.Time
@@ -98,7 +98,7 @@ func (e *emailScan) emailToDTO() *emailDTO.EmailReadModel {
 }
 
 type phoneScan struct {
-	id         *uint
+	id         *int64
 	number     *string
 	kind       *string
 	department *string
@@ -121,7 +121,7 @@ func (p *phoneScan) phoneToDTO() *phoneDTO.PhoneReadModel {
 }
 
 type socialMediaScan struct {
-	id        *uint
+	id        *int64
 	platform  *string
 	url       *string
 	createdAt *time.Time

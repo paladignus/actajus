@@ -26,7 +26,7 @@ func NewEmail(db postgres.Executor) Email {
 func (e Email) Create(ctx context.Context, email *domain.Email) error {
 	query := `INSERT INTO emails (address, created_at, updated_at)
 		VALUES ($1, $2, $3) RETURNING idemails`
-	var id uint
+	var id int64
 	if err := e.db.QueryRow(ctx, query,
 		email.Address(),
 		email.CreatedAt(),
@@ -66,7 +66,7 @@ func (e Email) Delete(ctx context.Context, email domain.Email) error {
 	return err
 }
 
-func (e Email) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Email, error) {
+func (e Email) FindByIDCompany(ctx context.Context, idCompany int64) (*domain.Email, error) {
 	query := `
 			SELECT
 				e.idemails, e.address, e.created_at, e.updated_at
@@ -74,7 +74,7 @@ func (e Email) FindByIDCompany(ctx context.Context, idCompany uint) (*domain.Ema
 			LEFT JOIN company_email ce ON e.idemails = ce.id_emails AND e.deleted_at IS NULL
 			WHERE id_companies = $1`
 	var (
-		id        uint
+		id        int64
 		address   string
 		createdAt time.Time
 		updatedAt time.Time

@@ -9,11 +9,11 @@ import (
 )
 
 type Company struct {
-	id               uint
-	registeredBy     uint
-	idAddress        uint
-	idPhone          uint
-	idEmail          uint
+	id               int64
+	registeredBy     int64
+	idAddress        int64
+	idPhone          int64
+	idEmail          int64
 	registeredByName vo.Text
 	name             vo.Text
 	tradeName        vo.Text
@@ -37,7 +37,7 @@ func NewCompanyBuilder() *CompanyBuilder {
 	}
 }
 
-func (b *CompanyBuilder) WithID(id uint) *CompanyBuilder {
+func (b *CompanyBuilder) WithID(id int64) *CompanyBuilder {
 	b.company.id = id
 	return b
 }
@@ -57,7 +57,7 @@ func (b *CompanyBuilder) WithCNPJ(cnpj string) *CompanyBuilder {
 	return b
 }
 
-func (b *CompanyBuilder) WithRegisteredBy(registeredBy uint) *CompanyBuilder {
+func (b *CompanyBuilder) WithRegisteredBy(registeredBy int64) *CompanyBuilder {
 	b.company.registeredBy = registeredBy
 	return b
 }
@@ -67,7 +67,7 @@ func (b *CompanyBuilder) WithRegisteredByName(registeredByName string) *CompanyB
 	return b
 }
 
-func (b *CompanyBuilder) WithIDAddress(id uint) *CompanyBuilder {
+func (b *CompanyBuilder) WithIDAddress(id int64) *CompanyBuilder {
 	b.company.idAddress = id
 	return b
 }
@@ -77,12 +77,12 @@ func (b *CompanyBuilder) WithCreatedAt(createdAt time.Time) *CompanyBuilder {
 	return b
 }
 
-func (b *CompanyBuilder) WithIDPhone(id uint) *CompanyBuilder {
+func (b *CompanyBuilder) WithIDPhone(id int64) *CompanyBuilder {
 	b.company.idPhone = id
 	return b
 }
 
-func (b *CompanyBuilder) WithIDEmail(id uint) *CompanyBuilder {
+func (b *CompanyBuilder) WithIDEmail(id int64) *CompanyBuilder {
 	b.company.idEmail = id
 	return b
 }
@@ -104,14 +104,14 @@ func (b *CompanyBuilder) Build() (*Company, error) {
 	return b.company, nil
 }
 
-func (c *Company) ID() uint                  { return c.id }
-func (c *Company) RegisteredBy() uint        { return c.registeredBy }
+func (c *Company) ID() int64                 { return c.id }
+func (c *Company) RegisteredBy() int64       { return c.registeredBy }
 func (c *Company) Name() vo.Text             { return c.name }
 func (c *Company) TradeName() vo.Text        { return c.tradeName }
 func (c *Company) CNPJ() vo.CNPJ             { return c.cnpj }
-func (c *Company) IDAddress() uint           { return c.idAddress }
-func (c *Company) IDPhone() uint             { return c.idPhone }
-func (c *Company) IDEmail() uint             { return c.idEmail }
+func (c *Company) IDAddress() int64          { return c.idAddress }
+func (c *Company) IDPhone() int64            { return c.idPhone }
+func (c *Company) IDEmail() int64            { return c.idEmail }
 func (c *Company) RegisteredByName() vo.Text { return c.registeredByName }
 func (c *Company) CreatedAt() time.Time      { return c.createdAt }
 func (c *Company) UpdatedAt() time.Time      { return c.updatedAt }
@@ -134,17 +134,17 @@ func (c *Company) IsDeleted() bool {
 	return c.deletedAt != nil
 }
 
-func (c *Company) SetAddress(id uint) {
+func (c *Company) SetAddress(id int64) {
 	c.idAddress = id
 	c.updatedAt = time.Now()
 }
 
-func (c *Company) SetPhone(id uint) {
+func (c *Company) SetPhone(id int64) {
 	c.idPhone = id
 	c.updatedAt = time.Now()
 }
 
-func (c *Company) SetEmail(id uint) {
+func (c *Company) SetEmail(id int64) {
 	c.idEmail = id
 	c.updatedAt = time.Now()
 }
@@ -153,7 +153,7 @@ func (c *Company) HasAddress() bool {
 	return c.idAddress != 0
 }
 
-func (c *Company) SetID(id uint) error {
+func (c *Company) SetID(id int64) error {
 	if c.id != 0 {
 		return domain.NewFieldError("id", "company ID is already set")
 	}

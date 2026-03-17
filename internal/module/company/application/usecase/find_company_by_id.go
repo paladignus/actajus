@@ -40,7 +40,7 @@ func NewFindByID(
 	}
 }
 
-func (f FindByID) Execute(ctx context.Context, id uint) (*dto.CompanyReadModel, error) {
+func (f FindByID) Execute(ctx context.Context, id int64) (*dto.CompanyReadModel, error) {
 	company, err := f.company.FindByID(ctx, id)
 	if err != nil {
 		return nil, err

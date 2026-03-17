@@ -9,7 +9,7 @@ import (
 )
 
 type Email struct {
-	id        uint
+	id        int64
 	address   vo.Email
 	createdAt time.Time
 	updatedAt time.Time
@@ -30,7 +30,7 @@ func NewEmailBuilder() *EmailBuilder {
 	}
 }
 
-func (e *EmailBuilder) WithID(id uint) *EmailBuilder {
+func (e *EmailBuilder) WithID(id int64) *EmailBuilder {
 	e.email.id = id
 	return e
 }
@@ -70,7 +70,7 @@ func (e *EmailBuilder) Apply() error {
 	return nil
 }
 
-func (e *Email) ID() uint              { return e.id }
+func (e *Email) ID() int64             { return e.id }
 func (e *Email) Address() vo.Email     { return e.address }
 func (e *Email) CreatedAt() time.Time  { return e.createdAt }
 func (e *Email) UpdatedAt() time.Time  { return e.updatedAt }
@@ -93,7 +93,7 @@ func (e *Email) IsDeleted() bool {
 	return e.deletedAt != nil
 }
 
-func (e *Email) SetID(id uint) error {
+func (e *Email) SetID(id int64) error {
 	if e.id != 0 {
 		return domain.NewFieldError("id", "email ID is already set")
 	}

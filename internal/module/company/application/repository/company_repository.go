@@ -12,5 +12,5 @@ type CompanyRepository interface {
 	Update(ctx context.Context, company *domain.Company) error
 	Delete(ctx context.Context, company *domain.Company) error
 	FindByCNPJ(ctx context.Context, cnpj string) (*domain.Company, error)
-	FindByID(ctx context.Context, id uint) (*domain.Company, error)
+	FindByID(ctx context.Context, id int64) (*domain.Company, error)
 }

@@ -405,12 +405,26 @@ content-type: application/json
 
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzY3MzIzMCwiaWF0IjoxNzczNjcyMzMwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.Tms7AZySePxd3XiLEinXRhc5GFW2zlngF9IndubFFf0",
-  "accessExpiresAt": "2026-03-16T15:00:30.940177356Z",
-  "refreshToken": "pALPBLcASuZq1sXFs2dgWNniZ2IwU5V4hKbge3xcgy4",
-  "refreshExpiresAt": "2026-03-17T14:45:30.940177356Z",
+  
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc3NTE4MCwiaWF0IjoxNzczNzc0MjgwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.OWJ7HcMT9abDK0GjPYV5KHw629PROOEx7DU4K6Un3UM",
+  "accessExpiresAt": "2026-03-17T19:19:40.301829852Z",
+  "refreshToken": "j1JFoaLPUXwnCxeuLCm4jyoeWy4bHcaIuPe8AGGflN8",
+  "refreshExpiresAt": "2026-03-18T19:04:40.301829852Z",
   "idSession": "1"
 }
+
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc3NTE4MCwiaWF0IjoxNzczNzc0MjgwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.OWJ7HcMT9abDK0GjPYV5KHw629PROOEx7DU4K6Un3UM" \
+-d '{"name":"Actajus", "trade_name": "Actajus Sistema Jurídico", "cnpj": "48.922.852/0001-62",
+"address": {"zip": "12345-678", "title": "Avenida", "street": "Cariocas", "complement": "Casa 70", "reference": "Hospital Pedro Pedrossian",
+"number": 1450, "neighborhood": "Parque das Laranjeiras", "city": "Rio de Janeiro", "state": "Rio de Janeiro", "country": "Brasil"},
+"phone": {"number": "+5567999347845", "kind": "Celular", "department": "Comercial"},
+"email": {"address": "falecom22@acatajus.com.br"},
+"social_media": []}' \
+localhost:50051 company.v1.CompanyService/CreateCompany
+
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
@@ -419,14 +433,14 @@ localhost:50051 identity.v1.AuthService/Login
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjY1MzU4OSwiaWF0IjoxNzcyNjUyNjg5LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.aOcB1Ug1XVGebxRyg-5nPZw8Z0HkWIoKnR0-PwDKP-4" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc3Mzc0OCwiaWF0IjoxNzczNzcyODQ4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.kISTF2dmNbTObUMNX5quC8nbDDz8z-4IbYzRzCe29no" \
 -d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
 localhost:50051 person.v1.PersonService/CreatePerson
 
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":1,"refresh_token":"Pv0kR5Ch-SHRYJJVliDTtiyj_5nhRAvrrVZu6-kmebk","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":1,"refresh_token":"HjPrhrSkNY_oHx4iXl2maU7ohyHN0voRsKDEeqzU4SY","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 
@@ -466,23 +480,6 @@ grpcurl -v \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
   -d '{"id_role":1,"id_permission":5}' \
   localhost:50051 identity.v1.RbacAdminService/GrantPermissionToRole
-
-Response contents:
-{
-  "ok": true,
-  "idReset": "1",
-  "resetToken": "h651SFQgycaEdRYXzhcAgdx_NpIdHUxJDZb74tkei4U",
-  "expiresAt": "2026-03-03T15:57:32.662358383Z"
-}
-
-{
-  "ok": true,
-  "idReset": "2",
-  "resetToken": "Qv0p90IZEjlW8VW2DjXvq_Cr6_w5bWeJ2g1WwDnYI3g",
-  "expiresAt": "2026-03-04T20:28:24.619084248Z"
-}
-
-
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
