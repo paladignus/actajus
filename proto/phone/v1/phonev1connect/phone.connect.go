@@ -36,11 +36,15 @@ const (
 	// PhoneServiceCreatePhoneProcedure is the fully-qualified name of the PhoneService's CreatePhone
 	// RPC.
 	PhoneServiceCreatePhoneProcedure = "/phone.v1.PhoneService/CreatePhone"
+	// PhoneServiceUpdatePhoneProcedure is the fully-qualified name of the PhoneService's UpdatePhone
+	// RPC.
+	PhoneServiceUpdatePhoneProcedure = "/phone.v1.PhoneService/UpdatePhone"
 )
 
 // PhoneServiceClient is a client for the phone.v1.PhoneService service.
 type PhoneServiceClient interface {
 	CreatePhone(context.Context, *connect.Request[v1.CreatePhoneRequest]) (*connect.Response[v1.CreatePhoneResponse], error)
+	UpdatePhone(context.Context, *connect.Request[v1.UpdatePhoneRequest]) (*connect.Response[v1.UpdatePhoneResponse], error)
 }
 
 // NewPhoneServiceClient constructs a client for the phone.v1.PhoneService service. By default, it
@@ -58,12 +62,18 @@ func NewPhoneServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			baseURL+PhoneServiceCreatePhoneProcedure,
 			opts...,
 		),
+		updatePhone: connect.NewClient[v1.UpdatePhoneRequest, v1.UpdatePhoneResponse](
+			httpClient,
+			baseURL+PhoneServiceUpdatePhoneProcedure,
+			opts...,
+		),
 	}
 }
 
 // phoneServiceClient implements PhoneServiceClient.
 type phoneServiceClient struct {
 	createPhone *connect.Client[v1.CreatePhoneRequest, v1.CreatePhoneResponse]
+	updatePhone *connect.Client[v1.UpdatePhoneRequest, v1.UpdatePhoneResponse]
 }
 
 // CreatePhone calls phone.v1.PhoneService.CreatePhone.
@@ -71,9 +81,15 @@ func (c *phoneServiceClient) CreatePhone(ctx context.Context, req *connect.Reque
 	return c.createPhone.CallUnary(ctx, req)
 }
 
+// UpdatePhone calls phone.v1.PhoneService.UpdatePhone.
+func (c *phoneServiceClient) UpdatePhone(ctx context.Context, req *connect.Request[v1.UpdatePhoneRequest]) (*connect.Response[v1.UpdatePhoneResponse], error) {
+	return c.updatePhone.CallUnary(ctx, req)
+}
+
 // PhoneServiceHandler is an implementation of the phone.v1.PhoneService service.
 type PhoneServiceHandler interface {
 	CreatePhone(context.Context, *connect.Request[v1.CreatePhoneRequest]) (*connect.Response[v1.CreatePhoneResponse], error)
+	UpdatePhone(context.Context, *connect.Request[v1.UpdatePhoneRequest]) (*connect.Response[v1.UpdatePhoneResponse], error)
 }
 
 // NewPhoneServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -87,10 +103,17 @@ func NewPhoneServiceHandler(svc PhoneServiceHandler, opts ...connect.HandlerOpti
 		svc.CreatePhone,
 		opts...,
 	)
+	phoneServiceUpdatePhoneHandler := connect.NewUnaryHandler(
+		PhoneServiceUpdatePhoneProcedure,
+		svc.UpdatePhone,
+		opts...,
+	)
 	return "/phone.v1.PhoneService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case PhoneServiceCreatePhoneProcedure:
 			phoneServiceCreatePhoneHandler.ServeHTTP(w, r)
+		case PhoneServiceUpdatePhoneProcedure:
+			phoneServiceUpdatePhoneHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -102,4 +125,8 @@ type UnimplementedPhoneServiceHandler struct{}
 
 func (UnimplementedPhoneServiceHandler) CreatePhone(context.Context, *connect.Request[v1.CreatePhoneRequest]) (*connect.Response[v1.CreatePhoneResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("phone.v1.PhoneService.CreatePhone is not implemented"))
+}
+
+func (UnimplementedPhoneServiceHandler) UpdatePhone(context.Context, *connect.Request[v1.UpdatePhoneRequest]) (*connect.Response[v1.UpdatePhoneResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("phone.v1.PhoneService.UpdatePhone is not implemented"))
 }

@@ -59,7 +59,16 @@ func NewModule(d Dependencies) (Module, error) {
 		*mapper,
 		projection,
 	)
-	handlerImpl := handler.NewCompanyHandler(createUC)
+	updateUC := usecase.NewUpdateCompany(
+		d.UoW,
+		d.Repository,
+		*mapper,
+		projection,
+	)
+	handlerImpl := handler.NewCompanyHandler(
+		createUC,
+		updateUC,
+	)
 	return Module{
 		&handlerImpl,
 		d.DB,

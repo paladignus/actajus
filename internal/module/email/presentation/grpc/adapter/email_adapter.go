@@ -14,3 +14,13 @@ func ProtoToEmailCreateCommand(in *emailv1.CreateEmailRequest) dto.CreateEmailRe
 		Address: in.Address,
 	}
 }
+
+func ProtoToEmailUpdateCommand(in *emailv1.UpdateEmailRequest) dto.UpdateEmailRequest {
+	if in == nil {
+		return dto.UpdateEmailRequest{}
+	}
+	return dto.UpdateEmailRequest{
+		IDEmail: in.Id,
+		Address: in.Address,
+	}
+}

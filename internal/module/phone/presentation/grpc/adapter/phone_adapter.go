@@ -16,3 +16,15 @@ func ProtoToPhoneCreateCommand(in *phonev1.CreatePhoneRequest) dto.CreatePhoneRe
 		Department: in.Department,
 	}
 }
+
+func ProtoToPhoneUpdateCommand(in *phonev1.UpdatePhoneRequest) dto.UpdatePhoneRequest {
+	if in == nil {
+		return dto.UpdatePhoneRequest{}
+	}
+	return dto.UpdatePhoneRequest{
+		IDPhone:    in.Id,
+		Number:     in.Number,
+		Kind:       in.Kind,
+		Department: in.Department,
+	}
+}

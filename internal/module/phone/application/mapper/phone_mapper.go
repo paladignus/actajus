@@ -24,7 +24,7 @@ func (p *PhoneMapper) InputToDomain(input dto.CreatePhoneRequest) (*domain.Phone
 
 func (p *PhoneMapper) UpdateInputToDomain(input dto.UpdatePhoneRequest) (*domain.Phone, error) {
 	return domain.NewPhoneBuilder().
-		WithID(input.ID).
+		WithID(input.IDPhone).
 		WithNumber(input.Number).
 		WithKind(input.Kind).
 		WithDepartment(input.Department).

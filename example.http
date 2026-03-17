@@ -405,26 +405,49 @@ content-type: application/json
 
 
 {
-  
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc3NTE4MCwiaWF0IjoxNzczNzc0MjgwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.OWJ7HcMT9abDK0GjPYV5KHw629PROOEx7DU4K6Un3UM",
-  "accessExpiresAt": "2026-03-17T19:19:40.301829852Z",
-  "refreshToken": "j1JFoaLPUXwnCxeuLCm4jyoeWy4bHcaIuPe8AGGflN8",
-  "refreshExpiresAt": "2026-03-18T19:04:40.301829852Z",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzgwMzI1MCwiaWF0IjoxNzczNzgxNjUwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.6mF6FYyTa2_jgk7ez2cTnHSIWmREVG3CAoKBgnTlxKQ",
+  "accessExpiresAt": "2026-03-18T03:07:30.975462381Z",
+  "refreshToken": "eIr7jm1NCnlj3OheD4mILbe22Io5RVDtEbWUwHMwnzM",
+  "refreshExpiresAt": "2026-03-18T21:07:30.975462381Z",
   "idSession": "1"
 }
 
 
+
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc3NTE4MCwiaWF0IjoxNzczNzc0MjgwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.OWJ7HcMT9abDK0GjPYV5KHw629PROOEx7DU4K6Un3UM" \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzgwMzI1MCwiaWF0IjoxNzczNzgxNjUwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.6mF6FYyTa2_jgk7ez2cTnHSIWmREVG3CAoKBgnTlxKQ \
 -d '{"name":"Actajus", "trade_name": "Actajus Sistema Jurídico", "cnpj": "48.922.852/0001-62",
 "address": {"zip": "12345-678", "title": "Avenida", "street": "Cariocas", "complement": "Casa 70", "reference": "Hospital Pedro Pedrossian",
 "number": 1450, "neighborhood": "Parque das Laranjeiras", "city": "Rio de Janeiro", "state": "Rio de Janeiro", "country": "Brasil"},
 "phone": {"number": "+5567999347845", "kind": "Celular", "department": "Comercial"},
 "email": {"address": "falecom22@acatajus.com.br"},
-"social_media": []}' \
+"socialMedia": [
+    {"platform": "facebook", "url": "https://www.facebook.com/actajus2s"},
+    {"platform": "Linkedin", "url": "https://www.linkedin.com/in/actajus2s/"},
+    {"platform": "Instagram", "url": "https://www.instagram.com/actajus2s/"},
+    {"platform": "X", "url": "https://x.com/actajus2s"},
+    {"platform": "Site", "url": "https://twitter.com/actajus2s"}
+]}' \
 localhost:50051 company.v1.CompanyService/CreateCompany
 
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzgwMzI1MCwiaWF0IjoxNzczNzgxNjUwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.6mF6FYyTa2_jgk7ez2cTnHSIWmREVG3CAoKBgnTlxKQ \
+-d '{"id": 1, "name":"Actajuss", "trade_name": "Actajus Sistema Jurídicos", "cnpj": "10.123.456/0001-00",
+"address": {"id": 1, "zip": "78230-678", "title": "Rua", "street": "Adelina Rigoty", "complement": "Apartamento 120", "reference": "Escola Imaculada",
+"number": 550, "neighborhood": "Centro", "city": "São Paulo", "state": "São Paulo", "country": "Brasil"},
+"phone": {"id": 1, "number": "+556799654321", "kind": "Celular", "department": "Finanças"},
+"email": {"id": 6, "address": "financas@acatajus.com.br"},
+"social_media": [
+    {"id": 1, "platform": "facebook", "url": "https://www.facebook.com/actajuss"},
+    {"id": 2, "platform": "Linkedin", "url": "https://www.linkedin.com/in/actajuss/"},
+    {"id": 3, "platform": "Instagram", "url": "https://www.instagram.com/actajuss/"},
+    {"id": 4, "platform": "X", "url": "https://x.com/actajuss"},
+    {"id": 5, "platform": "Site", "url": "https://twitter.com/actajuss"}
+]}' \
+localhost:50051 company.v1.CompanyService/UpdateCompany
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
@@ -440,7 +463,7 @@ localhost:50051 person.v1.PersonService/CreatePerson
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":1,"refresh_token":"HjPrhrSkNY_oHx4iXl2maU7ohyHN0voRsKDEeqzU4SY","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":1,"refresh_token":"-I_Q1BNLHFMZDpHCc8--zUQxKXVVVTPvP9uBqevewsU","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 

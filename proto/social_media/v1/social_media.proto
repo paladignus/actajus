@@ -6,13 +6,24 @@ option go_package = "github.com/paladignus/actajus/proto/social_media/v1;socialm
 
 service SocialMediaService {
   rpc CreateSocialMedia(CreateSocialMediaRequest) returns (CreateSocialMediaResponse);
+  rpc UpdateSocialMedia(UpdateSocialMediaRequest) returns (UpdateSocialMediaResponse);
 }
 
 message CreateSocialMediaRequest {
-  repeated string platform = 1;
-  repeated string url = 2;
+  string platform = 1;
+  string url = 2;
 }
 
 message CreateSocialMediaResponse {
+  repeated int64 id = 1;
+}
+
+message UpdateSocialMediaRequest {
+  int64 id = 1;
+  string platform = 2;
+  string url = 3;
+}
+
+message UpdateSocialMediaResponse {
   repeated int64 id = 1;
 }

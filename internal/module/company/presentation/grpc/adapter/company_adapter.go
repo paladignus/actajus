@@ -21,3 +21,16 @@ func ProtoToCompanyCreateCommand(in *companyv1.CreateCompanyRequest) dto.CreateC
 		SocialMedia: socialMedia.ProtoToSocialMediaCreateCommands(in.SocialMedia),
 	}
 }
+
+func ProtoToCompanyUpdateCommand(in *companyv1.UpdateCompanyRequest) dto.UpdateCompanyRequest {
+	return dto.UpdateCompanyRequest{
+		IDCompany:   in.Id,
+		Name:        in.Name,
+		TradeName:   in.TradeName,
+		CNPJ:        in.Cnpj,
+		Address:     addr.ProtoToAddressUpdateCommand(in.Address),
+		Phone:       phone.ProtoToPhoneUpdateCommand(in.Phone),
+		Email:       email.ProtoToEmailUpdateCommand(in.Email),
+		SocialMedia: socialMedia.ProtoToSocialMediaUpdateCommands(in.SocialMedia),
+	}
+}

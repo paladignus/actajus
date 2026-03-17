@@ -6,6 +6,7 @@ option go_package = "github.com/paladignus/actajus/proto/email/v1;emailv1";
 
 service EmailService {
   rpc CreateEmail(CreateEmailRequest) returns (CreateEmailResponse);
+  rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse);
 }
 
 message CreateEmailRequest {
@@ -13,5 +14,15 @@ message CreateEmailRequest {
 }
 
 message CreateEmailResponse {
+  int64 id = 1;
+}
+
+
+message UpdateEmailRequest {
+  int64 id = 1;
+  string address = 2;
+}
+
+message UpdateEmailResponse {
   int64 id = 1;
 }

@@ -16,13 +16,16 @@ import (
 
 type CompanyHandler struct {
 	create usecase.CreateCompany
+	update usecase.UpdateCompany
 }
 
 func NewCompanyHandler(
 	create usecase.CreateCompany,
+	update usecase.UpdateCompany,
 ) CompanyHandler {
 	return CompanyHandler{
 		create,
+		update,
 	}
 }
 
@@ -38,6 +41,22 @@ func (h CompanyHandler) CreateCompany(
 		return nil, mapErr(err)
 	}
 	return connect.NewResponse(&companyv1.CreateCompanyResponse{
+		Id: int64(rm.ID),
+	}), nil
+}
+
+func (h CompanyHandler) UpdateCompany(
+	ctx context.Context,
+	req *connect.Request[companyv1.UpdateCompanyRequest],
+) (*connect.Response[companyv1.UpdateCompanyResponse], error) {
+	// c := authctx.MustGetClaims(ctx)
+	cmd := adapter.ProtoToCompanyUpdateCommand(req.Msg)
+	// cmd.RegisteredBy = c.IDUser
+	rm, err := h.update.Execute(ctx, cmd)
+	if err != nil {
+		return nil, mapErr(err)
+	}
+	return connect.NewResponse(&companyv1.UpdateCompanyResponse{
 		Id: int64(rm.ID),
 	}), nil
 }

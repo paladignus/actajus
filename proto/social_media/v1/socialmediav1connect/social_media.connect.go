@@ -36,11 +36,15 @@ const (
 	// SocialMediaServiceCreateSocialMediaProcedure is the fully-qualified name of the
 	// SocialMediaService's CreateSocialMedia RPC.
 	SocialMediaServiceCreateSocialMediaProcedure = "/social_media.v1.SocialMediaService/CreateSocialMedia"
+	// SocialMediaServiceUpdateSocialMediaProcedure is the fully-qualified name of the
+	// SocialMediaService's UpdateSocialMedia RPC.
+	SocialMediaServiceUpdateSocialMediaProcedure = "/social_media.v1.SocialMediaService/UpdateSocialMedia"
 )
 
 // SocialMediaServiceClient is a client for the social_media.v1.SocialMediaService service.
 type SocialMediaServiceClient interface {
 	CreateSocialMedia(context.Context, *connect.Request[v1.CreateSocialMediaRequest]) (*connect.Response[v1.CreateSocialMediaResponse], error)
+	UpdateSocialMedia(context.Context, *connect.Request[v1.UpdateSocialMediaRequest]) (*connect.Response[v1.UpdateSocialMediaResponse], error)
 }
 
 // NewSocialMediaServiceClient constructs a client for the social_media.v1.SocialMediaService
@@ -58,12 +62,18 @@ func NewSocialMediaServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			baseURL+SocialMediaServiceCreateSocialMediaProcedure,
 			opts...,
 		),
+		updateSocialMedia: connect.NewClient[v1.UpdateSocialMediaRequest, v1.UpdateSocialMediaResponse](
+			httpClient,
+			baseURL+SocialMediaServiceUpdateSocialMediaProcedure,
+			opts...,
+		),
 	}
 }
 
 // socialMediaServiceClient implements SocialMediaServiceClient.
 type socialMediaServiceClient struct {
 	createSocialMedia *connect.Client[v1.CreateSocialMediaRequest, v1.CreateSocialMediaResponse]
+	updateSocialMedia *connect.Client[v1.UpdateSocialMediaRequest, v1.UpdateSocialMediaResponse]
 }
 
 // CreateSocialMedia calls social_media.v1.SocialMediaService.CreateSocialMedia.
@@ -71,9 +81,15 @@ func (c *socialMediaServiceClient) CreateSocialMedia(ctx context.Context, req *c
 	return c.createSocialMedia.CallUnary(ctx, req)
 }
 
+// UpdateSocialMedia calls social_media.v1.SocialMediaService.UpdateSocialMedia.
+func (c *socialMediaServiceClient) UpdateSocialMedia(ctx context.Context, req *connect.Request[v1.UpdateSocialMediaRequest]) (*connect.Response[v1.UpdateSocialMediaResponse], error) {
+	return c.updateSocialMedia.CallUnary(ctx, req)
+}
+
 // SocialMediaServiceHandler is an implementation of the social_media.v1.SocialMediaService service.
 type SocialMediaServiceHandler interface {
 	CreateSocialMedia(context.Context, *connect.Request[v1.CreateSocialMediaRequest]) (*connect.Response[v1.CreateSocialMediaResponse], error)
+	UpdateSocialMedia(context.Context, *connect.Request[v1.UpdateSocialMediaRequest]) (*connect.Response[v1.UpdateSocialMediaResponse], error)
 }
 
 // NewSocialMediaServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -87,10 +103,17 @@ func NewSocialMediaServiceHandler(svc SocialMediaServiceHandler, opts ...connect
 		svc.CreateSocialMedia,
 		opts...,
 	)
+	socialMediaServiceUpdateSocialMediaHandler := connect.NewUnaryHandler(
+		SocialMediaServiceUpdateSocialMediaProcedure,
+		svc.UpdateSocialMedia,
+		opts...,
+	)
 	return "/social_media.v1.SocialMediaService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SocialMediaServiceCreateSocialMediaProcedure:
 			socialMediaServiceCreateSocialMediaHandler.ServeHTTP(w, r)
+		case SocialMediaServiceUpdateSocialMediaProcedure:
+			socialMediaServiceUpdateSocialMediaHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -102,4 +125,8 @@ type UnimplementedSocialMediaServiceHandler struct{}
 
 func (UnimplementedSocialMediaServiceHandler) CreateSocialMedia(context.Context, *connect.Request[v1.CreateSocialMediaRequest]) (*connect.Response[v1.CreateSocialMediaResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("social_media.v1.SocialMediaService.CreateSocialMedia is not implemented"))
+}
+
+func (UnimplementedSocialMediaServiceHandler) UpdateSocialMedia(context.Context, *connect.Request[v1.UpdateSocialMediaRequest]) (*connect.Response[v1.UpdateSocialMediaResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("social_media.v1.SocialMediaService.UpdateSocialMedia is not implemented"))
 }

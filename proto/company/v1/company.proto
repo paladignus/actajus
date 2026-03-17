@@ -11,6 +11,7 @@ option go_package = "github.com/paladignus/actajus/proto/company/v1;companyv1";
 
 service CompanyService {
   rpc CreateCompany(CreateCompanyRequest) returns (CreateCompanyResponse);
+  rpc UpdateCompany(UpdateCompanyRequest) returns (UpdateCompanyResponse);
 }
 
 message CreateCompanyRequest {
@@ -20,9 +21,24 @@ message CreateCompanyRequest {
   address.v1.CreateAddressRequest address = 4;
   phone.v1.CreatePhoneRequest phone = 5;
   email.v1.CreateEmailRequest email = 6;
-  social_media.v1.CreateSocialMediaRequest social_media = 7;
+  repeated social_media.v1.CreateSocialMediaRequest social_media = 7;
 }
 
 message CreateCompanyResponse {
+  int64 id = 1;
+}
+
+message UpdateCompanyRequest {
+  int64 id = 1;
+  string name = 2;
+  string trade_name = 3;
+  string cnpj = 4;
+  address.v1.UpdateAddressRequest address = 5;
+  phone.v1.UpdatePhoneRequest phone = 6;
+  email.v1.UpdateEmailRequest email = 7;
+  repeated social_media.v1.UpdateSocialMediaRequest social_media = 8;
+}
+
+message UpdateCompanyResponse {
   int64 id = 1;
 }

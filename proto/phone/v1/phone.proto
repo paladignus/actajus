@@ -6,6 +6,7 @@ option go_package = "github.com/paladignus/actajus/proto/phone/v1;phonev1";
 
 service PhoneService {
   rpc CreatePhone(CreatePhoneRequest) returns (CreatePhoneResponse);
+  rpc UpdatePhone(UpdatePhoneRequest) returns (UpdatePhoneResponse);
 }
 
 message CreatePhoneRequest {
@@ -15,5 +16,17 @@ message CreatePhoneRequest {
 }
 
 message CreatePhoneResponse{
+  int64 id = 1;
+}
+
+
+message UpdatePhoneRequest {
+  int64 id = 1;
+  string number = 2;
+  string kind = 3;
+  string department = 4;
+}
+
+message UpdatePhoneResponse{
   int64 id = 1;
 }

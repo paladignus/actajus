@@ -36,11 +36,15 @@ const (
 	// EmailServiceCreateEmailProcedure is the fully-qualified name of the EmailService's CreateEmail
 	// RPC.
 	EmailServiceCreateEmailProcedure = "/email.v1.EmailService/CreateEmail"
+	// EmailServiceUpdateEmailProcedure is the fully-qualified name of the EmailService's UpdateEmail
+	// RPC.
+	EmailServiceUpdateEmailProcedure = "/email.v1.EmailService/UpdateEmail"
 )
 
 // EmailServiceClient is a client for the email.v1.EmailService service.
 type EmailServiceClient interface {
 	CreateEmail(context.Context, *connect.Request[v1.CreateEmailRequest]) (*connect.Response[v1.CreateEmailResponse], error)
+	UpdateEmail(context.Context, *connect.Request[v1.UpdateEmailRequest]) (*connect.Response[v1.UpdateEmailResponse], error)
 }
 
 // NewEmailServiceClient constructs a client for the email.v1.EmailService service. By default, it
@@ -58,12 +62,18 @@ func NewEmailServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			baseURL+EmailServiceCreateEmailProcedure,
 			opts...,
 		),
+		updateEmail: connect.NewClient[v1.UpdateEmailRequest, v1.UpdateEmailResponse](
+			httpClient,
+			baseURL+EmailServiceUpdateEmailProcedure,
+			opts...,
+		),
 	}
 }
 
 // emailServiceClient implements EmailServiceClient.
 type emailServiceClient struct {
 	createEmail *connect.Client[v1.CreateEmailRequest, v1.CreateEmailResponse]
+	updateEmail *connect.Client[v1.UpdateEmailRequest, v1.UpdateEmailResponse]
 }
 
 // CreateEmail calls email.v1.EmailService.CreateEmail.
@@ -71,9 +81,15 @@ func (c *emailServiceClient) CreateEmail(ctx context.Context, req *connect.Reque
 	return c.createEmail.CallUnary(ctx, req)
 }
 
+// UpdateEmail calls email.v1.EmailService.UpdateEmail.
+func (c *emailServiceClient) UpdateEmail(ctx context.Context, req *connect.Request[v1.UpdateEmailRequest]) (*connect.Response[v1.UpdateEmailResponse], error) {
+	return c.updateEmail.CallUnary(ctx, req)
+}
+
 // EmailServiceHandler is an implementation of the email.v1.EmailService service.
 type EmailServiceHandler interface {
 	CreateEmail(context.Context, *connect.Request[v1.CreateEmailRequest]) (*connect.Response[v1.CreateEmailResponse], error)
+	UpdateEmail(context.Context, *connect.Request[v1.UpdateEmailRequest]) (*connect.Response[v1.UpdateEmailResponse], error)
 }
 
 // NewEmailServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -87,10 +103,17 @@ func NewEmailServiceHandler(svc EmailServiceHandler, opts ...connect.HandlerOpti
 		svc.CreateEmail,
 		opts...,
 	)
+	emailServiceUpdateEmailHandler := connect.NewUnaryHandler(
+		EmailServiceUpdateEmailProcedure,
+		svc.UpdateEmail,
+		opts...,
+	)
 	return "/email.v1.EmailService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EmailServiceCreateEmailProcedure:
 			emailServiceCreateEmailHandler.ServeHTTP(w, r)
+		case EmailServiceUpdateEmailProcedure:
+			emailServiceUpdateEmailHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -102,4 +125,8 @@ type UnimplementedEmailServiceHandler struct{}
 
 func (UnimplementedEmailServiceHandler) CreateEmail(context.Context, *connect.Request[v1.CreateEmailRequest]) (*connect.Response[v1.CreateEmailResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("email.v1.EmailService.CreateEmail is not implemented"))
+}
+
+func (UnimplementedEmailServiceHandler) UpdateEmail(context.Context, *connect.Request[v1.UpdateEmailRequest]) (*connect.Response[v1.UpdateEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("email.v1.EmailService.UpdateEmail is not implemented"))
 }

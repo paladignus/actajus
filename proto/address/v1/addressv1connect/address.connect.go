@@ -36,11 +36,15 @@ const (
 	// AddressServiceCreateAddressProcedure is the fully-qualified name of the AddressService's
 	// CreateAddress RPC.
 	AddressServiceCreateAddressProcedure = "/address.v1.AddressService/CreateAddress"
+	// AddressServiceUpdateAddressProcedure is the fully-qualified name of the AddressService's
+	// UpdateAddress RPC.
+	AddressServiceUpdateAddressProcedure = "/address.v1.AddressService/UpdateAddress"
 )
 
 // AddressServiceClient is a client for the address.v1.AddressService service.
 type AddressServiceClient interface {
 	CreateAddress(context.Context, *connect.Request[v1.CreateAddressRequest]) (*connect.Response[v1.CreateAddressResponse], error)
+	UpdateAddress(context.Context, *connect.Request[v1.UpdateAddressRequest]) (*connect.Response[v1.UpdateAddressResponse], error)
 }
 
 // NewAddressServiceClient constructs a client for the address.v1.AddressService service. By
@@ -58,12 +62,18 @@ func NewAddressServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			baseURL+AddressServiceCreateAddressProcedure,
 			opts...,
 		),
+		updateAddress: connect.NewClient[v1.UpdateAddressRequest, v1.UpdateAddressResponse](
+			httpClient,
+			baseURL+AddressServiceUpdateAddressProcedure,
+			opts...,
+		),
 	}
 }
 
 // addressServiceClient implements AddressServiceClient.
 type addressServiceClient struct {
 	createAddress *connect.Client[v1.CreateAddressRequest, v1.CreateAddressResponse]
+	updateAddress *connect.Client[v1.UpdateAddressRequest, v1.UpdateAddressResponse]
 }
 
 // CreateAddress calls address.v1.AddressService.CreateAddress.
@@ -71,9 +81,15 @@ func (c *addressServiceClient) CreateAddress(ctx context.Context, req *connect.R
 	return c.createAddress.CallUnary(ctx, req)
 }
 
+// UpdateAddress calls address.v1.AddressService.UpdateAddress.
+func (c *addressServiceClient) UpdateAddress(ctx context.Context, req *connect.Request[v1.UpdateAddressRequest]) (*connect.Response[v1.UpdateAddressResponse], error) {
+	return c.updateAddress.CallUnary(ctx, req)
+}
+
 // AddressServiceHandler is an implementation of the address.v1.AddressService service.
 type AddressServiceHandler interface {
 	CreateAddress(context.Context, *connect.Request[v1.CreateAddressRequest]) (*connect.Response[v1.CreateAddressResponse], error)
+	UpdateAddress(context.Context, *connect.Request[v1.UpdateAddressRequest]) (*connect.Response[v1.UpdateAddressResponse], error)
 }
 
 // NewAddressServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -87,10 +103,17 @@ func NewAddressServiceHandler(svc AddressServiceHandler, opts ...connect.Handler
 		svc.CreateAddress,
 		opts...,
 	)
+	addressServiceUpdateAddressHandler := connect.NewUnaryHandler(
+		AddressServiceUpdateAddressProcedure,
+		svc.UpdateAddress,
+		opts...,
+	)
 	return "/address.v1.AddressService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AddressServiceCreateAddressProcedure:
 			addressServiceCreateAddressHandler.ServeHTTP(w, r)
+		case AddressServiceUpdateAddressProcedure:
+			addressServiceUpdateAddressHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -102,4 +125,8 @@ type UnimplementedAddressServiceHandler struct{}
 
 func (UnimplementedAddressServiceHandler) CreateAddress(context.Context, *connect.Request[v1.CreateAddressRequest]) (*connect.Response[v1.CreateAddressResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("address.v1.AddressService.CreateAddress is not implemented"))
+}
+
+func (UnimplementedAddressServiceHandler) UpdateAddress(context.Context, *connect.Request[v1.UpdateAddressRequest]) (*connect.Response[v1.UpdateAddressResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("address.v1.AddressService.UpdateAddress is not implemented"))
 }

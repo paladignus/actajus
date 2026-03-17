@@ -36,11 +36,15 @@ const (
 	// CompanyServiceCreateCompanyProcedure is the fully-qualified name of the CompanyService's
 	// CreateCompany RPC.
 	CompanyServiceCreateCompanyProcedure = "/company.v1.CompanyService/CreateCompany"
+	// CompanyServiceUpdateCompanyProcedure is the fully-qualified name of the CompanyService's
+	// UpdateCompany RPC.
+	CompanyServiceUpdateCompanyProcedure = "/company.v1.CompanyService/UpdateCompany"
 )
 
 // CompanyServiceClient is a client for the company.v1.CompanyService service.
 type CompanyServiceClient interface {
 	CreateCompany(context.Context, *connect.Request[v1.CreateCompanyRequest]) (*connect.Response[v1.CreateCompanyResponse], error)
+	UpdateCompany(context.Context, *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error)
 }
 
 // NewCompanyServiceClient constructs a client for the company.v1.CompanyService service. By
@@ -58,12 +62,18 @@ func NewCompanyServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			baseURL+CompanyServiceCreateCompanyProcedure,
 			opts...,
 		),
+		updateCompany: connect.NewClient[v1.UpdateCompanyRequest, v1.UpdateCompanyResponse](
+			httpClient,
+			baseURL+CompanyServiceUpdateCompanyProcedure,
+			opts...,
+		),
 	}
 }
 
 // companyServiceClient implements CompanyServiceClient.
 type companyServiceClient struct {
 	createCompany *connect.Client[v1.CreateCompanyRequest, v1.CreateCompanyResponse]
+	updateCompany *connect.Client[v1.UpdateCompanyRequest, v1.UpdateCompanyResponse]
 }
 
 // CreateCompany calls company.v1.CompanyService.CreateCompany.
@@ -71,9 +81,15 @@ func (c *companyServiceClient) CreateCompany(ctx context.Context, req *connect.R
 	return c.createCompany.CallUnary(ctx, req)
 }
 
+// UpdateCompany calls company.v1.CompanyService.UpdateCompany.
+func (c *companyServiceClient) UpdateCompany(ctx context.Context, req *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error) {
+	return c.updateCompany.CallUnary(ctx, req)
+}
+
 // CompanyServiceHandler is an implementation of the company.v1.CompanyService service.
 type CompanyServiceHandler interface {
 	CreateCompany(context.Context, *connect.Request[v1.CreateCompanyRequest]) (*connect.Response[v1.CreateCompanyResponse], error)
+	UpdateCompany(context.Context, *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error)
 }
 
 // NewCompanyServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -87,10 +103,17 @@ func NewCompanyServiceHandler(svc CompanyServiceHandler, opts ...connect.Handler
 		svc.CreateCompany,
 		opts...,
 	)
+	companyServiceUpdateCompanyHandler := connect.NewUnaryHandler(
+		CompanyServiceUpdateCompanyProcedure,
+		svc.UpdateCompany,
+		opts...,
+	)
 	return "/company.v1.CompanyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CompanyServiceCreateCompanyProcedure:
 			companyServiceCreateCompanyHandler.ServeHTTP(w, r)
+		case CompanyServiceUpdateCompanyProcedure:
+			companyServiceUpdateCompanyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -102,4 +125,8 @@ type UnimplementedCompanyServiceHandler struct{}
 
 func (UnimplementedCompanyServiceHandler) CreateCompany(context.Context, *connect.Request[v1.CreateCompanyRequest]) (*connect.Response[v1.CreateCompanyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("company.v1.CompanyService.CreateCompany is not implemented"))
+}
+
+func (UnimplementedCompanyServiceHandler) UpdateCompany(context.Context, *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("company.v1.CompanyService.UpdateCompany is not implemented"))
 }

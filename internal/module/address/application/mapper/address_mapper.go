@@ -31,7 +31,7 @@ func (m *AddressMapper) InputToDomain(input dto.CreateAddressRequest) (*domain.A
 
 func (m *AddressMapper) UpdateInputToDomain(input dto.UpdateAddressRequest) (*domain.Address, error) {
 	return domain.NewAddressBuilder().
-		WithID(input.ID).
+		WithID(input.IDAddress).
 		WithZIP(input.ZIP).
 		WithTitle(input.Title).
 		WithStreet(input.Street).

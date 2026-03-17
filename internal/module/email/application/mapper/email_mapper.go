@@ -22,7 +22,7 @@ func (e *EmailMapper) InputToDomain(input dto.CreateEmailRequest) (*domain.Email
 
 func (e *EmailMapper) UpdateInputToDomain(input dto.UpdateEmailRequest) (*domain.Email, error) {
 	return domain.NewEmailBuilder().
-		WithID(input.ID).
+		WithID(input.IDEmail).
 		WithAddress(input.Address).
 		WithUpdatedAt(time.Now()).
 		Build()
