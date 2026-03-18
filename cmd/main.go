@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/security"
@@ -26,4 +27,16 @@ func main() {
 	fmt.Printf("Agora: %s\n", agora.Format("15:04:05"))
 	fmt.Printf("Futuro: %s\n", futuro.Format("15:04:05"))
 	fmt.Printf("Minutos restantes: %.0f minutos\n", minutos)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		limit := query.Get("limit")
+		scheme := "http"
+		if r.TLS != nil {
+			scheme = "https"
+		}
+		baseURL := scheme + "://" + r.Host + r.URL.Path
+		fmt.Println(baseURL, limit, r.URL.Path)
+	})
+	http.ListenAndServe(":8081", nil)
 }

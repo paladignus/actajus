@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="28"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="991,353" last-zoom="1.1" scene-rect="0,-60.5,2733.34,3411.22"
+	 last-position="373,832" last-zoom="0.8" scene-rect="0,-60.5,2733.34,3411.22"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -705,7 +705,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="1420" y="1760"/>
-	<column name="started_at" not-null="true">
+	<column name="started_at" not-null="true" default-value="NOW()">
 		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="ended_at">

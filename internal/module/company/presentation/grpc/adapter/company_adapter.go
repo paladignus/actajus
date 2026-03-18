@@ -2,8 +2,6 @@
 package adapter
 
 import (
-	"fmt"
-
 	addr "github.com/paladignus/actajus/internal/module/address/presentation/grpc/adapter"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	email "github.com/paladignus/actajus/internal/module/email/presentation/grpc/adapter"
@@ -38,8 +36,7 @@ func ProtoToCompanyUpdateCommand(in *companyv1.UpdateCompanyRequest) dto.UpdateC
 }
 
 func CompaniesReadModelToProto(in *dto.CompanyListReadModel) *companyv1.ListCompaniesResponse {
-	fmt.Println(in.PageInfo)
-	company := &companyv1.ListCompaniesResponse{
+	companies := &companyv1.ListCompaniesResponse{
 		PageInfo: &companyv1.PageInfo{
 			HasNextPage:     in.PageInfo.HasNextPage,
 			HasPreviousPage: in.PageInfo.HasPreviousPage,
@@ -48,7 +45,7 @@ func CompaniesReadModelToProto(in *dto.CompanyListReadModel) *companyv1.ListComp
 		},
 	}
 	for _, crm := range in.Data {
-		company.Companies = append(company.Companies, &companyv1.Company{
+		companies.Companies = append(companies.Companies, &companyv1.Company{
 			Id:          int64(crm.ID),
 			Name:        crm.Name,
 			TradeName:   crm.TradeName,
@@ -61,5 +58,35 @@ func CompaniesReadModelToProto(in *dto.CompanyListReadModel) *companyv1.ListComp
 			UpdatedAt:   crm.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
-	return company
+	return companies
+}
+
+func FindByIDCompanyReadModelToProto(in *dto.CompanyReadModel) *companyv1.FindCompanyByIDResponse {
+	return &companyv1.FindCompanyByIDResponse{
+		Id:          int64(in.ID),
+		Name:        in.Name,
+		TradeName:   in.TradeName,
+		Cnpj:        in.CNPJ,
+		Address:     addr.AddressReadModelToProto(in.Addresses),
+		Phone:       phone.PhoneReadModelToProto(in.Phones),
+		Email:       email.EmailReadModelToProto(in.Emails),
+		SocialMedia: socialMedia.SocialMediaReadModelsToProto(in.SocialMedia),
+		CreatedAt:   in.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:   in.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+}
+
+func FindByCNPJCompanyReadModelToProto(in *dto.CompanyReadModel) *companyv1.FindCompanyByCNPJResponse {
+	return &companyv1.FindCompanyByCNPJResponse{
+		Id:          int64(in.ID),
+		Name:        in.Name,
+		TradeName:   in.TradeName,
+		Cnpj:        in.CNPJ,
+		Address:     addr.AddressReadModelToProto(in.Addresses),
+		Phone:       phone.PhoneReadModelToProto(in.Phones),
+		Email:       email.EmailReadModelToProto(in.Emails),
+		SocialMedia: socialMedia.SocialMediaReadModelsToProto(in.SocialMedia),
+		CreatedAt:   in.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:   in.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
 }

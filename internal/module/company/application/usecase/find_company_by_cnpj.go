@@ -4,64 +4,48 @@ package usecase
 import (
 	"context"
 
-	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/application/repository"
-	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
-	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
-	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 )
 
 type FindByCNPJ struct {
-	company     repository.CompanyRepository
-	address     addrDomain.AddressRepository
-	phone       phoneDomain.PhoneRepository
-	email       emailDomain.EmailRepository
-	socialMedia socialMediaDomain.SocialMediaRepository
-	projection  mapper.CompanyProjectionMapper
+	repository repository.Factory
+	projection mapper.CompanyProjectionMapper
 }
 
 func NewFindByCNPJ(
-	company repository.CompanyRepository,
-	address addrDomain.AddressRepository,
-	phone phoneDomain.PhoneRepository,
-	email emailDomain.EmailRepository,
-	socialMedia socialMediaDomain.SocialMediaRepository,
+	repository repository.Factory,
 	projection mapper.CompanyProjectionMapper,
 ) FindByCNPJ {
 	return FindByCNPJ{
-		company,
-		address,
-		phone,
-		email,
-		socialMedia,
+		repository,
 		projection,
 	}
 }
 
-func (f FindByCNPJ) Execute(ctx context.Context, cnpj string) (*dto.CompanyReadModel, error) {
-	company, err := f.company.FindByCNPJ(ctx, cnpj)
+func (u FindByCNPJ) Execute(ctx context.Context, cnpj string) (*dto.CompanyReadModel, error) {
+	company, err := u.repository.Company().FindByCNPJ(ctx, cnpj)
 	if err != nil {
 		return nil, err
 	}
-	address, err := f.address.FindByIDCompany(ctx, company.ID())
+	address, err := u.repository.Address().FindByIDCompany(ctx, company.ID())
 	if err != nil {
 		return nil, err
 	}
-	phone, err := f.phone.FindByIDCompany(ctx, company.ID())
+	phone, err := u.repository.Phone().FindByIDCompany(ctx, company.ID())
 	if err != nil {
 		return nil, err
 	}
-	email, err := f.email.FindByIDCompany(ctx, company.ID())
+	email, err := u.repository.Email().FindByIDCompany(ctx, company.ID())
 	if err != nil {
 		return nil, err
 	}
-	socialMedia, err := f.socialMedia.FindByIDCompany(ctx, company.ID())
+	socialMedia, err := u.repository.SocialMedia().FindByIDCompany(ctx, company.ID())
 	if err != nil {
 		return nil, err
 	}
-	return f.projection.ProjectCompanyToReadModel(
+	return u.projection.ProjectCompanyToReadModel(
 		company,
 		address,
 		phone,

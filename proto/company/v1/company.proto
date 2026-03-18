@@ -14,6 +14,8 @@ service CompanyService {
   rpc ListCompanies(ListCompaniesRequest) returns (ListCompaniesResponse);
   rpc UpdateCompany(UpdateCompanyRequest) returns (UpdateCompanyResponse);
   rpc DeleteCompany(DeleteCompanyRequest) returns (DeleteCompanyResponse);
+  rpc FindCompanyByID(FindCompanyByIDRequest) returns (FindCompanyByIDResponse);
+  rpc FindCompanyByCNPJ(FindCompanyByCNPJRequest) returns (FindCompanyByCNPJResponse);
 }
 
 message CreateCompanyRequest {
@@ -81,3 +83,37 @@ message DeleteCompanyRequest {
 }
 
 message DeleteCompanyResponse {}
+
+message FindCompanyByIDRequest{
+  int64 id = 1;
+}
+
+message FindCompanyByIDResponse{
+  int64 id = 1;
+  string name = 2;
+  string trade_name = 3;
+  string cnpj = 4;
+  address.v1.AddressResponse address = 5;
+  repeated phone.v1.PhoneResponse phone = 6;
+  repeated email.v1.EmailResponse email = 7;
+  repeated social_media.v1.SocialMediaResponse social_media = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message FindCompanyByCNPJRequest{
+  string cnpj = 1;
+}
+
+message FindCompanyByCNPJResponse{
+  int64 id = 1;
+  string name = 2;
+  string trade_name = 3;
+  string cnpj = 4;
+  address.v1.AddressResponse address = 5;
+  repeated phone.v1.PhoneResponse phone = 6;
+  repeated email.v1.EmailResponse email = 7;
+  repeated social_media.v1.SocialMediaResponse social_media = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}

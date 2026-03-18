@@ -15,10 +15,12 @@ import (
 )
 
 type CompanyHandler struct {
-	create usecase.CreateCompany
-	list   usecase.ListCompanies
-	update usecase.UpdateCompany
-	delete usecase.DeleteCompany
+	create     usecase.CreateCompany
+	list       usecase.ListCompanies
+	update     usecase.UpdateCompany
+	delete     usecase.DeleteCompany
+	findByID   usecase.FindByID
+	findByCNPJ usecase.FindByCNPJ
 }
 
 func NewCompanyHandler(
@@ -26,12 +28,16 @@ func NewCompanyHandler(
 	list usecase.ListCompanies,
 	update usecase.UpdateCompany,
 	delete usecase.DeleteCompany,
+	findByID usecase.FindByID,
+	findByCNPJ usecase.FindByCNPJ,
 ) CompanyHandler {
 	return CompanyHandler{
 		create,
 		list,
 		update,
 		delete,
+		findByID,
+		findByCNPJ,
 	}
 }
 
@@ -55,7 +61,7 @@ func (h CompanyHandler) ListCompanies(
 	ctx context.Context,
 	req *connect.Request[companyv1.ListCompaniesRequest],
 ) (*connect.Response[companyv1.ListCompaniesResponse], error) {
-	baseURL := "http://localhost:50"
+	baseURL := "http://localhost:50051"
 	limit := 10
 	if req.Msg.Limit != nil && *req.Msg.Limit > 0 && *req.Msg.Limit < 100 {
 		limit = int(*req.Msg.Limit)
@@ -91,6 +97,28 @@ func (h CompanyHandler) DeleteCompany(
 		return nil, mapErr(err)
 	}
 	return connect.NewResponse(&companyv1.DeleteCompanyResponse{}), nil
+}
+
+func (h CompanyHandler) FindCompanyByID(
+	ctx context.Context,
+	req *connect.Request[companyv1.FindCompanyByIDRequest],
+) (*connect.Response[companyv1.FindCompanyByIDResponse], error) {
+	company, err := h.findByID.Execute(ctx, req.Msg.Id)
+	if err != nil {
+		return nil, mapErr(err)
+	}
+	return connect.NewResponse(adapter.FindByIDCompanyReadModelToProto(company)), nil
+}
+
+func (h CompanyHandler) FindCompanyByCNPJ(
+	ctx context.Context,
+	req *connect.Request[companyv1.FindCompanyByCNPJRequest],
+) (*connect.Response[companyv1.FindCompanyByCNPJResponse], error) {
+	company, err := h.findByCNPJ.Execute(ctx, req.Msg.Cnpj)
+	if err != nil {
+		return nil, mapErr(err)
+	}
+	return connect.NewResponse(adapter.FindByCNPJCompanyReadModelToProto(company)), nil
 }
 
 func mapErr(err error) error {

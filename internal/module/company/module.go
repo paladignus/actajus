@@ -73,11 +73,21 @@ func NewModule(d Dependencies) (Module, error) {
 		d.UoW,
 		d.Repository,
 	)
+	findByID := usecase.NewFindByID(
+		d.Repository,
+		projection,
+	)
+	findByCNPJ := usecase.NewFindByCNPJ(
+		d.Repository,
+		projection,
+	)
 	handlerImpl := handler.NewCompanyHandler(
 		createUC,
 		listUC,
 		updateUC,
 		deleteUC,
+		findByID,
+		findByCNPJ,
 	)
 	return Module{
 		&handlerImpl,
