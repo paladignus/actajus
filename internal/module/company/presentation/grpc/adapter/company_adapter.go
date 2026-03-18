@@ -2,6 +2,8 @@
 package adapter
 
 import (
+	"fmt"
+
 	addr "github.com/paladignus/actajus/internal/module/address/presentation/grpc/adapter"
 	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	email "github.com/paladignus/actajus/internal/module/email/presentation/grpc/adapter"
@@ -33,4 +35,31 @@ func ProtoToCompanyUpdateCommand(in *companyv1.UpdateCompanyRequest) dto.UpdateC
 		Email:       email.ProtoToEmailUpdateCommand(in.Email),
 		SocialMedia: socialMedia.ProtoToSocialMediaUpdateCommands(in.SocialMedia),
 	}
+}
+
+func CompaniesReadModelToProto(in *dto.CompanyListReadModel) *companyv1.ListCompaniesResponse {
+	fmt.Println(in.PageInfo)
+	company := &companyv1.ListCompaniesResponse{
+		PageInfo: &companyv1.PageInfo{
+			HasNextPage:     in.PageInfo.HasNextPage,
+			HasPreviousPage: in.PageInfo.HasPreviousPage,
+			PreviousUrl:     in.PageInfo.PreviousURL,
+			NextUrl:         in.PageInfo.NextURL,
+		},
+	}
+	for _, crm := range in.Data {
+		company.Companies = append(company.Companies, &companyv1.Company{
+			Id:          int64(crm.ID),
+			Name:        crm.Name,
+			TradeName:   crm.TradeName,
+			Cnpj:        crm.CNPJ,
+			Address:     addr.AddressReadModelToProto(crm.Addresses),
+			Phone:       phone.PhoneReadModelToProto(crm.Phones),
+			Email:       email.EmailReadModelToProto(crm.Emails),
+			SocialMedia: socialMedia.SocialMediaReadModelsToProto(crm.SocialMedia),
+			CreatedAt:   crm.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:   crm.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return company
 }

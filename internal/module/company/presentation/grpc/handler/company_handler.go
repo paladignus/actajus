@@ -55,7 +55,17 @@ func (h CompanyHandler) ListCompanies(
 	ctx context.Context,
 	req *connect.Request[companyv1.ListCompaniesRequest],
 ) (*connect.Response[companyv1.ListCompaniesResponse], error) {
-	return *connect.NewResponse(&companyv1.ListCompaniesResponse{}), nil
+	baseURL := "http://localhost:50"
+	limit := 10
+	if req.Msg.Limit != nil && *req.Msg.Limit > 0 && *req.Msg.Limit < 100 {
+		limit = int(*req.Msg.Limit)
+	}
+	companies, err := h.list.Execute(ctx, req.Msg.After, req.Msg.Before, limit, baseURL)
+	if err != nil {
+		return nil, mapErr(err)
+	}
+	adapter.CompaniesReadModelToProto(companies)
+	return connect.NewResponse(adapter.CompaniesReadModelToProto(companies)), nil
 }
 
 func (h CompanyHandler) UpdateCompany(

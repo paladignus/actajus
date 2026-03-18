@@ -9,6 +9,12 @@ service SocialMediaService {
   rpc UpdateSocialMedia(UpdateSocialMediaRequest) returns (UpdateSocialMediaResponse);
 }
 
+message SocialMediaResponse {
+  int64 id = 1;
+  string platform = 2;
+  string url = 3;
+}
+
 message CreateSocialMediaRequest {
   string platform = 1;
   string url = 2;

@@ -9,6 +9,12 @@ service EmailService {
   rpc UpdateEmail(UpdateEmailRequest) returns (UpdateEmailResponse);
 }
 
+
+message EmailResponse {
+  int64 id = 1;
+  string address = 2;
+}
+
 message CreateEmailRequest {
   string address = 1;
 }

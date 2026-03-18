@@ -34,3 +34,18 @@ func ProtoToSocialMediaUpdateCommands(in []*socialmediav1.UpdateSocialMediaReque
 	}
 	return result
 }
+
+func SocialMediaReadModelsToProto(in []*dto.SocialMediaReadModel) []*socialmediav1.SocialMediaResponse {
+	// if in == nil {
+	// 	return &emailv1.EmailResponse{}
+	// }
+	sm := make([]*socialmediav1.SocialMediaResponse, len(in))
+	for i := range in {
+		sm[i] = &socialmediav1.SocialMediaResponse{
+			Id:       int64(in[i].ID),
+			Platform: in[i].Platform,
+			Url:      in[i].URL,
+		}
+	}
+	return sm
+}

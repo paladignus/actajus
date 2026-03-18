@@ -1,5 +1,5 @@
-// Package domain
-package domain
+// Package repository
+package repository
 
 import (
 	"context"

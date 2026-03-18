@@ -405,11 +405,19 @@ content-type: application/json
 
 
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzgwMzI1MCwiaWF0IjoxNzczNzgxNjUwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.6mF6FYyTa2_jgk7ez2cTnHSIWmREVG3CAoKBgnTlxKQ",
-  "accessExpiresAt": "2026-03-18T03:07:30.975462381Z",
-  "refreshToken": "eIr7jm1NCnlj3OheD4mILbe22Io5RVDtEbWUwHMwnzM",
-  "refreshExpiresAt": "2026-03-18T21:07:30.975462381Z",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg0NTkxNywiaWF0IjoxNzczODQ1MDE3LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.HRZNEggVS6_mn3LgGnyM7YUu9eGpRkIGYTMhec131ag",
+  "accessExpiresAt": "2026-03-18T14:58:37.098132378Z",
+  "refreshToken": "gnK5M9PXIvUyx4WalWPDXQvGNbGg4b5CEKudxbvVUeM",
+  "refreshExpiresAt": "2026-03-19T14:43:37.098132378Z",
   "idSession": "1"
+}
+
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg2MTIxNywiaWF0IjoxNzczODYwMzE3LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.hiiQ3-_AJk36vHXhythmmZd1gJXkQ5CGQSHhs-DWvMs",
+  "accessExpiresAt": "2026-03-18T19:13:37.056543456Z",
+  "refreshToken": "r_9wwn-v7UIlI386w1mBV15sMCh0KnvsJjzb_-m37aQ",
+  "refreshExpiresAt": "2026-03-19T18:58:37.056543456Z",
+  "idSession": "2"
 }
 
 {
@@ -419,6 +427,12 @@ content-type: application/json
   "refreshExpiresAt": "2026-03-19T01:51:21.786459182Z",
   "idSession": "1"
 }
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg1OTE5NiwiaWF0IjoxNzczODU4Mjk2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.Tv5tRLdRXm19y9ZsNtsuRm3elEB32tXGXcPGTCDqkqA \
+-d '{}' \
+localhost:50051 company.v1.CompanyService/ListCompanies
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
@@ -476,7 +490,7 @@ localhost:50051 person.v1.PersonService/CreatePerson
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--d '{"id_session":1,"refresh_token":"-I_Q1BNLHFMZDpHCc8--zUQxKXVVVTPvP9uBqevewsU","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+-d '{"id_session":2,"refresh_token":"FWVeAebco4vidNpsGaSqhNwI5E0S1C8jnU9ZS94zt6E","ip":"127.0.0.1","user_agent":"grpcurl"}' \
 localhost:50051 identity.v1.AuthService/Refresh
 
 

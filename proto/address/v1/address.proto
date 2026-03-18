@@ -9,6 +9,20 @@ service AddressService {
   rpc UpdateAddress(UpdateAddressRequest) returns (UpdateAddressResponse);
 }
 
+message AddressResponse {
+  int64 id = 1;
+  string zip = 2;
+  string title = 3;
+  string street = 4;
+  string complement = 5;
+  string reference = 6;
+  uint32 number = 7;
+  string neighborhood = 8;
+  string city = 9;
+  string state = 10;
+  string country = 11;
+}
+
 message CreateAddressRequest {
   string zip = 1;
   string title = 2;
@@ -25,7 +39,6 @@ message CreateAddressRequest {
 message CreateAddressResponse{
   int64 id = 1;
 }
-
 
 message UpdateAddressRequest {
   int64 id = 1;

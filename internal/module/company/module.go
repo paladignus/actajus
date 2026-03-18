@@ -20,10 +20,11 @@ import (
 )
 
 type Dependencies struct {
-	DB         sharedPostgres.Executor
-	Logger     sharedRepo.Logger
-	UoW        uow.UnitOfWork
-	Repository repository.Factory
+	DB             sharedPostgres.Executor
+	Logger         sharedRepo.Logger
+	UoW            uow.UnitOfWork
+	Repository     repository.Factory
+	ReadRepository repository.CompanyReadRepository
 }
 
 type Module struct {
@@ -59,6 +60,9 @@ func NewModule(d Dependencies) (Module, error) {
 		*mapper,
 		projection,
 	)
+	listUC := usecase.NewListCompanies(
+		d.ReadRepository,
+	)
 	updateUC := usecase.NewUpdateCompany(
 		d.UoW,
 		d.Repository,
@@ -71,6 +75,7 @@ func NewModule(d Dependencies) (Module, error) {
 	)
 	handlerImpl := handler.NewCompanyHandler(
 		createUC,
+		listUC,
 		updateUC,
 		deleteUC,
 	)

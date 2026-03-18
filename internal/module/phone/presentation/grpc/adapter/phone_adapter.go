@@ -28,3 +28,18 @@ func ProtoToPhoneUpdateCommand(in *phonev1.UpdatePhoneRequest) dto.UpdatePhoneRe
 		Department: in.Department,
 	}
 }
+
+// func AddressReadModelToProto(in *dto.AddressReadModel) *addressv1.AddressResponse {
+
+func PhoneReadModelToProto(in []*dto.PhoneReadModel) []*phonev1.PhoneResponse {
+	phones := make([]*phonev1.PhoneResponse, len(in))
+	for i := range in {
+		phones[i] = &phonev1.PhoneResponse{
+			Id:         int64(in[i].ID),
+			Number:     in[i].Number,
+			Kind:       in[i].Kind,
+			Department: in[i].Department,
+		}
+	}
+	return phones
+}

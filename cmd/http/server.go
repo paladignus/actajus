@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	companypg "github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company"
+	companypg "github.com/paladignus/actajus/internal/module/company/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
 	sharedPostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
@@ -49,12 +49,14 @@ func main() {
 	// Initialize modules
 	uow := sharedPostgres.NewUnitOfWork(db)
 	companyFactory := companypg.NewFactory(db)
+	companyRead := companypg.NewCompanyReadRepository(db)
 
 	companyModule, err := company.NewModule(company.Dependencies{
-		DB:         db,
-		Logger:     logger,
-		UoW:        uow,
-		Repository: companyFactory,
+		DB:             db,
+		Logger:         logger,
+		UoW:            uow,
+		Repository:     companyFactory,
+		ReadRepository: companyRead,
 	})
 	if err != nil {
 		log.Fatalf("Failed to initialize company module: %v", err)

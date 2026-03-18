@@ -60,6 +60,7 @@ func main() {
 	identityFactory := identitypg.NewFactory(db)
 	outboxFactory := postgresShared.NewOutboxFactory(db)
 	companyFactory := companypg.NewFactory(db)
+	companyRead := companypg.NewCompanyReadRepository(db)
 	natsBoot, err := sharednats.NewBootstrap(cfg.NATS.URL)
 	if err != nil {
 		appLogger.Error(ctx, "❌ nats connect failed", "error", err)
@@ -110,10 +111,11 @@ func main() {
 	mux := http.NewServeMux()
 	personMod := person.NewModule(db, appLogger)
 	companyMod, err := company.NewModule(company.Dependencies{
-		DB:         db,
-		Logger:     appLogger,
-		UoW:        uow,
-		Repository: companyFactory,
+		DB:             db,
+		Logger:         appLogger,
+		UoW:            uow,
+		Repository:     companyFactory,
+		ReadRepository: companyRead,
 	})
 	if err != nil {
 		appLogger.Error(ctx, "❌ failed to init company module", "error", err)

@@ -42,3 +42,19 @@ func ProtoToAddressUpdateCommand(in *addressv1.UpdateAddressRequest) dto.UpdateA
 		Country:      in.Country,
 	}
 }
+
+func AddressReadModelToProto(in *dto.AddressReadModel) *addressv1.AddressResponse {
+	return &addressv1.AddressResponse{
+		Id:           int64(in.ID),
+		Zip:          in.ZIP,
+		Title:        in.Title,
+		Street:       in.Street,
+		Complement:   *in.Complement,
+		Reference:    *in.Reference,
+		Number:       uint32(in.Number),
+		Neighborhood: in.Neighborhood,
+		City:         in.City,
+		State:        in.State,
+		Country:      in.Country,
+	}
+}

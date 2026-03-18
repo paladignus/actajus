@@ -31,13 +31,34 @@ message CreateCompanyResponse {
 }
 
 message ListCompaniesRequest {
-  string after = 1;
-  string before = 2;
-  int64 limit = 3;
+  optional string after = 1;
+  optional string before = 2;
+  optional int64 limit = 3;
+}
+
+message Company {
+  int64 id = 1;
+  string name = 2;
+  string trade_name = 3;
+  string cnpj = 4;
+  address.v1.AddressResponse address = 5;
+  repeated phone.v1.PhoneResponse phone = 6;
+  repeated email.v1.EmailResponse email = 7;
+  repeated social_media.v1.SocialMediaResponse social_media = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message PageInfo {
+  bool has_next_page = 1;
+  bool has_previous_page = 2;
+  optional string next_url = 3;
+  optional string previous_url = 4;
 }
 
 message ListCompaniesResponse {
-  repeated company.v1.ListCompaniesResponse companies = 1;
+  repeated Company companies = 1;
+  PageInfo page_info = 2;
 }
 
 message UpdateCompanyRequest {

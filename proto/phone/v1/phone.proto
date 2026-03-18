@@ -9,6 +9,13 @@ service PhoneService {
   rpc UpdatePhone(UpdatePhoneRequest) returns (UpdatePhoneResponse);
 }
 
+message PhoneResponse {
+  int64 id = 1;
+  string number = 2;
+  string kind = 3;
+  string department = 4;
+}
+
 message CreatePhoneRequest {
   string number = 1;
   string kind = 2;
