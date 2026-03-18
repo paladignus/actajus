@@ -422,7 +422,7 @@ content-type: application/json
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
--H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzgwMzI1MCwiaWF0IjoxNzczNzgxNjUwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.6mF6FYyTa2_jgk7ez2cTnHSIWmREVG3CAoKBgnTlxKQ \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc5OTU4MSwiaWF0IjoxNzczNzk4NjgxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.coLDbsdPnrcCYwBulegxqUbbCRq7jsurTP4d5E11Oyo \
 -d '{"name":"Actajus", "trade_name": "Actajus Sistema Jurídico", "cnpj": "48.922.852/0001-62",
 "address": {"zip": "12345-678", "title": "Avenida", "street": "Cariocas", "complement": "Casa 70", "reference": "Hospital Pedro Pedrossian",
 "number": 1450, "neighborhood": "Parque das Laranjeiras", "city": "Rio de Janeiro", "state": "Rio de Janeiro", "country": "Brasil"},
@@ -436,7 +436,6 @@ grpcurl -v \
     {"platform": "Site", "url": "https://twitter.com/actajus2s"}
 ]}' \
 localhost:50051 company.v1.CompanyService/CreateCompany
-
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
@@ -454,6 +453,14 @@ grpcurl -v \
     {"id": 5, "platform": "Site", "url": "https://twitter.com/actajuss"}
 ]}' \
 localhost:50051 company.v1.CompanyService/UpdateCompany
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc5OTU4MSwiaWF0IjoxNzczNzk4NjgxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.coLDbsdPnrcCYwBulegxqUbbCRq7jsurTP4d5E11Oyo \
+-d '{"id": 1}' \
+localhost:50051 company.v1.CompanyService/DeleteCompany
+
+
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \
