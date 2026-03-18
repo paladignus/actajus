@@ -36,15 +36,23 @@ const (
 	// CompanyServiceCreateCompanyProcedure is the fully-qualified name of the CompanyService's
 	// CreateCompany RPC.
 	CompanyServiceCreateCompanyProcedure = "/company.v1.CompanyService/CreateCompany"
+	// CompanyServiceListCompaniesProcedure is the fully-qualified name of the CompanyService's
+	// ListCompanies RPC.
+	CompanyServiceListCompaniesProcedure = "/company.v1.CompanyService/ListCompanies"
 	// CompanyServiceUpdateCompanyProcedure is the fully-qualified name of the CompanyService's
 	// UpdateCompany RPC.
 	CompanyServiceUpdateCompanyProcedure = "/company.v1.CompanyService/UpdateCompany"
+	// CompanyServiceDeleteCompanyProcedure is the fully-qualified name of the CompanyService's
+	// DeleteCompany RPC.
+	CompanyServiceDeleteCompanyProcedure = "/company.v1.CompanyService/DeleteCompany"
 )
 
 // CompanyServiceClient is a client for the company.v1.CompanyService service.
 type CompanyServiceClient interface {
 	CreateCompany(context.Context, *connect.Request[v1.CreateCompanyRequest]) (*connect.Response[v1.CreateCompanyResponse], error)
+	ListCompanies(context.Context, *connect.Request[v1.ListCompaniesRequest]) (*connect.Response[v1.ListCompaniesResponse], error)
 	UpdateCompany(context.Context, *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error)
+	DeleteCompany(context.Context, *connect.Request[v1.DeleteCompanyRequest]) (*connect.Response[v1.DeleteCompanyResponse], error)
 }
 
 // NewCompanyServiceClient constructs a client for the company.v1.CompanyService service. By
@@ -62,9 +70,19 @@ func NewCompanyServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			baseURL+CompanyServiceCreateCompanyProcedure,
 			opts...,
 		),
+		listCompanies: connect.NewClient[v1.ListCompaniesRequest, v1.ListCompaniesResponse](
+			httpClient,
+			baseURL+CompanyServiceListCompaniesProcedure,
+			opts...,
+		),
 		updateCompany: connect.NewClient[v1.UpdateCompanyRequest, v1.UpdateCompanyResponse](
 			httpClient,
 			baseURL+CompanyServiceUpdateCompanyProcedure,
+			opts...,
+		),
+		deleteCompany: connect.NewClient[v1.DeleteCompanyRequest, v1.DeleteCompanyResponse](
+			httpClient,
+			baseURL+CompanyServiceDeleteCompanyProcedure,
 			opts...,
 		),
 	}
@@ -73,7 +91,9 @@ func NewCompanyServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 // companyServiceClient implements CompanyServiceClient.
 type companyServiceClient struct {
 	createCompany *connect.Client[v1.CreateCompanyRequest, v1.CreateCompanyResponse]
+	listCompanies *connect.Client[v1.ListCompaniesRequest, v1.ListCompaniesResponse]
 	updateCompany *connect.Client[v1.UpdateCompanyRequest, v1.UpdateCompanyResponse]
+	deleteCompany *connect.Client[v1.DeleteCompanyRequest, v1.DeleteCompanyResponse]
 }
 
 // CreateCompany calls company.v1.CompanyService.CreateCompany.
@@ -81,15 +101,27 @@ func (c *companyServiceClient) CreateCompany(ctx context.Context, req *connect.R
 	return c.createCompany.CallUnary(ctx, req)
 }
 
+// ListCompanies calls company.v1.CompanyService.ListCompanies.
+func (c *companyServiceClient) ListCompanies(ctx context.Context, req *connect.Request[v1.ListCompaniesRequest]) (*connect.Response[v1.ListCompaniesResponse], error) {
+	return c.listCompanies.CallUnary(ctx, req)
+}
+
 // UpdateCompany calls company.v1.CompanyService.UpdateCompany.
 func (c *companyServiceClient) UpdateCompany(ctx context.Context, req *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error) {
 	return c.updateCompany.CallUnary(ctx, req)
 }
 
+// DeleteCompany calls company.v1.CompanyService.DeleteCompany.
+func (c *companyServiceClient) DeleteCompany(ctx context.Context, req *connect.Request[v1.DeleteCompanyRequest]) (*connect.Response[v1.DeleteCompanyResponse], error) {
+	return c.deleteCompany.CallUnary(ctx, req)
+}
+
 // CompanyServiceHandler is an implementation of the company.v1.CompanyService service.
 type CompanyServiceHandler interface {
 	CreateCompany(context.Context, *connect.Request[v1.CreateCompanyRequest]) (*connect.Response[v1.CreateCompanyResponse], error)
+	ListCompanies(context.Context, *connect.Request[v1.ListCompaniesRequest]) (*connect.Response[v1.ListCompaniesResponse], error)
 	UpdateCompany(context.Context, *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error)
+	DeleteCompany(context.Context, *connect.Request[v1.DeleteCompanyRequest]) (*connect.Response[v1.DeleteCompanyResponse], error)
 }
 
 // NewCompanyServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -103,17 +135,31 @@ func NewCompanyServiceHandler(svc CompanyServiceHandler, opts ...connect.Handler
 		svc.CreateCompany,
 		opts...,
 	)
+	companyServiceListCompaniesHandler := connect.NewUnaryHandler(
+		CompanyServiceListCompaniesProcedure,
+		svc.ListCompanies,
+		opts...,
+	)
 	companyServiceUpdateCompanyHandler := connect.NewUnaryHandler(
 		CompanyServiceUpdateCompanyProcedure,
 		svc.UpdateCompany,
+		opts...,
+	)
+	companyServiceDeleteCompanyHandler := connect.NewUnaryHandler(
+		CompanyServiceDeleteCompanyProcedure,
+		svc.DeleteCompany,
 		opts...,
 	)
 	return "/company.v1.CompanyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CompanyServiceCreateCompanyProcedure:
 			companyServiceCreateCompanyHandler.ServeHTTP(w, r)
+		case CompanyServiceListCompaniesProcedure:
+			companyServiceListCompaniesHandler.ServeHTTP(w, r)
 		case CompanyServiceUpdateCompanyProcedure:
 			companyServiceUpdateCompanyHandler.ServeHTTP(w, r)
+		case CompanyServiceDeleteCompanyProcedure:
+			companyServiceDeleteCompanyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -127,6 +173,14 @@ func (UnimplementedCompanyServiceHandler) CreateCompany(context.Context, *connec
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("company.v1.CompanyService.CreateCompany is not implemented"))
 }
 
+func (UnimplementedCompanyServiceHandler) ListCompanies(context.Context, *connect.Request[v1.ListCompaniesRequest]) (*connect.Response[v1.ListCompaniesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("company.v1.CompanyService.ListCompanies is not implemented"))
+}
+
 func (UnimplementedCompanyServiceHandler) UpdateCompany(context.Context, *connect.Request[v1.UpdateCompanyRequest]) (*connect.Response[v1.UpdateCompanyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("company.v1.CompanyService.UpdateCompany is not implemented"))
+}
+
+func (UnimplementedCompanyServiceHandler) DeleteCompany(context.Context, *connect.Request[v1.DeleteCompanyRequest]) (*connect.Response[v1.DeleteCompanyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("company.v1.CompanyService.DeleteCompany is not implemented"))
 }

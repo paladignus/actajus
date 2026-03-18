@@ -65,9 +65,14 @@ func NewModule(d Dependencies) (Module, error) {
 		*mapper,
 		projection,
 	)
+	deleteUC := usecase.NewDeleteCompany(
+		d.UoW,
+		d.Repository,
+	)
 	handlerImpl := handler.NewCompanyHandler(
 		createUC,
 		updateUC,
+		deleteUC,
 	)
 	return Module{
 		&handlerImpl,

@@ -11,7 +11,9 @@ option go_package = "github.com/paladignus/actajus/proto/company/v1;companyv1";
 
 service CompanyService {
   rpc CreateCompany(CreateCompanyRequest) returns (CreateCompanyResponse);
+  rpc ListCompanies(ListCompaniesRequest) returns (ListCompaniesResponse);
   rpc UpdateCompany(UpdateCompanyRequest) returns (UpdateCompanyResponse);
+  rpc DeleteCompany(DeleteCompanyRequest) returns (DeleteCompanyResponse);
 }
 
 message CreateCompanyRequest {
@@ -28,6 +30,16 @@ message CreateCompanyResponse {
   int64 id = 1;
 }
 
+message ListCompaniesRequest {
+  string after = 1;
+  string before = 2;
+  int64 limit = 3;
+}
+
+message ListCompaniesResponse {
+  repeated company.v1.ListCompaniesResponse companies = 1;
+}
+
 message UpdateCompanyRequest {
   int64 id = 1;
   string name = 2;
@@ -42,3 +54,9 @@ message UpdateCompanyRequest {
 message UpdateCompanyResponse {
   int64 id = 1;
 }
+
+message DeleteCompanyRequest {
+  int64 id = 1;
+}
+
+message DeleteCompanyResponse {}

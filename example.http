@@ -412,7 +412,13 @@ content-type: application/json
   "idSession": "1"
 }
 
-
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc5OTU4MSwiaWF0IjoxNzczNzk4NjgxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.coLDbsdPnrcCYwBulegxqUbbCRq7jsurTP4d5E11Oyo",
+  "accessExpiresAt": "2026-03-18T02:06:21.786459182Z",
+  "refreshToken": "FbYec8e6wN4RXNM8kSm9syytFyBv_4TeGBmG6vPFdTk",
+  "refreshExpiresAt": "2026-03-19T01:51:21.786459182Z",
+  "idSession": "1"
+}
 
 grpcurl -v \
 -protoset <(buf build -o -) -plaintext \

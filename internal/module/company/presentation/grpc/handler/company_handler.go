@@ -16,16 +16,22 @@ import (
 
 type CompanyHandler struct {
 	create usecase.CreateCompany
+	list   usecase.ListCompanies
 	update usecase.UpdateCompany
+	delete usecase.DeleteCompany
 }
 
 func NewCompanyHandler(
 	create usecase.CreateCompany,
+	list usecase.ListCompanies,
 	update usecase.UpdateCompany,
+	delete usecase.DeleteCompany,
 ) CompanyHandler {
 	return CompanyHandler{
 		create,
+		list,
 		update,
+		delete,
 	}
 }
 
@@ -45,13 +51,18 @@ func (h CompanyHandler) CreateCompany(
 	}), nil
 }
 
+func (h CompanyHandler) ListCompanies(
+	ctx context.Context,
+	req *connect.Request[companyv1.ListCompaniesRequest],
+) (*connect.Response[companyv1.ListCompaniesResponse], error) {
+	return *connect.NewResponse(&companyv1.ListCompaniesResponse{}), nil
+}
+
 func (h CompanyHandler) UpdateCompany(
 	ctx context.Context,
 	req *connect.Request[companyv1.UpdateCompanyRequest],
 ) (*connect.Response[companyv1.UpdateCompanyResponse], error) {
-	// c := authctx.MustGetClaims(ctx)
 	cmd := adapter.ProtoToCompanyUpdateCommand(req.Msg)
-	// cmd.RegisteredBy = c.IDUser
 	rm, err := h.update.Execute(ctx, cmd)
 	if err != nil {
 		return nil, mapErr(err)
@@ -59,6 +70,17 @@ func (h CompanyHandler) UpdateCompany(
 	return connect.NewResponse(&companyv1.UpdateCompanyResponse{
 		Id: int64(rm.ID),
 	}), nil
+}
+
+func (h CompanyHandler) DeleteCompany(
+	ctx context.Context,
+	req *connect.Request[companyv1.DeleteCompanyRequest],
+) (*connect.Response[companyv1.DeleteCompanyResponse], error) {
+	err := h.delete.Execute(ctx, req.Msg.Id)
+	if err != nil {
+		return nil, mapErr(err)
+	}
+	return connect.NewResponse(&companyv1.DeleteCompanyResponse{}), nil
 }
 
 func mapErr(err error) error {
