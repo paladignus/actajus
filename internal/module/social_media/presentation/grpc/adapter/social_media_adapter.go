@@ -2,17 +2,18 @@
 package adapter
 
 import (
-	"github.com/paladignus/actajus/internal/module/social_media/application/dto"
+	"github.com/paladignus/actajus/internal/module/social_media/application/command"
+	"github.com/paladignus/actajus/internal/module/social_media/application/readmodel"
 	socialmediav1 "github.com/paladignus/actajus/proto/social_media/v1"
 )
 
-func ProtoToSocialMediaCreateCommands(in []*socialmediav1.CreateSocialMediaRequest) []dto.CreateSocialMediaRequest {
+func ProtoToSocialMediaCreateCommands(in []*socialmediav1.CreateSocialMediaRequest) []command.CreateSocialMediaCommand {
 	if in == nil {
-		return []dto.CreateSocialMediaRequest{}
+		return []command.CreateSocialMediaCommand{}
 	}
-	result := make([]dto.CreateSocialMediaRequest, len(in))
+	result := make([]command.CreateSocialMediaCommand, len(in))
 	for i := range in {
-		result[i] = dto.CreateSocialMediaRequest{
+		result[i] = command.CreateSocialMediaCommand{
 			Platform: in[i].Platform,
 			URL:      in[i].Url,
 		}
@@ -20,13 +21,13 @@ func ProtoToSocialMediaCreateCommands(in []*socialmediav1.CreateSocialMediaReque
 	return result
 }
 
-func ProtoToSocialMediaUpdateCommands(in []*socialmediav1.UpdateSocialMediaRequest) []dto.UpdateSocialMediaRequest {
+func ProtoToSocialMediaUpdateCommands(in []*socialmediav1.UpdateSocialMediaRequest) []command.UpdateSocialMediaCommand {
 	if in == nil {
-		return []dto.UpdateSocialMediaRequest{}
+		return []command.UpdateSocialMediaCommand{}
 	}
-	result := make([]dto.UpdateSocialMediaRequest, len(in))
+	result := make([]command.UpdateSocialMediaCommand, len(in))
 	for i := range in {
-		result[i] = dto.UpdateSocialMediaRequest{
+		result[i] = command.UpdateSocialMediaCommand{
 			IDSocialMedia: in[i].Id,
 			Platform:      in[i].Platform,
 			URL:           in[i].Url,
@@ -35,10 +36,7 @@ func ProtoToSocialMediaUpdateCommands(in []*socialmediav1.UpdateSocialMediaReque
 	return result
 }
 
-func SocialMediaReadModelsToProto(in []*dto.SocialMediaReadModel) []*socialmediav1.SocialMediaResponse {
-	// if in == nil {
-	// 	return &emailv1.EmailResponse{}
-	// }
+func SocialMediaReadModelsToProto(in []*readmodel.SocialMediaReadModel) []*socialmediav1.SocialMediaResponse {
 	sm := make([]*socialmediav1.SocialMediaResponse, len(in))
 	for i := range in {
 		sm[i] = &socialmediav1.SocialMediaResponse{

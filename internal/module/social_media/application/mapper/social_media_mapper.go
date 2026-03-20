@@ -4,7 +4,7 @@ package mapper
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/social_media/application/dto"
+	"github.com/paladignus/actajus/internal/module/social_media/application/command"
 	"github.com/paladignus/actajus/internal/module/social_media/domain"
 )
 
@@ -14,14 +14,14 @@ func NewSocialMediaMapper() *SocialMediaMapper {
 	return &SocialMediaMapper{}
 }
 
-func (s *SocialMediaMapper) InputToDomain(input dto.CreateSocialMediaRequest) (*domain.SocialMedia, error) {
+func (s *SocialMediaMapper) InputToDomain(input command.CreateSocialMediaCommand) (*domain.SocialMedia, error) {
 	return domain.NewSocialMediaBuilder().
 		WithPlatform(input.Platform).
 		WithURL(input.URL).
 		Build()
 }
 
-func (s *SocialMediaMapper) UpdateInputToDomain(input dto.UpdateSocialMediaRequest) (*domain.SocialMedia, error) {
+func (s *SocialMediaMapper) UpdateInputToDomain(input command.UpdateSocialMediaCommand) (*domain.SocialMedia, error) {
 	return domain.NewSocialMediaBuilder().
 		WithID(input.IDSocialMedia).
 		WithPlatform(input.Platform).

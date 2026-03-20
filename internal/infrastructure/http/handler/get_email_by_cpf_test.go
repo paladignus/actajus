@@ -10,7 +10,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
@@ -18,17 +19,17 @@ import (
 )
 
 type MockGetEmailByCPFService struct {
-	expectedOutput dto.GetEmailByCPFOutput
+	expectedOutput readmodel.GetEmailByCPFReadModel
 	expectedError  error
 }
 
-func (m *MockGetEmailByCPFService) Execute(ctx context.Context, input dto.GetEmailByCPFInput) (dto.GetEmailByCPFOutput, error) {
+func (m *MockGetEmailByCPFService) Execute(ctx context.Context, input command.GetEmailByCPFCommand) (readmodel.GetEmailByCPFReadModel, error) {
 	return m.expectedOutput, m.expectedError
 }
 
 func TestGetEmailByCPFHandler(t *testing.T) {
 	mockService := &MockGetEmailByCPFService{
-		expectedOutput: dto.GetEmailByCPFOutput{
+		expectedOutput: readmodel.GetEmailByCPFReadModel{
 			Email: "test@example.com",
 		},
 		expectedError: nil,
@@ -44,7 +45,7 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 		logger.On("Info", req.Context(), "get email by CPF successful", "cpf", "12345678901", "email", "test@example.com", "method", req.Method, "url", req.URL.Path)
 		sut.GetEmailByCPF(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
-		var response dto.GetEmailByCPFOutput
+		var response readmodel.GetEmailByCPFReadModel
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, response.Email, "test@example.com")
@@ -63,7 +64,7 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 
 	t.Run("service return internal server error", func(t *testing.T) {
 		mockService := &MockGetEmailByCPFService{
-			expectedOutput: dto.GetEmailByCPFOutput{},
+			expectedOutput: readmodel.GetEmailByCPFReadModel{},
 			expectedError:  fmt.Errorf("internal server error"),
 		}
 		sut := NewGetEmailByCPF(mockService, logger)
@@ -78,7 +79,7 @@ func TestGetEmailByCPFHandler(t *testing.T) {
 
 	t.Run("should return 404 if email not found", func(t *testing.T) {
 		mockService := &MockGetEmailByCPFService{
-			expectedOutput: dto.GetEmailByCPFOutput{},
+			expectedOutput: readmodel.GetEmailByCPFReadModel{},
 			expectedError:  exception.ErrEmailNotFound,
 		}
 		sut := NewGetEmailByCPF(mockService, logger)

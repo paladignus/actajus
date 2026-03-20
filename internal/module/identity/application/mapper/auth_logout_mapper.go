@@ -3,22 +3,21 @@ package mapper
 
 import (
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
-	"github.com/paladignus/actajus/internal/module/identity/application/model"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 )
 
-func (m *AuthMapper) LogoutInputToNormalized(input dto.LogoutCommand) (model.LogoutNormalized, error) {
+func (m *AuthMapper) LogoutInputToNormalized(input dto.LogoutCommand) (LogoutNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
-		return model.LogoutNormalized{}, err
+		return LogoutNormalized{}, err
 	}
-	return model.LogoutNormalized{IDSession: input.IDSession}, nil
+	return LogoutNormalized{IDSession: input.IDSession}, nil
 }
 
-func (m *AuthMapper) LogoutAllInputToNormalized(input dto.LogoutAllCommand) (model.LogoutAllNormalized, error) {
+func (m *AuthMapper) LogoutAllInputToNormalized(input dto.LogoutAllCommand) (LogoutAllNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
-		return model.LogoutAllNormalized{}, err
+		return LogoutAllNormalized{}, err
 	}
-	return model.LogoutAllNormalized{IDUser: input.IDUser}, nil
+	return LogoutAllNormalized{IDUser: input.IDUser}, nil
 }

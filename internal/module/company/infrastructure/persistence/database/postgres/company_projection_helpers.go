@@ -2,10 +2,10 @@
 package postgres
 
 import (
-	companyDTO "github.com/paladignus/actajus/internal/module/company/application/dto"
-	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
-	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
-	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
+	companyReadModel "github.com/paladignus/actajus/internal/module/company/application/readmodel"
+	emailReadModel "github.com/paladignus/actajus/internal/module/email/application/readmodel"
+	phoneReadModel "github.com/paladignus/actajus/internal/module/phone/application/readmodel"
+	socialMediaReadModel "github.com/paladignus/actajus/internal/module/social_media/application/readmodel"
 )
 
 func mergeCompanyScanWithRelations(
@@ -14,9 +14,9 @@ func mergeCompanyScanWithRelations(
 	e *emailScan,
 	p *phoneScan,
 	sm *socialMediaScan,
-	companiesMap map[int64]*companyDTO.CompanyReadModel,
+	companiesMap map[int64]*companyReadModel.CompanyReadModel,
 	order *[]int64,
-) *companyDTO.CompanyReadModel {
+) *companyReadModel.CompanyReadModel {
 	company := cp.companyToDTO()
 	if company == nil {
 		return nil
@@ -50,7 +50,7 @@ func mergeCompanyScanWithRelations(
 	return existing
 }
 
-func hasEmail(emails []*emailDTO.EmailReadModel, id int64) bool {
+func hasEmail(emails []*emailReadModel.EmailReadModel, id int64) bool {
 	for _, e := range emails {
 		if e.ID == id {
 			return true
@@ -59,7 +59,7 @@ func hasEmail(emails []*emailDTO.EmailReadModel, id int64) bool {
 	return false
 }
 
-func hasPhone(phones []*phoneDTO.PhoneReadModel, id int64) bool {
+func hasPhone(phones []*phoneReadModel.PhoneReadModel, id int64) bool {
 	for _, p := range phones {
 		if p.ID == id {
 			return true
@@ -68,7 +68,7 @@ func hasPhone(phones []*phoneDTO.PhoneReadModel, id int64) bool {
 	return false
 }
 
-func hasSocialMedia(sms []*socialMediaDTO.SocialMediaReadModel, id int64) bool {
+func hasSocialMedia(sms []*socialMediaReadModel.SocialMediaReadModel, id int64) bool {
 	for _, s := range sms {
 		if s.ID == id {
 			return true
@@ -77,7 +77,7 @@ func hasSocialMedia(sms []*socialMediaDTO.SocialMediaReadModel, id int64) bool {
 	return false
 }
 
-func reverseSlice(items []companyDTO.CompanyReadModel) {
+func reverseSlice(items []companyReadModel.CompanyReadModel) {
 	for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
 		items[i], items[j] = items[j], items[i]
 	}

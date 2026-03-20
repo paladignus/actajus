@@ -2,7 +2,7 @@
 package mapper
 
 import (
-	"github.com/paladignus/actajus/internal/module/phone/application/dto"
+	"github.com/paladignus/actajus/internal/module/phone/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/phone/domain"
 )
 
@@ -12,9 +12,9 @@ func NewPhoneProjectionMapper() PhoneProjectionMapper {
 	return PhoneProjectionMapper{}
 }
 
-func (p PhoneProjectionMapper) ProjectPhoneToReadModel(phone *domain.Phone) *dto.PhoneReadModel {
-	return &dto.PhoneReadModel{
-		ID:         phone.ID(),
+func (p PhoneProjectionMapper) ProjectPhoneToReadModel(phone *domain.Phone) *readmodel.PhoneReadModel {
+	return &readmodel.PhoneReadModel{
+		ID:         phone.ID().Value(),
 		Number:     phone.Number().Value(),
 		Kind:       phone.Kind().Value(),
 		Department: phone.Department().Value(),

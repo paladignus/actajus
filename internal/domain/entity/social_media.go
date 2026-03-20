@@ -2,7 +2,7 @@
 package entity
 
 import (
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
@@ -14,7 +14,7 @@ type SocialMedia struct {
 	URL           string
 }
 
-func NewSocialMedia(input dto.SocialMedia) SocialMedia {
+func NewSocialMedia(input readmodel.SocialMediaReadModel) SocialMedia {
 	return SocialMedia{
 		IDSocialMedia: input.IDSocialMedia,
 		IDCompany:     input.IDCompany,

@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/model"
+	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
@@ -17,7 +17,7 @@ func NewPasswordReset(db postgres.Executor) *PasswordReset {
 	return &PasswordReset{db}
 }
 
-func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTokenCreate) (int64, error) {
+func (r PasswordReset) Create(ctx context.Context, input *mapper.PasswordResetTokenCreate) (int64, error) {
 	const query = `INSERT INTO
   password_resets (id_users, token_hash, expires_at, created_at)
   VALUES ($1, $2, $3, $4) RETURNING idpassword_resets;`
@@ -33,7 +33,7 @@ func (r PasswordReset) Create(ctx context.Context, input *model.PasswordResetTok
 	return id, nil
 }
 
-func (r PasswordReset) GetByID(ctx context.Context, id int64) (*model.PasswordResetToken, error) {
+func (r PasswordReset) GetByID(ctx context.Context, id int64) (*mapper.PasswordResetToken, error) {
 	const query = `SELECT
 	id_users, token_hash, expires_at, used_at
 	FROM password_resets
@@ -53,7 +53,7 @@ func (r PasswordReset) GetByID(ctx context.Context, id int64) (*model.PasswordRe
 	if err != nil {
 		return nil, err
 	}
-	return &model.PasswordResetToken{
+	return &mapper.PasswordResetToken{
 		IDUser:    uid,
 		Hash:      hash,
 		ExpiresAt: expiresAt,
@@ -77,7 +77,7 @@ func (r PasswordReset) RevokeAllByUser(ctx context.Context, uid int64, now time.
 	return err
 }
 
-func (r PasswordReset) GetActiveByUser(ctx context.Context, uid int64) (*model.PasswordResetToken, error) {
+func (r PasswordReset) GetActiveByUser(ctx context.Context, uid int64) (*mapper.PasswordResetToken, error) {
 	const query = `SELECT
 	idpassword_resets, token_hash, expires_at, used_at
 	FROM password_resets
@@ -97,7 +97,7 @@ func (r PasswordReset) GetActiveByUser(ctx context.Context, uid int64) (*model.P
 	if err != nil {
 		return nil, err
 	}
-	return &model.PasswordResetToken{
+	return &mapper.PasswordResetToken{
 		ID:        prid,
 		Hash:      hash,
 		ExpiresAt: expiresAt,

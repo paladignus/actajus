@@ -44,7 +44,7 @@ func (s SocialMedia) Update(ctx context.Context, socialMedia domain.SocialMedia)
 		socialMedia.Platform(),
 		socialMedia.URL(),
 		socialMedia.UpdatedAt(),
-		socialMedia.ID(),
+		socialMedia.ID().Value(),
 	)
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -58,7 +58,7 @@ func (s SocialMedia) Delete(ctx context.Context, socialMedia domain.SocialMedia)
 	_, err := s.db.Exec(ctx, query,
 		socialMedia.UpdatedAt(),
 		socialMedia.DeletedAt(),
-		socialMedia.ID())
+		socialMedia.ID().Value())
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return nil

@@ -4,18 +4,18 @@ package mapper
 import (
 	"time"
 
-	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
+	addrCommand "github.com/paladignus/actajus/internal/module/address/application/command"
 	addrMapper "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/command"
 	"github.com/paladignus/actajus/internal/module/company/domain"
-	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
+	emailCommand "github.com/paladignus/actajus/internal/module/email/application/command"
 	emailMapper "github.com/paladignus/actajus/internal/module/email/application/mapper"
 	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
-	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
+	phoneCommand "github.com/paladignus/actajus/internal/module/phone/application/command"
 	phoneMapper "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
-	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
+	socialMediaCommand "github.com/paladignus/actajus/internal/module/social_media/application/command"
 	socialMediaMapper "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
 	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 )
@@ -41,7 +41,7 @@ func NewCompanyMapper(
 	}
 }
 
-func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*domain.Company, error) {
+func (m *CompanyMapper) CompanyInputToDomain(input command.CreateCompanyCommand) (*domain.Company, error) {
 	// v := validation.New(validation.PT)
 	// if err := v.ValidateStruct(input); err != nil {
 	// 	return nil, err
@@ -54,7 +54,7 @@ func (m *CompanyMapper) CompanyInputToDomain(input dto.CreateCompanyRequest) (*d
 		Build()
 }
 
-func (m *CompanyMapper) UpdateInputToDomain(input dto.UpdateCompanyRequest) (*domain.Company, error) {
+func (m *CompanyMapper) UpdateInputToDomain(input command.UpdateCompanyCommand) (*domain.Company, error) {
 	// v := validation.New(validation.PT)
 	// if err := v.ValidateStruct(input); err != nil {
 	// 	return nil, err
@@ -68,31 +68,31 @@ func (m *CompanyMapper) UpdateInputToDomain(input dto.UpdateCompanyRequest) (*do
 		Build()
 }
 
-func (m *CompanyMapper) AddressInputToDomain(input addrDTO.CreateAddressRequest) (*addrDomain.Address, error) {
+func (m *CompanyMapper) AddressInputToDomain(input addrCommand.CreateAddressCommand) (*addrDomain.Address, error) {
 	return m.addrMapper.InputToDomain(input)
 }
 
-func (m *CompanyMapper) UpdateAddressInputToDomain(input addrDTO.UpdateAddressRequest) (*addrDomain.Address, error) {
+func (m *CompanyMapper) UpdateAddressInputToDomain(input addrCommand.UpdateAddressCommand) (*addrDomain.Address, error) {
 	return m.addrMapper.UpdateInputToDomain(input)
 }
 
-func (m *CompanyMapper) PhoneInputToDomain(input phoneDTO.CreatePhoneRequest) (*phoneDomain.Phone, error) {
+func (m *CompanyMapper) PhoneInputToDomain(input phoneCommand.CreatePhoneCommand) (*phoneDomain.Phone, error) {
 	return m.phoneMapper.InputToDomain(input)
 }
 
-func (m *CompanyMapper) UpdatePhoneInputToDomain(input phoneDTO.UpdatePhoneRequest) (*phoneDomain.Phone, error) {
+func (m *CompanyMapper) UpdatePhoneInputToDomain(input phoneCommand.UpdatePhoneCommand) (*phoneDomain.Phone, error) {
 	return m.phoneMapper.UpdateInputToDomain(input)
 }
 
-func (m *CompanyMapper) EmailInputToDomain(input emailDTO.CreateEmailRequest) (*emailDomain.Email, error) {
+func (m *CompanyMapper) EmailInputToDomain(input emailCommand.CreateEmailCommand) (*emailDomain.Email, error) {
 	return m.emailMapper.InputToDomain(input)
 }
 
-func (m *CompanyMapper) UpdateEmailInputToDomain(input emailDTO.UpdateEmailRequest) (*emailDomain.Email, error) {
+func (m *CompanyMapper) UpdateEmailInputToDomain(input emailCommand.UpdateEmailCommand) (*emailDomain.Email, error) {
 	return m.emailMapper.UpdateInputToDomain(input)
 }
 
-func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaDTO.CreateSocialMediaRequest) ([]*socialMediaDomain.SocialMedia, error) {
+func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaCommand.CreateSocialMediaCommand) ([]*socialMediaDomain.SocialMedia, error) {
 	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
 	for i, sm := range input {
 		dsm, err := m.socialMediaMapper.InputToDomain(sm)
@@ -104,7 +104,7 @@ func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaDTO.CreateSo
 	return socialMedia, nil
 }
 
-func (m *CompanyMapper) UpdateSocialMediaInputToDomain(input []socialMediaDTO.UpdateSocialMediaRequest) ([]*socialMediaDomain.SocialMedia, error) {
+func (m *CompanyMapper) UpdateSocialMediaInputToDomain(input []socialMediaCommand.UpdateSocialMediaCommand) ([]*socialMediaDomain.SocialMedia, error) {
 	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
 	for i, sm := range input {
 		dsm, err := m.socialMediaMapper.UpdateInputToDomain(sm)

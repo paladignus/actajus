@@ -2,7 +2,7 @@
 package mapper
 
 import (
-	"github.com/paladignus/actajus/internal/module/address/application/dto"
+	"github.com/paladignus/actajus/internal/module/address/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/address/domain"
 )
 
@@ -12,11 +12,11 @@ func NewAddressProjectionMapper() AddressPrejectionMapper {
 	return AddressPrejectionMapper{}
 }
 
-func (a AddressPrejectionMapper) ProjectAddressToReadModel(address *domain.Address) *dto.AddressReadModel {
+func (a AddressPrejectionMapper) ProjectAddressToReadModel(address *domain.Address) *readmodel.AddressReadModel {
 	complement := address.Complement().Value()
 	reference := address.Reference().Value()
-	return &dto.AddressReadModel{
-		ID:           address.ID(),
+	return &readmodel.AddressReadModel{
+		ID:           address.ID().Value(),
 		ZIP:          address.ZIP().Value(),
 		Title:        address.Title().Value(),
 		Street:       address.Street().Value(),

@@ -4,7 +4,7 @@ package entity
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
@@ -19,11 +19,11 @@ type User struct {
 	DeletedAt   *time.Time
 }
 
-func NewUser(user dto.UserInput) (User, error) {
+func NewUser(input command.CreateUserCommand) (User, error) {
 	a := User{
-		Password:    vo.Password(user.Password),
-		Avatar:      vo.File(user.Avatar),
-		LastLoginAt: user.LastLoginAt,
+		Password:    vo.Password(input.Password),
+		Avatar:      vo.File(input.Avatar),
+		LastLoginAt: input.LastLoginAt,
 	}
 	if !a.Password.IsValid() {
 		return a, exception.ErrInvalidPassword

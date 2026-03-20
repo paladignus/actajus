@@ -4,14 +4,15 @@ package spy
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 )
 
 type GetEmailByCPF struct {
-	ExpectedOutput dto.GetEmailByCPFOutput
+	ExpectedOutput readmodel.GetEmailByCPFReadModel
 	ExpectedError  error
 }
 
-func (m *GetEmailByCPF) Execute(ctx context.Context, input dto.GetEmailByCPFInput) (dto.GetEmailByCPFOutput, error) {
+func (m *GetEmailByCPF) Execute(ctx context.Context, input command.GetEmailByCPFCommand) (readmodel.GetEmailByCPFReadModel, error) {
 	return m.ExpectedOutput, m.ExpectedError
 }

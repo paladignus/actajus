@@ -4,7 +4,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
@@ -19,7 +19,7 @@ func NewSignIn(service service.SignIn, logger repository.Logger) SignIn {
 }
 
 func (a SignIn) SignIn(w http.ResponseWriter, r *http.Request) {
-	req, err := DecodeJSONRequest[dto.SignInInput](r)
+	req, err := DecodeJSONRequest[command.SignInCommand](r)
 	if err != nil {
 		a.logger.Warn(r.Context(), "failed to decode request body for sign in", "error", err)
 		RespondError(w, http.StatusBadRequest, err.Error())

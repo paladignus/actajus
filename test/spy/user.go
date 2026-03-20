@@ -4,14 +4,15 @@ package spy
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/entity"
 )
 
 type Result struct {
-	UserDTO    dto.SignInOutput
+	UserDTO    readmodel.SignInReadModel
 	UserEntity entity.User
-	FindEmail  dto.GetEmailByCPFOutput
+	FindEmail  readmodel.GetEmailByCPFReadModel
 }
 
 type User struct {
@@ -25,11 +26,11 @@ func NewUser() *User {
 	return &User{}
 }
 
-func (u *User) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (user dto.SignInOutput, err error) {
+func (u *User) AuthenticationByCPF(ctx context.Context, input command.SignInCommand) (user readmodel.SignInReadModel, err error) {
 	return u.FindResult.UserDTO, u.FindError
 }
 
-func (u *User) FindEmailByCPF(ctx context.Context, cpf string) (dto.GetEmailByCPFOutput, error) {
+func (u *User) FindEmailByCPF(ctx context.Context, cpf string) (readmodel.GetEmailByCPFReadModel, error) {
 	return u.FindResult.FindEmail, u.FindError
 }
 

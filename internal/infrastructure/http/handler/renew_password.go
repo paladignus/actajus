@@ -4,7 +4,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
@@ -25,7 +25,7 @@ func NewRenewPassword(
 }
 
 func (rp RenewPassword) RenewPassword(w http.ResponseWriter, r *http.Request) {
-	req, err := DecodeJSONRequest[dto.RenewPasswordInput](r)
+	req, err := DecodeJSONRequest[command.RenewPasswordCommand](r)
 	if err != nil {
 		rp.logger.Warn(r.Context(), "invalid request body", "error", err)
 		RespondError(w, http.StatusBadRequest, err.Error())

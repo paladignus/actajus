@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/entity"
 	"github.com/paladignus/actajus/internal/domain/event"
 	"github.com/paladignus/actajus/internal/domain/exception"
@@ -37,7 +37,7 @@ func NewRequestPasswordReset(
 	}
 }
 
-func (r RequestPasswordReset) Execute(ctx context.Context, req dto.RequestPasswordResetInput) error {
+func (r RequestPasswordReset) Execute(ctx context.Context, req command.RequestPasswordResetCommand) error {
 	email := vo.Email(req.Email)
 	if !email.IsValid() {
 		return fmt.Errorf("invalid email format %s in request password reset use case: %w", req.Email, exception.ErrEmailNotFound)

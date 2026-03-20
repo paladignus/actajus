@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
@@ -35,7 +35,7 @@ func NewCompany(
 }
 
 func (c Company) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := DecodeJSONRequest[dto.CompanyInputOutput](r)
+	req, err := DecodeJSONRequest[command.CreateCompanyCommand](r)
 	if err != nil {
 		c.logger.Warn(r.Context(), "failed to decode request body for company create", "error", err)
 		RespondError(w, http.StatusBadRequest, err.Error())
@@ -56,7 +56,7 @@ func (c Company) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Company) Update(w http.ResponseWriter, r *http.Request) {
-	req, err := DecodeJSONRequest[dto.CompanyInputOutput](r)
+	req, err := DecodeJSONRequest[command.UpdateCompanyCommand](r)
 	if err != nil {
 		c.logger.Warn(r.Context(), "failed to decode request body for company update", "error", err)
 		RespondError(w, http.StatusBadRequest, err.Error())
@@ -72,7 +72,7 @@ func (c Company) Update(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(w, statusCode, errResponse)
 		return
 	}
-	c.logger.Info(r.Context(), "update company successful", "cnpj", req.CNPJ, "registered_by", req.RegisteredBy, "method", r.Method, "url", r.URL.Path)
+	c.logger.Info(r.Context(), "update company successful", "cnpj", req.CNPJ, "method", r.Method, "url", r.URL.Path)
 }
 
 func (c Company) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +87,7 @@ func (c Company) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c Company) Delete(w http.ResponseWriter, r *http.Request) {
-	req, err := DecodeJSONRequest[dto.CompanyInputOutput](r)
+	req, err := DecodeJSONRequest[command.DeleteCompanyCommand](r)
 	fmt.Println(req)
 	if err != nil {
 		c.logger.Warn(r.Context(), "failed to decode request body for company delete", "error", err)

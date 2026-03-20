@@ -60,11 +60,21 @@ func (uc ConfirmPasswordReset) Execute(ctx context.Context, input dto.ConfirmPas
 	if ok := uc.refresh.Compare(norm.ResetToken, rec.Hash); !ok {
 		return identity.ErrResetTokenInvalid
 	}
-	newHash, err := uc.hasher.Hash(norm.NewPassword)
+
+	// Busca o usuário para usar o comportamento de domínio
+	user, err := uc.user.FindByID(ctx, rec.IDUser)
 	if err != nil {
 		return err
 	}
-	if err := uc.user.UpdatePasswordHash(ctx, rec.IDUser, newHash); err != nil {
+
+	// Delega a lógica de negócio para a entidade User
+	// A entidade valida e gera o hash da nova senha
+	if err := user.ChangePassword(norm.NewPassword, uc.hasher); err != nil {
+		return err
+	}
+
+	// Persiste o hash atualizado
+	if err := uc.user.UpdatePasswordHash(ctx, rec.IDUser, user.PasswordHash().Value()); err != nil {
 		return err
 	}
 	if err := uc.reset.MarkUsed(ctx, norm.IDReset, now); err != nil {

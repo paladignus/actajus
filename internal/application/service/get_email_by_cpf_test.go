@@ -5,7 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,12 +14,12 @@ import (
 func TestGetEmailByCPFInterface(t *testing.T) {
 	ctx := context.Background()
 	sut := &spy.GetEmailByCPF{
-		ExpectedOutput: dto.GetEmailByCPFOutput{
+		ExpectedOutput: readmodel.GetEmailByCPFReadModel{
 			Email: "test@example.com",
 		},
 		ExpectedError: nil,
 	}
-	input := dto.GetEmailByCPFInput{
+	input := command.GetEmailByCPFCommand{
 		CPF: "12345678901",
 	}
 	t.Run("should return the same email", func(t *testing.T) {
@@ -28,7 +29,7 @@ func TestGetEmailByCPFInterface(t *testing.T) {
 	})
 	t.Run("should return an empty email", func(t *testing.T) {
 		sut = &spy.GetEmailByCPF{
-			ExpectedOutput: dto.GetEmailByCPFOutput{},
+			ExpectedOutput: readmodel.GetEmailByCPFReadModel{},
 			ExpectedError:  errors.New("test error"),
 		}
 		_, err := sut.Execute(ctx, input)

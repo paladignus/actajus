@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/command"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
+	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 )
@@ -27,7 +28,10 @@ func NewUpdateCompany(
 	return UpdateCompany{uow, repository, mapper, projection}
 }
 
-func (u UpdateCompany) Execute(ctx context.Context, input dto.UpdateCompanyRequest) (*dto.CompanyReadModel, error) {
+func (u UpdateCompany) Execute(
+	ctx context.Context,
+	input command.UpdateCompanyCommand,
+) (*readmodel.CompanyReadModel, error) {
 	company, err := u.mapper.UpdateInputToDomain(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid company data: %w", err)

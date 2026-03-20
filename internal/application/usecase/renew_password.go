@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/repository"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
@@ -26,7 +26,7 @@ func NewRenewPassword(
 	}
 }
 
-func (r RenewPassword) Execute(ctx context.Context, input dto.RenewPasswordInput) error {
+func (r RenewPassword) Execute(ctx context.Context, input command.RenewPasswordCommand) error {
 	cpf := vo.CPF(input.CPF)
 	if !cpf.IsValid() {
 		return fmt.Errorf("use case renew password, invalid cpf: %w", exception.ErrInvalidCredentials)

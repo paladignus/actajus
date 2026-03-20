@@ -4,9 +4,9 @@ package service
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 )
 
 type ICreateCompany interface {
-	Execute(ctx context.Context, input dto.CompanyInputOutput) error
+	Execute(ctx context.Context, input command.CreateCompanyCommand) error
 }

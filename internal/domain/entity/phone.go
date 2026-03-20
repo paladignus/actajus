@@ -4,7 +4,7 @@ package entity
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 )
 
@@ -16,7 +16,7 @@ type Phone struct {
 	DeletedAt  *time.Time
 }
 
-func NewPhone(phone dto.Phone) Phone {
+func NewPhone(phone readmodel.PhoneReadModel) Phone {
 	return Phone{
 		IDPhone:    phone.IDPhone,
 		Number:     phone.Number,

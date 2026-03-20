@@ -1,13 +1,13 @@
 // Package gateway
 package gateway
 
-import "github.com/paladignus/actajus/internal/application/dto"
+import "github.com/paladignus/actajus/internal/application/readmodel"
 
 type JWT interface {
-	GenerateTokenPair(string) (dto.TokenPair, error)
+	GenerateTokenPair(string) (readmodel.TokenPairReadModel, error)
 	// GenerateResetToken(string) (dto.TokenRecover, error)
-	ValidateAccessToken(string) (dto.TokenClaims, error)
-	ValidateRefreshToken(string) (dto.TokenClaims, error)
+	ValidateAccessToken(string) (readmodel.TokenClaimsReadModel, error)
+	ValidateRefreshToken(string) (readmodel.TokenClaimsReadModel, error)
 	// ValidateResetToken(string) (dto.TokenClaims, error)
-	RefreshAccessToken(string) (dto.TokenPair, error)
+	RefreshAccessToken(string) (readmodel.TokenPairReadModel, error)
 }

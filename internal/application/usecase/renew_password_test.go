@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/entity"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/spy"
@@ -19,7 +19,7 @@ func TestRenewPassword(t *testing.T) {
 	user := &spy.User{}
 	token := &spy.TokenSpy{}
 	sut := NewRenewPassword(user, token)
-	input := dto.RenewPasswordInput{
+	input := command.RenewPasswordCommand{
 		CPF: "invalid-cpf",
 	}
 

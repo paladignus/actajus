@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +16,7 @@ func TestRenewPasswordInterface(t *testing.T) {
 	sut := &spy.RenewPassword{
 		ExpectedError: nil,
 	}
-	input := dto.RenewPasswordInput{
+	input := command.RenewPasswordCommand{
 		CPF:      "111.444.777-35",
 		Password: "password",
 		Token:    "token",

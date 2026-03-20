@@ -4,7 +4,7 @@ package mapper
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/address/application/dto"
+	"github.com/paladignus/actajus/internal/module/address/application/command"
 	"github.com/paladignus/actajus/internal/module/address/domain"
 )
 
@@ -14,7 +14,7 @@ func NewAddressMapper() *AddressMapper {
 	return &AddressMapper{}
 }
 
-func (m *AddressMapper) InputToDomain(input dto.CreateAddressRequest) (*domain.Address, error) {
+func (m *AddressMapper) InputToDomain(input command.CreateAddressCommand) (*domain.Address, error) {
 	return domain.NewAddressBuilder().
 		WithZIP(input.ZIP).
 		WithTitle(input.Title).
@@ -29,7 +29,7 @@ func (m *AddressMapper) InputToDomain(input dto.CreateAddressRequest) (*domain.A
 		Build()
 }
 
-func (m *AddressMapper) UpdateInputToDomain(input dto.UpdateAddressRequest) (*domain.Address, error) {
+func (m *AddressMapper) UpdateInputToDomain(input command.UpdateAddressCommand) (*domain.Address, error) {
 	return domain.NewAddressBuilder().
 		WithID(input.IDAddress).
 		WithZIP(input.ZIP).

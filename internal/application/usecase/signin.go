@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/internal/domain/gateway"
 	"github.com/paladignus/actajus/internal/domain/repository"
@@ -28,7 +29,7 @@ func NewSignIn(
 	}
 }
 
-func (a SignIn) Execute(ctx context.Context, input dto.SignInInput) (user dto.SignInOutput, err error) {
+func (a SignIn) Execute(ctx context.Context, input command.SignInCommand) (user readmodel.SignInReadModel, err error) {
 	cpf := vo.CPF(input.CPF)
 	if !cpf.IsValid() {
 		return user, fmt.Errorf("invalid CPF format %s in sign in use case: %w", input.CPF, exception.ErrInvalidCredentials)

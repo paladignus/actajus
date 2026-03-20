@@ -2,26 +2,27 @@
 package adapter
 
 import (
-	"github.com/paladignus/actajus/internal/module/phone/application/dto"
+	"github.com/paladignus/actajus/internal/module/phone/application/command"
+	"github.com/paladignus/actajus/internal/module/phone/application/readmodel"
 	phonev1 "github.com/paladignus/actajus/proto/phone/v1"
 )
 
-func ProtoToPhoneCreateCommand(in *phonev1.CreatePhoneRequest) dto.CreatePhoneRequest {
+func ProtoToPhoneCreateCommand(in *phonev1.CreatePhoneRequest) command.CreatePhoneCommand {
 	if in == nil {
-		return dto.CreatePhoneRequest{}
+		return command.CreatePhoneCommand{}
 	}
-	return dto.CreatePhoneRequest{
+	return command.CreatePhoneCommand{
 		Number:     in.Number,
 		Kind:       in.Kind,
 		Department: in.Department,
 	}
 }
 
-func ProtoToPhoneUpdateCommand(in *phonev1.UpdatePhoneRequest) dto.UpdatePhoneRequest {
+func ProtoToPhoneUpdateCommand(in *phonev1.UpdatePhoneRequest) command.UpdatePhoneCommand {
 	if in == nil {
-		return dto.UpdatePhoneRequest{}
+		return command.UpdatePhoneCommand{}
 	}
-	return dto.UpdatePhoneRequest{
+	return command.UpdatePhoneCommand{
 		IDPhone:    in.Id,
 		Number:     in.Number,
 		Kind:       in.Kind,
@@ -29,9 +30,7 @@ func ProtoToPhoneUpdateCommand(in *phonev1.UpdatePhoneRequest) dto.UpdatePhoneRe
 	}
 }
 
-// func AddressReadModelToProto(in *dto.AddressReadModel) *addressv1.AddressResponse {
-
-func PhoneReadModelToProto(in []*dto.PhoneReadModel) []*phonev1.PhoneResponse {
+func PhoneReadModelToProto(in []*readmodel.PhoneReadModel) []*phonev1.PhoneResponse {
 	phones := make([]*phonev1.PhoneResponse, len(in))
 	for i := range in {
 		phones[i] = &phonev1.PhoneResponse{

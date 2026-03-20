@@ -14,7 +14,7 @@ func TestPerson(t *testing.T) {
 		WithFirstName("John").
 		WithLastName("Doe").
 		WithGender(1).
-		WithBirthday("1990-01-01").
+		WithBirthday("01/01/1990").
 		WithCreatedAt(now).
 		WithUpdatedAt(now).
 		Build()
@@ -23,7 +23,7 @@ func TestPerson(t *testing.T) {
 		assert.Equal(t, "John", p.FirstName().Value())
 		assert.Equal(t, "Doe", p.LastName().Value())
 		assert.Equal(t, uint(1), p.IDGender())
-		assert.Equal(t, "1990-01-01", p.Birthday().Value())
+		assert.Equal(t, "01/01/1990", p.Birthday().Value())
 		assert.Equal(t, now, p.CreatedAt())
 		assert.Equal(t, now, p.UpdatedAt())
 	})
@@ -44,7 +44,7 @@ func TestPerson(t *testing.T) {
 			WithFirstName("Jane").
 			WithLastName("Doe").
 			WithGender(2).
-			WithBirthday("1995-05-15").
+			WithBirthday("15/05/1995").
 			Build()
 		assert.NoError(t, err)
 		err = newPerson.SetID(0)
@@ -58,7 +58,7 @@ func TestPerson(t *testing.T) {
 			WithFirstName("Jane").
 			WithLastName("Smith").
 			WithGender(2).
-			WithBirthday("1990-01-01").
+			WithBirthday("01/01/1990").
 			Build()
 		assert.NoError(t, err)
 
@@ -78,7 +78,7 @@ func TestPerson(t *testing.T) {
 			WithFirstName("Jane").
 			WithLastName("Doe").
 			WithGender(2).
-			WithBirthday("1990-01-01").
+			WithBirthday("01/01/1990").
 			WithDeletedAt(&now).
 			Build()
 		assert.NoError(t, err)

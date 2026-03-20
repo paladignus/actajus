@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ func TestRecoverPassword(t *testing.T) {
 	publisher := &spy.Publisher{}
 	sut := NewRequestPasswordReset(
 		user, token, service, publisher)
-	input := dto.RequestPasswordResetInput{Email: "email"}
+	input := command.RequestPasswordResetCommand{Email: "email"}
 
 	t.Run("should return error if email is invalid", func(t *testing.T) {
 		err := sut.Execute(ctx, input)

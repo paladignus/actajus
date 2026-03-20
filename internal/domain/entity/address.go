@@ -4,7 +4,7 @@ package entity
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
@@ -24,7 +24,7 @@ type Address struct {
 	DeletedAt    *time.Time
 }
 
-func NewAddress(address dto.Address) Address {
+func NewAddress(address readmodel.AddressReadModel) Address {
 	return Address{
 		IDAddress:    address.IDAddress,
 		Zip:          vo.ZIP(address.Zip),

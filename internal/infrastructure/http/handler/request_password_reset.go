@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
@@ -27,7 +27,7 @@ func NewRequestPasswordReset(
 
 func (rp RequestPasswordReset) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var req dto.RequestPasswordResetInput
+	var req command.RequestPasswordResetCommand
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		rp.logger.Error(ctx, "failed to decode request body for password reset", "error", err, "method", r.Method, "url", r.URL.Path)

@@ -4,8 +4,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
+	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/company/application/repository"
 )
 
@@ -24,7 +24,7 @@ func NewFindByID(
 	}
 }
 
-func (u FindByID) Execute(ctx context.Context, id int64) (*dto.CompanyReadModel, error) {
+func (u FindByID) Execute(ctx context.Context, id int64) (*readmodel.CompanyReadModel, error) {
 	company, err := u.repository.Company().FindByID(ctx, id)
 	if err != nil {
 		return nil, err

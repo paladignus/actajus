@@ -3,27 +3,28 @@ package adapter
 
 import (
 	addr "github.com/paladignus/actajus/internal/module/address/presentation/grpc/adapter"
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/command"
+	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
 	email "github.com/paladignus/actajus/internal/module/email/presentation/grpc/adapter"
 	phone "github.com/paladignus/actajus/internal/module/phone/presentation/grpc/adapter"
 	socialMedia "github.com/paladignus/actajus/internal/module/social_media/presentation/grpc/adapter"
 	companyv1 "github.com/paladignus/actajus/proto/company/v1"
 )
 
-func ProtoToCompanyCreateCommand(in *companyv1.CreateCompanyRequest) dto.CreateCompanyRequest {
-	return dto.CreateCompanyRequest{
-		Name:        in.Name,
-		TradeName:   in.TradeName,
-		CNPJ:        in.Cnpj,
-		Address:     addr.ProtoToAddressCreateCommand(in.Address),
-		Phone:       phone.ProtoToPhoneCreateCommand(in.Phone),
-		Email:       email.ProtoToEmailCreateCommand(in.Email),
+func ProtoToCompanyCreateCommand(in *companyv1.CreateCompanyRequest) command.CreateCompanyCommand {
+	return command.CreateCompanyCommand{
+		Name:      in.Name,
+		TradeName: in.TradeName,
+		CNPJ:      in.Cnpj,
+		Address:   addr.ProtoToAddressCreateCommand(in.Address),
+		Phone:     phone.ProtoToPhoneCreateCommand(in.Phone),
+		Email:     email.ProtoToEmailCreateCommand(in.Email),
 		SocialMedia: socialMedia.ProtoToSocialMediaCreateCommands(in.SocialMedia),
 	}
 }
 
-func ProtoToCompanyUpdateCommand(in *companyv1.UpdateCompanyRequest) dto.UpdateCompanyRequest {
-	return dto.UpdateCompanyRequest{
+func ProtoToCompanyUpdateCommand(in *companyv1.UpdateCompanyRequest) command.UpdateCompanyCommand {
+	return command.UpdateCompanyCommand{
 		IDCompany:   in.Id,
 		Name:        in.Name,
 		TradeName:   in.TradeName,
@@ -35,7 +36,7 @@ func ProtoToCompanyUpdateCommand(in *companyv1.UpdateCompanyRequest) dto.UpdateC
 	}
 }
 
-func CompaniesReadModelToProto(in *dto.CompanyListReadModel) *companyv1.ListCompaniesResponse {
+func CompaniesReadModelToProto(in *readmodel.CompanyListReadModel) *companyv1.ListCompaniesResponse {
 	companies := &companyv1.ListCompaniesResponse{
 		PageInfo: &companyv1.PageInfo{
 			HasNextPage:     in.PageInfo.HasNextPage,
@@ -61,7 +62,7 @@ func CompaniesReadModelToProto(in *dto.CompanyListReadModel) *companyv1.ListComp
 	return companies
 }
 
-func FindByIDCompanyReadModelToProto(in *dto.CompanyReadModel) *companyv1.FindCompanyByIDResponse {
+func FindByIDCompanyReadModelToProto(in *readmodel.CompanyReadModel) *companyv1.FindCompanyByIDResponse {
 	return &companyv1.FindCompanyByIDResponse{
 		Id:          int64(in.ID),
 		Name:        in.Name,
@@ -76,7 +77,7 @@ func FindByIDCompanyReadModelToProto(in *dto.CompanyReadModel) *companyv1.FindCo
 	}
 }
 
-func FindByCNPJCompanyReadModelToProto(in *dto.CompanyReadModel) *companyv1.FindCompanyByCNPJResponse {
+func FindByCNPJCompanyReadModelToProto(in *readmodel.CompanyReadModel) *companyv1.FindCompanyByCNPJResponse {
 	return &companyv1.FindCompanyByCNPJResponse{
 		Id:          int64(in.ID),
 		Name:        in.Name,

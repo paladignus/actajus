@@ -11,6 +11,7 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
+	identitySvc "github.com/paladignus/actajus/internal/module/identity/application/service"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/cache"
 	"github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
@@ -102,16 +103,22 @@ func NewModule(dep Dependencies) (Module, error) {
 		roleUsersIndex,
 		dep.Logger,
 	)
-	loginUC := usecase.NewLogin(
+	
+	// Create AuthnService
+	authnSvc := identitySvc.NewAuthnService(
 		dep.Repository.User(),
 		cachedSessionRepo,
 		hasher,
 		refreshSvc,
 		accessSvc,
-		clk,
 		dep.Config,
+		clk,
+	)
+	
+	loginUC := usecase.NewLogin(
 		*authMapper,
 		*projection,
+		authnSvc,
 	)
 	refreshUC := usecase.NewRefresh(
 		cachedSessionRepo,

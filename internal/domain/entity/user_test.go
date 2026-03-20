@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +13,7 @@ import (
 func TestUser(t *testing.T) {
 	t.Run("should return an user", func(t *testing.T) {
 		now := time.Now()
-		user, err := NewUser(dto.UserInput{
+		user, err := NewUser(command.CreateUserCommand{
 			Password:    "P@ssword123",
 			Avatar:      "avatar.png",
 			LastLoginAt: now,
@@ -25,13 +25,13 @@ func TestUser(t *testing.T) {
 	})
 
 	t.Run("should return false if the password is invalid", func(t *testing.T) {
-		_, err := NewUser(dto.UserInput{})
+		_, err := NewUser(command.CreateUserCommand{})
 		assert.Error(t, err)
 		assert.Equal(t, exception.ErrInvalidPassword, err)
 	})
 
 	t.Run("should return false if the avatar is invalid", func(t *testing.T) {
-		_, err := NewUser(dto.UserInput{
+		_, err := NewUser(command.CreateUserCommand{
 			Password: "P@ssword123",
 		})
 		assert.Error(t, err)
@@ -39,7 +39,7 @@ func TestUser(t *testing.T) {
 	})
 
 	t.Run("should return false if the last login at is invalid", func(t *testing.T) {
-		_, err := NewUser(dto.UserInput{
+		_, err := NewUser(command.CreateUserCommand{
 			Password:    "P@ssword123",
 			Avatar:      "avatar.png",
 			LastLoginAt: time.Now().Add(time.Hour * 24),

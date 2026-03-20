@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +15,7 @@ func TestRequestPasswordReset(t *testing.T) {
 	sut := &spy.RequestPasswordReset{
 		ExpectedError: nil,
 	}
-	input := dto.RequestPasswordResetInput{
+	input := command.RequestPasswordResetCommand{
 		Email: "test@example.com",
 	}
 	t.Run("should return nil", func(t *testing.T) {

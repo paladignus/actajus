@@ -4,7 +4,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/application/service"
 	"github.com/paladignus/actajus/internal/domain/repository"
 )
@@ -19,7 +19,7 @@ func NewGetEmailByCPF(service service.GetEmailByCPF, logger repository.Logger) G
 }
 
 func (g GetEmailByCPF) GetEmailByCPF(w http.ResponseWriter, r *http.Request) {
-	req, err := DecodeJSONRequest[dto.GetEmailByCPFInput](r)
+	req, err := DecodeJSONRequest[command.GetEmailByCPFCommand](r)
 	if err != nil {
 		g.logger.Warn(r.Context(), "failed to decode request body for get email by CPF", "error", err, "method", r.Method, "url", r.URL.Path)
 		RespondError(w, http.StatusBadRequest, err.Error())

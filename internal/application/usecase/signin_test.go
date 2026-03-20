@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/infrastructure/adapter"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,7 @@ import (
 func TestSignIn(t *testing.T) {
 	ctx := context.Background()
 	validCPF := "11144477735"
-	input := dto.SignInInput{
+	input := command.SignInCommand{
 		CPF:      "123",
 		Password: "whatever",
 	}

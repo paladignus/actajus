@@ -45,7 +45,7 @@ func (p Phone) Update(ctx context.Context, phone domain.Phone) error {
 		phone.Kind(),
 		phone.Department(),
 		phone.UpdatedAt(),
-		phone.ID())
+		phone.ID().Value())
 	return err
 }
 
@@ -54,7 +54,7 @@ func (p Phone) Delete(ctx context.Context, phone domain.Phone) error {
 	_, err := p.db.Exec(ctx, query,
 		phone.UpdatedAt(),
 		phone.DeletedAt(),
-		phone.ID())
+		phone.ID().Value())
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return nil

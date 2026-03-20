@@ -5,7 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +14,7 @@ import (
 func TestSignInInterface(t *testing.T) {
 	ctx := context.Background()
 	sut := &spy.SignIn{
-		ExpectedOutput: dto.SignInOutput{
+		ExpectedOutput: readmodel.SignInReadModel{
 			IDUser:       123,
 			FirstName:    "John",
 			LastName:     "Doe",
@@ -23,7 +24,7 @@ func TestSignInInterface(t *testing.T) {
 		},
 		ExpectedError: nil,
 	}
-	input := dto.SignInInput{
+	input := command.SignInCommand{
 		CPF:      "12345678901",
 		Password: "password123",
 	}
@@ -37,7 +38,7 @@ func TestSignInInterface(t *testing.T) {
 
 	t.Run("should return an empty IDUser, FirstName, Email, AccessToken and RefreshToken", func(t *testing.T) {
 		sut := &spy.SignIn{
-			ExpectedOutput: dto.SignInOutput{},
+			ExpectedOutput: readmodel.SignInReadModel{},
 			ExpectedError:  errors.New("authentication failed"),
 		}
 		_, err := sut.Execute(ctx, input)

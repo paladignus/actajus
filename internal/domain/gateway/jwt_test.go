@@ -3,7 +3,7 @@ package gateway
 import (
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,8 +18,8 @@ func TestTokenInterface(t *testing.T) {
 	assert.NoError(t, err)
 	refreshedPair, err := sut.RefreshAccessToken("refresh-token")
 	assert.NoError(t, err)
-	assert.Equal(t, tokenPair, dto.TokenPair{})
-	assert.Equal(t, tokenClaims, dto.TokenClaims{})
-	assert.Equal(t, refreshClaims, dto.TokenClaims{})
-	assert.Equal(t, refreshedPair, dto.TokenPair{})
+	assert.Equal(t, tokenPair, readmodel.TokenPairReadModel{})
+	assert.Equal(t, tokenClaims, readmodel.TokenClaimsReadModel{})
+	assert.Equal(t, refreshClaims, readmodel.TokenClaimsReadModel{})
+	assert.Equal(t, refreshedPair, readmodel.TokenPairReadModel{})
 }

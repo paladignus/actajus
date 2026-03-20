@@ -4,7 +4,7 @@ package entity
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
@@ -20,7 +20,7 @@ type Company struct {
 	DeletedAt    *time.Time
 }
 
-func NewCompany(data dto.Company) Company {
+func NewCompany(data readmodel.CompanyReadModel) Company {
 	return Company{
 		IDCompany:    data.IDCompany,
 		RegisteredBy: data.RegisteredBy,

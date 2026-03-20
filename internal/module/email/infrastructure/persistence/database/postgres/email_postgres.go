@@ -45,7 +45,7 @@ func (e Email) Update(ctx context.Context, email domain.Email) error {
 	_, err := e.db.Exec(ctx, query,
 		email.Address(),
 		email.UpdatedAt(),
-		email.ID())
+		email.ID().Value())
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return sharedDomain.NewFieldError("email", "email already exists")
@@ -58,7 +58,7 @@ func (e Email) Delete(ctx context.Context, email domain.Email) error {
 	_, err := e.db.Exec(ctx, query,
 		email.UpdatedAt(),
 		email.DeletedAt(),
-		email.ID())
+		email.ID().Value())
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 		return nil

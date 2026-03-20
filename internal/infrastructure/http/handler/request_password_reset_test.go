@@ -9,7 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,7 @@ type MockRequestPasswordResetService struct {
 	expectedError error
 }
 
-func (m *MockRequestPasswordResetService) Execute(ctx context.Context, input dto.RequestPasswordResetInput) error {
+func (m *MockRequestPasswordResetService) Execute(ctx context.Context, input command.RequestPasswordResetCommand) error {
 	return m.expectedError
 }
 

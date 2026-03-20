@@ -9,7 +9,7 @@ import (
 
 	"github.com/lestrrat-go/jwx/v3/jwa"
 	"github.com/lestrrat-go/jwx/v3/jwt"
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/infrastructure/config"
 )
 
@@ -27,33 +27,33 @@ func NewJWTAdapter(config config.JWTConfig) jwtAdapter {
 	return jwtAdapter{config: config}
 }
 
-func (j jwtAdapter) GenerateTokenPair(idUser string) (dto.TokenPair, error) {
+func (j jwtAdapter) GenerateTokenPair(idUser string) (readmodel.TokenPairReadModel, error) {
 	accessToken, err := j.generateToken(idUser, j.config.AccessSecret, j.config.AccessExpire)
 	if err != nil {
-		return dto.TokenPair{}, err
+		return readmodel.TokenPairReadModel{}, err
 	}
 	refreshToken, err := j.generateToken(idUser, j.config.RefreshSecret, j.config.RefreshExpire)
 	if err != nil {
-		return dto.TokenPair{}, err
+		return readmodel.TokenPairReadModel{}, err
 	}
-	return dto.TokenPair{
+	return readmodel.TokenPairReadModel{
 		AccessToken:  string(accessToken),
 		RefreshToken: string(refreshToken),
 	}, err
 }
 
-func (j jwtAdapter) ValidateAccessToken(token string) (dto.TokenClaims, error) {
+func (j jwtAdapter) ValidateAccessToken(token string) (readmodel.TokenClaimsReadModel, error) {
 	return j.validateToken(token, j.config.AccessSecret)
 }
 
-func (j jwtAdapter) ValidateRefreshToken(token string) (dto.TokenClaims, error) {
+func (j jwtAdapter) ValidateRefreshToken(token string) (readmodel.TokenClaimsReadModel, error) {
 	return j.validateToken(token, j.config.RefreshSecret)
 }
 
-func (j jwtAdapter) RefreshAccessToken(token string) (dto.TokenPair, error) {
+func (j jwtAdapter) RefreshAccessToken(token string) (readmodel.TokenPairReadModel, error) {
 	claims, err := j.ValidateRefreshToken(token)
 	if err != nil {
-		return dto.TokenPair{}, err
+		return readmodel.TokenPairReadModel{}, err
 	}
 	return j.GenerateTokenPair(claims.IDUser)
 }
@@ -74,19 +74,19 @@ func (j jwtAdapter) generateToken(idUser string, secret string, expire time.Dura
 	return jwt.Sign(token, jwt.WithKey(jwa.HS256(), []byte(secret)))
 }
 
-func (j jwtAdapter) validateToken(tokenString, secret string) (dto.TokenClaims, error) {
+func (j jwtAdapter) validateToken(tokenString, secret string) (readmodel.TokenClaimsReadModel, error) {
 	token, err := jwt.ParseString(tokenString, jwt.WithKey(jwa.HS256(), []byte(secret)))
 	if err != nil {
 		if errors.Is(err, jwt.TokenExpiredError()) {
-			return dto.TokenClaims{}, ErrExpiredToken
+			return readmodel.TokenClaimsReadModel{}, ErrExpiredToken
 		}
-		return dto.TokenClaims{}, ErrInvalidToken
+		return readmodel.TokenClaimsReadModel{}, ErrInvalidToken
 	}
 	subject, ok := token.Subject()
 	if !ok || subject == "" {
-		return dto.TokenClaims{}, ErrInvalidToken
+		return readmodel.TokenClaimsReadModel{}, ErrInvalidToken
 	}
-	return dto.TokenClaims{
+	return readmodel.TokenClaimsReadModel{
 		IDUser: subject,
 	}, nil
 }

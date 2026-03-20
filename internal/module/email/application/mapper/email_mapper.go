@@ -4,7 +4,7 @@ package mapper
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/email/application/dto"
+	"github.com/paladignus/actajus/internal/module/email/application/command"
 	"github.com/paladignus/actajus/internal/module/email/domain"
 )
 
@@ -14,13 +14,13 @@ func NewEmailMapper() *EmailMapper {
 	return &EmailMapper{}
 }
 
-func (e *EmailMapper) InputToDomain(input dto.CreateEmailRequest) (*domain.Email, error) {
+func (e *EmailMapper) InputToDomain(input command.CreateEmailCommand) (*domain.Email, error) {
 	return domain.NewEmailBuilder().
 		WithAddress(input.Address).
 		Build()
 }
 
-func (e *EmailMapper) UpdateInputToDomain(input dto.UpdateEmailRequest) (*domain.Email, error) {
+func (e *EmailMapper) UpdateInputToDomain(input command.UpdateEmailCommand) (*domain.Email, error) {
 	return domain.NewEmailBuilder().
 		WithID(input.IDEmail).
 		WithAddress(input.Address).

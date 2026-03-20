@@ -8,7 +8,6 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/dto"
 	"github.com/paladignus/actajus/internal/module/identity/application/event"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
-	"github.com/paladignus/actajus/internal/module/identity/application/model"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
 	"github.com/paladignus/actajus/internal/shared/application/messaging"
@@ -78,7 +77,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 				return err
 			}
 		}
-		idReset, err := r.Create(ctx, &model.PasswordResetTokenCreate{
+		idReset, err := r.Create(ctx, &mapper.PasswordResetTokenCreate{
 			IDUser:    user.ID().Value(),
 			Hash:      hash,
 			ExpiresAt: expiresAt,

@@ -2,15 +2,16 @@
 package adapter
 
 import (
-	"github.com/paladignus/actajus/internal/module/address/application/dto"
+	"github.com/paladignus/actajus/internal/module/address/application/command"
+	"github.com/paladignus/actajus/internal/module/address/application/readmodel"
 	addressv1 "github.com/paladignus/actajus/proto/address/v1"
 )
 
-func ProtoToAddressCreateCommand(in *addressv1.CreateAddressRequest) dto.CreateAddressRequest {
+func ProtoToAddressCreateCommand(in *addressv1.CreateAddressRequest) command.CreateAddressCommand {
 	if in == nil {
-		return dto.CreateAddressRequest{}
+		return command.CreateAddressCommand{}
 	}
-	return dto.CreateAddressRequest{
+	return command.CreateAddressCommand{
 		ZIP:          in.Zip,
 		Title:        in.Title,
 		Street:       in.Street,
@@ -24,11 +25,11 @@ func ProtoToAddressCreateCommand(in *addressv1.CreateAddressRequest) dto.CreateA
 	}
 }
 
-func ProtoToAddressUpdateCommand(in *addressv1.UpdateAddressRequest) dto.UpdateAddressRequest {
+func ProtoToAddressUpdateCommand(in *addressv1.UpdateAddressRequest) command.UpdateAddressCommand {
 	if in == nil {
-		return dto.UpdateAddressRequest{}
+		return command.UpdateAddressCommand{}
 	}
-	return dto.UpdateAddressRequest{
+	return command.UpdateAddressCommand{
 		IDAddress:    in.Id,
 		ZIP:          in.Zip,
 		Title:        in.Title,
@@ -43,7 +44,7 @@ func ProtoToAddressUpdateCommand(in *addressv1.UpdateAddressRequest) dto.UpdateA
 	}
 }
 
-func AddressReadModelToProto(in *dto.AddressReadModel) *addressv1.AddressResponse {
+func AddressReadModelToProto(in *readmodel.AddressReadModel) *addressv1.AddressResponse {
 	return &addressv1.AddressResponse{
 		Id:           int64(in.ID),
 		Zip:          in.ZIP,

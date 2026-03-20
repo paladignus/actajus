@@ -35,10 +35,5 @@ func NewModule(
 }
 
 func (m Module) Mount(mux *http.ServeMux, opts ...connect.HandlerOption) {
-	path, h := personv1connect.NewPersonServiceHandler(m.handler, opts...)
-	mux.Handle(path, h)
+	mux.Handle(personv1connect.NewPersonServiceHandler(m.handler, opts...))
 }
-
-// func (m Module) Route(opts ...connect.HandlerOption) (string, http.Handler) {
-// 	return personv1connect.NewPersonServiceHandler(m.handler, opts...)
-// }

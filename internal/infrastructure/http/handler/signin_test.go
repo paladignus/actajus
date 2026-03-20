@@ -10,7 +10,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
@@ -18,17 +19,17 @@ import (
 )
 
 type MockSignInService struct {
-	expectedOutput dto.SignInOutput
+	expectedOutput readmodel.SignInReadModel
 	expectedError  error
 }
 
-func (m *MockSignInService) Execute(ctx context.Context, input dto.SignInInput) (dto.SignInOutput, error) {
+func (m *MockSignInService) Execute(ctx context.Context, input command.SignInCommand) (readmodel.SignInReadModel, error) {
 	return m.expectedOutput, m.expectedError
 }
 
 func TestSignInput(t *testing.T) {
 	mockService := &MockSignInService{
-		expectedOutput: dto.SignInOutput{
+		expectedOutput: readmodel.SignInReadModel{
 			IDUser:       123,
 			FirstName:    "John",
 			LastName:     "Doe",
@@ -48,7 +49,7 @@ func TestSignInput(t *testing.T) {
 		logger.On("Info", req.Context(), "signin successful", "cpf", "12345678901", "userID", 123)
 		sut.SignIn(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
-		var response dto.SignInOutput
+		var response readmodel.SignInReadModel
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, response.IDUser, 123)
@@ -70,7 +71,7 @@ func TestSignInput(t *testing.T) {
 
 	t.Run("should returns error of user not found", func(t *testing.T) {
 		mockService := &MockSignInService{
-			expectedOutput: dto.SignInOutput{},
+			expectedOutput: readmodel.SignInReadModel{},
 			expectedError:  exception.ErrUserNotFound,
 		}
 		logger := &spy.Logger{}
@@ -98,7 +99,7 @@ func TestSignInput(t *testing.T) {
 
 	t.Run("service returns authentication error", func(t *testing.T) {
 		mockService := &MockSignInService{
-			expectedOutput: dto.SignInOutput{},
+			expectedOutput: readmodel.SignInReadModel{},
 			expectedError:  fmt.Errorf("invalid credentials"),
 		}
 		logger := &spy.Logger{}

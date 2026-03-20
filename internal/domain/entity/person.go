@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
@@ -23,14 +23,14 @@ type Person struct {
 	DeletedAt *time.Time
 }
 
-func NewPerson(people dto.PersonInput) (Person, error) {
+func NewPerson(input command.CreatePersonCommand) (Person, error) {
 	p := Person{
-		FirstName: vo.Text(strings.TrimSpace(people.FirstName)),
-		LastName:  vo.Text(strings.TrimSpace(people.LastName)),
-		BirthDate: vo.Date(strings.TrimSpace(people.BirthDate)),
-		Mother:    vo.Text(strings.TrimSpace(people.MotherName)),
-		Father:    vo.Text(strings.TrimSpace(people.FatherName)),
-		Gender:    vo.Text(strings.TrimSpace(people.Gender)),
+		FirstName: vo.Text(strings.TrimSpace(input.FirstName)),
+		LastName:  vo.Text(strings.TrimSpace(input.LastName)),
+		BirthDate: vo.Date(strings.TrimSpace(input.BirthDate)),
+		Mother:    vo.Text(strings.TrimSpace(input.MotherName)),
+		Father:    vo.Text(strings.TrimSpace(input.FatherName)),
+		Gender:    vo.Text(strings.TrimSpace(input.Gender)),
 	}
 	if !p.FirstName.IsValid() {
 		return p, exception.ErrInvalidFirstName

@@ -5,7 +5,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ import (
 func TestGetEmailByCPF(t *testing.T) {
 	ctx := context.Background()
 	user := &spy.User{}
-	input := dto.GetEmailByCPFInput{CPF: "111.444.777-35"}
+	input := command.GetEmailByCPFCommand{CPF: "111.444.777-35"}
 	sut := NewGetEmailByCPF(user)
 	t.Run("should return of an email when the CPF is valid and found", func(t *testing.T) {
 		user.FindResult.FindEmail.Email = "email@example.com.br"

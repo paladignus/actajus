@@ -4,7 +4,7 @@ package entity
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	vo "github.com/paladignus/actajus/internal/domain/value_object"
 )
@@ -15,7 +15,7 @@ type Email struct {
 	DeletedAt *time.Time
 }
 
-func NewEmail(data dto.Email) Email {
+func NewEmail(data readmodel.EmailReadModel) Email {
 	return Email{
 		IDEmails: data.IDEmails,
 		Address:  vo.Email(data.Address),

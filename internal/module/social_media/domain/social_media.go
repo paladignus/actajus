@@ -8,9 +8,11 @@ import (
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
+// SocialMedia representa uma entidade de domínio compartilhada entre Company e Person.
+// Como Entidade Rica, ela contém lógica de negócio e protege seus invariantes.
 type SocialMedia struct {
-	id        int64
-	idCompany int64
+	id        vo.ID
+	idCompany vo.ID
 	platform  vo.Text
 	url       vo.URL
 	createdAt time.Time
@@ -18,10 +20,12 @@ type SocialMedia struct {
 	deletedAt *time.Time
 }
 
+// SocialMediaBuilder segue o padrão Builder para construção segura de SocialMedia.
 type SocialMediaBuilder struct {
 	socialMedia *SocialMedia
 }
 
+// NewSocialMediaBuilder cria um novo builder para SocialMedia.
 func NewSocialMediaBuilder() *SocialMediaBuilder {
 	now := time.Now()
 	return &SocialMediaBuilder{
@@ -33,12 +37,12 @@ func NewSocialMediaBuilder() *SocialMediaBuilder {
 }
 
 func (s *SocialMediaBuilder) WithID(id int64) *SocialMediaBuilder {
-	s.socialMedia.id = id
+	s.socialMedia.id = vo.ID(id)
 	return s
 }
 
 func (s *SocialMediaBuilder) WithIDCompany(id int64) *SocialMediaBuilder {
-	s.socialMedia.idCompany = id
+	s.socialMedia.idCompany = vo.ID(id)
 	return s
 }
 
@@ -67,6 +71,7 @@ func (s *SocialMediaBuilder) WithDeletedAt(deletedAt *time.Time) *SocialMediaBui
 	return s
 }
 
+// Build valida e constrói a entidade SocialMedia.
 func (s *SocialMediaBuilder) Build() (*SocialMedia, error) {
 	if err := s.socialMedia.validate(); err != nil {
 		return nil, err
@@ -74,22 +79,68 @@ func (s *SocialMediaBuilder) Build() (*SocialMedia, error) {
 	return s.socialMedia, nil
 }
 
-func (s *SocialMediaBuilder) Apply() error {
-	if err := s.socialMedia.validate(); err != nil {
-		return err
+// validate verifica os invariantes de domínio da entidade.
+func (s *SocialMedia) validate() error {
+	if !s.platform.IsValid() {
+		return domain.NewFieldError("platform", "platform is invalid")
 	}
-	s.socialMedia.updatedAt = time.Now()
+	if !s.url.IsValid() {
+		return domain.NewFieldError("url", "url is invalid")
+	}
 	return nil
 }
 
-func (s *SocialMedia) ID() int64             { return s.id }
-func (s *SocialMedia) IDCompany() int64      { return s.idCompany }
-func (s *SocialMedia) Platform() vo.Text     { return s.platform }
-func (s *SocialMedia) URL() vo.URL           { return s.url }
-func (s *SocialMedia) CreatedAt() time.Time  { return s.createdAt }
-func (s *SocialMedia) UpdatedAt() time.Time  { return s.updatedAt }
+// ID retorna o identificador único da mídia social.
+func (s *SocialMedia) ID() vo.ID { return s.id }
+
+// IDCompany retorna o identificador da empresa associada.
+func (s *SocialMedia) IDCompany() vo.ID { return s.idCompany }
+
+// Platform retorna a plataforma da mídia social (ex: "LinkedIn", "Twitter").
+func (s *SocialMedia) Platform() vo.Text { return s.platform }
+
+// URL retorna a URL do perfil da mídia social.
+func (s *SocialMedia) URL() vo.URL { return s.url }
+
+// CreatedAt retorna a data de criação da mídia social.
+func (s *SocialMedia) CreatedAt() time.Time { return s.createdAt }
+
+// UpdatedAt retorna a data da última atualização da mídia social.
+func (s *SocialMedia) UpdatedAt() time.Time { return s.updatedAt }
+
+// DeletedAt retorna a data de exclusão (nil se não excluída).
 func (s *SocialMedia) DeletedAt() *time.Time { return s.deletedAt }
 
+// SetID define o ID da mídia social apenas uma vez.
+func (s *SocialMedia) SetID(id int64) error {
+	if s.id != 0 {
+		return domain.NewFieldError("id", "social media ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id", "social media ID is invalid")
+	}
+	s.id = vo.ID(id)
+	return nil
+}
+
+// SetCompanyID define o ID da empresa associada.
+func (s *SocialMedia) SetCompanyID(id int64) error {
+	if s.idCompany != 0 {
+		return domain.NewFieldError("id_company", "company ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id_company", "company ID is invalid")
+	}
+	s.idCompany = vo.ID(id)
+	return nil
+}
+
+// IsDeleted verifica se a mídia social foi excluída logicamente.
+func (s *SocialMedia) IsDeleted() bool {
+	return s.deletedAt != nil
+}
+
+// Delete exclui logicamente a mídia social.
 func (s *SocialMedia) Delete() error {
 	if s.id == 0 {
 		return domain.NewFieldError("id", "social media ID is invalid")
@@ -103,38 +154,31 @@ func (s *SocialMedia) Delete() error {
 	return nil
 }
 
-func (s *SocialMedia) IsDeleted() bool {
-	return s.deletedAt != nil
+// Restore restaura uma mídia social excluída logicamente.
+func (s *SocialMedia) Restore() {
+	if !s.IsDeleted() {
+		return
+	}
+	s.deletedAt = nil
+	s.updatedAt = time.Now()
 }
 
-func (s *SocialMedia) SetID(id int64) error {
-	if s.id != 0 {
-		return domain.NewFieldError("id", "social media ID is already set")
-	}
-	if id == 0 {
-		return domain.NewFieldError("id", "social media ID is invalid")
-	}
-	s.id = id
-	return nil
-}
-
-func (s *SocialMedia) SetCompanyID(id int64) error {
-	if s.idCompany != 0 {
-		return domain.NewFieldError("id", "company ID is already set")
-	}
-	if id == 0 {
-		return domain.NewFieldError("id", "company ID is invalid")
-	}
-	s.idCompany = id
-	return nil
-}
-
-func (s *SocialMedia) validate() error {
-	if !s.platform.IsValid() {
+// UpdatePlatform atualiza a plataforma da mídia social.
+func (s *SocialMedia) UpdatePlatform(platform string) error {
+	if !vo.Text(platform).IsValid() {
 		return domain.NewFieldError("platform", "platform is invalid")
 	}
-	if !s.url.IsValid() {
+	s.platform = vo.Text(platform)
+	s.updatedAt = time.Now()
+	return nil
+}
+
+// UpdateURL atualiza a URL do perfil da mídia social.
+func (s *SocialMedia) UpdateURL(url string) error {
+	if !vo.URL(url).IsValid() {
 		return domain.NewFieldError("url", "url is invalid")
 	}
+	s.url = vo.URL(url)
+	s.updatedAt = time.Now()
 	return nil
 }

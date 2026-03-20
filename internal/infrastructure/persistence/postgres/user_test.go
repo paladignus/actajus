@@ -7,7 +7,8 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,7 +21,7 @@ func TestUser_AuthenticationByCPF(t *testing.T) {
 	defer mock.Close()
 	// db := &database.DB{Pool: mock}
 	repo := NewUser(mock)
-	input := dto.SignInInput{
+	input := command.SignInCommand{
 		CPF:      "12345678900",
 		Password: "Password123@",
 	}
@@ -60,7 +61,7 @@ func TestUser_AuthenticationByCPF(t *testing.T) {
 		assert.Error(t, err)
 		assert.ErrorContains(t, err, "authentication failed for CPF 99999999999")
 		assert.ErrorContains(t, err, "invalid credentials")
-		assert.Equal(t, dto.SignInOutput{}, result)
+		assert.Equal(t, readmodel.SignInReadModel{}, result)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -73,7 +74,7 @@ func TestUser_AuthenticationByCPF(t *testing.T) {
 		result, err := repo.AuthenticationByCPF(ctx, input)
 		assert.Error(t, err)
 		assert.ErrorContains(t, err, "database error during authentication for CPF 12345678900")
-		assert.Equal(t, dto.SignInOutput{}, result)
+		assert.Equal(t, readmodel.SignInReadModel{}, result)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -91,7 +92,7 @@ func TestUser_AuthenticationByCPF(t *testing.T) {
 		assert.Error(t, err)
 		assert.ErrorContains(t, err, "failed to get roles for user ID 123 during authentication")
 		assert.ErrorContains(t, err, "roles query error")
-		assert.Equal(t, dto.SignInOutput{
+		assert.Equal(t, readmodel.SignInReadModel{
 			IDUser:    expectedIDUser,
 			FirstName: expectedFirstName,
 			LastName:  expectedLastName,
@@ -173,7 +174,7 @@ func TestUser_GetPermissionsByRoleID(t *testing.T) {
 	repo := NewUser(mock)
 	t.Run("should return permissions", func(t *testing.T) {
 		roleID := 1
-		expectedPermissions := []dto.Permission{
+		expectedPermissions := []readmodel.Permission{
 			{Resource: "users", Action: "create"},
 			{Resource: "users", Action: "read"},
 			{Resource: "posts", Action: "delete"},
@@ -242,7 +243,7 @@ func TestUser_FindEmailByCPF(t *testing.T) {
 	repo := NewUser(mock)
 	t.Run("should return email by cpf", func(t *testing.T) {
 		cpf := "11144477735"
-		expectedEmail := dto.GetEmailByCPFOutput{Email: "email@example.com.br"}
+		expectedEmail := readmodel.GetEmailByCPFReadModel{Email: "email@example.com.br"}
 		rows := pgxmock.NewRows([]string{"address"}).AddRow(expectedEmail.Email)
 		mock.ExpectQuery(`SELECT e.address FROM emails e`).
 			WithArgs(cpf).

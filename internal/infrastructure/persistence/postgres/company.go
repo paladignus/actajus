@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/entity"
 )
 
@@ -33,7 +33,7 @@ func (c Company) Update(ctx context.Context, company entity.Company) error {
 	return nil
 }
 
-func (c Company) GetAll(ctx context.Context) (companies []dto.CompanyInputOutput, err error) {
+func (c Company) GetAll(ctx context.Context) (companies []readmodel.CompanyReadModel, err error) {
 	sql := `SELECT c.idcompanies, c.registered_by, c.name, c.trade_name, c.cnpj,
 		a.idaddresses, a.zip, a.title, a.street,  a.complement, a.reference, a.neighborhood, a.city, a.state, a.country
 		FROM companies c
@@ -45,7 +45,7 @@ func (c Company) GetAll(ctx context.Context) (companies []dto.CompanyInputOutput
 		return nil, fmt.Errorf("database error while getting all companies: %w", err)
 	}
 	for rows.Next() {
-		var company dto.CompanyInputOutput
+		var company readmodel.CompanyReadModel
 		if err = rows.Scan(&company.IDCompany, &company.RegisteredBy, &company.Name, &company.TradeName, &company.CNPJ,
 			&company.IDAddress, &company.Zip, &company.Title, &company.Street, &company.Complement, &company.Reference, &company.Neighborhood, &company.City, &company.State, &company.Country,
 		); err != nil {

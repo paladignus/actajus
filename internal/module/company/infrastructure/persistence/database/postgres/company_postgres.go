@@ -56,7 +56,7 @@ func (c Company) Update(ctx context.Context, company *domain.Company) error {
 		company.TradeName().Value(),
 		company.CNPJ().Value(),
 		company.UpdatedAt(),
-		company.ID(),
+		company.ID().Value(),
 	)
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -70,7 +70,7 @@ func (c Company) Delete(ctx context.Context, company *domain.Company) error {
 	_, err := c.db.Exec(ctx, query,
 		company.UpdatedAt(),
 		company.DeletedAt(),
-		company.ID(),
+		company.ID().Value(),
 	)
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23503" {

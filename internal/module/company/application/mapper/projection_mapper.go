@@ -4,7 +4,7 @@ package mapper
 import (
 	addrMapper "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/company/domain"
 	emailMapper "github.com/paladignus/actajus/internal/module/email/application/mapper"
 	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
@@ -41,9 +41,9 @@ func (m *CompanyProjectionMapper) ProjectCompanyToReadModel(
 	phone *phoneDomain.Phone,
 	email *emailDomain.Email,
 	socialMedia []*socialMediaDomain.SocialMedia,
-) *dto.CompanyReadModel {
-	readModel := &dto.CompanyReadModel{
-		ID:               company.ID(),
+) *readmodel.CompanyReadModel {
+	readModel := &readmodel.CompanyReadModel{
+		ID:               company.ID().Value(),
 		Name:             company.Name().Value(),
 		TradeName:        company.TradeName().Value(),
 		CNPJ:             company.CNPJ().Value(),

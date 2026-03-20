@@ -2,33 +2,31 @@
 package adapter
 
 import (
-	"github.com/paladignus/actajus/internal/module/email/application/dto"
+	"github.com/paladignus/actajus/internal/module/email/application/command"
+	"github.com/paladignus/actajus/internal/module/email/application/readmodel"
 	emailv1 "github.com/paladignus/actajus/proto/email/v1"
 )
 
-func ProtoToEmailCreateCommand(in *emailv1.CreateEmailRequest) dto.CreateEmailRequest {
+func ProtoToEmailCreateCommand(in *emailv1.CreateEmailRequest) command.CreateEmailCommand {
 	if in == nil {
-		return dto.CreateEmailRequest{}
+		return command.CreateEmailCommand{}
 	}
-	return dto.CreateEmailRequest{
+	return command.CreateEmailCommand{
 		Address: in.Address,
 	}
 }
 
-func ProtoToEmailUpdateCommand(in *emailv1.UpdateEmailRequest) dto.UpdateEmailRequest {
+func ProtoToEmailUpdateCommand(in *emailv1.UpdateEmailRequest) command.UpdateEmailCommand {
 	if in == nil {
-		return dto.UpdateEmailRequest{}
+		return command.UpdateEmailCommand{}
 	}
-	return dto.UpdateEmailRequest{
+	return command.UpdateEmailCommand{
 		IDEmail: in.Id,
 		Address: in.Address,
 	}
 }
 
-func EmailReadModelToProto(in []*dto.EmailReadModel) []*emailv1.EmailResponse {
-	// if in == nil {
-	// 	return &emailv1.EmailResponse{}
-	// }
+func EmailReadModelToProto(in []*readmodel.EmailReadModel) []*emailv1.EmailResponse {
 	emails := make([]*emailv1.EmailResponse, len(in))
 	for i := range in {
 		emails[i] = &emailv1.EmailResponse{

@@ -4,11 +4,11 @@ package postgres
 import (
 	"time"
 
-	addrDTO "github.com/paladignus/actajus/internal/module/address/application/dto"
-	companyDTO "github.com/paladignus/actajus/internal/module/company/application/dto"
-	emailDTO "github.com/paladignus/actajus/internal/module/email/application/dto"
-	phoneDTO "github.com/paladignus/actajus/internal/module/phone/application/dto"
-	socialMediaDTO "github.com/paladignus/actajus/internal/module/social_media/application/dto"
+	addrReadModel "github.com/paladignus/actajus/internal/module/address/application/readmodel"
+	companyReadModel "github.com/paladignus/actajus/internal/module/company/application/readmodel"
+	emailReadModel "github.com/paladignus/actajus/internal/module/email/application/readmodel"
+	phoneReadModel "github.com/paladignus/actajus/internal/module/phone/application/readmodel"
+	socialMediaReadModel "github.com/paladignus/actajus/internal/module/social_media/application/readmodel"
 )
 
 type companyScan struct {
@@ -21,7 +21,7 @@ type companyScan struct {
 	updatedAt        *time.Time
 }
 
-func (c companyScan) companyToDTO() *companyDTO.CompanyReadModel {
+func (c companyScan) companyToDTO() *companyReadModel.CompanyReadModel {
 	if c.id == nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func (c companyScan) companyToDTO() *companyDTO.CompanyReadModel {
 	if c.registeredByName != nil {
 		registeredByName = *c.registeredByName
 	}
-	return &companyDTO.CompanyReadModel{
+	return &companyReadModel.CompanyReadModel{
 		ID:               *c.id,
 		Name:             *c.name,
 		RegisteredByName: registeredByName,
@@ -57,11 +57,11 @@ type addressScan struct {
 	updatedAt    *time.Time
 }
 
-func (a *addressScan) addressToDTO() *addrDTO.AddressReadModel {
+func (a *addressScan) addressToDTO() *addrReadModel.AddressReadModel {
 	if a.id == nil {
 		return nil
 	}
-	return &addrDTO.AddressReadModel{
+	return &addrReadModel.AddressReadModel{
 		ID:           *a.id,
 		ZIP:          *a.zip,
 		Title:        *a.title,
@@ -85,11 +85,11 @@ type emailScan struct {
 	updatedAt *time.Time
 }
 
-func (e *emailScan) emailToDTO() *emailDTO.EmailReadModel {
+func (e *emailScan) emailToDTO() *emailReadModel.EmailReadModel {
 	if e.id == nil {
 		return nil
 	}
-	return &emailDTO.EmailReadModel{
+	return &emailReadModel.EmailReadModel{
 		ID:        *e.id,
 		Address:   *e.address,
 		CreatedAt: *e.createdAt,
@@ -106,11 +106,11 @@ type phoneScan struct {
 	updatedAt  *time.Time
 }
 
-func (p *phoneScan) phoneToDTO() *phoneDTO.PhoneReadModel {
+func (p *phoneScan) phoneToDTO() *phoneReadModel.PhoneReadModel {
 	if p.id == nil {
 		return nil
 	}
-	return &phoneDTO.PhoneReadModel{
+	return &phoneReadModel.PhoneReadModel{
 		ID:         *p.id,
 		Number:     *p.number,
 		Kind:       *p.kind,
@@ -128,8 +128,8 @@ type socialMediaScan struct {
 	updatedAt *time.Time
 }
 
-func (sm socialMediaScan) socialMediaToDTO() *socialMediaDTO.SocialMediaReadModel {
-	return &socialMediaDTO.SocialMediaReadModel{
+func (sm socialMediaScan) socialMediaToDTO() *socialMediaReadModel.SocialMediaReadModel {
+	return &socialMediaReadModel.SocialMediaReadModel{
 		ID:        *sm.id,
 		Platform:  *sm.platform,
 		URL:       *sm.url,

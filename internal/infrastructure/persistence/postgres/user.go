@@ -7,7 +7,8 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/paladignus/actajus/internal/application/dto"
+	"github.com/paladignus/actajus/internal/application/command"
+	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 )
 
@@ -19,7 +20,7 @@ func NewUser(db PgxPool) User {
 	return User{db}
 }
 
-func (u User) AuthenticationByCPF(ctx context.Context, input dto.SignInInput) (user dto.SignInOutput, err error) {
+func (u User) AuthenticationByCPF(ctx context.Context, input command.SignInCommand) (user readmodel.SignInReadModel, err error) {
 	// LEFT JOIN emails e ON e.id_people = p.idpeople AND e.deleted_at IS NULL
 	sql := `
 	SELECT
@@ -72,7 +73,7 @@ func (u User) GetRolesByID(ctx context.Context, idUser int) (roles []string, err
 	return roles, nil
 }
 
-func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissions []dto.Permission, err error) {
+func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissions []readmodel.Permission, err error) {
 	sql := `SELECT p.resource, p.action FROM permissions p
 		INNER JOIN permission_role pr ON p.idpermissions = pr.id_permissions
 		WHERE pr.id_roles = $1 ORDER BY p.resource, p.action;`
@@ -82,7 +83,7 @@ func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissio
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var permission dto.Permission
+		var permission readmodel.Permission
 		if err := rows.Scan(&permission.Resource, &permission.Action); err != nil {
 			return nil, fmt.Errorf("failed to scan permission for role ID %d: %w", idrole, err)
 		}
@@ -91,7 +92,7 @@ func (u User) GetPermissionsByRoleID(ctx context.Context, idrole int) (permissio
 	return permissions, nil
 }
 
-func (u User) FindEmailByCPF(ctx context.Context, cpf string) (output dto.GetEmailByCPFOutput, err error) {
+func (u User) FindEmailByCPF(ctx context.Context, cpf string) (output readmodel.GetEmailByCPFReadModel, err error) {
 	sql := `
 		SELECT e.address FROM emails e
 		JOIN email_person ep ON e.idemails = ep.id_emails

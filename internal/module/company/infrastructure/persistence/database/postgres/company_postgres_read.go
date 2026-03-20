@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
 	sharedDto "github.com/paladignus/actajus/internal/shared/application/dto"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
@@ -21,7 +21,7 @@ func NewCompanyReadRepository(db postgres.Executor) CompanyReadRepository {
 	}
 }
 
-func (r CompanyReadRepository) List(ctx context.Context, after, before *string, limit int, baseURL string) (*dto.CompanyListReadModel, error) {
+func (r CompanyReadRepository) List(ctx context.Context, after, before *string, limit int, baseURL string) (*readmodel.CompanyListReadModel, error) {
 	if limit <= 0 || limit > 100 {
 		limit = 10
 	}
@@ -81,7 +81,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 		return nil, fmt.Errorf("failed to query companies: %w", err)
 	}
 	defer rows.Close()
-	companiesMap := make(map[int64]*dto.CompanyReadModel)
+	companiesMap := make(map[int64]*readmodel.CompanyReadModel)
 	order := make([]int64, 0, limit)
 	for rows.Next() {
 		var (
@@ -106,7 +106,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating rows: %w", err)
 	}
-	companies := make([]dto.CompanyReadModel, 0, len(order))
+	companies := make([]readmodel.CompanyReadModel, 0, len(order))
 	for _, id := range order {
 		companies = append(companies, *companiesMap[id])
 	}
@@ -142,7 +142,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 			pageInfo.PreviousURL = &prevURL
 		}
 	}
-	return &dto.CompanyListReadModel{
+	return &readmodel.CompanyListReadModel{
 		Data:     companies,
 		PageInfo: pageInfo,
 	}, nil

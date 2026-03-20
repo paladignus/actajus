@@ -8,18 +8,22 @@ import (
 	vo "github.com/paladignus/actajus/internal/shared/domain/value_object"
 )
 
+// Email representa uma entidade de domínio compartilhada entre Company e Person.
+// Como Entidade Rica, ela contém lógica de negócio e protege seus invariantes.
 type Email struct {
-	id        int64
+	id        vo.ID
 	address   vo.Email
 	createdAt time.Time
 	updatedAt time.Time
 	deletedAt *time.Time
 }
 
+// EmailBuilder segue o padrão Builder para construção segura de Email.
 type EmailBuilder struct {
 	email *Email
 }
 
+// NewEmailBuilder cria um novo builder para Email.
 func NewEmailBuilder() *EmailBuilder {
 	now := time.Now()
 	return &EmailBuilder{
@@ -31,7 +35,7 @@ func NewEmailBuilder() *EmailBuilder {
 }
 
 func (e *EmailBuilder) WithID(id int64) *EmailBuilder {
-	e.email.id = id
+	e.email.id = vo.ID(id)
 	return e
 }
 
@@ -55,6 +59,7 @@ func (e *EmailBuilder) WithDeletedAt(deletedAt *time.Time) *EmailBuilder {
 	return e
 }
 
+// Build valida e constrói a entidade Email.
 func (e *EmailBuilder) Build() (*Email, error) {
 	if err := e.email.validate(); err != nil {
 		return nil, err
@@ -62,20 +67,47 @@ func (e *EmailBuilder) Build() (*Email, error) {
 	return e.email, nil
 }
 
-func (e *EmailBuilder) Apply() error {
-	if err := e.email.validate(); err != nil {
-		return err
+// validate verifica os invariantes de domínio da entidade.
+func (e *Email) validate() error {
+	if !e.address.IsValid() {
+		return domain.NewFieldError("address", "email address is invalid")
 	}
-	e.email.updatedAt = time.Now()
 	return nil
 }
 
-func (e *Email) ID() int64             { return e.id }
-func (e *Email) Address() vo.Email     { return e.address }
-func (e *Email) CreatedAt() time.Time  { return e.createdAt }
-func (e *Email) UpdatedAt() time.Time  { return e.updatedAt }
+// ID retorna o identificador único do email.
+func (e *Email) ID() vo.ID { return e.id }
+
+// Address retorna o endereço de email.
+func (e *Email) Address() vo.Email { return e.address }
+
+// CreatedAt retorna a data de criação do email.
+func (e *Email) CreatedAt() time.Time { return e.createdAt }
+
+// UpdatedAt retorna a data da última atualização do email.
+func (e *Email) UpdatedAt() time.Time { return e.updatedAt }
+
+// DeletedAt retorna a data de exclusão (nil se não excluído).
 func (e *Email) DeletedAt() *time.Time { return e.deletedAt }
 
+// SetID define o ID do email apenas uma vez.
+func (e *Email) SetID(id int64) error {
+	if e.id != 0 {
+		return domain.NewFieldError("id", "email ID is already set")
+	}
+	if id == 0 {
+		return domain.NewFieldError("id", "email ID is invalid")
+	}
+	e.id = vo.ID(id)
+	return nil
+}
+
+// IsDeleted verifica se o email foi excluído logicamente.
+func (e *Email) IsDeleted() bool {
+	return e.deletedAt != nil
+}
+
+// Delete exclui logicamente o email.
 func (e *Email) Delete() error {
 	if e.id == 0 {
 		return domain.NewFieldError("id", "email ID is invalid")
@@ -89,24 +121,21 @@ func (e *Email) Delete() error {
 	return nil
 }
 
-func (e *Email) IsDeleted() bool {
-	return e.deletedAt != nil
+// Restore restaura um email excluído logicamente.
+func (e *Email) Restore() {
+	if !e.IsDeleted() {
+		return
+	}
+	e.deletedAt = nil
+	e.updatedAt = time.Now()
 }
 
-func (e *Email) SetID(id int64) error {
-	if e.id != 0 {
-		return domain.NewFieldError("id", "email ID is already set")
-	}
-	if id == 0 {
-		return domain.NewFieldError("id", "email ID is invalid")
-	}
-	e.id = id
-	return nil
-}
-
-func (e *Email) validate() error {
-	if !e.address.IsValid() {
+// UpdateAddress atualiza o endereço de email.
+func (e *Email) UpdateAddress(address string) error {
+	if !vo.Email(address).IsValid() {
 		return domain.NewFieldError("address", "email address is invalid")
 	}
+	e.address = vo.Email(address)
+	e.updatedAt = time.Now()
 	return nil
 }

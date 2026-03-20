@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/company/application/dto"
+	"github.com/paladignus/actajus/internal/module/company/application/command"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
+	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 )
@@ -29,8 +30,8 @@ func NewCreateCompany(
 
 func (c CreateCompany) Execute(
 	ctx context.Context,
-	input dto.CreateCompanyRequest,
-) (*dto.CompanyReadModel, error) {
+	input command.CreateCompanyCommand,
+) (*readmodel.CompanyReadModel, error) {
 	company, err := c.mapper.CompanyInputToDomain(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid company data: %w", err)
@@ -65,17 +66,17 @@ func (c CreateCompany) Execute(
 		if err := r.Email().Create(ctx, email); err != nil {
 			return fmt.Errorf("failed to create email: %w", err)
 		}
-		if err := r.CompanyAddress().Create(ctx, company.ID(), address.ID()); err != nil {
+		if err := r.CompanyAddress().Create(ctx, company.ID().Value(), address.ID().Value()); err != nil {
 			return fmt.Errorf("failed to create relationship company address: %w", err)
 		}
-		if err := r.CompanyPhone().Create(ctx, company.ID(), phone.ID()); err != nil {
+		if err := r.CompanyPhone().Create(ctx, company.ID().Value(), phone.ID().Value()); err != nil {
 			return fmt.Errorf("failed to create relationship company phone: %w", err)
 		}
-		if err := r.CompanyEmail().Create(ctx, company.ID(), email.ID()); err != nil {
+		if err := r.CompanyEmail().Create(ctx, company.ID().Value(), email.ID().Value()); err != nil {
 			return fmt.Errorf("failed to create relationship company email: %w", err)
 		}
 		for _, sm := range socialMedia {
-			if err := sm.SetCompanyID(company.ID()); err != nil {
+			if err := sm.SetCompanyID(company.ID().Value()); err != nil {
 				return fmt.Errorf("failed to set company id: %w", err)
 			}
 			if err := r.SocialMedia().Create(ctx, sm); err != nil {

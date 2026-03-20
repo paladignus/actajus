@@ -69,7 +69,7 @@ func (a Address) Update(ctx context.Context, address domain.Address) error {
 		address.State().Value(),
 		address.Country().Value(),
 		address.UpdatedAt(),
-		address.ID(),
+		address.ID().Value(),
 	)
 	return err
 }
@@ -79,7 +79,7 @@ func (a Address) Delete(ctx context.Context, address domain.Address) error {
 	_, err := a.db.Exec(ctx, query,
 		address.UpdatedAt(),
 		address.DeletedAt(),
-		address.ID(),
+		address.ID().Value(),
 	)
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
