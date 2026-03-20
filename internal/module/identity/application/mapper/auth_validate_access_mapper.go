@@ -4,7 +4,7 @@ package mapper
 import (
 	"strings"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/command"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 )
 

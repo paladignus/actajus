@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/paladignus/actajus/internal/module/person/application/dto"
+	"github.com/paladignus/actajus/internal/module/person/application/command"
 	"github.com/paladignus/actajus/internal/module/person/application/usecase"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 	"github.com/paladignus/actajus/internal/shared/domain"
@@ -22,7 +22,7 @@ func NewPersonHTTPHandler(usecase usecase.CreatePerson) *PersonHTTPHandler {
 }
 
 func (h *PersonHTTPHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
-	var input dto.CreatePersonRequest
+	var input command.CreatePersonCommand
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&input); err != nil {

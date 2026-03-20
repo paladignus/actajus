@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/command"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"

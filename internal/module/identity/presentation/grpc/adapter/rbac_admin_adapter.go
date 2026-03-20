@@ -2,7 +2,7 @@
 package adapter
 
 import (
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/command"
 	identityv1 "github.com/paladignus/actajus/proto/identity/v1"
 )
 

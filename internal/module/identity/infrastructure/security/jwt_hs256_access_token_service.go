@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 )
 
 type HS256AccessTokenService struct {
@@ -33,7 +33,7 @@ func NewHS256AccessTokenService(secret string, issuer string, audience string) (
 	}, nil
 }
 
-func (s *HS256AccessTokenService) Sign(claims dto.AccessTokenClaims) (string, error) {
+func (s *HS256AccessTokenService) Sign(claims readmodel.AccessTokenClaims) (string, error) {
 	// now := time.Now()
 	// "iat": now.Unix(),
 	mapClaims := jwt.MapClaims{
@@ -54,7 +54,7 @@ func (s *HS256AccessTokenService) Sign(claims dto.AccessTokenClaims) (string, er
 	return signed, nil
 }
 
-func (s *HS256AccessTokenService) Verify(token string) (dto.AccessTokenClaims, error) {
+func (s *HS256AccessTokenService) Verify(token string) (readmodel.AccessTokenClaims, error) {
 	parser := jwt.NewParser(
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), // trava HS256
 		jwt.WithIssuer(s.issuer),
@@ -68,30 +68,30 @@ func (s *HS256AccessTokenService) Verify(token string) (dto.AccessTokenClaims, e
 		return s.secret, nil
 	})
 	if err != nil {
-		return dto.AccessTokenClaims{}, err
+		return readmodel.AccessTokenClaims{}, err
 	}
 	sub, _ := claims["sub"].(string)
 	sid, _ := claims["sid"].(string)
 	if sub == "" || sid == "" {
-		return dto.AccessTokenClaims{}, errors.New("missing sub or sid")
+		return readmodel.AccessTokenClaims{}, errors.New("missing sub or sid")
 	}
 	uid64, err := strconv.ParseInt(sub, 10, 64)
 	if err != nil || uid64 <= 0 {
-		return dto.AccessTokenClaims{}, errors.New("invalid sub")
+		return readmodel.AccessTokenClaims{}, errors.New("invalid sub")
 	}
 	sid64, err := strconv.ParseInt(sid, 10, 64)
 	if err != nil || sid64 <= 0 {
-		return dto.AccessTokenClaims{}, errors.New("invalid sid")
+		return readmodel.AccessTokenClaims{}, errors.New("invalid sid")
 	}
 	iat, err := claims.GetIssuedAt()
 	if err != nil || iat == nil {
-		return dto.AccessTokenClaims{}, errors.New("invalid iat")
+		return readmodel.AccessTokenClaims{}, errors.New("invalid iat")
 	}
 	exp, err := claims.GetExpirationTime()
 	if err != nil || exp == nil {
-		return dto.AccessTokenClaims{}, errors.New("invalid exp")
+		return readmodel.AccessTokenClaims{}, errors.New("invalid exp")
 	}
-	return dto.AccessTokenClaims{
+	return readmodel.AccessTokenClaims{
 		IDUser:    uid64,
 		IDSession: sid64,
 		Issuer:    s.issuer,

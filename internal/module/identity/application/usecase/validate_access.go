@@ -5,7 +5,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/command"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
@@ -30,7 +31,7 @@ func NewValidateAccess(
 	}
 }
 
-func (uc ValidateAccess) Execute(ctx context.Context, cmd dto.ValidateAccessCommand) (*dto.AccessTokenClaims, error) {
+func (uc ValidateAccess) Execute(ctx context.Context, cmd dto.ValidateAccessCommand) (*readmodel.AccessTokenClaims, error) {
 	if cmd.AccessToken == "" {
 		return nil, domain.ErrMissingAccessToken
 	}
@@ -48,7 +49,7 @@ func (uc ValidateAccess) Execute(ctx context.Context, cmd dto.ValidateAccessComm
 			return nil, domain.ErrSessionNotActive
 		}
 	}
-	return &dto.AccessTokenClaims{
+	return &readmodel.AccessTokenClaims{
 		IDUser:    claims.IDUser,
 		IDSession: claims.IDSession,
 	}, nil

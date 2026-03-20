@@ -5,7 +5,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/command"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
@@ -40,7 +41,7 @@ func NewRefresh(
 	}
 }
 
-func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.AuthTokensReadModel, error) {
+func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*readmodel.AuthTokensReadModel, error) {
 	norm, err := uc.mapper.RefreshInputToNormalized(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid refresh data: %w", err)
@@ -81,7 +82,7 @@ func (uc Refresh) Execute(ctx context.Context, input dto.RefreshCommand) (*dto.A
 		return nil, identity.ErrRefreshReuse
 	}
 	accessExp := now.Add(uc.config.AccessTTL)
-	accessToken, err := uc.access.Sign(dto.AccessTokenClaims{
+	accessToken, err := uc.access.Sign(readmodel.AccessTokenClaims{
 		IDUser:    sess.IDUser().Value(),
 		IDSession: sess.ID().Value(),
 		Issuer:    uc.config.Issuer,

@@ -1,5 +1,5 @@
 // Package dto
-package dto
+package readmodel
 
 type RequestPasswordResetReadModel struct {
 	Message string `json:"message"`

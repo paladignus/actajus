@@ -4,7 +4,7 @@ package mapper
 import (
 	"strings"
 
-	"github.com/paladignus/actajus/internal/module/person/application/dto"
+	"github.com/paladignus/actajus/internal/module/person/application/command"
 	"github.com/paladignus/actajus/internal/module/person/domain"
 )
 
@@ -14,7 +14,7 @@ func NewPersonMapper() PersonMapper {
 	return PersonMapper{}
 }
 
-func (p PersonMapper) PersonInputToDomain(input dto.CreatePersonRequest) (*domain.Person, error) {
+func (p PersonMapper) PersonInputToDomain(input command.CreatePersonCommand) (*domain.Person, error) {
 	name := strings.Fields(strings.TrimSpace(input.Name))
 	return domain.NewPersonBuilder().
 		WithFirstName(name[0]).

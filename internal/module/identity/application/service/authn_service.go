@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 )
@@ -17,7 +17,7 @@ type RefreshTokenGenerator interface {
 
 // AccessTokenSigner signs access tokens
 type AccessTokenSigner interface {
-	Sign(claims dto.AccessTokenClaims) (string, error)
+	Sign(claims readmodel.AccessTokenClaims) (string, error)
 }
 
 // UserRepository provides user persistence
@@ -127,7 +127,7 @@ func (s AuthnService) Authenticate(
 
 	// Sign access token
 	accessExp := now.Add(s.config.AccessTTL)
-	accessToken, err := s.access.Sign(dto.AccessTokenClaims{
+	accessToken, err := s.access.Sign(readmodel.AccessTokenClaims{
 		IDSession: session.ID().Value(),
 		IDUser:    user.ID().Value(),
 		Issuer:    s.config.Issuer,

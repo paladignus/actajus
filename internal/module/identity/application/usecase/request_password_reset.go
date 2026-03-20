@@ -5,7 +5,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/command"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/event"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
@@ -48,7 +49,7 @@ func NewRequestPasswordReset(
 	}
 }
 
-func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPasswordResetCommand) (*dto.RequestPasswordResetReadModel, error) {
+func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPasswordResetCommand) (*readmodel.RequestPasswordResetReadModel, error) {
 	norm, err := uc.mapper.RequestPasswordResetInputToNormalized(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid password reset request data: %w", err)
@@ -57,7 +58,7 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPas
 	if err != nil {
 		return nil, err
 	}
-	resp := &dto.RequestPasswordResetReadModel{
+	resp := &readmodel.RequestPasswordResetReadModel{
 		Message: "Se existir uma conta com esse e-mail, enviaremos instruções para redefinição de senha.",
 	}
 	if user == nil {

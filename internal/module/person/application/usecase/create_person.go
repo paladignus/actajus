@@ -5,8 +5,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/paladignus/actajus/internal/module/person/application/dto"
+	"github.com/paladignus/actajus/internal/module/person/application/command"
 	"github.com/paladignus/actajus/internal/module/person/application/mapper"
+	"github.com/paladignus/actajus/internal/module/person/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/person/domain"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 	"github.com/paladignus/actajus/internal/shared/presentation/validation"
@@ -32,7 +33,7 @@ func NewCreatePerson(
 	}
 }
 
-func (c CreatePerson) Execute(ctx context.Context, input dto.CreatePersonRequest) (*dto.PersonReadModel, error) {
+func (c CreatePerson) Execute(ctx context.Context, input command.CreatePersonCommand) (*readmodel.PersonReadModel, error) {
 	// Validação sintática do DTO
 	vs := c.validator.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {

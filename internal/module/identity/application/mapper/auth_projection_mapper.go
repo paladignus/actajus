@@ -4,7 +4,7 @@ package mapper
 import (
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 )
 
 type AuthProjectionMapper struct{}
@@ -20,8 +20,8 @@ func (p *AuthProjectionMapper) ProjectTokens(
 	refreshToken string,
 	accessExp time.Time,
 	refreshExp time.Time,
-) *dto.AuthTokensReadModel {
-	return &dto.AuthTokensReadModel{
+) *readmodel.AuthTokensReadModel {
+	return &readmodel.AuthTokensReadModel{
 		IDSession:        sid,
 		IDUser:           uid,
 		AccessToken:      accessToken,

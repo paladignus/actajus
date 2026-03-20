@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/paladignus/actajus/internal/module/identity/application/dto"
+	identityCommand "github.com/paladignus/actajus/internal/module/identity/application/command"
 	"github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/presentation/adapter"
@@ -53,7 +53,7 @@ func (a *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 		if token == "" {
 			return nil, sharedAdapter.ToConnectIdentityError(domain.ErrMissingAccessToken)
 		}
-		claims, err := a.validate.Execute(ctx, dto.ValidateAccessCommand{AccessToken: token})
+		claims, err := a.validate.Execute(ctx, identityCommand.ValidateAccessCommand{AccessToken: token})
 		if err != nil {
 			return nil, sharedAdapter.ToConnectIdentityError(err)
 		}

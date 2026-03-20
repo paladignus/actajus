@@ -2,7 +2,7 @@
 package mapper
 
 import (
-	"github.com/paladignus/actajus/internal/module/person/application/dto"
+	"github.com/paladignus/actajus/internal/module/person/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/person/domain"
 )
 
@@ -12,8 +12,8 @@ func NewPersonProjection() PersonProjection {
 	return PersonProjection{}
 }
 
-func (p PersonProjection) ProjectPersonReadModel(person *domain.Person) *dto.PersonReadModel {
-	return &dto.PersonReadModel{
+func (p PersonProjection) ProjectPersonReadModel(person *domain.Person) *readmodel.PersonReadModel {
+	return &readmodel.PersonReadModel{
 		ID:        person.ID(),
 		Name:      person.FullName(),
 		Birthday:  person.Birthday().Value(),

@@ -1,9 +1,9 @@
 // Package service
 package service
 
-import "github.com/paladignus/actajus/internal/module/identity/application/dto"
+import "github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 
 type AccessTokenService interface {
-	Sign(claims dto.AccessTokenClaims) (string, error)
-	Verify(token string) (dto.AccessTokenClaims, error)
+	Sign(claims readmodel.AccessTokenClaims) (string, error)
+	Verify(token string) (readmodel.AccessTokenClaims, error)
 }
