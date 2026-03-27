@@ -12,7 +12,7 @@ type ValidateAccessNormalized struct {
 	Token string
 }
 
-func (m *AuthMapper) ValidateAccessInputToNormalized(input dto.ValidateAccessCommand) (ValidateAccessNormalized, error) {
+func (m *AuthMapper) ValidateAccessInputToNormalized(input command.ValidateAccessCommand) (ValidateAccessNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
 	token := strings.TrimSpace(input.AccessToken)
 	if strings.HasPrefix(strings.ToLower(token), "bearer ") {

@@ -1,5 +1,5 @@
-// Package dto
-package dto
+// Package command
+package command
 
 type ChangePasswordCommand struct {
 	IDUser          int64  `json:"id_user" validate:"required|min=1"`

@@ -35,7 +35,7 @@ func NewChangePassword(
 	}
 }
 
-func (uc ChangePassword) Execute(ctx context.Context, input dto.ChangePasswordCommand) error {
+func (uc ChangePassword) Execute(ctx context.Context, input command.ChangePasswordCommand) error {
 	norm, err := uc.mapper.ChangePasswordInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid change password data: %w", err)

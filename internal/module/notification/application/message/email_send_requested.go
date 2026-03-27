@@ -1,5 +1,5 @@
-// Package dto
-package dto
+// Package message
+package message
 
 import "time"
 

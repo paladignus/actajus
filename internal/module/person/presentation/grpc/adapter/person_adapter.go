@@ -6,7 +6,7 @@ import (
 	personv1 "github.com/paladignus/actajus/proto/person/v1"
 )
 
-func ProtoToCreatePersonDTO(req *personv1.CreatePersonRequest) command.CreatePersonCommand {
+func ProtoToCreatePersonCommand(req *personv1.CreatePersonRequest) command.CreatePersonCommand {
 	return command.CreatePersonCommand{
 		Name:     req.Name,
 		Gender:   uint(req.Gender),

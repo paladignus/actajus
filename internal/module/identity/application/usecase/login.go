@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/command"
-	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
 )
 
@@ -29,7 +29,7 @@ func NewLogin(
 	}
 }
 
-func (uc Login) Execute(ctx context.Context, input dto.LoginCommand) (*readmodel.AuthTokensReadModel, error) {
+func (uc Login) Execute(ctx context.Context, input command.LoginCommand) (*readmodel.AuthTokensReadModel, error) {
 	norm, err := uc.mapper.LoginInputToNormalized(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid login data: %w", err)

@@ -32,7 +32,7 @@ func NewAssignRoleToUser(
 	}
 }
 
-func (uc AssignRoleToUser) Execute(ctx context.Context, input dto.AssignRoleToUserCommand) error {
+func (uc AssignRoleToUser) Execute(ctx context.Context, input command.AssignRoleToUserCommand) error {
 	norm, err := uc.mapper.AssignRoleInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid assign role data: %w", err)

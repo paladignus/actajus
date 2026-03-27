@@ -6,7 +6,7 @@ import (
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 )
 
-func (m *AuthMapper) RefreshInputToNormalized(input dto.RefreshCommand) (RefreshNormalized, error) {
+func (m *AuthMapper) RefreshInputToNormalized(input command.RefreshCommand) (RefreshNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return RefreshNormalized{}, err

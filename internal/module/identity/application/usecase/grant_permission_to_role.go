@@ -32,7 +32,7 @@ func NewGrantPermissionToRole(
 	}
 }
 
-func (uc GrantPermissionToRole) Execute(ctx context.Context, input dto.GrantPermissionToRoleCommand) error {
+func (uc GrantPermissionToRole) Execute(ctx context.Context, input command.GrantPermissionToRoleCommand) error {
 	norm, err := uc.mapper.GrantPermInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid grant permission data: %w", err)

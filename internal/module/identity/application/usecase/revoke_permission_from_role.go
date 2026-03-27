@@ -32,7 +32,7 @@ func NewRevokePermissionFromRole(
 	}
 }
 
-func (uc RevokePermissionFromRole) Execute(ctx context.Context, input dto.RevokePermissionFromRoleCommand) error {
+func (uc RevokePermissionFromRole) Execute(ctx context.Context, input command.RevokePermissionFromRoleCommand) error {
 	norm, err := uc.mapper.RevokePermInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid revoke permission data: %w", err)

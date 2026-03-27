@@ -130,4 +130,4 @@ func mapErr(err error) error {
 }
 
 // Só pra evitar import não usado, se Login/Refresh use dto
-// var _ = dto.LoginCommand{}
+// var _ = command.LoginCommand{}

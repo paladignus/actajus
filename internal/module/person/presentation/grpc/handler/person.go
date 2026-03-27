@@ -33,7 +33,7 @@ func (p PersonHandler) CreatePerson(
 	ctx context.Context,
 	req *connect.Request[personv1.CreatePersonRequest],
 ) (*connect.Response[personv1.CreatePersonResponse], error) {
-	input := personAdapter.ProtoToCreatePersonDTO(req.Msg)
+	input := personAdapter.ProtoToCreatePersonCommand(req.Msg)
 
 	person, err := p.person.Execute(ctx, input)
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
-	sharedDto "github.com/paladignus/actajus/internal/shared/application/dto"
+	sharedpagination "github.com/paladignus/actajus/internal/shared/application/pagination"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
 
@@ -118,7 +118,7 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 	if before != nil {
 		reverseSlice(companies)
 	}
-	pageInfo := sharedDto.PageInfo{
+	pageInfo := sharedpagination.PageInfo{
 		HasNextPage:     hasNextPage,
 		HasPreviousPage: hasPreviousPage,
 	}

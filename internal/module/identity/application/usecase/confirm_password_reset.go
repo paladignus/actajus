@@ -40,7 +40,7 @@ func NewConfirmPasswordReset(
 	}
 }
 
-func (uc ConfirmPasswordReset) Execute(ctx context.Context, input dto.ConfirmPasswordResetCommand) error {
+func (uc ConfirmPasswordReset) Execute(ctx context.Context, input command.ConfirmPasswordResetCommand) error {
 	norm, err := uc.mapper.ConfirmPasswordResetInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid password reset confirm data: %w", err)

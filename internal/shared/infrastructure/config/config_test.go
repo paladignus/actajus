@@ -14,8 +14,10 @@ func TestLoad(t *testing.T) {
 	envVars := []string{
 		"SERVER_PORT", "GRPC_PORT", "ENV",
 		"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_SSLMODE",
-		"ACCESS_SECRET", "REFRESH_SECRET", "RESET_SECRET", "JWT_ISSUER", "ACCESS_EXPIRE", "REFRESH_EXPIRE", "RESET_EXPIRE",
-		"SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS",
+		"ACCESS_SECRET", "REFRESH_SECRET", "RESET_SECRET", "JWT_ISSUER", "JWT_AUDIENCE", "ACCESS_TTL", "REFRESH_TTL", "RESET_TTL",
+		"MAX_SESSIONS", "MAX_RESET_ATTEMPTS",
+		"REDIS_ADDR", "REDIS_PASSWORD", "REDIS_PREFIX", "REDIS_FALLBACK",
+		"SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "SMTP_FROM", "PUBLIC_BASE_URL",
 		"NATS_SUBJECTS", "NATS_URL", "NATS_STREAM_NAME", "NATS_CONSUMER_NAME", "NATS_DURABLE_NAME", "NATS_REPLAY_POLICY",
 		"NATS_MAX_BYTES", "NATS_REPLICAS", "NATS_MAX_DELIVER", "NATS_MAX_ACK_PENDING", "NATS_MAX_AGE", "NATS_ACK_WAIT",
 		"NATS_CONNECTION_TIMEOUT", "NATS_REQUEST_TIMEOUT", "TRACING_SERVICE_NAME", "TRACING_AGENT_HOST", "TRACING_AGENT_PORT", "TRACING_ENABLED",
@@ -58,18 +60,49 @@ func TestLoad(t *testing.T) {
 					DBName:   "sidof",
 					SSLMode:  "disable",
 				},
+				Redis: RedisConfig{
+					Addr:     "localhost:6379",
+					Password: "",
+					Prefix:   "actajus:",
+					Fallback: "true",
+				},
 				JWT: JWTConfig{
 					AccessSecret: "",
 					Issuer:       "example.com.br",
 					AccessTTL:    15 * time.Minute,
 					Audience:     "example.com.br",
 				},
+				Session: SessionConfig{
+					MaxSessions: 10,
+					RefreshTTL:  24 * time.Hour,
+				},
+				PasswordReset: PasswordResetConfig{
+					MaxResetAttempts: 5,
+					ResetTTL:         30 * time.Minute,
+				},
+				Auth: AuthConfig{
+					JWTConfig: JWTConfig{
+						AccessSecret: "",
+						Issuer:       "example.com.br",
+						AccessTTL:    15 * time.Minute,
+						Audience:     "example.com.br",
+					},
+					SessionConfig: SessionConfig{
+						MaxSessions: 10,
+						RefreshTTL:  24 * time.Hour,
+					},
+					PasswordResetConfig: PasswordResetConfig{
+						MaxResetAttempts: 5,
+						ResetTTL:         30 * time.Minute,
+					},
+				},
 				SMTP: SMTPConfig{
-					Host: "smtp.gmail.com",
-					Port: "587",
-					User: "",
-					Pass: "",
-					From: "",
+					Host:          "smtp.gmail.com",
+					Port:          "587",
+					User:          "",
+					Pass:          "",
+					From:          "",
+					PublicBaseURL: "http://localhost:5173",
 				},
 				NATS: NATSConfig{
 					Subjects:          []string{"events.>"},
@@ -111,13 +144,17 @@ func TestLoad(t *testing.T) {
 				"REFRESH_SECRET":       "custom-refresh-secret",
 				"RESET_SECRET":         "custom-reset-secret",
 				"JWT_ISSUER":           "example.com.br",
-				"ACCESS_EXPIRE":        "15",
-				"REFRESH_EXPIRE":       "720", // 30 days in hours
-				"RESET_EXPIRE":         "30",
+				"JWT_AUDIENCE":         "example.com.br",
+				"ACCESS_TTL":           "15",
+				"REFRESH_TTL":          "720",
+				"RESET_TTL":            "30",
+				"MAX_SESSIONS":         "10",
+				"MAX_RESET_ATTEMPTS":   "5",
 				"SMTP_HOST":            "smtp.example.com",
 				"SMTP_PORT":            "587",
 				"SMTP_USER":            "your-email",
 				"SMTP_PASS":            "your-password",
+				"PUBLIC_BASE_URL":      "http://localhost:5173",
 				"NATS_SUBJECTS":        "events.>",
 				"NATS_URL":             "nats://localhost:4222",
 				"NATS_STREAM_NAME":     "actajus",
@@ -143,18 +180,49 @@ func TestLoad(t *testing.T) {
 					DBName:   "mydatabase",
 					SSLMode:  "require",
 				},
+				Redis: RedisConfig{
+					Addr:     "localhost:6379",
+					Password: "",
+					Prefix:   "actajus:",
+					Fallback: "true",
+				},
 				JWT: JWTConfig{
 					AccessSecret: "custom-access-secret",
 					Issuer:       "example.com.br",
 					AccessTTL:    15 * time.Minute,
 					Audience:     "example.com.br",
 				},
+				Session: SessionConfig{
+					MaxSessions: 10,
+					RefreshTTL:  720 * time.Hour,
+				},
+				PasswordReset: PasswordResetConfig{
+					MaxResetAttempts: 5,
+					ResetTTL:         30 * time.Minute,
+				},
+				Auth: AuthConfig{
+					JWTConfig: JWTConfig{
+						AccessSecret: "custom-access-secret",
+						Issuer:       "example.com.br",
+						AccessTTL:    15 * time.Minute,
+						Audience:     "example.com.br",
+					},
+					SessionConfig: SessionConfig{
+						MaxSessions: 10,
+						RefreshTTL:  720 * time.Hour,
+					},
+					PasswordResetConfig: PasswordResetConfig{
+						MaxResetAttempts: 5,
+						ResetTTL:         30 * time.Minute,
+					},
+				},
 				SMTP: SMTPConfig{
-					Host: "smtp.example.com",
-					Port: "587",
-					User: "your-email",
-					Pass: "your-password",
-					From: "",
+					Host:          "smtp.example.com",
+					Port:          "587",
+					User:          "your-email",
+					Pass:          "your-password",
+					From:          "",
+					PublicBaseURL: "http://localhost:5173",
 				},
 				NATS: NATSConfig{
 					Subjects:          []string{"events.>"},
@@ -183,10 +251,10 @@ func TestLoad(t *testing.T) {
 		{
 			name: "should partial custom values",
 			envVars: map[string]string{
-				"SERVER_PORT":   "3000",
-				"DB_HOST":       "127.0.0.1",
-				"DB_USER":       "testuser",
-				"ACCESS_EXPIRE": "5",
+				"SERVER_PORT": "3000",
+				"DB_HOST":     "127.0.0.1",
+				"DB_USER":     "testuser",
+				"ACCESS_TTL":  "5",
 			},
 			expected: Config{
 				Server: ServerConfig{
@@ -202,18 +270,49 @@ func TestLoad(t *testing.T) {
 					DBName:   "sidof",
 					SSLMode:  "disable",
 				},
+				Redis: RedisConfig{
+					Addr:     "localhost:6379",
+					Password: "",
+					Prefix:   "actajus:",
+					Fallback: "true",
+				},
 				JWT: JWTConfig{
 					AccessSecret: "",
 					Issuer:       "example.com.br",
 					AccessTTL:    5 * time.Minute,
 					Audience:     "example.com.br",
 				},
+				Session: SessionConfig{
+					MaxSessions: 10,
+					RefreshTTL:  24 * time.Hour,
+				},
+				PasswordReset: PasswordResetConfig{
+					MaxResetAttempts: 5,
+					ResetTTL:         30 * time.Minute,
+				},
+				Auth: AuthConfig{
+					JWTConfig: JWTConfig{
+						AccessSecret: "",
+						Issuer:       "example.com.br",
+						AccessTTL:    5 * time.Minute,
+						Audience:     "example.com.br",
+					},
+					SessionConfig: SessionConfig{
+						MaxSessions: 10,
+						RefreshTTL:  24 * time.Hour,
+					},
+					PasswordResetConfig: PasswordResetConfig{
+						MaxResetAttempts: 5,
+						ResetTTL:         30 * time.Minute,
+					},
+				},
 				SMTP: SMTPConfig{
-					Host: "smtp.gmail.com",
-					Port: "587",
-					User: "",
-					Pass: "",
-					From: "",
+					Host:          "smtp.gmail.com",
+					Port:          "587",
+					User:          "",
+					Pass:          "",
+					From:          "",
+					PublicBaseURL: "http://localhost:5173",
 				},
 				NATS: NATSConfig{
 					Subjects:          []string{"events.>"},

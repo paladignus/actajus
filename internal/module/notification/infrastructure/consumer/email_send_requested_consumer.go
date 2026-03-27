@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/paladignus/actajus/internal/module/notification/application/dto"
+	"github.com/paladignus/actajus/internal/module/notification/application/message"
 	"github.com/paladignus/actajus/internal/module/notification/application/usecase"
 	"github.com/paladignus/actajus/internal/shared/application/service"
 )
@@ -44,7 +44,7 @@ func (c *EmailSendRequestedConsumer) Run(ctx context.Context) error {
 			if err != nil {
 				return fmt.Errorf("next message: %w", err)
 			}
-			var payload dto.EmailSendRequested
+			var payload message.EmailSendRequested
 			if err := c.serializer.Unmarshal(msg.Data(), &payload); err != nil {
 				_ = msg.Term()
 				continue

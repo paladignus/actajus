@@ -5,14 +5,10 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	address "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/application/mapper"
 	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
 	"github.com/paladignus/actajus/internal/module/company/presentation/grpc/handler"
-	email "github.com/paladignus/actajus/internal/module/email/application/mapper"
-	phone "github.com/paladignus/actajus/internal/module/phone/application/mapper"
-	socialMedia "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
 	sharedRepo "github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	sharedPostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
@@ -34,26 +30,8 @@ type Module struct {
 }
 
 func NewModule(d Dependencies) (Module, error) {
-	addrProject := address.NewAddressProjectionMapper()
-	phoneProject := phone.NewPhoneProjectionMapper()
-	emailProject := email.NewEmailProjectionMapper()
-	socialMediaProject := socialMedia.NewSocialMediaProjectionMapper()
-	projection := mapper.NewCompanyProjectionMapper(
-		addrProject,
-		phoneProject,
-		emailProject,
-		socialMediaProject,
-	)
-	address := address.NewAddressMapper()
-	phone := phone.NewPhoneMapper()
-	email := email.NewEmailMapper()
-	socialMedia := socialMedia.NewSocialMediaMapper()
-	mapper := mapper.NewCompanyMapper(
-		address,
-		phone,
-		email,
-		socialMedia,
-	)
+	projection := mapper.NewCompanyProjectionMapper()
+	mapper := mapper.NewCompanyMapper()
 	createUC := usecase.NewCreateCompany(
 		d.UoW,
 		d.Repository,

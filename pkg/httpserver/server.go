@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -39,13 +40,23 @@ func New(container *di.Container) *Server {
 	return &Server{
 		container: container,
 		srv: &http.Server{
-			Addr:         ":8080",
+			Addr:         normalizeAddr(container.Config.Server.Port),
 			Handler:      handler,
 			ReadTimeout:  15 * time.Second,
 			WriteTimeout: 15 * time.Second,
 			IdleTimeout:  60 * time.Second,
 		},
 	}
+}
+
+func normalizeAddr(port string) string {
+	if port == "" {
+		return ":8080"
+	}
+	if strings.HasPrefix(port, ":") {
+		return port
+	}
+	return ":" + port
 }
 
 // Start starts the HTTP server

@@ -6,7 +6,7 @@ import (
 	sharedAdapter "github.com/paladignus/actajus/internal/shared/application/adapter"
 )
 
-func (m *AuthMapper) RevokeInputToNormalized(input dto.RevokeSessionCommand) (RevokeNormalized, error) {
+func (m *AuthMapper) RevokeInputToNormalized(input command.RevokeSessionCommand) (RevokeNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return RevokeNormalized{}, err

@@ -1,7 +1,6 @@
 package di_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/paladignus/actajus/pkg/di"
@@ -9,7 +8,7 @@ import (
 
 func TestContainerCreation(t *testing.T) {
 	t.Skip("Skipping test - requires database and redis connection")
-	
+
 	container, err := di.NewContainer()
 	if err != nil {
 		t.Fatalf("Failed to create container: %v", err)
@@ -31,7 +30,7 @@ func TestContainerCreation(t *testing.T) {
 
 func TestContainerClose(t *testing.T) {
 	t.Skip("Skipping test - requires database connection")
-	
+
 	container, err := di.NewContainer()
 	if err != nil {
 		t.Fatalf("Failed to create container: %v", err)
@@ -41,13 +40,9 @@ func TestContainerClose(t *testing.T) {
 	container.Close()
 }
 
-func TestCompanyModuleDeps(t *testing.T) {
-	// This test verifies that CompanyModuleDeps can be created
-	// Actual functionality requires database connection
-	
-	ctx := context.Background()
-	
-	// Mock dependencies would be created here in a real test
-	// For now, we just verify the function signature compiles
-	_ = ctx
+func TestContainerTypeCompiles(t *testing.T) {
+	var c di.Container
+	if c.Modules != (di.Modules{}) {
+		t.Fatal("expected zero-value modules")
+	}
 }

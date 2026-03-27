@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/paladignus/actajus/internal/module/notification/application/dto"
+	"github.com/paladignus/actajus/internal/module/notification/application/message"
 	"github.com/paladignus/actajus/internal/module/notification/application/repository"
 	"github.com/paladignus/actajus/internal/module/notification/application/service"
 )
@@ -33,7 +33,7 @@ func NewProcessEmailSendRequested(
 	}
 }
 
-func (uc ProcessEmailSendRequested) Execute(ctx context.Context, msg dto.EmailSendRequested) error {
+func (uc ProcessEmailSendRequested) Execute(ctx context.Context, msg message.EmailSendRequested) error {
 	if msg.IDMessage == "" {
 		return fmt.Errorf("message_id is required")
 	}

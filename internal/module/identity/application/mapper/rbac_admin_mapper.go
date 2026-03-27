@@ -36,7 +36,7 @@ type RevokePermNormalized struct {
 	IDPermission int16
 }
 
-func (m *RBACAdminMapper) AssignRoleInputToNormalized(input dto.AssignRoleToUserCommand) (AssignRoleNormalized, error) {
+func (m *RBACAdminMapper) AssignRoleInputToNormalized(input command.AssignRoleToUserCommand) (AssignRoleNormalized, error) {
 	vs := m.v.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return AssignRoleNormalized{}, err
@@ -48,7 +48,7 @@ func (m *RBACAdminMapper) AssignRoleInputToNormalized(input dto.AssignRoleToUser
 	}, nil
 }
 
-func (m *RBACAdminMapper) RemoveRoleInputToNormalized(input dto.RemoveRoleFromUserCommand) (RemoveRoleNormalized, error) {
+func (m *RBACAdminMapper) RemoveRoleInputToNormalized(input command.RemoveRoleFromUserCommand) (RemoveRoleNormalized, error) {
 	vs := m.v.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return RemoveRoleNormalized{}, err
@@ -59,7 +59,7 @@ func (m *RBACAdminMapper) RemoveRoleInputToNormalized(input dto.RemoveRoleFromUs
 	}, nil
 }
 
-func (m *RBACAdminMapper) GrantPermInputToNormalized(input dto.GrantPermissionToRoleCommand) (GrantPermNormalized, error) {
+func (m *RBACAdminMapper) GrantPermInputToNormalized(input command.GrantPermissionToRoleCommand) (GrantPermNormalized, error) {
 	vs := m.v.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return GrantPermNormalized{}, err
@@ -70,7 +70,7 @@ func (m *RBACAdminMapper) GrantPermInputToNormalized(input dto.GrantPermissionTo
 	}, nil
 }
 
-func (m *RBACAdminMapper) RevokePermInputToNormalized(input dto.RevokePermissionFromRoleCommand) (RevokePermNormalized, error) {
+func (m *RBACAdminMapper) RevokePermInputToNormalized(input command.RevokePermissionFromRoleCommand) (RevokePermNormalized, error) {
 	vs := m.v.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return RevokePermNormalized{}, err

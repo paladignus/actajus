@@ -1,4 +1,4 @@
-// Package dto
+// Package readmodel
 package readmodel
 
 import "time"

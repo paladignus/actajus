@@ -1,5 +1,5 @@
-// Package dto
-package dto
+// Package command
+package command
 
 type ConfirmPasswordResetCommand struct {
 	IDReset     int64  `json:"id_reset" validate:"required|min=1"`

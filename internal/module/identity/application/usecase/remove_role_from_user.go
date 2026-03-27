@@ -32,7 +32,7 @@ func NewRemoveRoleFromUser(
 	}
 }
 
-func (uc RemoveRoleFromUser) Execute(ctx context.Context, input dto.RemoveRoleFromUserCommand) error {
+func (uc RemoveRoleFromUser) Execute(ctx context.Context, input command.RemoveRoleFromUserCommand) error {
 	norm, err := uc.mapper.RemoveRoleInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid remove role data: %w", err)

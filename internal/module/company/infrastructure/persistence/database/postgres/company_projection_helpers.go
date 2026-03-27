@@ -3,9 +3,6 @@ package postgres
 
 import (
 	companyReadModel "github.com/paladignus/actajus/internal/module/company/application/readmodel"
-	emailReadModel "github.com/paladignus/actajus/internal/module/email/application/readmodel"
-	phoneReadModel "github.com/paladignus/actajus/internal/module/phone/application/readmodel"
-	socialMediaReadModel "github.com/paladignus/actajus/internal/module/social_media/application/readmodel"
 )
 
 func mergeCompanyScanWithRelations(
@@ -27,9 +24,9 @@ func mergeCompanyScanWithRelations(
 		*order = append(*order, company.ID)
 		existing = company
 	}
-	if existing.Addresses == nil {
+	if existing.Address == nil {
 		if addr := a.addressToDTO(); addr != nil {
-			existing.Addresses = addr
+			existing.Address = addr
 		}
 	}
 	if e.id != nil {
@@ -50,7 +47,7 @@ func mergeCompanyScanWithRelations(
 	return existing
 }
 
-func hasEmail(emails []*emailReadModel.EmailReadModel, id int64) bool {
+func hasEmail(emails []*companyReadModel.CompanyEmailReadModel, id int64) bool {
 	for _, e := range emails {
 		if e.ID == id {
 			return true
@@ -59,7 +56,7 @@ func hasEmail(emails []*emailReadModel.EmailReadModel, id int64) bool {
 	return false
 }
 
-func hasPhone(phones []*phoneReadModel.PhoneReadModel, id int64) bool {
+func hasPhone(phones []*companyReadModel.CompanyPhoneReadModel, id int64) bool {
 	for _, p := range phones {
 		if p.ID == id {
 			return true
@@ -68,7 +65,7 @@ func hasPhone(phones []*phoneReadModel.PhoneReadModel, id int64) bool {
 	return false
 }
 
-func hasSocialMedia(sms []*socialMediaReadModel.SocialMediaReadModel, id int64) bool {
+func hasSocialMedia(sms []*companyReadModel.CompanySocialMediaReadModel, id int64) bool {
 	for _, s := range sms {
 		if s.ID == id {
 			return true

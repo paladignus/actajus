@@ -40,6 +40,8 @@ docker compose up -d
 
 # A documentação completa pode ser encontrada em [https://github.com/paladignus/actajus](https://github.com/paladignus/actajus).
 
+- Regras arquiteturais atuais: [ARCHITECTURE.md](/home/marcelo/Workspace/go/projects/actajus/ARCHITECTURE.md)
+
 ## Contribua para o projeto
 
 Se vocês gostaria de contribuir para o projeto, por favor, visite [https://github.com/paladignus/actajus](https://github.com/paladignus/actajus) para mais informaçoes.

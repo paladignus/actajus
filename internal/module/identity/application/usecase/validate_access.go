@@ -31,7 +31,7 @@ func NewValidateAccess(
 	}
 }
 
-func (uc ValidateAccess) Execute(ctx context.Context, cmd dto.ValidateAccessCommand) (*readmodel.AccessTokenClaims, error) {
+func (uc ValidateAccess) Execute(ctx context.Context, cmd command.ValidateAccessCommand) (*readmodel.AccessTokenClaims, error) {
 	if cmd.AccessToken == "" {
 		return nil, domain.ErrMissingAccessToken
 	}

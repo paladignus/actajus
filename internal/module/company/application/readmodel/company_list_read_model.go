@@ -1,9 +1,9 @@
 // Package readmodel
 package readmodel
 
-import "github.com/paladignus/actajus/internal/shared/application/dto"
+import "github.com/paladignus/actajus/internal/shared/application/pagination"
 
 type CompanyListReadModel struct {
 	Data     []CompanyReadModel
-	PageInfo dto.PageInfo
+	PageInfo pagination.PageInfo
 }

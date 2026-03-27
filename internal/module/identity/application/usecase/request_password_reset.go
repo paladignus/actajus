@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/command"
-	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/event"
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
+	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/repository"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
 	"github.com/paladignus/actajus/internal/shared/application/messaging"
@@ -49,7 +49,7 @@ func NewRequestPasswordReset(
 	}
 }
 
-func (uc RequestPasswordReset) Execute(ctx context.Context, input dto.RequestPasswordResetCommand) (*readmodel.RequestPasswordResetReadModel, error) {
+func (uc RequestPasswordReset) Execute(ctx context.Context, input command.RequestPasswordResetCommand) (*readmodel.RequestPasswordResetReadModel, error) {
 	norm, err := uc.mapper.RequestPasswordResetInputToNormalized(input)
 	if err != nil {
 		return nil, fmt.Errorf("invalid password reset request data: %w", err)

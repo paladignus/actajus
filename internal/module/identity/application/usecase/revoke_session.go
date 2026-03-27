@@ -22,7 +22,7 @@ func NewRevokeSession(
 	return RevokeSession{session, mapper}
 }
 
-func (uc RevokeSession) Execute(ctx context.Context, input dto.RevokeSessionCommand) error {
+func (uc RevokeSession) Execute(ctx context.Context, input command.RevokeSessionCommand) error {
 	norm, err := uc.mapper.RevokeInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid revoke data: %w", err)

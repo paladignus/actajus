@@ -4,11 +4,7 @@ package postgres
 import (
 	"time"
 
-	addrReadModel "github.com/paladignus/actajus/internal/module/address/application/readmodel"
 	companyReadModel "github.com/paladignus/actajus/internal/module/company/application/readmodel"
-	emailReadModel "github.com/paladignus/actajus/internal/module/email/application/readmodel"
-	phoneReadModel "github.com/paladignus/actajus/internal/module/phone/application/readmodel"
-	socialMediaReadModel "github.com/paladignus/actajus/internal/module/social_media/application/readmodel"
 )
 
 type companyScan struct {
@@ -57,11 +53,11 @@ type addressScan struct {
 	updatedAt    *time.Time
 }
 
-func (a *addressScan) addressToDTO() *addrReadModel.AddressReadModel {
+func (a *addressScan) addressToDTO() *companyReadModel.CompanyAddressReadModel {
 	if a.id == nil {
 		return nil
 	}
-	return &addrReadModel.AddressReadModel{
+	return &companyReadModel.CompanyAddressReadModel{
 		ID:           *a.id,
 		ZIP:          *a.zip,
 		Title:        *a.title,
@@ -85,11 +81,11 @@ type emailScan struct {
 	updatedAt *time.Time
 }
 
-func (e *emailScan) emailToDTO() *emailReadModel.EmailReadModel {
+func (e *emailScan) emailToDTO() *companyReadModel.CompanyEmailReadModel {
 	if e.id == nil {
 		return nil
 	}
-	return &emailReadModel.EmailReadModel{
+	return &companyReadModel.CompanyEmailReadModel{
 		ID:        *e.id,
 		Address:   *e.address,
 		CreatedAt: *e.createdAt,
@@ -106,11 +102,11 @@ type phoneScan struct {
 	updatedAt  *time.Time
 }
 
-func (p *phoneScan) phoneToDTO() *phoneReadModel.PhoneReadModel {
+func (p *phoneScan) phoneToDTO() *companyReadModel.CompanyPhoneReadModel {
 	if p.id == nil {
 		return nil
 	}
-	return &phoneReadModel.PhoneReadModel{
+	return &companyReadModel.CompanyPhoneReadModel{
 		ID:         *p.id,
 		Number:     *p.number,
 		Kind:       *p.kind,
@@ -128,8 +124,8 @@ type socialMediaScan struct {
 	updatedAt *time.Time
 }
 
-func (sm socialMediaScan) socialMediaToDTO() *socialMediaReadModel.SocialMediaReadModel {
-	return &socialMediaReadModel.SocialMediaReadModel{
+func (sm socialMediaScan) socialMediaToDTO() *companyReadModel.CompanySocialMediaReadModel {
+	return &companyReadModel.CompanySocialMediaReadModel{
 		ID:        *sm.id,
 		Platform:  *sm.platform,
 		URL:       *sm.url,

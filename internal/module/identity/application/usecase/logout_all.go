@@ -22,7 +22,7 @@ func NewLogoutAll(
 	return LogoutAll{session, mapper}
 }
 
-func (uc LogoutAll) Execute(ctx context.Context, input dto.LogoutAllCommand) error {
+func (uc LogoutAll) Execute(ctx context.Context, input command.LogoutAllCommand) error {
 	norm, err := uc.mapper.LogoutAllInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid logout-all data: %w", err)

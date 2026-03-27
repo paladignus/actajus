@@ -15,7 +15,7 @@ func NewAuthMapper(v *validation.Validator) *AuthMapper {
 	return &AuthMapper{v}
 }
 
-func (m *AuthMapper) LoginInputToNormalized(input dto.LoginCommand) (LoginNormalized, error) {
+func (m *AuthMapper) LoginInputToNormalized(input command.LoginCommand) (LoginNormalized, error) {
 	vs := m.validator.ValidateStruct(input)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		return LoginNormalized{}, err

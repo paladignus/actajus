@@ -22,7 +22,7 @@ func NewLogout(
 	return Logout{session, mapper}
 }
 
-func (uc Logout) Execute(ctx context.Context, input dto.LogoutCommand) error {
+func (uc Logout) Execute(ctx context.Context, input command.LogoutCommand) error {
 	norm, err := uc.mapper.LogoutInputToNormalized(input)
 	if err != nil {
 		return fmt.Errorf("invalid logout data: %w", err)

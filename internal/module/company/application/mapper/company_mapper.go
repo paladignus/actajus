@@ -4,41 +4,18 @@ package mapper
 import (
 	"time"
 
-	addrCommand "github.com/paladignus/actajus/internal/module/address/application/command"
-	addrMapper "github.com/paladignus/actajus/internal/module/address/application/mapper"
 	addrDomain "github.com/paladignus/actajus/internal/module/address/domain"
 	"github.com/paladignus/actajus/internal/module/company/application/command"
 	"github.com/paladignus/actajus/internal/module/company/domain"
-	emailCommand "github.com/paladignus/actajus/internal/module/email/application/command"
-	emailMapper "github.com/paladignus/actajus/internal/module/email/application/mapper"
 	emailDomain "github.com/paladignus/actajus/internal/module/email/domain"
-	phoneCommand "github.com/paladignus/actajus/internal/module/phone/application/command"
-	phoneMapper "github.com/paladignus/actajus/internal/module/phone/application/mapper"
 	phoneDomain "github.com/paladignus/actajus/internal/module/phone/domain"
-	socialMediaCommand "github.com/paladignus/actajus/internal/module/social_media/application/command"
-	socialMediaMapper "github.com/paladignus/actajus/internal/module/social_media/application/mapper"
 	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 )
 
-type CompanyMapper struct {
-	addrMapper        *addrMapper.AddressMapper
-	phoneMapper       *phoneMapper.PhoneMapper
-	emailMapper       *emailMapper.EmailMapper
-	socialMediaMapper *socialMediaMapper.SocialMediaMapper
-}
+type CompanyMapper struct{}
 
-func NewCompanyMapper(
-	addrMapper *addrMapper.AddressMapper,
-	phoneMapper *phoneMapper.PhoneMapper,
-	emailMapper *emailMapper.EmailMapper,
-	socialMediaMapper *socialMediaMapper.SocialMediaMapper,
-) *CompanyMapper {
-	return &CompanyMapper{
-		addrMapper,
-		phoneMapper,
-		emailMapper,
-		socialMediaMapper,
-	}
+func NewCompanyMapper() *CompanyMapper {
+	return &CompanyMapper{}
 }
 
 func (m *CompanyMapper) CompanyInputToDomain(input command.CreateCompanyCommand) (*domain.Company, error) {
@@ -68,34 +45,77 @@ func (m *CompanyMapper) UpdateInputToDomain(input command.UpdateCompanyCommand) 
 		Build()
 }
 
-func (m *CompanyMapper) AddressInputToDomain(input addrCommand.CreateAddressCommand) (*addrDomain.Address, error) {
-	return m.addrMapper.InputToDomain(input)
+func (m *CompanyMapper) AddressInputToDomain(input command.CreateCompanyAddressCommand) (*addrDomain.Address, error) {
+	return addrDomain.NewAddressBuilder().
+		WithZIP(input.ZIP).
+		WithTitle(input.Title).
+		WithStreet(input.Street).
+		WithNumber(input.Number).
+		WithComplement(input.Complement).
+		WithReference(input.Reference).
+		WithNeighborhood(input.Neighborhood).
+		WithCity(input.City).
+		WithState(input.State).
+		WithCountry(input.Country).
+		Build()
 }
 
-func (m *CompanyMapper) UpdateAddressInputToDomain(input addrCommand.UpdateAddressCommand) (*addrDomain.Address, error) {
-	return m.addrMapper.UpdateInputToDomain(input)
+func (m *CompanyMapper) UpdateAddressInputToDomain(input command.UpdateCompanyAddressCommand) (*addrDomain.Address, error) {
+	return addrDomain.NewAddressBuilder().
+		WithID(input.IDAddress).
+		WithZIP(input.ZIP).
+		WithTitle(input.Title).
+		WithStreet(input.Street).
+		WithNumber(input.Number).
+		WithComplement(input.Complement).
+		WithReference(input.Reference).
+		WithNeighborhood(input.Neighborhood).
+		WithCity(input.City).
+		WithState(input.State).
+		WithCountry(input.Country).
+		WithUpdatedAt(time.Now()).
+		Build()
 }
 
-func (m *CompanyMapper) PhoneInputToDomain(input phoneCommand.CreatePhoneCommand) (*phoneDomain.Phone, error) {
-	return m.phoneMapper.InputToDomain(input)
+func (m *CompanyMapper) PhoneInputToDomain(input command.CreateCompanyPhoneCommand) (*phoneDomain.Phone, error) {
+	return phoneDomain.NewPhoneBuilder().
+		WithNumber(input.Number).
+		WithKind(input.Kind).
+		WithDepartment(input.Department).
+		Build()
 }
 
-func (m *CompanyMapper) UpdatePhoneInputToDomain(input phoneCommand.UpdatePhoneCommand) (*phoneDomain.Phone, error) {
-	return m.phoneMapper.UpdateInputToDomain(input)
+func (m *CompanyMapper) UpdatePhoneInputToDomain(input command.UpdateCompanyPhoneCommand) (*phoneDomain.Phone, error) {
+	return phoneDomain.NewPhoneBuilder().
+		WithID(input.IDPhone).
+		WithNumber(input.Number).
+		WithKind(input.Kind).
+		WithDepartment(input.Department).
+		WithUpdatedAt(time.Now()).
+		Build()
 }
 
-func (m *CompanyMapper) EmailInputToDomain(input emailCommand.CreateEmailCommand) (*emailDomain.Email, error) {
-	return m.emailMapper.InputToDomain(input)
+func (m *CompanyMapper) EmailInputToDomain(input command.CreateCompanyEmailCommand) (*emailDomain.Email, error) {
+	return emailDomain.NewEmailBuilder().
+		WithAddress(input.Address).
+		Build()
 }
 
-func (m *CompanyMapper) UpdateEmailInputToDomain(input emailCommand.UpdateEmailCommand) (*emailDomain.Email, error) {
-	return m.emailMapper.UpdateInputToDomain(input)
+func (m *CompanyMapper) UpdateEmailInputToDomain(input command.UpdateCompanyEmailCommand) (*emailDomain.Email, error) {
+	return emailDomain.NewEmailBuilder().
+		WithID(input.IDEmail).
+		WithAddress(input.Address).
+		WithUpdatedAt(time.Now()).
+		Build()
 }
 
-func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaCommand.CreateSocialMediaCommand) ([]*socialMediaDomain.SocialMedia, error) {
+func (m *CompanyMapper) SocialMediaInputToDomain(input []command.CreateCompanySocialMediaCommand) ([]*socialMediaDomain.SocialMedia, error) {
 	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
 	for i, sm := range input {
-		dsm, err := m.socialMediaMapper.InputToDomain(sm)
+		dsm, err := socialMediaDomain.NewSocialMediaBuilder().
+			WithPlatform(sm.Platform).
+			WithURL(sm.URL).
+			Build()
 		if err != nil {
 			return nil, err
 		}
@@ -104,10 +124,15 @@ func (m *CompanyMapper) SocialMediaInputToDomain(input []socialMediaCommand.Crea
 	return socialMedia, nil
 }
 
-func (m *CompanyMapper) UpdateSocialMediaInputToDomain(input []socialMediaCommand.UpdateSocialMediaCommand) ([]*socialMediaDomain.SocialMedia, error) {
+func (m *CompanyMapper) UpdateSocialMediaInputToDomain(input []command.UpdateCompanySocialMediaCommand) ([]*socialMediaDomain.SocialMedia, error) {
 	socialMedia := make([]*socialMediaDomain.SocialMedia, len(input))
 	for i, sm := range input {
-		dsm, err := m.socialMediaMapper.UpdateInputToDomain(sm)
+		dsm, err := socialMediaDomain.NewSocialMediaBuilder().
+			WithID(sm.IDSocialMedia).
+			WithPlatform(sm.Platform).
+			WithURL(sm.URL).
+			WithUpdatedAt(time.Now()).
+			Build()
 		if err != nil {
 			return nil, err
 		}

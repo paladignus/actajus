@@ -4,16 +4,8 @@ package postgres
 import (
 	"fmt"
 
-	addr "github.com/paladignus/actajus/internal/module/address/domain"
-	addrDB "github.com/paladignus/actajus/internal/module/address/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	"github.com/paladignus/actajus/internal/module/company/domain"
-	email "github.com/paladignus/actajus/internal/module/email/domain"
-	emailDB "github.com/paladignus/actajus/internal/module/email/infrastructure/persistence/database/postgres"
-	phone "github.com/paladignus/actajus/internal/module/phone/domain"
-	phoneDB "github.com/paladignus/actajus/internal/module/phone/infrastructure/persistence/database/postgres"
-	socialMedia "github.com/paladignus/actajus/internal/module/social_media/domain"
-	socialMediaDB "github.com/paladignus/actajus/internal/module/social_media/infrastructure/persistence/database/postgres"
 
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
@@ -41,30 +33,30 @@ func (f *Factory) Company() repository.CompanyRepository {
 	return NewCompany(f.exec) // seu repo concreto deve aceitar Executor
 }
 
-func (f *Factory) Address() addr.AddressRepository {
-	return addrDB.NewAddress(f.exec)
+func (f *Factory) Address() repository.AddressRepository {
+	return NewAddressRepository(f.exec)
 }
 
 func (f *Factory) CompanyAddress() domain.CompanyAddressRepository {
 	return NewCompanyAddress(f.exec)
 }
 
-func (f *Factory) Phone() phone.PhoneRepository {
-	return phoneDB.NewPhone(f.exec)
+func (f *Factory) Phone() repository.PhoneRepository {
+	return NewPhoneRepository(f.exec)
 }
 
 func (f *Factory) CompanyPhone() domain.CompanyPhoneRepository {
 	return NewCompanyPhone(f.exec)
 }
 
-func (f *Factory) Email() email.EmailRepository {
-	return emailDB.NewEmail(f.exec)
+func (f *Factory) Email() repository.EmailRepository {
+	return NewEmailRepository(f.exec)
 }
 
 func (f *Factory) CompanyEmail() domain.CompanyEmailRepository {
 	return NewCompanyEmail(f.exec)
 }
 
-func (f *Factory) SocialMedia() socialMedia.SocialMediaRepository {
-	return socialMediaDB.NewSocialMedia(f.exec)
+func (f *Factory) SocialMedia() repository.SocialMediaRepository {
+	return NewSocialMediaRepository(f.exec)
 }

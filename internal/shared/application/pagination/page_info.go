@@ -1,5 +1,5 @@
-// Package dto
-package dto
+// Package pagination
+package pagination
 
 type PageInfo struct {
 	HasNextPage     bool    `json:"has_next_page"`

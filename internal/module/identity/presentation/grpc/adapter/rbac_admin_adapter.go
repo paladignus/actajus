@@ -6,30 +6,30 @@ import (
 	identityv1 "github.com/paladignus/actajus/proto/identity/v1"
 )
 
-func ProtoToAssignRoleCmd(in *identityv1.AssignRoleToUserRequest) dto.AssignRoleToUserCommand {
-	return dto.AssignRoleToUserCommand{
+func ProtoToAssignRoleCmd(in *identityv1.AssignRoleToUserRequest) command.AssignRoleToUserCommand {
+	return command.AssignRoleToUserCommand{
 		IDUser:     in.GetIdUser(),
 		IDRole:     int16(in.GetIdRole()),
 		AssignedBy: in.GetAssignedBy(),
 	}
 }
 
-func ProtoToRemoveRoleCmd(in *identityv1.RemoveRoleFromUserRequest) dto.RemoveRoleFromUserCommand {
-	return dto.RemoveRoleFromUserCommand{
+func ProtoToRemoveRoleCmd(in *identityv1.RemoveRoleFromUserRequest) command.RemoveRoleFromUserCommand {
+	return command.RemoveRoleFromUserCommand{
 		IDUser: in.GetIdUser(),
 		IDRole: int16(in.GetIdRole()),
 	}
 }
 
-func ProtoToGrantPermCmd(in *identityv1.GrantPermissionToRoleRequest) dto.GrantPermissionToRoleCommand {
-	return dto.GrantPermissionToRoleCommand{
+func ProtoToGrantPermCmd(in *identityv1.GrantPermissionToRoleRequest) command.GrantPermissionToRoleCommand {
+	return command.GrantPermissionToRoleCommand{
 		IDRole:       int16(in.GetIdRole()),
 		IDPermission: int16(in.GetIdPermission()),
 	}
 }
 
-func ProtoToRevokePermCmd(in *identityv1.RevokePermissionFromRoleRequest) dto.RevokePermissionFromRoleCommand {
-	return dto.RevokePermissionFromRoleCommand{
+func ProtoToRevokePermCmd(in *identityv1.RevokePermissionFromRoleRequest) command.RevokePermissionFromRoleCommand {
+	return command.RevokePermissionFromRoleCommand{
 		IDRole:       int16(in.GetIdRole()),
 		IDPermission: int16(in.GetIdPermission()),
 	}
