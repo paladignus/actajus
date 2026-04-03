@@ -9,6 +9,8 @@ const (
 	CodeMin        ViolationCode = "min"
 	CodeMax        ViolationCode = "max"
 	CodeLen        ViolationCode = "len"
+	CodeNumeric    ViolationCode = "numeric"
+	CodeEmail      ViolationCode = "email"
 	CodeOneOf      ViolationCode = "oneof"
 	CodeRequiredIf ViolationCode = "required_if"
 )

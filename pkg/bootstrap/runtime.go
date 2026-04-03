@@ -11,6 +11,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity"
 	identitypg "github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/person"
+	"github.com/paladignus/actajus/internal/module/web"
 	"github.com/paladignus/actajus/internal/shared/application/messaging"
 	"github.com/paladignus/actajus/internal/shared/application/repository"
 	sharedservice "github.com/paladignus/actajus/internal/shared/application/service"
@@ -41,6 +42,7 @@ type Modules struct {
 	Company  company.Module
 	Identity identity.Module
 	Person   person.Module
+	Web      web.Module
 }
 
 // NewRuntime loads config and initializes the shared runtime.
@@ -137,11 +139,21 @@ func initializeModules(
 	if err != nil {
 		return Modules{}, fmt.Errorf("initialize identity module: %w", err)
 	}
+	webModule, err := web.NewModule(web.Dependencies{
+		Logger:   log,
+		Company:  companyModule,
+		Identity: identityModule,
+		Secure:   cfg.Server.Env != "development",
+	})
+	if err != nil {
+		return Modules{}, fmt.Errorf("initialize web module: %w", err)
+	}
 
 	return Modules{
 		Company:  companyModule,
 		Identity: identityModule,
 		Person:   person.NewModule(db, log),
+		Web:      webModule,
 	}, nil
 }
 

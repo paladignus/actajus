@@ -24,6 +24,12 @@ type Dependencies struct {
 }
 
 type Module struct {
+	Create      usecase.CreateCompany
+	List        usecase.ListCompanies
+	Update      usecase.UpdateCompany
+	Delete      usecase.DeleteCompany
+	FindByID    usecase.FindByID
+	FindByCNPJ  usecase.FindByCNPJ
 	handlerImpl *handler.CompanyHandler
 	db          sharedPostgres.Executor
 	logger      sharedRepo.Logger
@@ -68,9 +74,15 @@ func NewModule(d Dependencies) (Module, error) {
 		findByCNPJ,
 	)
 	return Module{
-		&handlerImpl,
-		d.DB,
-		d.Logger,
+		Create:      createUC,
+		List:        listUC,
+		Update:      updateUC,
+		Delete:      deleteUC,
+		FindByID:    findByID,
+		FindByCNPJ:  findByCNPJ,
+		handlerImpl: &handlerImpl,
+		db:          d.DB,
+		logger:      d.Logger,
 	}, nil
 }
 

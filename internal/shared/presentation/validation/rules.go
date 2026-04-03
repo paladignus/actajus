@@ -3,6 +3,7 @@ package validation
 
 import (
 	"fmt"
+	"net/mail"
 	"reflect"
 	"regexp"
 	"slices"
@@ -32,7 +33,7 @@ func applyRules(path string, root, value any, tag string, out *[]Violation) {
 		case "oneof":
 			validateOneOf(path, value, splitCSV(raw), out)
 		case "email":
-			validateEmail(value, out)
+			validateEmail(path, value, out)
 		case "required_if":
 			refField, expected := parseRequiredIf(raw)
 			if refField != "" && evalRequiredIf(root, refField, expected) {
@@ -100,10 +101,13 @@ func validateOneOf(path string, value any, allowed []string, out *[]Violation) {
 	})
 }
 
-func validateEmail(value any, out *[]Violation) {
+func validateEmail(path string, value any, out *[]Violation) {
 	s := fmt.Sprintf("%v", value)
-	if s == "" {
-		*out = append(*out, Violation{Path: "email", Code: CodeEmail})
+	if strings.TrimSpace(s) == "" {
+		return
+	}
+	if _, err := mail.ParseAddress(s); err != nil {
+		*out = append(*out, Violation{Path: path, Code: CodeEmail})
 	}
 }
 
@@ -124,10 +128,7 @@ func evalRequiredIf(root any, refField, expected string) bool {
 		if sf.PkgPath != "" {
 			continue
 		}
-		jsonName := sf.Tag.Get("json")
-		if jsonName == "" || jsonName == "-" {
-			jsonName = strings.ToLower(sf.Name)
-		}
+		jsonName := parseJSONFieldName(sf.Tag.Get("json"), sf.Name)
 		if jsonName != refField && sf.Name != refField {
 			continue
 		}

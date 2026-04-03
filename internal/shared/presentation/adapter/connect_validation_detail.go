@@ -8,18 +8,15 @@ import (
 )
 
 func ValidationErrorDetail(err domain.ValidationError) *connect.Error {
+	payload := ValidationPayload(err)
 	detail := &validationv1.ValidationErrorDetail{
-		Violations: make([]*validationv1.ValidationErrorDetail_Violation, 0, len(err.Violations)),
+		Violations: make([]*validationv1.ValidationErrorDetail_Violation, 0, len(payload.Violations)),
 	}
-	for _, fe := range err.Violations {
-		meta := fe.Meta
-		if meta == nil {
-			meta = map[string]string{}
-		}
+	for _, fe := range payload.Violations {
 		detail.Violations = append(detail.Violations, &validationv1.ValidationErrorDetail_Violation{
 			Path: fe.Path,
-			Code: string(fe.Code),
-			Meta: meta,
+			Code: fe.Code,
+			Meta: fe.Meta,
 		})
 	}
 	cerr := connect.NewError(connect.CodeInvalidArgument, err)

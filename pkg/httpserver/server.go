@@ -2,6 +2,7 @@
 package httpserver
 
 import (
+	"bytes"
 	"context"
 	"log"
 	"net/http"
@@ -32,10 +33,10 @@ func New(container *di.Container) *Server {
 	})
 
 	// Register module routes
-	container.Modules.Company.Mount(mux)
+	container.Modules.Web.Mount(mux)
 
 	// Middleware wrapper
-	handler := loggingMiddleware(corsMiddleware(mux))
+	handler := loggingMiddleware(corsMiddleware(errorPageMiddleware(container, mux)))
 
 	return &Server{
 		container: container,
@@ -47,6 +48,32 @@ func New(container *di.Container) *Server {
 			IdleTimeout:  60 * time.Second,
 		},
 	}
+}
+
+type statusCapturingResponseWriter struct {
+	http.ResponseWriter
+	status      int
+	wroteHeader bool
+	body        bytes.Buffer
+}
+
+func (w *statusCapturingResponseWriter) Header() http.Header {
+	return w.ResponseWriter.Header()
+}
+
+func (w *statusCapturingResponseWriter) WriteHeader(status int) {
+	if w.wroteHeader {
+		return
+	}
+	w.status = status
+	w.wroteHeader = true
+}
+
+func (w *statusCapturingResponseWriter) Write(p []byte) (int, error) {
+	if !w.wroteHeader {
+		w.WriteHeader(http.StatusOK)
+	}
+	return w.body.Write(p)
 }
 
 func normalizeAddr(port string) string {
@@ -114,4 +141,44 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func errorPageMiddleware(container *di.Container, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !shouldRenderHTMLErrorPage(r) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		rec := &statusCapturingResponseWriter{ResponseWriter: w}
+		next.ServeHTTP(rec, r)
+
+		status := rec.status
+		if status == 0 {
+			status = http.StatusOK
+		}
+
+		switch status {
+		case http.StatusNotFound:
+			container.Modules.Web.RenderNotFound(w, r)
+			return
+		case http.StatusForbidden:
+			container.Modules.Web.RenderForbidden(w, r)
+			return
+		default:
+			w.WriteHeader(status)
+			_, _ = w.Write(rec.body.Bytes())
+		}
+	})
+}
+
+func shouldRenderHTMLErrorPage(r *http.Request) bool {
+	if r.Method != http.MethodGet {
+		return false
+	}
+	if strings.HasPrefix(r.URL.Path, "/assets/") || r.URL.Path == "/health" || strings.HasPrefix(r.URL.Path, "/bootstrap") {
+		return false
+	}
+	accept := strings.ToLower(r.Header.Get("Accept"))
+	return accept == "" || strings.Contains(accept, "text/html") || strings.Contains(accept, "*/*")
 }

@@ -31,13 +31,34 @@ import (
 )
 
 type Module struct {
-	ValidateAccess usecase.ValidateAccess
-	RBACChecker    interceptor.PermissionChecker
-	authImpl       *handler.AuthHandler
-	rbacAdminImpl  *handler.RbacAdminHandler
-	logger         sharedrepo.Logger
-	db             postgresShared.Executor
-	rdb            redis.UniversalClient
+	ValidateAccess           usecase.ValidateAccess
+	Login                    usecase.Login
+	Refresh                  usecase.Refresh
+	Logout                   usecase.Logout
+	LogoutAll                usecase.LogoutAll
+	RevokeSession            usecase.RevokeSession
+	ViewSessions             usecase.ViewSessions
+	ListUsers                usecase.ListUsers
+	ListPermissions          usecase.ListPermissions
+	ListRoles                usecase.ListRoles
+	ViewUserRoles            usecase.ViewUserRoles
+	ViewRolePermissions      usecase.ViewRolePermissions
+	AssignRoleToUser         usecase.AssignRoleToUser
+	RemoveRoleFromUser       usecase.RemoveRoleFromUser
+	GrantPermissionToRole    usecase.GrantPermissionToRole
+	RevokePermissionFromRole usecase.RevokePermissionFromRole
+	CreateRole               usecase.CreateRole
+	UpdateRole               usecase.UpdateRole
+	DeleteRole               usecase.DeleteRole
+	CreatePermission         usecase.CreatePermission
+	UpdatePermission         usecase.UpdatePermission
+	DeletePermission         usecase.DeletePermission
+	RBACChecker              interceptor.PermissionChecker
+	authImpl                 *handler.AuthHandler
+	rbacAdminImpl            *handler.RbacAdminHandler
+	logger                   sharedrepo.Logger
+	db                       postgresShared.Executor
+	rdb                      redis.UniversalClient
 }
 
 type Dependencies struct {
@@ -85,6 +106,8 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	passwordResetRepo := postgres.NewPasswordReset(dep.DB)
 	authzRepo := postgres.NewAuthorization(dep.DB)
+	sessionQueryRepo := postgres.NewSessionQuery(dep.DB)
+	catalogQueryRepo := postgres.NewCatalogQuery(dep.DB)
 	authzSvc := security.NewAuthorizationService(
 		authzRepo,
 		dep.RDB,
@@ -97,13 +120,15 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	roleUserAdminRepo := postgres.NewRoleUserAdminRepository(dep.DB)
 	permRoleAdminRepo := postgres.NewPermissionRoleAdminRepository(dep.DB)
+	roleCatalogAdminRepo := postgres.NewRoleCatalogAdminRepository(dep.DB)
+	permissionCatalogAdminRepo := postgres.NewPermissionCatalogAdminRepository(dep.DB)
 	// Repository com cache fallback para consultas de usuários por role
 	roleUserQueryRepo := cache.NewCachedRoleUserQueryRepository(
 		roleUserAdminRepo,
 		roleUsersIndex,
 		dep.Logger,
 	)
-	
+
 	// Create AuthnService
 	authnSvc := identitySvc.NewAuthnService(
 		dep.Repository.User(),
@@ -114,7 +139,7 @@ func NewModule(dep Dependencies) (Module, error) {
 		dep.Config,
 		clk,
 	)
-	
+
 	loginUC := usecase.NewLogin(
 		*authMapper,
 		*projection,
@@ -132,6 +157,7 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	logoutUC := usecase.NewLogout(cachedSessionRepo, *authMapper)
 	logoutAllUC := usecase.NewLogoutAll(cachedSessionRepo, *authMapper)
+	revokeSessionUC := usecase.NewRevokeSession(cachedSessionRepo, *authMapper)
 	changePasswordUC := usecase.NewChangePassword(
 		dep.Repository.User(),
 		cachedSessionRepo,
@@ -168,6 +194,18 @@ func NewModule(dep Dependencies) (Module, error) {
 		clk,
 		true,
 	)
+	viewSessionsUC := usecase.NewViewSessions(sessionQueryRepo)
+	listUsersUC := usecase.NewListUsers(catalogQueryRepo)
+	listPermissionsUC := usecase.NewListPermissions(catalogQueryRepo)
+	listRolesUC := usecase.NewListRoles(catalogQueryRepo)
+	viewUserRolesUC := usecase.NewViewUserRoles(catalogQueryRepo)
+	viewRolePermissionsUC := usecase.NewViewRolePermissions(catalogQueryRepo)
+	createRoleUC := usecase.NewCreateRole(roleCatalogAdminRepo, authValidator)
+	updateRoleUC := usecase.NewUpdateRole(roleCatalogAdminRepo, authValidator)
+	deleteRoleUC := usecase.NewDeleteRole(roleCatalogAdminRepo)
+	createPermissionUC := usecase.NewCreatePermission(permissionCatalogAdminRepo, authValidator)
+	updatePermissionUC := usecase.NewUpdatePermission(permissionCatalogAdminRepo, authValidator)
+	deletePermissionUC := usecase.NewDeletePermission(permissionCatalogAdminRepo)
 	authImpl := handler.NewAuthHandler(
 		loginUC,
 		refreshUC,
@@ -210,13 +248,34 @@ func NewModule(dep Dependencies) (Module, error) {
 	)
 	rbacChecker := rbac.NewChecker(authzSvc)
 	module := Module{
-		ValidateAccess: validateAccessUC,
-		RBACChecker:    rbacChecker,
-		authImpl:       &authImpl,
-		rbacAdminImpl:  rbacAdminImpl,
-		logger:         dep.Logger,
-		db:             dep.DB,
-		rdb:            dep.RDB,
+		ValidateAccess:           validateAccessUC,
+		Login:                    loginUC,
+		Refresh:                  refreshUC,
+		Logout:                   logoutUC,
+		LogoutAll:                logoutAllUC,
+		RevokeSession:            revokeSessionUC,
+		ViewSessions:             viewSessionsUC,
+		ListUsers:                listUsersUC,
+		ListPermissions:          listPermissionsUC,
+		ListRoles:                listRolesUC,
+		ViewUserRoles:            viewUserRolesUC,
+		ViewRolePermissions:      viewRolePermissionsUC,
+		AssignRoleToUser:         assignUC,
+		RemoveRoleFromUser:       removeUC,
+		GrantPermissionToRole:    grantUC,
+		RevokePermissionFromRole: revokeUC,
+		CreateRole:               createRoleUC,
+		UpdateRole:               updateRoleUC,
+		DeleteRole:               deleteRoleUC,
+		CreatePermission:         createPermissionUC,
+		UpdatePermission:         updatePermissionUC,
+		DeletePermission:         deletePermissionUC,
+		RBACChecker:              rbacChecker,
+		authImpl:                 &authImpl,
+		rbacAdminImpl:            rbacAdminImpl,
+		logger:                   dep.Logger,
+		db:                       dep.DB,
+		rdb:                      dep.RDB,
 	}
 
 	// Rebuild RBAC indexes automaticamente (a menos que seja explicitamente desabilitado)

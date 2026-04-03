@@ -33,3 +33,15 @@ func parseRequiredIf(raw string) (field, expected string) {
 	}
 	return strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
 }
+
+func parseJSONFieldName(tag, fallback string) string {
+	if tag == "" || tag == "-" {
+		return strings.ToLower(fallback)
+	}
+	name, _, _ := strings.Cut(tag, ",")
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return strings.ToLower(fallback)
+	}
+	return name
+}

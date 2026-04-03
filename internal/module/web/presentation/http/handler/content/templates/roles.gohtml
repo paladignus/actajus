@@ -1,0 +1,65 @@
+{{define "content/roles"}}
+{{$data := .Data}}
+<section class="dashboard-view dashboard-view--roles">
+  <section class="dashboard-panel">
+    {{if $data.Flash.Message}}<div class="dashboard-alert {{if eq $data.Flash.Kind "success"}}dashboard-alert--success{{end}}" data-flash-kind="{{$data.Flash.Kind}}" data-flash-code="{{$data.Flash.Code}}" data-flash-source="{{$data.Flash.Source}}">{{$data.Flash.Message}}</div>{{end}}
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Roles</h2>
+        <p class="dashboard-panel__summary">Catalogo de roles do RBAC.</p>
+      </div>
+    </div>
+
+    {{if $data.CanManageRBAC}}
+    <form class="dashboard-form dashboard-form--catalog" method="post" action="/roles">
+      <div class="form-field">
+        <label for="role-name">Nome</label>
+        <input id="role-name" name="name" placeholder="Ex.: admin">
+      </div>
+      <div class="form-field">
+        <label for="role-description">Descricao</label>
+        <input id="role-description" name="description" placeholder="Descricao da role">
+      </div>
+      <button class="button button--primary" type="submit">Criar role</button>
+    </form>
+    {{end}}
+
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $data.Roles}}
+      <article class="entity-card">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">{{.Name}}</strong>
+          <span class="entity-card__badge">#{{.ID}}</span>
+        </div>
+        <dl class="entity-card__meta">
+          <div><dt>Descricao</dt><dd>{{.Description}}</dd></div>
+          <div><dt>Criada em</dt><dd>{{.CreatedAt}}</dd></div>
+        </dl>
+        {{if $data.CanManageRBAC}}
+        <form class="dashboard-form dashboard-form--catalog" method="post" action="/roles/{{.ID}}">
+          <div class="form-field">
+            <label for="role-name-{{.ID}}">Nome</label>
+            <input id="role-name-{{.ID}}" name="name" value="{{.Name}}">
+          </div>
+          <div class="form-field">
+            <label for="role-description-{{.ID}}">Descricao</label>
+            <input id="role-description-{{.ID}}" name="description" value="{{.Description}}">
+          </div>
+          <div class="dashboard-actions dashboard-actions--wrap">
+            <button class="button button--primary" type="submit">Salvar</button>
+          </div>
+        </form>
+        <form method="post" action="/roles/{{.ID}}/delete">
+          <button class="button button--danger" type="submit">Excluir role</button>
+        </form>
+        {{end}}
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhuma role encontrada.</p>
+      {{end}}
+    </div>
+  </section>
+</section>
+{{end}}
+
+{{define "pages/roles"}}{{template "layout/roles" .}}{{end}}

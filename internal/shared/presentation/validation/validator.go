@@ -3,7 +3,6 @@ package validation
 
 import (
 	"reflect"
-	"strings"
 	"time"
 )
 
@@ -43,6 +42,9 @@ func (v *Validator) validateStruct(input any, prefix string, out *[]Violation) {
 		val = val.Elem()
 		typ = typ.Elem()
 	}
+	if val.Kind() != reflect.Struct {
+		return
+	}
 	for i := 0; i < val.NumField(); i++ {
 		if v.shortCircuitGlobal && len(*out) > 0 {
 			return
@@ -52,10 +54,7 @@ func (v *Validator) validateStruct(input any, prefix string, out *[]Violation) {
 		if fieldType.PkgPath != "" {
 			continue
 		}
-		field := fieldType.Tag.Get("json")
-		if field == "" || field == "-" {
-			field = strings.ToLower(fieldType.Name)
-		}
+		field := parseJSONFieldName(fieldType.Tag.Get("json"), fieldType.Name)
 		path := field
 		if prefix != "" {
 			path = prefix + "." + path

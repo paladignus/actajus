@@ -33,9 +33,7 @@ func (h *PersonHTTPHandler) CreatePerson(w http.ResponseWriter, r *http.Request)
 	if err := sharedAdapter.ViolationsToDomainError(vs); err != nil {
 		var ve domain.ValidationError
 		if errors.As(err, &ve) {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(ve)
+			_ = sharedAdapter.WriteValidationError(w, http.StatusBadRequest, ve)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
@@ -45,9 +43,7 @@ func (h *PersonHTTPHandler) CreatePerson(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		var ve domain.ValidationError
 		if errors.As(err, &ve) {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(ve)
+			_ = sharedAdapter.WriteValidationError(w, http.StatusBadRequest, ve)
 			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)

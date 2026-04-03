@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	socialMediaDomain "github.com/paladignus/actajus/internal/module/social_media/domain"
 	sharedpostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	"github.com/pashagolub/pgxmock/v4"
@@ -124,11 +125,11 @@ func TestCompanyReadRepositoryList(t *testing.T) {
 	)
 
 	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
-		WithArgs(11).
+		WithArgs("", "", 11).
 		WillReturnRows(rows)
 
 	repo := NewCompanyReadRepository(mock)
-	got, err := repo.List(ctx, nil, nil, 10, "http://localhost:8080/companies")
+	got, err := repo.List(ctx, repository.CompanyListFilter{}, nil, nil, 10, "http://localhost:8080/companies")
 	require.NoError(t, err)
 	require.Len(t, got.Data, 1)
 	require.Equal(t, int64(1), got.Data[0].ID)
@@ -199,11 +200,11 @@ func TestCompanyReadRepositoryListWithAfterCursor(t *testing.T) {
 		AddRow(companyRow(next.Add(time.Minute), int64(3), "Gamma SA", "Gamma", "32345678000199", "John Doe")...)
 
 	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
-		WithArgs(now.UTC(), "1", 2).
+		WithArgs("", "", now.UTC(), "1", 2).
 		WillReturnRows(rows)
 
 	repo := NewCompanyReadRepository(mock)
-	got, err := repo.List(ctx, &after, nil, 1, "http://localhost:8080/companies")
+	got, err := repo.List(ctx, repository.CompanyListFilter{}, &after, nil, 1, "http://localhost:8080/companies")
 	require.NoError(t, err)
 	require.Len(t, got.Data, 1)
 	require.True(t, got.PageInfo.HasNextPage)
@@ -229,16 +230,147 @@ func TestCompanyReadRepositoryListWithBeforeCursor(t *testing.T) {
 		AddRow(companyRow(now, int64(1), "Acme SA", "Acme", "12345678000199", "Jane Doe")...)
 
 	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
-		WithArgs(now.Add(2*time.Minute).UTC(), "3", 2).
+		WithArgs("", "", now.Add(2*time.Minute).UTC(), "3", 2).
 		WillReturnRows(rows)
 
 	repo := NewCompanyReadRepository(mock)
-	got, err := repo.List(ctx, nil, &before, 1, "http://localhost:8080/companies")
+	got, err := repo.List(ctx, repository.CompanyListFilter{}, nil, &before, 1, "http://localhost:8080/companies")
 	require.NoError(t, err)
 	require.Len(t, got.Data, 1)
 	require.Equal(t, int64(2), got.Data[0].ID)
 	require.True(t, got.PageInfo.HasNextPage)
 	require.True(t, got.PageInfo.HasPreviousPage)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCompanyReadRepositoryListFirstPageHasNoPreviousPage(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	now := time.Date(2026, 3, 27, 12, 0, 0, 0, time.UTC)
+	rows := companyListRows().
+		AddRow(companyRow(now, int64(1), "Acme SA", "Acme", "12345678000199", "Jane Doe")...)
+
+	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
+		WithArgs("", "", 11).
+		WillReturnRows(rows)
+
+	repo := NewCompanyReadRepository(mock)
+	got, err := repo.List(ctx, repository.CompanyListFilter{}, nil, nil, 10, "http://localhost:8080/companies")
+	require.NoError(t, err)
+	require.False(t, got.PageInfo.HasPreviousPage)
+	require.Nil(t, got.PageInfo.PreviousURL)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCompanyReadRepositoryBeforeCursorBuildsPreviousFromExtraItem(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	now := time.Date(2026, 3, 27, 12, 0, 0, 0, time.UTC)
+	before := sharedpostgres.EncodeCursor(now.Add(3*time.Minute), "4")
+
+	rows := companyListRows().
+		AddRow(companyRow(now.Add(2*time.Minute), int64(3), "Gamma SA", "Gamma", "32345678000199", "John Doe")...).
+		AddRow(companyRow(now.Add(time.Minute), int64(2), "Beta SA", "Beta", "22345678000199", "John Doe")...).
+		AddRow(companyRow(now, int64(1), "Acme SA", "Acme", "12345678000199", "Jane Doe")...)
+
+	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
+		WithArgs("", "", now.Add(3*time.Minute).UTC(), "4", 3).
+		WillReturnRows(rows)
+
+	repo := NewCompanyReadRepository(mock)
+	got, err := repo.List(ctx, repository.CompanyListFilter{}, nil, &before, 2, "http://localhost:8080/companies")
+	require.NoError(t, err)
+	require.Len(t, got.Data, 2)
+	require.Equal(t, int64(2), got.Data[0].ID)
+	require.Equal(t, int64(3), got.Data[1].ID)
+	require.True(t, got.PageInfo.HasNextPage)
+	require.True(t, got.PageInfo.HasPreviousPage)
+	require.NotNil(t, got.PageInfo.NextURL)
+	require.NotNil(t, got.PageInfo.PreviousURL)
+	require.Contains(t, *got.PageInfo.NextURL, "after=")
+	require.Contains(t, *got.PageInfo.PreviousURL, "before=")
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCompanyReadRepositoryCursorNavigationBackAndForth(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	base := time.Date(2026, 3, 27, 12, 0, 0, 0, time.UTC)
+	page1Rows := companyListRows()
+	for i := int64(1); i <= 11; i++ {
+		page1Rows.AddRow(companyRow(base.Add(time.Duration(i)*time.Minute), i, "Company", "Trade", "12345678000199", "Jane Doe")...)
+	}
+	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
+		WithArgs("", "", 11).
+		WillReturnRows(page1Rows)
+
+	after10 := sharedpostgres.EncodeCursor(base.Add(10*time.Minute), "10")
+	page2Rows := companyListRows()
+	for i := int64(11); i <= 21; i++ {
+		page2Rows.AddRow(companyRow(base.Add(time.Duration(i)*time.Minute), i, "Company", "Trade", "12345678000199", "Jane Doe")...)
+	}
+	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
+		WithArgs("", "", base.Add(10*time.Minute).UTC(), "10", 11).
+		WillReturnRows(page2Rows)
+
+	after20 := sharedpostgres.EncodeCursor(base.Add(20*time.Minute), "20")
+	page3Rows := companyListRows()
+	for i := int64(21); i <= 30; i++ {
+		page3Rows.AddRow(companyRow(base.Add(time.Duration(i)*time.Minute), i, "Company", "Trade", "12345678000199", "Jane Doe")...)
+	}
+	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
+		WithArgs("", "", base.Add(20*time.Minute).UTC(), "20", 11).
+		WillReturnRows(page3Rows)
+
+	before21 := sharedpostgres.EncodeCursor(base.Add(21*time.Minute), "21")
+	backRows := companyListRows()
+	for i := int64(20); i >= 10; i-- {
+		backRows.AddRow(companyRow(base.Add(time.Duration(i)*time.Minute), i, "Company", "Trade", "12345678000199", "Jane Doe")...)
+	}
+	mock.ExpectQuery(`SELECT\s+c.idcompanies`).
+		WithArgs("", "", base.Add(21*time.Minute).UTC(), "21", 11).
+		WillReturnRows(backRows)
+
+	repo := NewCompanyReadRepository(mock)
+
+	first, err := repo.List(ctx, repository.CompanyListFilter{}, nil, nil, 10, "http://localhost:8080/companies")
+	require.NoError(t, err)
+	require.Len(t, first.Data, 10)
+	require.Equal(t, int64(1), first.Data[0].ID)
+	require.Equal(t, int64(10), first.Data[9].ID)
+
+	second, err := repo.List(ctx, repository.CompanyListFilter{}, &after10, nil, 10, "http://localhost:8080/companies")
+	require.NoError(t, err)
+	require.Len(t, second.Data, 10)
+	require.Equal(t, int64(11), second.Data[0].ID)
+	require.Equal(t, int64(20), second.Data[9].ID)
+
+	third, err := repo.List(ctx, repository.CompanyListFilter{}, &after20, nil, 10, "http://localhost:8080/companies")
+	require.NoError(t, err)
+	require.Len(t, third.Data, 10)
+	require.Equal(t, int64(21), third.Data[0].ID)
+	require.Equal(t, int64(30), third.Data[9].ID)
+
+	back, err := repo.List(ctx, repository.CompanyListFilter{}, nil, &before21, 10, "http://localhost:8080/companies")
+	require.NoError(t, err)
+	require.Len(t, back.Data, 10)
+	require.Equal(t, int64(11), back.Data[0].ID)
+	require.Equal(t, int64(20), back.Data[9].ID)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 

@@ -5,6 +5,7 @@ type Code string
 
 const (
 	CodeRequired   Code = "required"
+	CodeInvalid    Code = "invalid"
 	CodeMin        Code = "min"
 	CodeMax        Code = "max"
 	CodeLen        Code = "len"

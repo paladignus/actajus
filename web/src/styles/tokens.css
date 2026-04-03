@@ -1,0 +1,14 @@
+:root {
+  color-scheme: light;
+  --dashboard-bg: linear-gradient(180deg, #eef4f7 0%, #f4ede4 100%);
+  --dashboard-surface: rgba(255, 255, 255, 0.9);
+  --dashboard-surface-strong: #ffffff;
+  --dashboard-sidebar: #16202b;
+  --dashboard-sidebar-ink: #edf4f8;
+  --dashboard-ink: #1d2a34;
+  --dashboard-muted: #5e6c78;
+  --dashboard-border: rgba(29, 42, 52, 0.12);
+  --dashboard-accent: #b25827;
+  --dashboard-danger: #a03434;
+  --dashboard-shadow: 0 24px 60px rgba(29, 42, 52, 0.12);
+}

@@ -16,6 +16,6 @@ func NewListCompanies(repository repository.CompanyReadRepository) ListCompanies
 	return ListCompanies{repository}
 }
 
-func (l ListCompanies) Execute(ctx context.Context, after, before *string, limit int, baseURL string) (*readmodel.CompanyListReadModel, error) {
-	return l.repository.List(ctx, after, before, limit, baseURL)
+func (l ListCompanies) Execute(ctx context.Context, filter repository.CompanyListFilter, after, before *string, limit int, baseURL string) (*readmodel.CompanyListReadModel, error) {
+	return l.repository.List(ctx, filter, after, before, limit, baseURL)
 }

@@ -4,6 +4,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/paladignus/actajus/internal/module/identity/domain"
@@ -81,6 +82,18 @@ func (r User) FindByID(ctx context.Context, id int64) (*domain.User, error) {
 func (r User) UpdatePasswordHash(ctx context.Context, id int64, passwordHash string) error {
 	const query = `UPDATE users SET password_hash = $1, updated_at = NOW() WHERE idusers = $2 AND deleted_at IS NULL`
 	ct, err := r.db.Exec(ctx, query, passwordHash, id)
+	if err != nil {
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (r User) UpdateLastLoginAt(ctx context.Context, id int64, lastLoginAt time.Time) error {
+	const query = `UPDATE users SET last_login_at = $1, updated_at = NOW() WHERE idusers = $2 AND deleted_at IS NULL`
+	ct, err := r.db.Exec(ctx, query, lastLoginAt, id)
 	if err != nil {
 		return err
 	}

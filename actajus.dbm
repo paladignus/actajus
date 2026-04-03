@@ -3,9 +3,9 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="1.2.2" use-changelog="false" max-obj-count="28"
+<dbmodel pgmodeler-ver="1.2.3" use-changelog="false" max-obj-count="28"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="373,832" last-zoom="0.8" scene-rect="0,-60.5,2733.34,3411.22"
+	 last-position="366,268" last-zoom="0.8" scene-rect="0,-60.5,2733.34,3411.22"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -105,7 +105,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="people_fk" index="2"/>
 	</customidxs></table>
 
-<table name="users" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+<table name="users" layers="0" collapse-mode="2" max-obj-count="9" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="580" y="900"/>
@@ -117,6 +117,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="is_blocked" not-null="true" default-value="FALSE">
 		<type name="boolean" length="0"/>
+	</column>
+	<column name="last_login_at">
+		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="created_at" not-null="true" default-value="now()">
 		<type name="timestamptz" length="0"/>

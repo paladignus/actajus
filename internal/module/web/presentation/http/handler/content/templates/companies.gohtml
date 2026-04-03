@@ -1,0 +1,53 @@
+{{define "content/companies"}}
+{{$data := .Data}}
+<section class="dashboard-view dashboard-view--companies">
+  <section class="dashboard-panel">
+    {{if $data.Flash.Message}}<div class="dashboard-alert {{if eq $data.Flash.Kind "success"}}dashboard-alert--success{{end}}" data-flash-kind="{{$data.Flash.Kind}}" data-flash-code="{{$data.Flash.Code}}" data-flash-source="{{$data.Flash.Source}}">{{$data.Flash.Message}}</div>{{end}}
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Pagina {{$data.Page}}</h2>
+        {{if gt (len $data.Items) 0}}
+        <p class="dashboard-panel__summary">Exibindo {{$data.RangeStart}} a {{$data.RangeEnd}}.</p>
+        {{else}}
+        <p class="dashboard-panel__summary">Nenhuma company encontrada.</p>
+        {{end}}
+      </div>
+      <a class="button button--primary" href="/companies/new">Nova company</a>
+    </div>
+
+    <form class="dashboard-filter" method="get" action="/companies">
+      <input type="search" name="name" value="{{$data.FilterName}}" placeholder="Filtrar por nome ou trade name">
+      <input type="search" name="cnpj" value="{{$data.FilterCNPJ}}" placeholder="Filtrar por CNPJ">
+      <button class="button button--primary" type="submit">Filtrar</button>
+    </form>
+
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $data.Items}}
+      <article class="entity-card">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">{{.Name}}</strong>
+          <span class="entity-card__badge">#{{.ID}}</span>
+        </div>
+        <dl class="entity-card__meta">
+          <div><dt>Trade Name</dt><dd>{{.TradeName}}</dd></div>
+          <div><dt>CNPJ</dt><dd>{{.CNPJ}}</dd></div>
+          <div><dt>Localidade</dt><dd>{{.City}} / {{.State}}</dd></div>
+          <div><dt>Registrada por</dt><dd>{{.RegisteredByName}}</dd></div>
+        </dl>
+        <a class="button button--primary" href="/companies/{{.ID}}">Ver detalhes</a>
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhuma company encontrada.</p>
+      {{end}}
+    </div>
+
+    <div class="dashboard-pagination">
+      {{if $data.HasPreviousPage}}<a class="button button--ghost" href="{{$data.PreviousURL}}">Anterior</a>{{else}}<span class="button button--ghost button--disabled">Anterior</span>{{end}}
+      <span class="dashboard-pagination__page">Pagina {{$data.Page}}</span>
+      {{if $data.HasNextPage}}<a class="button button--ghost" href="{{$data.NextURL}}">Proxima</a>{{else}}<span class="button button--ghost button--disabled">Proxima</span>{{end}}
+    </div>
+  </section>
+</section>
+{{end}}
+
+{{define "pages/companies"}}{{template "layout/companies" .}}{{end}}

@@ -1,0 +1,22 @@
+{{define "content/login"}}
+{{$data := .Data}}
+<section class="auth-panel">
+    <p class="dashboard-hero__eyebrow">Identity WEB</p>
+    <h1>Entrar</h1>
+    <p class="dashboard-panel__summary">Use o mesmo contexto de autenticacao do modulo de identidade para acessar a area WEB.</p>
+    {{with index $data "Error"}}{{if .}}<div class="dashboard-alert">{{.}}</div>{{end}}{{end}}
+    <form class="dashboard-form" method="post" action="/login">
+      <label class="form-field">
+        <span>Email</span>
+        <input type="email" name="email" value="{{with index $data "Email"}}{{.}}{{end}}" autocomplete="email" required>
+      </label>
+      <label class="form-field">
+        <span>Senha</span>
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="button button--primary" type="submit">Entrar</button>
+    </form>
+</section>
+{{end}}
+
+{{define "pages/login"}}{{template "layout/login" .}}{{end}}

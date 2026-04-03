@@ -1,0 +1,67 @@
+{{define "content/users"}}
+{{$data := .Data}}
+<section class="dashboard-view dashboard-view--users">
+  <section class="dashboard-panel">
+    {{if $data.Flash.Message}}<div class="dashboard-alert {{if eq $data.Flash.Kind "success"}}dashboard-alert--success{{end}}" data-flash-kind="{{$data.Flash.Kind}}" data-flash-code="{{$data.Flash.Code}}" data-flash-source="{{$data.Flash.Source}}">{{$data.Flash.Message}}</div>{{end}}
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Usuarios</h2>
+        <p class="dashboard-panel__summary">Lista dos usuarios autenticaveis atualmente cadastrados.</p>
+      </div>
+    </div>
+
+    <form class="dashboard-filter" method="get" action="/users">
+      <input type="search" name="q" value="{{$data.Filter}}" placeholder="Filtrar por nome ou email">
+      <button class="button button--primary" type="submit">Filtrar</button>
+    </form>
+
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $user := $data.Items}}
+      <article class="entity-card">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">{{$user.FullName}}</strong>
+          <span class="entity-card__badge">{{$user.Status}}</span>
+        </div>
+        <dl class="entity-card__meta">
+          <div><dt>Usuario</dt><dd>#{{$user.ID}}</dd></div>
+          <div><dt>Email</dt><dd>{{$user.Email}}</dd></div>
+          <div><dt>Ultimo login</dt><dd>{{$user.LastLoginAt}}</dd></div>
+        </dl>
+        {{if $data.CanManageRBAC}}
+        <div class="entity-card__section">
+          <h3 class="entity-card__section-title">Roles atuais</h3>
+          <div class="dashboard-actions dashboard-actions--wrap">
+            {{range $user.Roles}}
+            <form method="post" action="/users/roles/delete">
+              <input type="hidden" name="id_user" value="{{$user.ID}}">
+              <input type="hidden" name="id_role" value="{{.ID}}">
+              <button class="button button--ghost" type="submit">{{.Name}}</button>
+            </form>
+            {{else}}
+            <span class="entity-card__badge">Sem roles</span>
+            {{end}}
+          </div>
+        </div>
+        <form class="dashboard-form dashboard-form--inline" method="post" action="/users/roles">
+          <input type="hidden" name="id_user" value="{{$user.ID}}">
+          <div class="form-field">
+            <label for="role-{{$user.ID}}">Adicionar role</label>
+            <select id="role-{{$user.ID}}" name="id_role">
+              {{range $data.Roles}}
+              <option value="{{.ID}}">{{.Name}}</option>
+              {{end}}
+            </select>
+          </div>
+          <button class="button button--primary" type="submit">Atribuir</button>
+        </form>
+        {{end}}
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhum usuario encontrado.</p>
+      {{end}}
+    </div>
+  </section>
+</section>
+{{end}}
+
+{{define "pages/users"}}{{template "layout/users" .}}{{end}}

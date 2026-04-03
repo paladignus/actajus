@@ -48,7 +48,26 @@ func (u UpdateCompany) Execute(
 	if err != nil {
 		return nil, fmt.Errorf("invalid email data: %w", err)
 	}
-	socialMedia, err := u.mapper.UpdateSocialMediaInputToDomain(input.SocialMedia)
+	var existingSocialInputs []command.UpdateCompanySocialMediaCommand
+	var newSocialInputs []command.CreateCompanySocialMediaCommand
+	for _, item := range input.SocialMedia {
+		if item.IDSocialMedia > 0 {
+			existingSocialInputs = append(existingSocialInputs, item)
+			continue
+		}
+		if item.Platform == "" && item.URL == "" {
+			continue
+		}
+		newSocialInputs = append(newSocialInputs, command.CreateCompanySocialMediaCommand{
+			Platform: item.Platform,
+			URL:      item.URL,
+		})
+	}
+	socialMedia, err := u.mapper.UpdateSocialMediaInputToDomain(existingSocialInputs)
+	if err != nil {
+		return nil, fmt.Errorf("invalid social media data: %w", err)
+	}
+	newSocialMedia, err := u.mapper.SocialMediaInputToDomain(newSocialInputs)
 	if err != nil {
 		return nil, fmt.Errorf("invalid social media data: %w", err)
 	}
@@ -71,6 +90,15 @@ func (u UpdateCompany) Execute(
 			if err := r.SocialMedia().Update(ctx, *sm); err != nil {
 				return fmt.Errorf("failed to update social media to company: %w", err)
 			}
+		}
+		for _, sm := range newSocialMedia {
+			if err := sm.SetCompanyID(company.ID().Value()); err != nil {
+				return fmt.Errorf("failed to set company id in social media: %w", err)
+			}
+			if err := r.SocialMedia().Create(ctx, sm); err != nil {
+				return fmt.Errorf("failed to create social media to company: %w", err)
+			}
+			socialMedia = append(socialMedia, sm)
 		}
 		return nil
 	})

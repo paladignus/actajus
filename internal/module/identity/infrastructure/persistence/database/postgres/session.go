@@ -151,7 +151,7 @@ func scanSHA256(b []byte) ([32]byte, error) {
 func (r *Session) IsActive(ctx context.Context, id int64, uid int64, now time.Time) (bool, error) {
 	const query = `SELECT 1
 	FROM sessions
-	WHERE idsessions = $1 AND user_id = $2 AND revoked_at IS NULL AND expires_at > $3 LIMIT 1;`
+	WHERE idsessions = $1 AND id_users = $2 AND revoked_at IS NULL AND expires_at > $3 LIMIT 1;`
 	var one int
 	err := r.db.QueryRow(ctx, query, id, uid, now).Scan(&one)
 	if err != nil {

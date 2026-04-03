@@ -39,7 +39,7 @@ func (uc ValidateAccess) Execute(ctx context.Context, cmd command.ValidateAccess
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", domain.ErrInvalidToken, err)
 	}
-	if !uc.checkSession {
+	if uc.checkSession {
 		now := uc.clock.Now()
 		active, err := uc.session.IsActive(ctx, claims.IDSession, claims.IDUser, now)
 		if err != nil {

@@ -1,0 +1,253 @@
+{{define "layout/login"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="auth-layout">
+  {{template "content/login" .}}
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/error"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="auth-layout">
+  {{template "content/error" .}}
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "dashboard/sidebar"}}
+<aside class="dashboard-shell__sidebar dashboard-sidebar">
+  <div class="dashboard-sidebar__brand">
+    <span class="dashboard-sidebar__eyebrow">Actajus</span>
+    <strong class="dashboard-sidebar__title">Operations</strong>
+    <p class="dashboard-sidebar__copy">Painel WEB para identidade, companies e proximas areas do sistema.</p>
+  </div>
+  <nav class="dashboard-sidebar__nav">
+    {{range .Page.Sidebar.Groups}}
+    <div class="dashboard-sidebar__group {{if .Active}}dashboard-sidebar__group--active{{end}} {{if .Expanded}}dashboard-sidebar__group--open{{end}}" data-sidebar-group>
+      <button class="dashboard-sidebar__link dashboard-sidebar__link--toggle {{if .Active}}dashboard-sidebar__link--active{{end}}" type="button" data-sidebar-submenu aria-expanded="{{if .Expanded}}true{{else}}false{{end}}">
+        <span class="dashboard-sidebar__link-label">{{.Label}}</span>
+        <span class="dashboard-sidebar__badge">{{.Badge}}</span>
+      </button>
+      <div class="dashboard-sidebar__submenu">
+        {{range .Items}}
+          {{if .Disabled}}
+        <span class="dashboard-sidebar__sublink dashboard-sidebar__sublink--disabled {{if .Active}}dashboard-sidebar__sublink--active{{end}}">{{.Label}}</span>
+          {{else}}
+        <a class="dashboard-sidebar__sublink {{if .Active}}dashboard-sidebar__sublink--active{{end}}" href="{{.Href}}">{{.Label}}</a>
+          {{end}}
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </nav>
+</aside>
+{{end}}
+
+{{define "dashboard/topbar"}}
+<header class="dashboard-shell__topbar dashboard-topbar">
+  <button class="dashboard-topbar__toggle" type="button" data-sidebar-toggle aria-label="Alternar menu">
+    <span class="dashboard-topbar__toggle-line"></span>
+    <span class="dashboard-topbar__toggle-line"></span>
+    <span class="dashboard-topbar__toggle-line"></span>
+  </button>
+  <div class="dashboard-topbar__content">
+    <p class="dashboard-topbar__eyebrow">{{.Page.Description}}</p>
+    <h1 class="dashboard-topbar__title">{{.Page.Title}}</h1>
+  </div>
+  <div class="dashboard-topbar__actions">
+    {{template "dashboard/topbar-actions" .}}
+  </div>
+</header>
+{{end}}
+
+{{define "dashboard/topbar-actions"}}
+<button class="button button--ghost" type="button" data-command-palette-open aria-label="Abrir busca global">
+  Buscar
+</button>
+<form method="post" action="/logout">
+  <button class="button button--ghost" type="submit">Logout</button>
+</form>
+{{end}}
+
+{{define "layout/sessions"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/sessions" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/users"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/users" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/permissions"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/permissions" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/roles"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/roles" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/companies"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/companies" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/company-detail"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/company-detail" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}
+
+{{define "layout/company-form"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">{{template "content/company-form" .}}</main>
+  </div>
+  <script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+  {{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+</body>
+</html>
+{{end}}

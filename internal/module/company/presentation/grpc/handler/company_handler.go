@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
+	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	"github.com/paladignus/actajus/internal/module/company/application/usecase"
 	"github.com/paladignus/actajus/internal/module/company/presentation/grpc/adapter"
 	sharedDomain "github.com/paladignus/actajus/internal/shared/domain"
@@ -66,7 +67,7 @@ func (h CompanyHandler) ListCompanies(
 	if req.Msg.Limit != nil && *req.Msg.Limit > 0 && *req.Msg.Limit < 100 {
 		limit = int(*req.Msg.Limit)
 	}
-	companies, err := h.list.Execute(ctx, req.Msg.After, req.Msg.Before, limit, baseURL)
+	companies, err := h.list.Execute(ctx, repository.CompanyListFilter{}, req.Msg.After, req.Msg.Before, limit, baseURL)
 	if err != nil {
 		return nil, mapErr(err)
 	}

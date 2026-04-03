@@ -1,0 +1,130 @@
+{{define "content/permissions"}}
+{{$data := .Data}}
+<section class="dashboard-view dashboard-view--permissions">
+  <section class="dashboard-panel">
+    {{if $data.Flash.Message}}<div class="dashboard-alert {{if eq $data.Flash.Kind "success"}}dashboard-alert--success{{end}}" data-flash-kind="{{$data.Flash.Kind}}" data-flash-code="{{$data.Flash.Code}}" data-flash-source="{{$data.Flash.Source}}">{{$data.Flash.Message}}</div>{{end}}
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Permissoes</h2>
+        <p class="dashboard-panel__summary">Catalogo RBAC baseado em <code>resource:action</code>.</p>
+      </div>
+    </div>
+
+    {{if $data.CanManageRBAC}}
+    <form class="dashboard-form dashboard-form--catalog" method="post" action="/permissions">
+      <div class="form-field">
+        <label for="permission-resource">Resource</label>
+        <input id="permission-resource" name="resource" placeholder="Ex.: session">
+      </div>
+      <div class="form-field">
+        <label for="permission-action">Action</label>
+        <input id="permission-action" name="action" placeholder="Ex.: manage">
+      </div>
+      <div class="form-field">
+        <label for="permission-description">Descricao</label>
+        <input id="permission-description" name="description" placeholder="Descricao da permissao">
+      </div>
+      <button class="button button--primary" type="submit">Criar permissao</button>
+    </form>
+    {{end}}
+
+    <form class="dashboard-filter" method="get" action="/permissions">
+      <input type="search" name="q" value="{{$data.Filter}}" placeholder="Filtrar por resource, action ou descricao">
+      <button class="button button--primary" type="submit">Filtrar</button>
+    </form>
+
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $data.Permissions}}
+      <article class="entity-card">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">{{.Code}}</strong>
+          <span class="entity-card__badge">#{{.ID}}</span>
+        </div>
+        <dl class="entity-card__meta">
+          <div><dt>Resource</dt><dd>{{.Resource}}</dd></div>
+          <div><dt>Action</dt><dd>{{.Action}}</dd></div>
+          <div><dt>Descricao</dt><dd>{{.Description}}</dd></div>
+          <div><dt>Criada em</dt><dd>{{.CreatedAt}}</dd></div>
+        </dl>
+        {{if $data.CanManageRBAC}}
+        <form class="dashboard-form dashboard-form--catalog" method="post" action="/permissions/{{.ID}}">
+          <div class="form-field">
+            <label for="permission-resource-{{.ID}}">Resource</label>
+            <input id="permission-resource-{{.ID}}" name="resource" value="{{.Resource}}">
+          </div>
+          <div class="form-field">
+            <label for="permission-action-{{.ID}}">Action</label>
+            <input id="permission-action-{{.ID}}" name="action" value="{{.Action}}">
+          </div>
+          <div class="form-field">
+            <label for="permission-description-{{.ID}}">Descricao</label>
+            <input id="permission-description-{{.ID}}" name="description" value="{{.Description}}">
+          </div>
+          <div class="dashboard-actions dashboard-actions--wrap">
+            <button class="button button--primary" type="submit">Salvar</button>
+          </div>
+        </form>
+        <form method="post" action="/permissions/{{.ID}}/delete">
+          <button class="button button--danger" type="submit">Excluir permissao</button>
+        </form>
+        {{end}}
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhuma permissao encontrada.</p>
+      {{end}}
+    </div>
+  </section>
+
+  {{if $data.CanManageRBAC}}
+  <section class="dashboard-panel">
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Roles e permissoes</h2>
+        <p class="dashboard-panel__summary">Permissao assumida: <code>rbac:manage</code>.</p>
+      </div>
+    </div>
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $role := $data.Roles}}
+      <article class="entity-card">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">{{$role.Name}}</strong>
+          <span class="entity-card__badge">#{{$role.ID}}</span>
+        </div>
+        <p class="dashboard-panel__summary">{{$role.Description}}</p>
+        <div class="entity-card__section">
+          <h3 class="entity-card__section-title">Permissoes atuais</h3>
+          <div class="dashboard-actions dashboard-actions--wrap">
+            {{range $role.Permissions}}
+            <form method="post" action="/roles/permissions/delete">
+              <input type="hidden" name="id_role" value="{{$role.ID}}">
+              <input type="hidden" name="id_permission" value="{{.ID}}">
+              <button class="button button--ghost" type="submit">{{.Code}}</button>
+            </form>
+            {{else}}
+            <span class="entity-card__badge">Sem permissoes</span>
+            {{end}}
+          </div>
+        </div>
+        <form class="dashboard-form dashboard-form--inline" method="post" action="/roles/permissions">
+          <input type="hidden" name="id_role" value="{{$role.ID}}">
+          <div class="form-field">
+            <label for="permission-{{$role.ID}}">Adicionar permissao</label>
+            <select id="permission-{{$role.ID}}" name="id_permission">
+              {{range $data.Permissions}}
+              <option value="{{.ID}}">{{.Code}}</option>
+              {{end}}
+            </select>
+          </div>
+          <button class="button button--primary" type="submit">Conceder</button>
+        </form>
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhuma role encontrada.</p>
+      {{end}}
+    </div>
+  </section>
+  {{end}}
+</section>
+{{end}}
+
+{{define "pages/permissions"}}{{template "layout/permissions" .}}{{end}}

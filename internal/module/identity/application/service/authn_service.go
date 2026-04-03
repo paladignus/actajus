@@ -23,6 +23,7 @@ type AccessTokenSigner interface {
 // UserRepository provides user persistence
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*domain.User, error)
+	UpdateLastLoginAt(ctx context.Context, id int64, lastLoginAt time.Time) error
 }
 
 // SessionRepository provides session persistence
@@ -108,6 +109,10 @@ func (s AuthnService) Authenticate(
 
 	now := s.clock.Now()
 	refreshExp := now.Add(s.config.RefreshTTL)
+
+	if err := s.user.UpdateLastLoginAt(ctx, user.ID().Value(), now); err != nil {
+		return nil, err
+	}
 
 	// Create session
 	session, err := domain.NewSessionBuilder().

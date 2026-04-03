@@ -9,6 +9,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity"
 	"github.com/paladignus/actajus/internal/module/notification"
 	"github.com/paladignus/actajus/internal/module/person"
+	"github.com/paladignus/actajus/internal/module/web"
 	"github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
@@ -33,6 +34,7 @@ type Modules struct {
 	Identity     identity.Module
 	Notification notification.Module
 	Person       person.Module
+	Web          web.Module
 }
 
 // NewContainer creates a new DI container
@@ -51,6 +53,7 @@ func NewContainer() (*Container, error) {
 			Company:  runtime.Modules.Company,
 			Identity: runtime.Modules.Identity,
 			Person:   runtime.Modules.Person,
+			Web:      runtime.Modules.Web,
 		},
 		runtime: runtime,
 	}, nil

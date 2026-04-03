@@ -5,8 +5,10 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/paladignus/actajus/internal/module/company/application/readmodel"
+	"github.com/paladignus/actajus/internal/module/company/application/repository"
 	sharedpagination "github.com/paladignus/actajus/internal/shared/application/pagination"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 )
@@ -21,10 +23,12 @@ func NewCompanyReadRepository(db postgres.Executor) CompanyReadRepository {
 	}
 }
 
-func (r CompanyReadRepository) List(ctx context.Context, after, before *string, limit int, baseURL string) (*readmodel.CompanyListReadModel, error) {
+func (r CompanyReadRepository) List(ctx context.Context, filter repository.CompanyListFilter, after, before *string, limit int, baseURL string) (*readmodel.CompanyListReadModel, error) {
 	if limit <= 0 || limit > 100 {
 		limit = 10
 	}
+	filterName := strings.TrimSpace(filter.Name)
+	filterCNPJ := strings.TrimSpace(filter.CNPJ)
 	baseQuery := `
 	SELECT
         c.idcompanies, c.name, c.trade_name, c.cnpj, c.created_at, c.updated_at,
@@ -37,7 +41,10 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
     FROM (
         SELECT idcompanies, registered_by, name, trade_name, cnpj, created_at, updated_at
         FROM companies
-        WHERE deleted_at IS NULL %s
+        WHERE deleted_at IS NULL
+					AND ($1 = '' OR name ILIKE '%%' || $1 || '%%' OR trade_name ILIKE '%%' || $1 || '%%')
+					AND ($2 = '' OR cnpj ILIKE '%%' || $2 || '%%')
+					%s
         ORDER BY %s
         LIMIT $%d
     ) c
@@ -51,8 +58,8 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 		LEFT JOIN people pe ON c.registered_by = pe.idpeople;`
 	var whereClause string
 	var innerOrder string
-	var args []any
-	argPosition := 1
+	args := []any{filterName, filterCNPJ}
+	argPosition := 3
 	if after != nil {
 		cursorData, err := postgres.DecodeCursor(*after)
 		if err != nil {
@@ -110,13 +117,24 @@ func (r CompanyReadRepository) List(ctx context.Context, after, before *string, 
 	for _, id := range order {
 		companies = append(companies, *companiesMap[id])
 	}
-	hasNextPage := len(companies) > limit
-	hasPreviousPage := after != nil || before != nil
-	if hasNextPage {
+	hasExtraItem := len(companies) > limit
+	if hasExtraItem {
 		companies = companies[:limit]
 	}
 	if before != nil {
 		reverseSlice(companies)
+	}
+	hasNextPage := after != nil
+	hasPreviousPage := before != nil
+	if after != nil {
+		hasNextPage = hasExtraItem
+		hasPreviousPage = true
+	} else if before != nil {
+		hasNextPage = true
+		hasPreviousPage = hasExtraItem
+	} else {
+		hasNextPage = hasExtraItem
+		hasPreviousPage = false
 	}
 	pageInfo := sharedpagination.PageInfo{
 		HasNextPage:     hasNextPage,
