@@ -17,14 +17,17 @@ type Renderer struct {
 	manifest   Manifest
 	publicPath string
 	assetFS    fs.FS
+	devServer  string
 }
 
 type Source struct {
 	TemplateFS       fs.FS
 	TemplatePatterns []string
 	AssetFS          fs.FS
+	AssetRoot        string
 	ManifestPath     string
 	PublicPath       string
+	DevServerURL     string
 }
 
 func NewRenderer(source Source) (*Renderer, error) {
@@ -50,8 +53,9 @@ func NewRenderer(source Source) (*Renderer, error) {
 		templates:  tpl,
 		publicPath: publicPath,
 		assetFS:    source.AssetFS,
+		devServer:  strings.TrimRight(strings.TrimSpace(source.DevServerURL), "/"),
 	}
-	if source.AssetFS != nil && source.ManifestPath != "" {
+	if renderer.devServer == "" && source.AssetFS != nil && source.ManifestPath != "" {
 		manifest, err := LoadManifest(source.AssetFS, source.ManifestPath)
 		if err != nil {
 			return nil, err
@@ -62,7 +66,7 @@ func NewRenderer(source Source) (*Renderer, error) {
 }
 
 func (r *Renderer) RenderPage(w io.Writer, templateName string, page Page) error {
-	assets, err := r.manifest.Resolve(page.Entry, r.publicPath)
+	assets, err := r.resolveAssets(page.Entry)
 	if err != nil {
 		return fmt.Errorf("resolve entry assets: %w", err)
 	}
@@ -80,6 +84,18 @@ func (r *Renderer) RenderPage(w io.Writer, templateName string, page Page) error
 		return fmt.Errorf("render template %q: %w", templateName, err)
 	}
 	return nil
+}
+
+func (r *Renderer) resolveAssets(entry string) (EntryAssets, error) {
+	if r.devServer != "" {
+		return EntryAssets{
+			Scripts: []string{
+				r.devServer + "/@vite/client",
+				r.devServer + "/" + strings.TrimLeft(entry, "/"),
+			},
+		}, nil
+	}
+	return r.manifest.Resolve(entry, r.publicPath)
 }
 
 func (r *Renderer) RenderHTTP(w http.ResponseWriter, status int, templateName string, page Page) error {

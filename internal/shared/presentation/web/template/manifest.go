@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"path"
 	"sort"
+	"strings"
 )
 
 type Manifest map[string]ManifestEntry
@@ -88,10 +89,23 @@ func (m Manifest) Resolve(entry string, publicPath string) (EntryAssets, error) 
 }
 
 func joinPublicPath(basePath, file string) string {
-	if basePath == "" || basePath == "/" {
-		return "/" + path.Clean(file)
+	file = strings.TrimSpace(file)
+	if file == "" {
+		if basePath == "" {
+			return "/"
+		}
+		return path.Clean(basePath)
 	}
-	return path.Clean(basePath) + "/" + path.Clean(file)
+	file = strings.TrimPrefix(path.Clean(file), "/")
+	if basePath == "" || basePath == "/" {
+		return "/" + file
+	}
+	basePath = path.Clean(basePath)
+	baseName := path.Base(basePath)
+	if prefix, ok := strings.CutPrefix(file, baseName+"/"); ok && baseName != "." && baseName != "/" {
+		file = prefix
+	}
+	return basePath + "/" + file
 }
 
 func appendUnique(dst *[]string, value string, seen map[string]struct{}) {

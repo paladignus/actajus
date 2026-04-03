@@ -1,0 +1,11 @@
+.dashboard-view--sessions .entity-card__meta,
+.dashboard-view--users .entity-card__meta,
+.dashboard-view--roles .entity-card__meta,
+.dashboard-view--permissions .entity-card__meta {
+  min-height: 8.5rem;
+}
+
+.dashboard-view--permissions .dashboard-actions--wrap,
+.dashboard-view--users .dashboard-actions--wrap {
+  align-items: stretch;
+}

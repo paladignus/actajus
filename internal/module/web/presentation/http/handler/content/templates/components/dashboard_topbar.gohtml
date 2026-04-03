@@ -1,0 +1,25 @@
+{{define "dashboard/topbar"}}
+<header class="dashboard-shell__topbar dashboard-topbar">
+  <button class="dashboard-topbar__toggle" type="button" data-sidebar-toggle aria-label="Alternar menu">
+    <span class="dashboard-topbar__toggle-line"></span>
+    <span class="dashboard-topbar__toggle-line"></span>
+    <span class="dashboard-topbar__toggle-line"></span>
+  </button>
+  <div class="dashboard-topbar__content">
+    <p class="dashboard-topbar__eyebrow">{{.Page.Description}}</p>
+    <h1 class="dashboard-topbar__title">{{.Page.Title}}</h1>
+  </div>
+  <div class="dashboard-topbar__actions">
+    {{template "dashboard/topbar-actions" .}}
+  </div>
+</header>
+{{end}}
+
+{{define "dashboard/topbar-actions"}}
+<button class="button button--ghost" type="button" data-command-palette-open aria-label="Abrir busca global">
+  Buscar
+</button>
+<form method="post" action="/logout">
+  <button class="button button--ghost" type="submit">Logout</button>
+</form>
+{{end}}

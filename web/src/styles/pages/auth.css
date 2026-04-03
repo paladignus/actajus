@@ -1,0 +1,8 @@
+.auth-panel h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.auth-panel .dashboard-panel__summary {
+  margin-bottom: 1.25rem;
+}
