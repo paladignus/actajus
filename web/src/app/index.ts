@@ -1,5 +1,6 @@
 import { loadBootstrap } from "./bootstrap";
 import { setupCommandPalette } from "./command-palette";
+import { setupFormConfirmations } from "./confirm";
 import { setupSocialMediaForm } from "./company-form";
 import { setupErrorRouteTools } from "./error-tools";
 import { enhanceForms } from "./forms";
@@ -10,6 +11,7 @@ import { setupToasts } from "./toast";
 export async function initApp() {
   trackRecentRoute();
   enhanceForms();
+  setupFormConfirmations();
   setupToasts();
   setupSidebarToggle();
   setupCommandPalette();

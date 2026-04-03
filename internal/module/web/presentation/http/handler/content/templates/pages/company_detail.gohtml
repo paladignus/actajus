@@ -50,7 +50,7 @@
 
     <article class="entity-card entity-card--detail">
       <h2 class="entity-card__section-title">Exclusao</h2>
-      <form method="post" action="/companies/{{$company.ID}}/delete">
+      <form method="post" action="/companies/{{$company.ID}}/delete" data-confirm-title="Excluir company" data-confirm-message="Esta acao removera a company e seus vinculos associados. Deseja continuar?" data-confirm-accept="Excluir company">
         <button class="button button--danger" type="submit">Excluir company</button>
       </form>
     </article>

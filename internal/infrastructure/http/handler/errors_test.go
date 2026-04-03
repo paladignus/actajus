@@ -110,7 +110,7 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 		{
 			name:               "should return status code 400 and error response for invalid token",
 			inputError:         exception.ErrInvalidToken,
-			expectedStatusCode: http.StatusBadRequest,
+			expectedStatusCode: http.StatusUnauthorized,
 			expectedResponse: ErrorResponse{
 				Code:    "INVALID_TOKEN",
 				Message: "invalid token",
@@ -126,12 +126,12 @@ func TestMapDomainErrorToHTTP(t *testing.T) {
 			},
 		},
 		{
-			name:               "",
+			name:               "should return status code 400 and error response for invalid registered by",
 			inputError:         exception.ErrInvalidRegisteredBy,
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse: ErrorResponse{
-				Code:    "INVALID_REGISTERED_BY",
-				Message: "registered by is invalid",
+				Code:    "REGISTERED_BY_INVALID",
+				Message: "registered_by is invalid",
 			},
 		},
 	}

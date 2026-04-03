@@ -1,4 +1,8 @@
+import { ensurePostFormsCSRF } from "./csrf";
+
 export function enhanceForms() {
+  ensurePostFormsCSRF();
+
   const loginEmail = document.querySelector<HTMLInputElement>('input[name="email"]');
   if (loginEmail && !loginEmail.value) {
     loginEmail.focus();

@@ -10,7 +10,7 @@
         <h2 class="dashboard-panel__title">Minhas sessoes</h2>
         <p class="dashboard-panel__summary">Gerencie este navegador e outros dispositivos associados ao seu usuario.</p>
       </div>
-      <form method="post" action="/sessions/revoke-all">
+      <form method="post" action="/sessions/revoke-all" data-confirm-title="Encerrar todas as sessoes" data-confirm-message="Todas as suas sessoes serao encerradas, incluindo outros dispositivos." data-confirm-accept="Encerrar tudo">
         <button class="button button--danger" type="submit">Encerrar todas</button>
       </form>
     </div>
@@ -27,7 +27,7 @@
           <div><dt>Criada</dt><dd>{{.CreatedAt}}</dd></div>
           <div><dt>Expira</dt><dd>{{.ExpiresAt}}</dd></div>
         </dl>
-        <form method="post" action="/sessions/revoke">
+        <form method="post" action="/sessions/revoke" data-confirm-title="{{if .IsCurrent}}Encerrar esta sessao{{else}}Remover dispositivo{{end}}" data-confirm-message="{{if .IsCurrent}}Voce sera desconectado deste navegador imediatamente.{{else}}A sessao deste dispositivo sera revogada.{{end}}" data-confirm-accept="{{if .IsCurrent}}Encerrar sessao{{else}}Revogar sessao{{end}}">
           <input type="hidden" name="id_session" value="{{.IDSession}}">
           <button class="button {{if .IsCurrent}}button--ghost{{else}}button--danger{{end}}" type="submit">
             {{if .IsCurrent}}Encerrar esta sessao{{else}}Remover dispositivo{{end}}
@@ -66,11 +66,11 @@
           <div><dt>Criada</dt><dd>{{.CreatedAt}}</dd></div>
         </dl>
         <div class="dashboard-actions">
-          <form method="post" action="/sessions/revoke">
+          <form method="post" action="/sessions/revoke" data-confirm-title="Revogar sessao" data-confirm-message="A sessao selecionada sera revogada imediatamente." data-confirm-accept="Revogar sessao">
             <input type="hidden" name="id_session" value="{{.IDSession}}">
             <button class="button button--danger" type="submit">Revogar sessao</button>
           </form>
-          <form method="post" action="/sessions/revoke-all">
+          <form method="post" action="/sessions/revoke-all" data-confirm-title="Revogar todas as sessoes do usuario" data-confirm-message="Todas as sessoes do usuario selecionado serao encerradas." data-confirm-accept="Revogar tudo">
             <input type="hidden" name="id_user" value="{{.IDUser}}">
             <button class="button button--ghost" type="submit">Revogar todas do usuario</button>
           </form>

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
+	cookiepolicy "github.com/paladignus/actajus/internal/shared/presentation/web/app/adapter/cookiepolicy"
 )
 
 type Message struct {
@@ -58,26 +60,28 @@ func (a *Adapter) Redirect(w http.ResponseWriter, r *http.Request, path, cookieN
 		http.Redirect(w, r, path, http.StatusSeeOther)
 		return
 	}
+	policy := cookiepolicy.New(a.secureCookies)
 	http.SetCookie(w, &http.Cookie{
 		Name:     cookieName,
 		Value:    base64.RawURLEncoding.EncodeToString(raw),
 		Path:     "/",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   a.secureCookies,
+		SameSite: policy.SameSite(),
+		Secure:   policy.Secure(),
 		MaxAge:   10,
 	})
 	http.Redirect(w, r, path, http.StatusSeeOther)
 }
 
 func (a *Adapter) Clear(w http.ResponseWriter, cookieName string) {
+	policy := cookiepolicy.New(a.secureCookies)
 	http.SetCookie(w, &http.Cookie{
 		Name:     cookieName,
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   a.secureCookies,
+		SameSite: policy.SameSite(),
+		Secure:   policy.Secure(),
 		MaxAge:   -1,
 	})
 }

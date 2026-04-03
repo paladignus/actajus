@@ -49,7 +49,7 @@
             <button class="button button--primary" type="submit">Salvar</button>
           </div>
         </form>
-        <form method="post" action="/roles/{{.ID}}/delete">
+        <form method="post" action="/roles/{{.ID}}/delete" data-confirm-title="Excluir role" data-confirm-message="A role sera removida do catalogo. Se ainda houver vinculos, o banco bloqueara a operacao." data-confirm-accept="Excluir role">
           <button class="button button--danger" type="submit">Excluir role</button>
         </form>
         {{end}}

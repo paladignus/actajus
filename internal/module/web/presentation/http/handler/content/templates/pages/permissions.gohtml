@@ -64,7 +64,7 @@
             <button class="button button--primary" type="submit">Salvar</button>
           </div>
         </form>
-        <form method="post" action="/permissions/{{.ID}}/delete">
+        <form method="post" action="/permissions/{{.ID}}/delete" data-confirm-title="Excluir permissao" data-confirm-message="A permissao sera removida do catalogo. Se ainda houver vinculos, o banco bloqueara a operacao." data-confirm-accept="Excluir permissao">
           <button class="button button--danger" type="submit">Excluir permissao</button>
         </form>
         {{end}}
@@ -95,7 +95,7 @@
           <h3 class="entity-card__section-title">Permissoes atuais</h3>
           <div class="dashboard-actions dashboard-actions--wrap">
             {{range $role.Permissions}}
-            <form method="post" action="/roles/permissions/delete">
+            <form method="post" action="/roles/permissions/delete" data-confirm-title="Revogar permissao" data-confirm-message="A permissao sera removida desta role." data-confirm-accept="Revogar permissao">
               <input type="hidden" name="id_role" value="{{$role.ID}}">
               <input type="hidden" name="id_permission" value="{{.ID}}">
               <button class="button button--ghost" type="submit">{{.Code}}</button>

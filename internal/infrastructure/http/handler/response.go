@@ -2,22 +2,19 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
+
+	sharedhttp "github.com/paladignus/actajus/internal/shared/infrastructure/http/handler"
 )
 
 func DecodeJSONRequest[T any](r *http.Request) (T, error) {
-	var req T
-	err := json.NewDecoder(r.Body).Decode(&req)
-	return req, err
+	return sharedhttp.DecodeJSONRequest[T](r)
 }
 
 func RespondJSON[T any](w http.ResponseWriter, statusCode int, data T) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	return json.NewEncoder(w).Encode(data)
+	return sharedhttp.RespondJSON(w, statusCode, data)
 }
 
 func RespondError(w http.ResponseWriter, statusCode int, message string) {
-	http.Error(w, message, statusCode)
+	sharedhttp.RespondError(w, statusCode, message)
 }

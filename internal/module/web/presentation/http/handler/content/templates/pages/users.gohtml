@@ -32,7 +32,7 @@
           <h3 class="entity-card__section-title">Roles atuais</h3>
           <div class="dashboard-actions dashboard-actions--wrap">
             {{range $user.Roles}}
-            <form method="post" action="/users/roles/delete">
+            <form method="post" action="/users/roles/delete" data-confirm-title="Remover role do usuario" data-confirm-message="A role sera removida deste usuario." data-confirm-accept="Remover role">
               <input type="hidden" name="id_user" value="{{$user.ID}}">
               <input type="hidden" name="id_role" value="{{.ID}}">
               <button class="button button--ghost" type="submit">{{.Name}}</button>

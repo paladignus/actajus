@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/paladignus/actajus/internal/application/command"
-	"github.com/paladignus/actajus/internal/application/readmodel"
 	"github.com/paladignus/actajus/internal/domain/exception"
 	"github.com/paladignus/actajus/test/spy"
 	"github.com/stretchr/testify/assert"

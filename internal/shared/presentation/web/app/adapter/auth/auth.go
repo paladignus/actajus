@@ -11,6 +11,7 @@ import (
 	identityusecase "github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	identitydomain "github.com/paladignus/actajus/internal/module/identity/domain"
 	sharedRepo "github.com/paladignus/actajus/internal/shared/application/repository"
+	cookiepolicy "github.com/paladignus/actajus/internal/shared/presentation/web/app/adapter/cookiepolicy"
 )
 
 type State struct {
@@ -93,6 +94,13 @@ func (a *Adapter) FromRequest(w http.ResponseWriter, r *http.Request, accessCook
 }
 
 func (a *Adapter) BuildState(r *http.Request, claims *identityread.AccessTokenClaims, permManageSessions, permManageRBAC string) (*State, error) {
+	if a.permissionChecker == nil {
+		return &State{
+			Claims:            claims,
+			CanManageSessions: false,
+			CanManageRBAC:     false,
+		}, nil
+	}
 	canManage, err := a.permissionChecker.HasPermission(r.Context(), claims.IDUser, permManageSessions)
 	if err != nil {
 		return nil, err
@@ -109,13 +117,14 @@ func (a *Adapter) BuildState(r *http.Request, claims *identityread.AccessTokenCl
 }
 
 func (a *Adapter) SetCookies(w http.ResponseWriter, tokens *identityread.AuthTokensReadModel, accessCookieName, refreshCookieName, sessionCookieName string) {
+	policy := cookiepolicy.New(a.secureCookies)
 	http.SetCookie(w, &http.Cookie{
 		Name:     accessCookieName,
 		Value:    tokens.AccessToken,
 		Path:     "/",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   a.secureCookies,
+		SameSite: policy.SameSite(),
+		Secure:   policy.Secure(),
 		Expires:  tokens.AccessExpiresAt,
 	})
 	http.SetCookie(w, &http.Cookie{
@@ -123,8 +132,8 @@ func (a *Adapter) SetCookies(w http.ResponseWriter, tokens *identityread.AuthTok
 		Value:    tokens.RefreshToken,
 		Path:     "/",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   a.secureCookies,
+		SameSite: policy.SameSite(),
+		Secure:   policy.Secure(),
 		Expires:  tokens.RefreshExpiresAt,
 	})
 	http.SetCookie(w, &http.Cookie{
@@ -132,21 +141,22 @@ func (a *Adapter) SetCookies(w http.ResponseWriter, tokens *identityread.AuthTok
 		Value:    strconv.FormatInt(tokens.IDSession, 10),
 		Path:     "/",
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   a.secureCookies,
+		SameSite: policy.SameSite(),
+		Secure:   policy.Secure(),
 		Expires:  tokens.RefreshExpiresAt,
 	})
 }
 
 func (a *Adapter) ClearCookies(w http.ResponseWriter, accessCookieName, refreshCookieName, sessionCookieName string) {
+	policy := cookiepolicy.New(a.secureCookies)
 	for _, name := range []string{accessCookieName, refreshCookieName, sessionCookieName} {
 		http.SetCookie(w, &http.Cookie{
 			Name:     name,
 			Value:    "",
 			Path:     "/",
 			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-			Secure:   a.secureCookies,
+			SameSite: policy.SameSite(),
+			Secure:   policy.Secure(),
 			MaxAge:   -1,
 		})
 	}

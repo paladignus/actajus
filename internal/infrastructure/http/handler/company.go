@@ -2,7 +2,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/paladignus/actajus/internal/application/command"
@@ -88,7 +87,6 @@ func (c Company) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (c Company) Delete(w http.ResponseWriter, r *http.Request) {
 	req, err := DecodeJSONRequest[command.DeleteCompanyCommand](r)
-	fmt.Println(req)
 	if err != nil {
 		c.logger.Warn(r.Context(), "failed to decode request body for company delete", "error", err)
 		RespondError(w, http.StatusBadRequest, err.Error())
