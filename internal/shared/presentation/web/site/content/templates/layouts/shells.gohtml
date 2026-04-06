@@ -1,0 +1,23 @@
+{{define "shell/dashboard-start"}}
+{{template "base/document-start" .}}
+<body class="dashboard-shell">
+  {{template "dashboard/sidebar" .}}
+  <div class="dashboard-shell__body">
+    {{template "dashboard/topbar" .}}
+    <main class="dashboard-shell__main">
+{{end}}
+
+{{define "shell/dashboard-end"}}
+    </main>
+  </div>
+{{template "base/document-end" .}}
+{{end}}
+
+{{define "shell/auth-start"}}
+{{template "base/document-start" .}}
+<body class="auth-layout">
+{{end}}
+
+{{define "shell/auth-end"}}
+{{template "base/document-end" .}}
+{{end}}

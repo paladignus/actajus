@@ -1,0 +1,4 @@
+{{define "partials/document-scripts"}}
+<script>window.__ACTAJUS_BOOTSTRAP__={{.BootstrapJSON}};</script>
+{{range .Assets.Scripts}}<script type="module" src="{{.}}"></script>{{end}}
+{{end}}

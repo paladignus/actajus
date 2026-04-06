@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package identity.v1;
+
+option go_package = "github.com/paladignus/actajus/proto/identity/v1;identityv1";
+
+service RbacAdminService {
+  rpc AssignRoleToUser(AssignRoleToUserRequest) returns (AssignRoleToUserResponse);
+  rpc RemoveRoleFromUser(RemoveRoleFromUserRequest) returns (RemoveRoleFromUserResponse);
+  rpc GrantPermissionToRole(GrantPermissionToRoleRequest) returns (GrantPermissionToRoleResponse);
+  rpc RevokePermissionFromRole(RevokePermissionFromRoleRequest) returns (RevokePermissionFromRoleResponse);
+}
+
+message AssignRoleToUserResponse {
+  bool ok = 1;
+}
+
+message RemoveRoleFromUserResponse {
+  bool ok = 1;
+}
+
+message GrantPermissionToRoleResponse {
+  bool ok = 1;
+}
+
+message RevokePermissionFromRoleResponse {
+  bool ok = 1;
+}
+
+message AssignRoleToUserRequest {
+  int64 id_user = 1;
+  int32 id_role = 2;
+  int64 assigned_by = 3;
+}
+
+message RemoveRoleFromUserRequest {
+  int64 id_user = 1;
+  int32 id_role = 2;
+}
+
+message GrantPermissionToRoleRequest {
+  int32 id_role = 1;
+  int32 id_permission = 2;  // permissions.idpermissions é smallint -> cabe em int32
+}
+
+message RevokePermissionFromRoleRequest {
+  int32 id_role = 1;
+  int32 id_permission = 2;
+}

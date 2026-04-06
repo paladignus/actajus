@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package address.v1;
+
+option go_package = "github.com/paladignus/actajus/proto/address/v1;addressv1";
+
+service AddressService {
+  rpc CreateAddress(CreateAddressRequest) returns (CreateAddressResponse);
+  rpc UpdateAddress(UpdateAddressRequest) returns (UpdateAddressResponse);
+}
+
+message AddressResponse {
+  int64 id = 1;
+  string zip = 2;
+  string title = 3;
+  string street = 4;
+  string complement = 5;
+  string reference = 6;
+  uint32 number = 7;
+  string neighborhood = 8;
+  string city = 9;
+  string state = 10;
+  string country = 11;
+}
+
+message CreateAddressRequest {
+  string zip = 1;
+  string title = 2;
+  string street = 3;
+  string complement = 4;
+  string reference = 5;
+  uint32 number = 6;
+  string neighborhood = 7;
+  string city = 8;
+  string state = 9;
+  string country = 10;
+}
+
+message CreateAddressResponse{
+  int64 id = 1;
+}
+
+message UpdateAddressRequest {
+  int64 id = 1;
+  string zip = 2;
+  string title = 3;
+  string street = 4;
+  string complement = 5;
+  string reference = 6;
+  uint32 number = 7;
+  string neighborhood = 8;
+  string city = 9;
+  string state = 10;
+  string country = 11;
+}
+
+message UpdateAddressResponse{
+  int64 id = 1;
+}

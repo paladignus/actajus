@@ -1,0 +1,66 @@
+{{define "content/error"}}
+{{$data := .Data}}
+<section class="error-card">
+  <div class="error-card__visual" aria-hidden="true">
+    <div class="error-card__shape error-card__shape--primary"></div>
+    <div class="error-card__shape error-card__shape--secondary"></div>
+    <div class="error-card__shape error-card__shape--outline"></div>
+  </div>
+  <div class="error-card__content">
+    <p class="error-card__eyebrow">Erro de navegacao</p>
+    <h1 class="error-card__title">{{$data.Code}}</h1>
+    <p class="error-card__message">{{$data.Message}}</p>
+
+    <div class="error-card__meta">
+      <div>
+        <dt>Status</dt>
+        <dd>{{$data.Code}}</dd>
+      </div>
+      <div>
+        <dt>Rota</dt>
+        <dd>{{$data.CurrentPath}}</dd>
+      </div>
+    </div>
+
+    <nav class="error-card__breadcrumbs" aria-label="Breadcrumb">
+      {{range $index, $crumb := $data.Breadcrumbs}}
+      {{if gt $index 0}}<span class="error-card__breadcrumb-separator">/</span>{{end}}
+      <a class="error-card__breadcrumb" href="{{$crumb.Href}}">{{$crumb.Label}}</a>
+      {{end}}
+    </nav>
+
+    <div class="error-card__actions">
+      <a class="button button--primary" href="{{$data.PrimaryHref}}">{{$data.PrimaryLabel}}</a>
+      <a class="button button--ghost" href="/">Ir para inicio</a>
+      <button class="button button--ghost" type="button" onclick="history.back()">Voltar</button>
+    </div>
+
+    <section class="error-card__search" data-error-route-search>
+      <label class="form-field">
+        <span>Busca rapida de rota</span>
+        <input type="search" placeholder="Digite uma rota, modulo ou pagina" data-error-route-input>
+      </label>
+      <div class="error-card__route-results" data-error-route-results></div>
+    </section>
+
+    <section class="error-card__shortcuts">
+      <h2 class="dashboard-panel__title">Atalhos uteis</h2>
+      <div class="error-card__shortcut-list">
+        {{range $data.Shortcuts}}
+        <a class="error-card__shortcut" href="{{.Href}}">
+          <span class="error-card__shortcut-label">{{.Label}}</span>
+          <span class="error-card__shortcut-href">{{.Href}}</span>
+        </a>
+        {{end}}
+      </div>
+    </section>
+
+    <section class="error-card__recent">
+      <h2 class="dashboard-panel__title">Ultimas areas visitadas</h2>
+      <div class="error-card__shortcut-list" data-error-recent-routes></div>
+    </section>
+  </div>
+</section>
+{{end}}
+
+{{define "pages/error"}}{{template "layout/error" .}}{{end}}

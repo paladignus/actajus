@@ -1,0 +1,598 @@
+POST http://localhost:8080/signin
+content-type: application/json
+
+{
+    "cpf": "11144477735",
+    "password": "admin123"
+}
+
+###
+POST http://localhost:8080/auth/email
+content-type: application/json
+
+{
+    "cpf": "11144477735"
+}
+
+###
+POST http://localhost:8080/auth/recover
+content-type: application/json
+
+{
+    "email": "marcelo@marcelo.eti.br"
+}
+
+###
+POST http://localhost:8080/auth/renew
+content-type: application/json
+
+{
+    "cpf": "111.444.777-35",
+    "password": "!Admin123",
+    "token": "tVtTlI5wXXcdrGpXhmis_75kfKxW1EkjJE6ggdBnUws="
+}
+
+###
+GET http://localhost:8080/companies
+content-type: application/json
+
+###
+POST http://localhost:8080/companies/find/id
+content-type: application/json
+
+{
+    "id": 2
+}
+
+###
+POST http://localhost:8080/companies/find/cnpj
+content-type: application/json
+
+{
+    "cnpj": "48.922.852/0001-62"
+}
+
+# "cnpj": "03.015.475/0001-40"
+
+###
+POST http://localhost:8080/companies
+content-type: application/json
+
+{
+    "registered_by": 3,
+    "name": "Actajus",
+    "trade_name": "Actajus Sistema Jurídico",
+    "cnpj": "48.922.852/0001-62",
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "reference": "Perto da escola Izabel",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    },
+    "phone": {
+        "number": "+5567912345678",
+        "kind": "Celular",
+        "department": "Comercial"
+    },
+    "email": {
+        "address": "falecosm2@acatajus.com.br"
+    },
+    "social_media": [
+        {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/asctajus2"
+        },
+        {
+            "platform": "Linkedin",
+            "url": "https://www.linkedin.com/in/actajsus2/"
+        },
+        {
+            "platform": "Instagram",
+            "url": "https://www.instagram.com/actajsus2/"
+        },
+        {
+            "platform": "X",
+            "url": "https://x.com/actajuss2"
+        },
+        {
+            "platform": "Site",
+            "url": "https://twitter.com/actasjus2"
+        }
+    ]
+}
+
+
+###
+PUT  http://localhost:8080/companies
+content-type: application/json
+
+{
+    "id_company": 1003,
+    "name": "Actajuus",
+    "trade_name": "Actajuus Sistema Jurídico",
+    "cnpj": "10.123.456/0001-00",
+    "address": {
+        "id_address": 1,
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Cariocas",
+        "complement": "Casa 70",
+        "reference": "Hospital Pedro Pedrossian",
+        "number": 1450,
+        "neighborhood": "Parque das Laranjeiras",
+        "city": "Rio de Janeiro",
+        "state": "Rio de Janeiro",
+        "country": "Brasil"
+    },
+    "phone": {
+        "id_phone": 1,
+        "number": "+5567912341111",
+        "kind": "Celular",
+        "department": ""
+    },
+    "email": {
+        "id_email": 6,
+        "address": "falecomnos@acatajus.com.br"
+    },
+    "social_media": [
+        {
+            "id_social_media": 1,
+            "platform": "facebook",
+            "url": "https://www.facebook.com/acaatajus"
+        },
+        {
+            "id_social_media": 2,
+            "platform": "Linkedin",
+            "url": "https://www.linkedin.com/in/acaatajus/"
+        },
+        {
+            "id_social_media": 3,
+            "platform": "Instagram",
+            "url": "https://www.instagram.com/acaatajus/"
+        },
+        {
+            "id_social_media": 4,
+            "platform": "X",
+            "url": "https://x.com/acaatajus"
+        },
+        {
+            "id_social_media": 5,
+            "platform": "Site",
+            "url": "https://twitter.com/acaatajus"
+        }
+    ]
+}
+
+###
+DELETE http://localhost:8080/companies
+content-type: application/json
+
+{
+    "id_company": 2
+}
+
+
+
+###
+POST https://api.actajus.com.br/auth/email
+content-type: application/json
+
+{
+    "cpf": "111.444.777-35"
+}
+
+
+###
+POST https://api.actajus.com.br/auth/recover
+content-type: application/json
+
+{
+    "email": "marcelo@marcelo.eti.br"
+}
+
+###
+POST https://api.actajus.com.br/auth/renew
+content-type: application/json
+
+{
+    "cpf": "987.654.321-00",
+    "password": "@Admin123",
+    "token": "yNTZrWlOalljefSR-n3iEXHtji4PzA8K1fy9ASA5KcY="
+}
+
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "111.444.777-35",
+    "password": "@Admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "123.456.789-09",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "987.654.321-00",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "012.345.678-90",
+    "password": "admin123"
+}
+
+###
+POST https://api.actajus.com.br/signin
+content-type: application/json
+
+{
+    "cpf": "714.602.380-01",
+    "password": "admin123"
+}
+
+
+
+
+
+
+
+###
+GET https://api.actajus.com.br/companies
+content-type: application/json
+
+###
+POST https://api.actajus.com.br/companies/find/id
+content-type: application/json
+
+{
+    "id": 1
+}
+
+###
+POST https://api.actajus.com.br/companies/find/cnpj
+content-type: application/json
+
+{
+    "cnpj": "48.922.852/0001-62"
+}
+
+# "cnpj": "03.015.475/0001-40"
+
+###
+POST https://api.actajus.com.br/companies
+content-type: application/json
+
+{
+    "registered_by": 3,
+    "name": "Actajus",
+    "trade_name": "Actajus Sistema Jurídico",
+    "cnpj": "91.715.885/0001-60",
+    "address": {
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Paulista",
+        "complement": "Apartamento 123",
+        "reference": "Perto da escola Izabel",
+        "number": 123,
+        "neighborhood": "Centro",
+        "city": "São Paulo",
+        "state": "São Paulo",
+        "country": "Brasil"
+    },
+    "phone": {
+        "number": "+5567912345678",
+        "kind": "Celular",
+        "department": "Comercial"
+    },
+    "email": {
+        "address": "falecom22@acatajus.com.br"
+    },
+    "social_media": [
+        {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/actajus2s"
+        },
+        {
+            "platform": "Linkedin",
+            "url": "https://www.linkedin.com/in/actajus2s/"
+        },
+        {
+            "platform": "Instagram",
+            "url": "https://www.instagram.com/actajus2s/"
+        },
+        {
+            "platform": "X",
+            "url": "https://x.com/actajus2s"
+        },
+        {
+            "platform": "Site",
+            "url": "https://twitter.com/actajus2s"
+        }
+    ]
+}
+
+
+###
+PUT  https://api.actajus.com.br/companies
+content-type: application/json
+
+{
+    "id_company": 1,
+    "name": "Actajuus",
+    "trade_name": "Actajuus Sistema Jurídico",
+    "cnpj": "10.123.456/0001-00",
+    "address": {
+        "id_address": 1,
+        "zip": "12345-678",
+        "title": "Avenida",
+        "street": "Cariocas",
+        "complement": "Casa 70",
+        "reference": "Hospital Pedro Pedrossian",
+        "number": 1450,
+        "neighborhood": "Parque das Laranjeiras",
+        "city": "Rio de Janeiro",
+        "state": "Rio de Janeiro",
+        "country": "Brasil"
+    },
+    "phone": {
+        "id_phone": 1,
+        "number": "+5567912341111",
+        "kind": "Celular",
+        "department": ""
+    },
+    "email": {
+        "id_email": 6,
+        "address": "falecomnos@acatajus.com.br"
+    },
+    "social_media": [
+        {
+            "id_social_media": 1,
+            "platform": "facebook",
+            "url": "https://www.facebook.com/acaatajus"
+        },
+        {
+            "id_social_media": 2,
+            "platform": "Linkedin",
+            "url": "https://www.linkedin.com/in/acaatajus/"
+        },
+        {
+            "id_social_media": 3,
+            "platform": "Instagram",
+            "url": "https://www.instagram.com/acaatajus/"
+        },
+        {
+            "id_social_media": 4,
+            "platform": "X",
+            "url": "https://x.com/acaatajus"
+        },
+        {
+            "id_social_media": 5,
+            "platform": "Site",
+            "url": "https://twitter.com/acaatajus"
+        }
+    ]
+}
+
+###
+DELETE https://api.actajus.com.br/companies
+content-type: application/json
+
+{
+    "id_company": 1
+}
+
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg2ODg1OCwiaWF0IjoxNzczODY3OTU4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.zAE_c_aWUb_EAAUCRPgTX75BAKOgJzPNj91RtVeWpuI",
+  "accessExpiresAt": "2026-03-18T21:20:58.505779594Z",
+  "refreshToken": "UdzUIp0_32pfkTrKwQIvOe9DjLR8rhKK4Z-cN916zZg",
+  "refreshExpiresAt": "2026-03-19T21:05:58.505779594Z",
+  "idSession": "1"
+}
+
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc5OTU4MSwiaWF0IjoxNzczNzk4NjgxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.coLDbsdPnrcCYwBulegxqUbbCRq7jsurTP4d5E11Oyo",
+  "accessExpiresAt": "2026-03-18T02:06:21.786459182Z",
+  "refreshToken": "FbYec8e6wN4RXNM8kSm9syytFyBv_4TeGBmG6vPFdTk",
+  "refreshExpiresAt": "2026-03-19T01:51:21.786459182Z",
+  "idSession": "1"
+}
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg2MzgxNiwiaWF0IjoxNzczODYyOTE2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.ZAUcVL-N1unJ8Tu33SgOKxLkeUsaVQsrATn3y5FzRVc \
+-d '{"before": "MTc3Mzg2MTE3Njk1OTMzOTAwMF81", "limit": 2}' \
+localhost:50051 company.v1.CompanyService/ListCompanies
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg2MzgxNiwiaWF0IjoxNzczODYyOTE2LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.ZAUcVL-N1unJ8Tu33SgOKxLkeUsaVQsrATn3y5FzRVc \
+-d '{"after": "MTc3Mzg2MTE3Mzk1OTMzOTAwMF8y", "limit": 2}' \
+localhost:50051 company.v1.CompanyService/ListCompanies
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg2ODg1OCwiaWF0IjoxNzczODY3OTU4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.zAE_c_aWUb_EAAUCRPgTX75BAKOgJzPNj91RtVeWpuI \
+-d '{"id": 1}' \
+localhost:50051 company.v1.CompanyService/FindCompanyByID
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzg2ODg1OCwiaWF0IjoxNzczODY3OTU4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.zAE_c_aWUb_EAAUCRPgTX75BAKOgJzPNj91RtVeWpuI \
+-d '{"cnpj": "27.865.041/7502-87"}' \
+localhost:50051 company.v1.CompanyService/FindCompanyByCNPJ
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc5OTU4MSwiaWF0IjoxNzczNzk4NjgxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.coLDbsdPnrcCYwBulegxqUbbCRq7jsurTP4d5E11Oyo \
+-d '{"name":"Actajus", "trade_name": "Actajus Sistema Jurídico", "cnpj": "48.922.852/0001-62",
+"address": {"zip": "12345-678", "title": "Avenida", "street": "Cariocas", "complement": "Casa 70", "reference": "Hospital Pedro Pedrossian",
+"number": 1450, "neighborhood": "Parque das Laranjeiras", "city": "Rio de Janeiro", "state": "Rio de Janeiro", "country": "Brasil"},
+"phone": {"number": "+5567999347845", "kind": "Celular", "department": "Comercial"},
+"email": {"address": "falecom22@acatajus.com.br"},
+"socialMedia": [
+    {"platform": "facebook", "url": "https://www.facebook.com/actajus2s"},
+    {"platform": "Linkedin", "url": "https://www.linkedin.com/in/actajus2s/"},
+    {"platform": "Instagram", "url": "https://www.instagram.com/actajus2s/"},
+    {"platform": "X", "url": "https://x.com/actajus2s"},
+    {"platform": "Site", "url": "https://twitter.com/actajus2s"}
+]}' \
+localhost:50051 company.v1.CompanyService/CreateCompany
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MzgwMzI1MCwiaWF0IjoxNzczNzgxNjUwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.6mF6FYyTa2_jgk7ez2cTnHSIWmREVG3CAoKBgnTlxKQ \
+-d '{"id": 1, "name":"Actajuss", "trade_name": "Actajus Sistema Jurídicos", "cnpj": "10.123.456/0001-00",
+"address": {"id": 1, "zip": "78230-678", "title": "Rua", "street": "Adelina Rigoty", "complement": "Apartamento 120", "reference": "Escola Imaculada",
+"number": 550, "neighborhood": "Centro", "city": "São Paulo", "state": "São Paulo", "country": "Brasil"},
+"phone": {"id": 1, "number": "+556799654321", "kind": "Celular", "department": "Finanças"},
+"email": {"id": 6, "address": "financas@acatajus.com.br"},
+"social_media": [
+    {"id": 1, "platform": "facebook", "url": "https://www.facebook.com/actajuss"},
+    {"id": 2, "platform": "Linkedin", "url": "https://www.linkedin.com/in/actajuss/"},
+    {"id": 3, "platform": "Instagram", "url": "https://www.instagram.com/actajuss/"},
+    {"id": 4, "platform": "X", "url": "https://x.com/actajuss"},
+    {"id": 5, "platform": "Site", "url": "https://twitter.com/actajuss"}
+]}' \
+localhost:50051 company.v1.CompanyService/UpdateCompany
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc5OTU4MSwiaWF0IjoxNzczNzk4NjgxLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.coLDbsdPnrcCYwBulegxqUbbCRq7jsurTP4d5E11Oyo \
+-d '{"id": 1}' \
+localhost:50051 company.v1.CompanyService/DeleteCompany
+
+
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"email":"marcelo@marcelo.eti.br","password":"Senha@123","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+localhost:50051 identity.v1.AuthService/Login
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3Mzc3Mzc0OCwiaWF0IjoxNzczNzcyODQ4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.kISTF2dmNbTObUMNX5quC8nbDDz8z-4IbYzRzCe29no" \
+-d '{"name": "Fulano da Silva", "birthday": "27/05/1985", "gender": 1}' \
+localhost:50051 person.v1.PersonService/CreatePerson
+
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"id_session":1,"refresh_token":"gr7Hwafp0dVaX5GLo4thp3fRKY7NbS5TFaDCjF-4jxU","ip":"127.0.0.1","user_agent":"grpcurl"}' \
+localhost:50051 identity.v1.AuthService/Refresh
+
+
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzE0MCwiaWF0IjoxNzcyNTUyMjQwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.6_ukPhfkguJCZ8w-V3Ltqq-ovC-z67D1gw8VJ9vxfSM" \
+-d '{"id_session":2}' \
+localhost:50051 identity.v1.AuthService/Logout
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzE0MCwiaWF0IjoxNzcyNTUyMjQwLCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIyIiwic3ViIjoiMyJ9.6_ukPhfkguJCZ8w-V3Ltqq-ovC-z67D1gw8VJ9vxfSM" \
+-d '{"id_user":3}' \
+localhost:50051 identity.v1.AuthService/LogoutAll
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"email":"marcelo@marcelo.eti.br2"}' \
+localhost:50051 identity.v1.AuthService/RequestPasswordReset
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
+-d '{"id_user":4,"id_role":3,"assigned_by":3}' \
+localhost:50051 identity.v1.RbacAdminService/AssignRoleToUser
+
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
+-d '{ "id_user":3,"id_role":6 }' \
+localhost:50051 identity.v1.RbacAdminService/RemoveRoleFromUser
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJleGFtcGxlLmNvbS5iciIsImV4cCI6MTc3MjU1MzY5OCwiaWF0IjoxNzcyNTUyNzk4LCJpc3MiOiJzZXVfZG9taW5pby5jb20uYnIiLCJzaWQiOiIxIiwic3ViIjoiMyJ9.SP5mlfC6FXeEmmMlWm56YzCZ87tZe0HyEL0dgsH50ao" \
+  -d '{"id_role":1,"id_permission":5}' \
+  localhost:50051 identity.v1.RbacAdminService/GrantPermissionToRole
+
+grpcurl -v \
+-protoset <(buf build -o -) -plaintext \
+-d '{"id_reset": 2, "reset_token":"Qv0p90IZEjlW8VW2DjXvq_Cr6_w5bWeJ2g1WwDnYI3g","new_password":"Senha@123"}' \
+localhost:50051 identity.v1.AuthService/ConfirmPasswordReset
+
+  curl --request POST \
+  --url http://172.16.0.6:8080/message/sendText/tidof \
+  --header 'Content-Type: application/json' \
+  --header 'apikey: 01HKT7JE6W173PXW85PGZXXZRB' \
+  --data '
+{
+  "number": "+5567999417840",
+  "text": "Teste de envio de mensagem",
+  "delay": 123
+}
+'
+
+
+KEYS "rbac:*"
+KEYS "actajus:session:*"
+
+SMEMBERS rbac:user_perms:3
+TTL rbac:user_perms:3
+
+SMEMBERS rbac:role_users:1
+
+GET actajus:session:5
+DEL rbac:user_perms:3
+DEL actajus:session:5
+
+
+-- sessões
+SELECT idsessions, id_users, revoked_at, rotated_at, expires_at, updated_at
+FROM sessions
+ORDER BY idsessions DESC;
+
+-- resets
+SELECT idpassword_resets, id_users, used_at, expires_at, created_at
+FROM password_resets
+ORDER BY idpassword_resets DESC;
+
+-- roles do user
+SELECT ru.id_users, ru.id_roles, r.code
+FROM role_user ru
+JOIN roles r ON r.idroles = ru.id_roles
+WHERE ru.id_users = 3;
+
+-- permissões efetivas do user
+SELECT DISTINCT (p.resource || ':' || p.action) AS perm
+FROM role_user ru
+JOIN permission_role pr ON pr.id_roles = ru.id_roles
+JOIN permissions p ON p.idpermissions = pr.id_permissions
+WHERE ru.id_users = 3
+ORDER BY perm;
+
+

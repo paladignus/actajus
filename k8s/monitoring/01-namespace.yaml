@@ -1,0 +1,12 @@
+# Namespace para monitoramento
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+# Service Account para monitoramento
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring

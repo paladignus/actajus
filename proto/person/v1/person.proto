@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package person.v1;
+
+option go_package = "github.com/paladignus/actajus/proto/person/v1;personv1";
+
+message CreatePersonRequest {
+  string name = 1;
+  string mother = 2;
+  string father = 3;
+  string birthday = 4;
+  uint32 gender = 5;
+  uint32 id_mother = 6;
+  uint32 id_father = 7;
+}
+
+message CreatePersonResponse{
+  uint32 id = 1;
+}
+
+service PersonService {
+  rpc CreatePerson(CreatePersonRequest) returns (CreatePersonResponse);
+}

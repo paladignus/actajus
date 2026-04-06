@@ -1,0 +1,61 @@
+{{define "content/company-detail"}}
+{{$data := .Data}}
+{{$company := $data.Company}}
+<section class="dashboard-view dashboard-view--company-detail">
+  <section class="dashboard-hero">
+    <div class="dashboard-hero__content">
+      <p class="dashboard-hero__eyebrow">Company WEB</p>
+      <h2 class="dashboard-hero__title">{{if $company.TradeName}}{{$company.TradeName}}{{else}}{{$company.Name}}{{end}}</h2>
+      <p class="dashboard-hero__summary">{{$company.CNPJ}}</p>
+    </div>
+    <div class="dashboard-actions">
+      <a class="button button--primary" href="/companies/{{$company.ID}}/edit">Editar</a>
+      <a class="button button--ghost" href="/companies">Voltar</a>
+    </div>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid--details">
+    <article class="entity-card entity-card--detail">
+      <h2 class="entity-card__section-title">Identificacao</h2>
+      <dl class="entity-card__meta">
+        <div><dt>ID</dt><dd>{{$company.ID}}</dd></div>
+        <div><dt>Name</dt><dd>{{$company.Name}}</dd></div>
+        <div><dt>Trade Name</dt><dd>{{$company.TradeName}}</dd></div>
+        <div><dt>CNPJ</dt><dd>{{$company.CNPJ}}</dd></div>
+        <div><dt>Registrada por</dt><dd>{{$company.RegisteredByName}}</dd></div>
+      </dl>
+    </article>
+
+    {{if $company.Address}}
+    <article class="entity-card entity-card--detail">
+      <h2 class="entity-card__section-title">Endereco</h2>
+      <dl class="entity-card__meta">
+        <div><dt>Titulo</dt><dd>{{$company.Address.Title}}</dd></div>
+        <div><dt>Rua</dt><dd>{{$company.Address.Street}}, {{$company.Address.Number}}</dd></div>
+        <div><dt>Bairro</dt><dd>{{$company.Address.Neighborhood}}</dd></div>
+        <div><dt>Cidade</dt><dd>{{$company.Address.City}} / {{$company.Address.State}}</dd></div>
+        <div><dt>CEP</dt><dd>{{$company.Address.ZIP}}</dd></div>
+      </dl>
+    </article>
+    {{end}}
+
+    <article class="entity-card entity-card--detail">
+      <h2 class="entity-card__section-title">Contatos</h2>
+      <ul class="entity-card__list">
+        {{range $company.Emails}}<li>Email: {{.Address}}</li>{{end}}
+        {{range $company.Phones}}<li>Telefone: {{.Number}} ({{.Kind}})</li>{{end}}
+        {{range $company.SocialMedia}}<li>{{.Platform}}: <a href="{{.URL}}" target="_blank" rel="noreferrer">{{.URL}}</a></li>{{end}}
+      </ul>
+    </article>
+
+    <article class="entity-card entity-card--detail">
+      <h2 class="entity-card__section-title">Exclusao</h2>
+      <form method="post" action="/companies/{{$company.ID}}/delete" data-confirm-title="Excluir company" data-confirm-message="Esta acao removera a company e seus vinculos associados. Deseja continuar?" data-confirm-accept="Excluir company">
+        <button class="button button--danger" type="submit">Excluir company</button>
+      </form>
+    </article>
+  </section>
+</section>
+{{end}}
+
+{{define "pages/company-detail"}}{{template "layout/company-detail" .}}{{end}}

@@ -1,0 +1,186 @@
+version: '3.8'
+
+services:
+  # Jaeger para tracing distribuído
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # UI
+      - "14268"        # HTTP collector
+      - "14250"        # GRPC collector
+      - "6831:6831/udp" # Jaeger agent thrift compact
+      - "4318:4318"    # OTLP HTTP
+      - "4317:4317"    # OTLP gRPC
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - observability
+
+  # Prometheus para coleta de métricas
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - observability
+    depends_on:
+      - app
+
+  # Grafana para visualização
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - observability
+    depends_on:
+      - prometheus
+      - loki
+
+  # Loki para armazenamento de logs
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - observability
+
+  # PostgreSQL para o banco de dados do app
+  postgres:
+    image: postgres:15-alpine
+    container_name: actajus_postgres
+    environment:
+      POSTGRES_DB: actajus
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: M4rc3l0
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d actajus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
+      - ./inserts.sql:/docker-entrypoint-initdb.d/2-inserts.sql
+    networks:
+      - observability
+
+  # pgAdmin4 para gerenciamento do PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: actajus_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@actajus.com.br
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      # Configuração para conexão automática ao PostgreSQL
+      PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+    networks:
+      - observability
+
+  # NATS para mensagens
+  nats:
+    image: nats:latest
+    container_name: actajus_nats
+    ports:
+      - "4224:4222"  # Mudando para porta 4224 para evitar conflito
+      - "8224:8222"  # Mudando porta de monitoramento também
+    command: |
+      --js
+      --config /etc/nats/nats.conf
+    volumes:
+      - nats_data:/data
+      - type: bind
+        source: ./nats.conf
+        target: /etc/nats/nats.conf
+    networks:
+      - observability
+
+  # Redis para cache e sessões
+  redis:
+    image: redis:7-alpine
+    container_name: actajus_redis
+    command: redis-server --requirepass M4rc3l0 --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "M4rc3l0", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - observability
+
+  # Serviço da aplicação
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: actajus_app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      # Override para acessar serviços do host via Docker
+      DB_HOST: host.docker.internal
+      REDIS_ADDR: host.docker.internal:6379
+      NATS_URL: nats://host.docker.internal:4222
+      TRACING_ENDPOINT_URL: http://host.docker.internal:4318/v1/traces
+      SERVER_PORT: ":8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      jaeger:
+        condition: service_started
+    networks:
+      - observability
+
+volumes:
+  postgres_data:
+  redis_data:
+  grafana-storage:
+  nats_data:
+  pgadmin_data:
+
+networks:
+  observability:
+    driver: bridge

@@ -1,0 +1,28 @@
+{{define "dashboard/sidebar"}}
+<aside class="dashboard-shell__sidebar dashboard-sidebar">
+  <div class="dashboard-sidebar__brand">
+    <span class="dashboard-sidebar__eyebrow">Actajus</span>
+    <strong class="dashboard-sidebar__title">Operations</strong>
+    <p class="dashboard-sidebar__copy">Painel WEB para identidade, companies e proximas areas do sistema.</p>
+  </div>
+  <nav class="dashboard-sidebar__nav">
+    {{range .Page.Sidebar.Groups}}
+    <div class="dashboard-sidebar__group {{if .Active}}dashboard-sidebar__group--active{{end}} {{if .Expanded}}dashboard-sidebar__group--open{{end}}" data-sidebar-group>
+      <button class="dashboard-sidebar__link dashboard-sidebar__link--toggle {{if .Active}}dashboard-sidebar__link--active{{end}}" type="button" data-sidebar-submenu aria-expanded="{{if .Expanded}}true{{else}}false{{end}}">
+        <span class="dashboard-sidebar__link-label">{{.Label}}</span>
+        <span class="dashboard-sidebar__badge">{{.Badge}}</span>
+      </button>
+      <div class="dashboard-sidebar__submenu">
+        {{range .Items}}
+          {{if .Disabled}}
+        <span class="dashboard-sidebar__sublink dashboard-sidebar__sublink--disabled {{if .Active}}dashboard-sidebar__sublink--active{{end}}">{{.Label}}</span>
+          {{else}}
+        <a class="dashboard-sidebar__sublink {{if .Active}}dashboard-sidebar__sublink--active{{end}}" href="{{.Href}}">{{.Label}}</a>
+          {{end}}
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </nav>
+</aside>
+{{end}}

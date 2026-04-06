@@ -1,0 +1,88 @@
+{{define "content/sessions"}}
+{{$data := .Data}}
+<section class="dashboard-view dashboard-view--sessions">
+  {{if $data.Flash.Message}}<div class="dashboard-alert {{if eq $data.Flash.Kind "success"}}dashboard-alert--success{{end}}" data-flash-kind="{{$data.Flash.Kind}}" data-flash-code="{{$data.Flash.Code}}" data-flash-source="{{$data.Flash.Source}}">{{$data.Flash.Message}}</div>{{end}}
+  {{if $data.Error}}<div class="dashboard-alert">{{$data.Error}}</div>{{end}}
+
+  <section class="dashboard-panel">
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Minhas sessoes</h2>
+        <p class="dashboard-panel__summary">Gerencie este navegador e outros dispositivos associados ao seu usuario.</p>
+      </div>
+      <form method="post" action="/sessions/revoke-all" data-confirm-title="Encerrar todas as sessoes" data-confirm-message="Todas as suas sessoes serao encerradas, incluindo outros dispositivos." data-confirm-accept="Encerrar tudo">
+        <button class="button button--danger" type="submit">Encerrar todas</button>
+      </form>
+    </div>
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $data.OwnSessions}}
+      <article class="entity-card {{if .IsCurrent}}entity-card--current{{end}}">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">Sessao #{{.IDSession}}</strong>
+          <span class="entity-card__badge">{{.Status}}</span>
+        </div>
+        <dl class="entity-card__meta">
+          <div><dt>IP</dt><dd>{{.IP}}</dd></div>
+          <div><dt>User-Agent</dt><dd>{{.UserAgent}}</dd></div>
+          <div><dt>Criada</dt><dd>{{.CreatedAt}}</dd></div>
+          <div><dt>Expira</dt><dd>{{.ExpiresAt}}</dd></div>
+        </dl>
+        <form method="post" action="/sessions/revoke" data-confirm-title="{{if .IsCurrent}}Encerrar esta sessao{{else}}Remover dispositivo{{end}}" data-confirm-message="{{if .IsCurrent}}Voce sera desconectado deste navegador imediatamente.{{else}}A sessao deste dispositivo sera revogada.{{end}}" data-confirm-accept="{{if .IsCurrent}}Encerrar sessao{{else}}Revogar sessao{{end}}">
+          <input type="hidden" name="id_session" value="{{.IDSession}}">
+          <button class="button {{if .IsCurrent}}button--ghost{{else}}button--danger{{end}}" type="submit">
+            {{if .IsCurrent}}Encerrar esta sessao{{else}}Remover dispositivo{{end}}
+          </button>
+        </form>
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhuma sessao encontrada.</p>
+      {{end}}
+    </div>
+  </section>
+
+  {{if $data.CanManageSessions}}
+  <section class="dashboard-panel">
+    <div class="dashboard-panel__header">
+      <div>
+        <h2 class="dashboard-panel__title">Administracao de sessoes</h2>
+        <p class="dashboard-panel__summary">Permissao assumida: <code>session:manage</code>.</p>
+      </div>
+      <form class="dashboard-filter" method="get" action="/sessions">
+        <input type="search" name="email" value="{{$data.AdminFilter}}" placeholder="Filtrar por email">
+        <button class="button button--primary" type="submit">Filtrar</button>
+      </form>
+    </div>
+    <div class="dashboard-grid dashboard-grid--cards">
+      {{range $data.AdminSessions}}
+      <article class="entity-card">
+        <div class="entity-card__header">
+          <strong class="entity-card__title">{{.UserEmail}}</strong>
+          <span class="entity-card__badge">{{.Status}}</span>
+        </div>
+        <dl class="entity-card__meta">
+          <div><dt>Usuario</dt><dd>#{{.IDUser}}</dd></div>
+          <div><dt>Sessao</dt><dd>#{{.IDSession}}</dd></div>
+          <div><dt>IP</dt><dd>{{.IP}}</dd></div>
+          <div><dt>Criada</dt><dd>{{.CreatedAt}}</dd></div>
+        </dl>
+        <div class="dashboard-actions">
+          <form method="post" action="/sessions/revoke" data-confirm-title="Revogar sessao" data-confirm-message="A sessao selecionada sera revogada imediatamente." data-confirm-accept="Revogar sessao">
+            <input type="hidden" name="id_session" value="{{.IDSession}}">
+            <button class="button button--danger" type="submit">Revogar sessao</button>
+          </form>
+          <form method="post" action="/sessions/revoke-all" data-confirm-title="Revogar todas as sessoes do usuario" data-confirm-message="Todas as sessoes do usuario selecionado serao encerradas." data-confirm-accept="Revogar tudo">
+            <input type="hidden" name="id_user" value="{{.IDUser}}">
+            <button class="button button--ghost" type="submit">Revogar todas do usuario</button>
+          </form>
+        </div>
+      </article>
+      {{else}}
+      <p class="dashboard-empty">Nenhuma sessao administrativa encontrada.</p>
+      {{end}}
+    </div>
+  </section>
+  {{end}}
+</section>
+{{end}}
+
+{{define "pages/sessions"}}{{template "layout/sessions" .}}{{end}}

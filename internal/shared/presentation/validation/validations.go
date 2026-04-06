@@ -1,0 +1,23 @@
+// Package validation
+package validation
+
+type Code string
+
+const (
+	CodeRequired   Code = "required"
+	CodeInvalid    Code = "invalid"
+	CodeMin        Code = "min"
+	CodeMax        Code = "max"
+	CodeLen        Code = "len"
+	CodeNumeric    Code = "numeric"
+	CodeOneOf      Code = "oneof"
+	CodeEmail      Code = "email"
+	CodePassword   Code = "password"
+	CodeRequiredIf Code = "required_if"
+)
+
+type Violation struct {
+	Path string
+	Code Code
+	Meta map[string]string
+}

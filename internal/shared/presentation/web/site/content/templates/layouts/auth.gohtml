@@ -1,0 +1,29 @@
+{{define "layout/login"}}
+{{template "shell/auth-start" .}}
+{{template "content/login" .}}
+{{template "shell/auth-end" .}}
+{{end}}
+
+{{define "layout/register"}}
+{{template "shell/auth-start" .}}
+{{template "content/register" .}}
+{{template "shell/auth-end" .}}
+{{end}}
+
+{{define "layout/verify-email"}}
+{{template "shell/auth-start" .}}
+{{template "content/verify-email" .}}
+{{template "shell/auth-end" .}}
+{{end}}
+
+{{define "layout/verification-pending"}}
+{{template "shell/auth-start" .}}
+{{template "content/verification-pending" .}}
+{{template "shell/auth-end" .}}
+{{end}}
+
+{{define "layout/error"}}
+{{template "shell/auth-start" .}}
+{{template "content/error" .}}
+{{template "shell/auth-end" .}}
+{{end}}

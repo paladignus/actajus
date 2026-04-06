@@ -1,0 +1,11 @@
+{{define "base/document-start"}}
+<!doctype html>
+<html lang="{{.Page.Lang}}">
+{{template "partials/document-head" .}}
+{{end}}
+
+{{define "base/document-end"}}
+  {{template "partials/document-scripts" .}}
+</body>
+</html>
+{{end}}

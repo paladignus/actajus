@@ -1,0 +1,9 @@
+.dashboard-view--companies .entity-card,
+.dashboard-view--company-detail .entity-card,
+.dashboard-view--company-form .dashboard-panel--nested {
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-view--company-form [data-social-media-list] {
+  align-items: start;
+}

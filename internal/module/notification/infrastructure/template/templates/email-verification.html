@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #0f766e;
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .footer { margin-top: 30px; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Confirme seu email</h2>
+    <p>Sua conta foi criada com sucesso. Clique no botao abaixo para validar seu email e liberar o acesso.</p>
+    <a href="{{ .verify_url }}" class="button">Verificar email</a>
+    <p>Ou copie e cole este link no seu navegador:</p>
+    <p><a href="{{ .verify_url }}">{{ .verify_url }}</a></p>
+    {{ if .expires_at }}
+      <p><strong>Este link expirará em {{ .expires_at }} minutos.</strong></p>
+    {{ end }}
+    <p>Se voce nao reconhece este cadastro, ignore este email.</p>
+    <div class="footer">
+      <p>Esta e uma mensagem automatica, por favor, nao responda.</p>
+    </div>
+  </div>
+</body>
+</html>

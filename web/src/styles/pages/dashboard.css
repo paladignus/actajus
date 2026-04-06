@@ -1,0 +1,32 @@
+.dashboard-view {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-grid--cards {
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  margin-top: 1.25rem;
+}
+
+.dashboard-grid--details,
+.dashboard-grid--form {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.dashboard-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.dashboard-pagination__page,
+.dashboard-empty {
+  color: var(--dashboard-muted);
+}

@@ -1,0 +1,146 @@
+{{define "content/company-form"}}
+{{$data := .Data}}
+<section class="dashboard-view dashboard-view--company-form">
+  <section class="dashboard-hero">
+    <div class="dashboard-hero__content">
+      <p class="dashboard-hero__eyebrow">Company WEB</p>
+      <h2 class="dashboard-hero__title">{{if eq $data.Mode "edit"}}Editar company{{else}}Nova company{{end}}</h2>
+      <p class="dashboard-hero__summary">Formulario administrativo para companies e relacoes principais.</p>
+    </div>
+    <div class="dashboard-actions">
+      <a class="button button--ghost" href="/companies">Voltar</a>
+    </div>
+  </section>
+
+  <section class="dashboard-panel">
+    {{if $data.Error}}<div class="dashboard-alert">{{$data.Error}}</div>{{end}}
+    <form class="dashboard-form" method="post" action="{{$data.Action}}" data-company-form>
+      <div class="dashboard-grid dashboard-grid--form">
+        <label class="form-field">
+          <span>Name</span>
+          <input type="text" name="name" value="{{$data.Name}}" required>
+        </label>
+        <label class="form-field">
+          <span>Trade Name</span>
+          <input type="text" name="trade_name" value="{{$data.TradeName}}" required>
+        </label>
+        <label class="form-field">
+          <span>CNPJ</span>
+          <input type="text" name="cnpj" value="{{$data.CNPJ}}" required>
+        </label>
+        <label class="form-field">
+          <span>CEP</span>
+          <input type="text" name="zip" value="{{$data.ZIP}}" required>
+        </label>
+        <label class="form-field">
+          <span>Titulo do endereco</span>
+          <input type="text" name="title" value="{{$data.Title}}" required>
+        </label>
+        <label class="form-field">
+          <span>Rua</span>
+          <input type="text" name="street" value="{{$data.Street}}" required>
+        </label>
+        <label class="form-field">
+          <span>Numero</span>
+          <input type="number" min="1" name="number" value="{{$data.Number}}" required>
+        </label>
+        <label class="form-field">
+          <span>Complemento</span>
+          <input type="text" name="complement" value="{{$data.Complement}}">
+        </label>
+        <label class="form-field">
+          <span>Referencia</span>
+          <input type="text" name="reference" value="{{$data.Reference}}">
+        </label>
+        <label class="form-field">
+          <span>Bairro</span>
+          <input type="text" name="neighborhood" value="{{$data.Neighborhood}}" required>
+        </label>
+        <label class="form-field">
+          <span>Cidade</span>
+          <input type="text" name="city" value="{{$data.City}}" required>
+        </label>
+        <label class="form-field">
+          <span>Estado</span>
+          <input type="text" name="state" value="{{$data.State}}" required>
+        </label>
+        <label class="form-field">
+          <span>Pais</span>
+          <input type="text" name="country" value="{{$data.Country}}" required>
+        </label>
+        <label class="form-field">
+          <span>Email</span>
+          <input type="email" name="email_address" value="{{$data.EmailAddress}}" required>
+        </label>
+        <label class="form-field">
+          <span>Telefone</span>
+          <input type="text" name="phone_number" value="{{$data.PhoneNumber}}" required>
+        </label>
+        <label class="form-field">
+          <span>Tipo do telefone</span>
+          <input type="text" name="phone_kind" value="{{$data.PhoneKind}}" required>
+        </label>
+        <label class="form-field">
+          <span>Departamento</span>
+          <input type="text" name="phone_department" value="{{$data.PhoneDepartment}}">
+        </label>
+      </div>
+      <section class="dashboard-panel dashboard-panel--nested">
+        <div class="dashboard-panel__header">
+          <div>
+            <h3 class="dashboard-panel__title">Social medias</h3>
+            <p class="dashboard-panel__summary">Adicione, edite e reorganize multiplas redes sociais.</p>
+          </div>
+          <button class="button button--ghost" type="button" data-social-media-add>Adicionar social media</button>
+        </div>
+        <div class="dashboard-grid dashboard-grid--cards" data-social-media-list>
+          {{range $data.SocialMedias}}
+          <article class="entity-card entity-card--social-media" data-social-media-item>
+            <input type="hidden" name="social_media_id" value="{{.ID}}">
+            <div class="entity-card__header">
+              <strong class="entity-card__title">Social media</strong>
+              <button class="button button--ghost" type="button" data-social-media-remove>Remover</button>
+            </div>
+            <div class="dashboard-grid dashboard-grid--form">
+              <label class="form-field">
+                <span>Plataforma social</span>
+                <input type="text" name="social_platform" value="{{.Platform}}">
+              </label>
+              <label class="form-field">
+                <span>URL social</span>
+                <input type="url" name="social_url" value="{{.URL}}">
+              </label>
+            </div>
+          </article>
+          {{end}}
+        </div>
+      </section>
+      <div class="dashboard-form__footer">
+        <button class="button button--primary" type="submit">{{$data.SubmitLabel}}</button>
+      </div>
+    </form>
+  </section>
+</section>
+
+<template id="social-media-item-template">
+  <article class="entity-card entity-card--social-media" data-social-media-item>
+    <input type="hidden" name="social_media_id" value="">
+    <div class="entity-card__header">
+      <strong class="entity-card__title">Social media</strong>
+      <button class="button button--ghost" type="button" data-social-media-remove>Remover</button>
+    </div>
+    <div class="dashboard-grid dashboard-grid--form">
+      <label class="form-field">
+        <span>Plataforma social</span>
+        <input type="text" name="social_platform" value="">
+      </label>
+      <label class="form-field">
+        <span>URL social</span>
+        <input type="url" name="social_url" value="">
+      </label>
+    </div>
+  </article>
+</template>
+{{end}}
+
+{{define "pages/company-form"}}{{template "layout/company-form" .}}{{end}}

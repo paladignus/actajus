@@ -1,0 +1,11 @@
+{{define "partials/document-head"}}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Page.Title}}</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  {{if .Page.Description}}<meta name="description" content="{{.Page.Description}}">{{end}}
+  {{range .Assets.Styles}}<link rel="stylesheet" href="{{.}}">{{end}}
+  {{range .Assets.ModulePreload}}<link rel="modulepreload" href="{{.}}">{{end}}
+</head>
+{{end}}
