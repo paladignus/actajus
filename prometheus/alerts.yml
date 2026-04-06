@@ -1,0 +1,109 @@
+groups:
+  - name: actajus-alerts
+    rules:
+      # High HTTP error rate (5xx errors > 5%)
+      - alert: HighHTTPErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) 
+          / 
+          sum(rate(http_requests_total[5m])) 
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP 5xx error rate (>5%)"
+          description: "More than 5% of HTTP requests are returning 5xx errors for the last 5 minutes."
+
+      # High HTTP latency (p95 > 1s)
+      - alert: HighHTTPLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+          > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP latency (p95 > 1s)"
+          description: "95th percentile of HTTP request duration is above 1 second."
+
+      # Database pool exhaustion risk
+      - alert: DatabasePoolNearlyExhausted
+        expr: |
+          database_pool_acquired_conns / database_pool_max_conns
+          > 0.9
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Database connection pool nearly exhausted (>90%)"
+          description: "More than 90% of database connections are in use for the last 2 minutes."
+
+      # Authentication failure spike
+      - alert: AuthenticationFailureSpike
+        expr: |
+          rate(auth_failures_total[5m]) 
+          > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failure rate"
+          description: "More than 10 authentication failures per second for the last 2 minutes. Possible brute force attack."
+
+      # Health check failure
+      - alert: HealthCheckFailure
+        expr: |
+          probe_success{job="actajus-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Health check failing"
+          description: "Application health check is failing for more than 1 minute."
+
+      # High goroutine count (possible goroutine leak)
+      - alert: HighGoroutineCount
+        expr: go_goroutines > 10000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High goroutine count (>10k)"
+          description: "More than 10,000 goroutines running. Possible goroutine leak."
+
+      # High memory usage (>1GB)
+      - alert: HighMemoryUsage
+        expr: go_memory_alloc_bytes > 1e9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage (>1GB)"
+          description: "Application is using more than 1GB of memory for the last 10 minutes."
+
+      # GC pause time too high (>100ms average)
+      - alert: HighGCPauseTime
+        expr: |
+          rate(go_gc_pause_total_seconds[5m]) 
+          / 
+          rate(go_gc_count[5m]) 
+          > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GC pause time (>100ms average)"
+          description: "Average GC pause time is above 100ms, which may impact latency."
+
+      # Password reset rate anomaly
+      - alert: HighPasswordResetRate
+        expr: |
+          rate(password_reset_requests_total[15m])
+          > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual password reset rate"
+          description: "More than 5 password reset requests per second for the last 5 minutes."

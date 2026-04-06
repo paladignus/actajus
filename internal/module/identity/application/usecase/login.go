@@ -9,6 +9,7 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity/application/mapper"
 	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
 	"github.com/paladignus/actajus/internal/module/identity/application/service"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/metrics"
 )
 
 type Login struct {
@@ -32,6 +33,7 @@ func NewLogin(
 func (uc Login) Execute(ctx context.Context, input command.LoginCommand) (*readmodel.AuthTokensReadModel, error) {
 	norm, err := uc.mapper.LoginInputToNormalized(input)
 	if err != nil {
+		metrics.AuthFailureCount.Inc()
 		return nil, fmt.Errorf("invalid login data: %w", err)
 	}
 
@@ -43,9 +45,11 @@ func (uc Login) Execute(ctx context.Context, input command.LoginCommand) (*readm
 		norm.UserAgent,
 	)
 	if err != nil {
+		metrics.AuthFailureCount.Inc()
 		return nil, err
 	}
 
+	metrics.AuthSuccessCount.Inc()
 	return uc.projection.ProjectTokens(
 		result.Session.ID().Value(),
 		result.User.ID().Value(),

@@ -4,6 +4,7 @@ package httpserver
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/metrics"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/tracing"
+	"github.com/paladignus/actajus/internal/shared/presentation/http/middleware"
 	"github.com/paladignus/actajus/pkg/di"
 )
 
@@ -25,18 +30,56 @@ type Server struct {
 func New(container *di.Container) *Server {
 	mux := http.NewServeMux()
 
-	// Health check
+	// Health check with dependency status
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+
+		status := "ok"
+		checks := map[string]any{}
+
+		// Check PostgreSQL - need to assert to *pgxpool.Pool for Ping
+		ctx := r.Context()
+		if pool, ok := container.DB.(*pgxpool.Pool); ok {
+			if err := pool.Ping(ctx); err != nil {
+				status = "degraded"
+				checks["database"] = map[string]string{"status": "unreachable", "error": err.Error()}
+			} else {
+				checks["database"] = map[string]string{"status": "healthy"}
+			}
+		}
+
+		// Check Redis
+		if container.RDB != nil {
+			type pinger interface{ Ping(context.Context) interface{ Err() error } }
+			if pinger, ok := container.RDB.(pinger); ok {
+				if err := pinger.Ping(ctx).Err(); err != nil {
+					status = "degraded"
+					checks["redis"] = map[string]string{"status": "unreachable", "error": err.Error()}
+				} else {
+					checks["redis"] = map[string]string{"status": "healthy"}
+				}
+			}
+		}
+
+		jsonBytes := []byte(fmt.Sprintf(`{"status":"%s","checks":{}}`, status))
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
+		w.Write(jsonBytes)
 	})
+
+	// Prometheus metrics endpoint
+	mux.Handle("GET /metrics", metrics.Handler())
 
 	// Register module routes
 	container.Modules.Web.Mount(mux)
 
-	// Middleware wrapper
-	handler := loggingMiddleware(corsMiddleware(errorPageMiddleware(container, mux)))
+	// Build middleware chain: metrics -> tracing -> logging -> cors -> error page -> handlers
+	handler := metrics.Middleware(
+		tracing.Middleware("actajus-api")(
+			middleware.LoggerMiddleware(container.Logger)(
+				corsMiddleware(errorPageMiddleware(container, mux)),
+			),
+		),
+	)
 
 	return &Server{
 		container: container,
@@ -88,6 +131,15 @@ func normalizeAddr(port string) string {
 
 // Start starts the HTTP server
 func (s *Server) Start() {
+	// Start runtime metrics collection
+	go func() {
+		ticker := time.NewTicker(15 * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			metrics.CollectRuntimeMetrics()
+		}
+	}()
+
 	// Graceful shutdown
 	go func() {
 		log.Printf("🚀 Server starting on %s", s.srv.Addr)
@@ -110,21 +162,6 @@ func (s *Server) Start() {
 	}
 
 	log.Println("✅ Server exited gracefully")
-}
-
-// Middleware de logging
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf(
-			"%s %s %s %v",
-			r.Method,
-			r.RequestURI,
-			r.RemoteAddr,
-			time.Since(start),
-		)
-	})
 }
 
 // Middleware de CORS

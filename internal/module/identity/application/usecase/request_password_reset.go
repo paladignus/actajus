@@ -15,6 +15,7 @@ import (
 	sharedsvc "github.com/paladignus/actajus/internal/shared/application/service"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/metrics"
 )
 
 type RequestPasswordReset struct {
@@ -116,5 +117,6 @@ func (uc RequestPasswordReset) Execute(ctx context.Context, input command.Reques
 	if err != nil {
 		return nil, err
 	}
+	metrics.PasswordResetCount.Inc()
 	return resp, nil
 }

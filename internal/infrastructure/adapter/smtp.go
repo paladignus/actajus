@@ -8,6 +8,8 @@ import (
 	"net/smtp"
 
 	"github.com/paladignus/actajus/internal/infrastructure/config"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/metrics"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type SMTPEmail struct {
@@ -29,5 +31,9 @@ func (s SMTPEmail) SendEmail(ctx context.Context, to, subject, body string) erro
 		"%s\r\n", from.String(), to, subject, body)
 	auth := smtp.PlainAuth("", s.config.User, s.config.Pass, s.config.Host)
 	addr := fmt.Sprintf("%s:%s", s.config.Host, s.config.Port)
-	return smtp.SendMail(addr, auth, s.config.From, []string{to}, []byte(message))
+	err := smtp.SendMail(addr, auth, s.config.From, []string{to}, []byte(message))
+	if err == nil {
+		metrics.EmailSentCount.With(prometheus.Labels{"template": "generic"}).Inc()
+	}
+	return err
 }

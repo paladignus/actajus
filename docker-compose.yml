@@ -10,6 +10,8 @@ services:
       - "14268"        # HTTP collector
       - "14250"        # GRPC collector
       - "6831:6831/udp" # Jaeger agent thrift compact
+      - "4318:4318"    # OTLP HTTP
+      - "4317:4317"    # OTLP gRPC
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
       - COLLECTOR_OTLP_ENABLED=true
@@ -23,7 +25,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus:/etc/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -45,8 +47,12 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin123
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - observability
     depends_on:
@@ -74,7 +80,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: M4rc3l0
     ports:
-      - "5433:5432"  # Mudando para porta 5433 para evitar conflito
+      - "5433:5432"
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d actajus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./createdb.sql:/docker-entrypoint-initdb.d/1-createdb.sql
@@ -95,7 +108,7 @@ services:
       - pgadmin_data:/var/lib/pgadmin
       - ./pgadmin-servers.json:/pgadmin4/servers.json
     ports:
-      - "5050:80"
+      - "5051:80"
     depends_on:
       - postgres
     networks:
@@ -119,6 +132,23 @@ services:
     networks:
       - observability
 
+  # Redis para cache e sessões
+  redis:
+    image: redis:7-alpine
+    container_name: actajus_redis
+    command: redis-server --requirepass M4rc3l0 --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "M4rc3l0", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - observability
+
   # Serviço da aplicação
   app:
     build:
@@ -127,27 +157,26 @@ services:
     container_name: actajus_app
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=M4rc3l0
-      - DB_NAME=actajus
-      - NATS_URL=nats://nats:4222  # Usa a porta interna do container NATS
-      - TRACING_ENABLED=true
-      - TRACING_AGENT_HOST=jaeger
-      - TRACING_AGENT_PORT=6831
-      - SERVER_PORT=8080
-      # Adicione outras variáveis de ambiente conforme necessário
+      # Override para acessar serviços do host via Docker
+      DB_HOST: host.docker.internal
+      REDIS_ADDR: host.docker.internal:6379
+      NATS_URL: nats://host.docker.internal:4222
+      TRACING_ENDPOINT_URL: http://host.docker.internal:4318/v1/traces
+      SERVER_PORT: ":8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
-      - postgres
-      - nats
-      - jaeger
+      jaeger:
+        condition: service_started
     networks:
       - observability
 
 volumes:
   postgres_data:
+  redis_data:
   grafana-storage:
   nats_data:
   pgadmin_data:

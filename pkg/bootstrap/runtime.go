@@ -4,6 +4,7 @@ package bootstrap
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/paladignus/actajus/internal/module/company"
@@ -17,10 +18,13 @@ import (
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/logger"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/metrics"
+	"github.com/paladignus/actajus/internal/shared/infrastructure/observability/tracing"
 	sharedpostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	sharedserialization "github.com/paladignus/actajus/internal/shared/infrastructure/serialization"
 	shareduuid "github.com/paladignus/actajus/internal/shared/infrastructure/service"
 	website "github.com/paladignus/actajus/internal/shared/presentation/web/site"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -54,6 +58,17 @@ func NewRuntime(ctx context.Context) (*Runtime, error) {
 func NewRuntimeWithConfig(ctx context.Context, cfg config.Config) (*Runtime, error) {
 	log := logger.NewDefaultLogger()
 
+	// Initialize tracing if enabled
+	if cfg.Tracing.Enabled {
+		if err := tracing.InitTracer(tracing.Config{
+			ServiceName: cfg.Tracing.ServiceName,
+			EndpointURL: cfg.Tracing.EndpointURL,
+			Insecure:    cfg.Tracing.Insecure,
+		}); err != nil {
+			return nil, fmt.Errorf("initialize tracing: %w", err)
+		}
+	}
+
 	db, err := sharedpostgres.NewConnection(ctx, &cfg.Database)
 	if err != nil {
 		return nil, fmt.Errorf("initialize database connection: %w", err)
@@ -69,6 +84,14 @@ func NewRuntimeWithConfig(ctx context.Context, cfg config.Config) (*Runtime, err
 	outbox := sharedpostgres.NewOutboxFactory(db)
 	codec := sharedserialization.NewJSONSerializer()
 	idGen := shareduuid.NewUUIDGenerator()
+
+	// Register PostgreSQL pool metrics collector
+	poolMetricsCollector := sharedpostgres.NewPoolMetricsCollector(db, "main")
+	prometheus.MustRegister(poolMetricsCollector)
+
+	// Register Redis metrics hook
+	rdb.AddHook(metrics.NewRedisMetricsHook())
+
 	modules, err := initializeModules(db, log, uow, rdb, cfg, outbox, codec, idGen)
 	if err != nil {
 		_ = rdb.Close()
@@ -91,6 +114,15 @@ func NewRuntimeWithConfig(ctx context.Context, cfg config.Config) (*Runtime, err
 
 // Close releases the shared resources owned by the runtime.
 func (r *Runtime) Close() {
+	// Shutdown tracing
+	if r.Config.Tracing.Enabled {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := tracing.ShutdownTracer(ctx); err != nil {
+			r.Logger.Warn(ctx, "failed to shutdown tracing", "error", err)
+		}
+		cancel()
+	}
+
 	if r.RDB != nil {
 		_ = r.RDB.Close()
 		r.RDB = nil

@@ -1,5 +1,5 @@
-// Package metrics provides Prometheus metrics for the application
-// This includes HTTP request metrics, database connection metrics, and custom business metrics
+// Package metrics provides Prometheus metrics for the application.
+// This includes HTTP request metrics, database connection metrics, and custom business metrics.
 package metrics
 
 import (
@@ -10,9 +10,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// Define global metrics that will be tracked across the application
+// Define global metrics that will be tracked across the application.
 var (
-	// HTTP request metrics - track request count, duration, and status codes
+	// HTTP request metrics - track request count, duration, and status codes.
 	RequestCount = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
@@ -32,7 +32,7 @@ var (
 		[]string{"method", "path", "status"},
 	)
 
-	// Database metrics - track database connection and query metrics
+	// Database metrics - track database connection and query metrics.
 	DatabaseQueryCount = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "database_queries_total",
@@ -52,7 +52,7 @@ var (
 		[]string{"operation", "table"},
 	)
 
-	// Business metrics - track specific business operations
+	// Business metrics - track specific business operations.
 	AuthSuccessCount = promauto.NewCounter(
 		prometheus.CounterOpts{
 			Name: "auth_success_total",
@@ -83,8 +83,8 @@ var (
 	)
 )
 
-// Handler returns an HTTP handler for Prometheus metrics endpoint
-// This handler serves the /metrics endpoint that Prometheus scrapes
+// Handler returns an HTTP handler for Prometheus metrics endpoint.
+// This handler serves the /metrics endpoint that Prometheus scrapes.
 func Handler() http.Handler {
 	return promhttp.Handler()
 }

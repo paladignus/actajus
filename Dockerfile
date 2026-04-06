@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 COPY . .
 
 # Compilar o binário com otimizações
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-w -s -buildid=" -o main cmd/http/server.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-w -s -buildid=" -o main cmd/main.go
 
 # Imagem final
 FROM alpine:latest

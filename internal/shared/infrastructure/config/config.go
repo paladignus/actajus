@@ -97,8 +97,8 @@ type NATSConfig struct {
 
 type TracingConfig struct {
 	ServiceName string
-	AgentHost   string
-	AgentPort   string
+	EndpointURL string // OTLP endpoint (e.g., "http://localhost:4318/v1/traces")
+	Insecure    bool   // Use insecure connection (no TLS)
 	Enabled     bool
 }
 
@@ -206,10 +206,10 @@ func Load() Config {
 			RequestTimeout:    time.Duration(getEnvAsInt("NATS_REQUEST_TIMEOUT", 5)) * time.Second,
 		},
 		Tracing: TracingConfig{
-			ServiceName: getEnv("TRACING_SERVICE_NAME", "sidof-api"),
-			AgentHost:   getEnv("TRACING_AGENT_HOST", "localhost"),
-			AgentPort:   getEnv("TRACING_AGENT_PORT", "6831"),
-			Enabled:     getEnvAsBool("TRACING_ENABLED", true), // Default to true for development
+			ServiceName: getEnv("TRACING_SERVICE_NAME", "actajus-api"),
+			EndpointURL: getEnv("TRACING_ENDPOINT_URL", "http://localhost:4318/v1/traces"),
+			Insecure:    getEnvAsBool("TRACING_INSECURE", true),
+			Enabled:     getEnvAsBool("TRACING_ENABLED", false), // Default to false, enable in production
 		},
 	}
 }

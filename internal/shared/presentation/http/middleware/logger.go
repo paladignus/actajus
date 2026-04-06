@@ -1,11 +1,11 @@
-// Package middleware
+// Package middleware provides HTTP middlewares for the application.
 package middleware
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/paladignus/actajus/internal/domain/repository"
+	"github.com/paladignus/actajus/internal/shared/application/repository"
 )
 
 type responseWriter struct {

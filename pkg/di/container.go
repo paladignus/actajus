@@ -23,6 +23,7 @@ type Container struct {
 	DB      sharedPostgres.Executor
 	Logger  repository.Logger
 	UoW     uow.UnitOfWork
+	RDB     any // Redis client - checked at runtime for health check
 	Modules Modules
 
 	runtime *bootstrap.Runtime
@@ -49,6 +50,7 @@ func NewContainer() (*Container, error) {
 		DB:     runtime.DB,
 		Logger: runtime.Logger,
 		UoW:    runtime.UoW,
+		RDB:    runtime.RDB,
 		Modules: Modules{
 			Company:  runtime.Modules.Company,
 			Identity: runtime.Modules.Identity,
