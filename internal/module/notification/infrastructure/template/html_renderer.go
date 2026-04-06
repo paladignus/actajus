@@ -25,7 +25,8 @@ func NewHTMLRenderer() (*HTMLRenderer, error) {
 	return &HTMLRenderer{
 		tpl: t,
 		subjects: map[string]string{
-			"password-reset": "Recuperação de senha",
+			"password-reset":     "Recuperação de senha",
+			"email-verification": "Verifique seu email",
 		},
 	}, nil
 }

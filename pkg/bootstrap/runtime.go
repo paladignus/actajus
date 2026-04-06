@@ -11,7 +11,6 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity"
 	identitypg "github.com/paladignus/actajus/internal/module/identity/infrastructure/persistence/database/postgres"
 	"github.com/paladignus/actajus/internal/module/person"
-	"github.com/paladignus/actajus/internal/module/web"
 	"github.com/paladignus/actajus/internal/shared/application/messaging"
 	"github.com/paladignus/actajus/internal/shared/application/repository"
 	sharedservice "github.com/paladignus/actajus/internal/shared/application/service"
@@ -21,6 +20,7 @@ import (
 	sharedpostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
 	sharedserialization "github.com/paladignus/actajus/internal/shared/infrastructure/serialization"
 	shareduuid "github.com/paladignus/actajus/internal/shared/infrastructure/service"
+	website "github.com/paladignus/actajus/internal/shared/presentation/web/site"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -42,7 +42,7 @@ type Modules struct {
 	Company  company.Module
 	Identity identity.Module
 	Person   person.Module
-	Web      web.Module
+	Web      website.Module
 }
 
 // NewRuntime loads config and initializes the shared runtime.
@@ -139,7 +139,7 @@ func initializeModules(
 	if err != nil {
 		return Modules{}, fmt.Errorf("initialize identity module: %w", err)
 	}
-	webModule, err := web.NewModule(web.Dependencies{
+	webModule, err := website.NewModule(website.Dependencies{
 		Logger:   log,
 		Company:  companyModule,
 		Identity: identityModule,

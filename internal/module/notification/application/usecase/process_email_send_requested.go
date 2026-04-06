@@ -60,6 +60,13 @@ func (uc ProcessEmailSendRequested) Execute(ctx context.Context, msg message.Ema
 		}
 		msg.Data["reset_url"] = resetURL
 	}
+	if msg.Template == "email-verification" {
+		verifyURL, err := uc.buildVerifyEmailURL(msg.Data)
+		if err != nil {
+			return fmt.Errorf("build verify email url: %w", err)
+		}
+		msg.Data["verify_url"] = verifyURL
+	}
 	subject, html, err := uc.renderer.RenderHTML(ctx, msg.Template, msg.Data)
 	if err != nil {
 		return fmt.Errorf("render template: %w", err)
@@ -89,6 +96,27 @@ func (uc ProcessEmailSendRequested) buildResetURL(data map[string]any) (string, 
 		return "", fmt.Errorf("missing data.token")
 	}
 	q.Set("id_reset", fmt.Sprintf("%v", idReset))
+	q.Set("token", fmt.Sprintf("%v", token))
+	base.RawQuery = q.Encode()
+	return base.String(), nil
+}
+
+func (uc ProcessEmailSendRequested) buildVerifyEmailURL(data map[string]any) (string, error) {
+	base, err := url.Parse(uc.publicBase)
+	if err != nil {
+		return "", fmt.Errorf("invalid public base url: %w", err)
+	}
+	base.Path = "/verify-email"
+	q := base.Query()
+	idVerification, ok := data["id_verification"]
+	if !ok {
+		return "", fmt.Errorf("missing data.id_verification")
+	}
+	token, ok := data["token"]
+	if !ok {
+		return "", fmt.Errorf("missing data.token")
+	}
+	q.Set("id_verification", fmt.Sprintf("%v", idVerification))
 	q.Set("token", fmt.Sprintf("%v", token))
 	base.RawQuery = q.Encode()
 	return base.String(), nil

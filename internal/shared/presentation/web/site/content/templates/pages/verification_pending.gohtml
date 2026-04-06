@@ -1,0 +1,26 @@
+{{define "content/verification-pending"}}
+{{$data := .Data}}
+<section class="auth-panel">
+    <p class="dashboard-hero__eyebrow">Identity WEB</p>
+    <h1>Verificacao pendente</h1>
+    <p class="dashboard-panel__summary">
+      {{with index $data "Message"}}{{.}}{{else}}Se o cadastro puder ser concluido, voce recebera um email com os proximos passos.{{end}}
+    </p>
+    <div class="dashboard-alert dashboard-alert--info">
+      Verifique sua caixa de entrada e a pasta de spam. Somente depois da confirmacao do email o acesso sera liberado.
+    </div>
+    <form class="dashboard-form dashboard-form--inline" method="post" action="/request-email-verification">
+      <label class="form-field">
+        <span>Reenviar verificacao de email</span>
+        <input type="email" name="email" value="{{with index $data "Email"}}{{.}}{{end}}" autocomplete="email" placeholder="Seu email" required>
+      </label>
+      <button class="button button--ghost" type="submit">Reenviar</button>
+    </form>
+    <div class="dashboard-actions">
+      <a class="button button--primary" href="/login">Voltar para entrar</a>
+      <a class="button button--ghost" href="/register">Criar outra conta</a>
+    </div>
+</section>
+{{end}}
+
+{{define "pages/verification-pending"}}{{template "layout/verification-pending" .}}{{end}}

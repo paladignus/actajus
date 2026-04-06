@@ -31,7 +31,10 @@ func (f *Factory) PasswordReset() repository.PasswordResetRepository {
 	return NewPasswordReset(f.exec)
 }
 
+func (f *Factory) EmailVerification() repository.EmailVerificationRepository {
+	return NewEmailVerification(f.exec)
+}
+
 func (f *Factory) User() repository.UserRepository {
-	// aqui entra teu repo concreto de user/email (o que você já tem)
 	return NewUser(f.exec)
 }

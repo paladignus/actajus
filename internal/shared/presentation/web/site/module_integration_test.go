@@ -1,4 +1,4 @@
-package web
+package site
 
 import (
 	"context"
@@ -449,7 +449,7 @@ func newCompanyDeleteActionTestModule(t *testing.T) (Module, *companyFactoryDele
 
 func currentAssetPaths(t *testing.T) (string, string) {
 	t.Helper()
-	raw, err := contentFS.ReadFile("presentation/http/handler/content/dist/.vite/manifest.json")
+	raw, err := contentFS.ReadFile("content/dist/.vite/manifest.json")
 	if err != nil {
 		t.Fatalf("read manifest: %v", err)
 	}

@@ -16,6 +16,16 @@
       </label>
       <button class="button button--primary" type="submit">Entrar</button>
     </form>
+    <form class="dashboard-form dashboard-form--inline" method="post" action="/request-email-verification">
+      <label class="form-field">
+        <span>Reenviar verificacao de email</span>
+        <input type="email" name="email" value="{{with index $data "Email"}}{{.}}{{end}}" autocomplete="email" placeholder="Seu email" required>
+      </label>
+      <button class="button button--ghost" type="submit">Reenviar</button>
+    </form>
+    <div class="dashboard-actions">
+      <a class="button button--ghost" href="/register">Criar conta</a>
+    </div>
 </section>
 {{end}}
 

@@ -12,6 +12,7 @@ const (
 	CodeNumeric    Code = "numeric"
 	CodeOneOf      Code = "oneof"
 	CodeEmail      Code = "email"
+	CodePassword   Code = "password"
 	CodeRequiredIf Code = "required_if"
 )
 

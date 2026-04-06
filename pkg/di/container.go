@@ -9,11 +9,11 @@ import (
 	"github.com/paladignus/actajus/internal/module/identity"
 	"github.com/paladignus/actajus/internal/module/notification"
 	"github.com/paladignus/actajus/internal/module/person"
-	"github.com/paladignus/actajus/internal/module/web"
 	"github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/paladignus/actajus/internal/shared/application/uow"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
 	sharedPostgres "github.com/paladignus/actajus/internal/shared/infrastructure/persistence/database/postgres"
+	website "github.com/paladignus/actajus/internal/shared/presentation/web/site"
 	"github.com/paladignus/actajus/pkg/bootstrap"
 )
 
@@ -34,7 +34,7 @@ type Modules struct {
 	Identity     identity.Module
 	Notification notification.Module
 	Person       person.Module
-	Web          web.Module
+	Web          website.Module
 }
 
 // NewContainer creates a new DI container

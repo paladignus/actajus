@@ -32,11 +32,14 @@ func NewModule(dep Dependencies) (Module, error) {
 		Logger:   dep.Logger,
 		Renderer: dep.RendererSource,
 		Auth: sharedhandler.AuthDependencies{
-			ValidateAccess: dep.Identity.ValidateAccess,
-			Login:          dep.Identity.Login,
-			Refresh:        dep.Identity.Refresh,
-			Logout:         dep.Identity.Logout,
-			RBACChecker:    dep.Identity.RBACChecker,
+			ValidateAccess:           dep.Identity.ValidateAccess,
+			Login:                    dep.Identity.Login,
+			Register:                 dep.Identity.Register,
+			RequestEmailVerification: dep.Identity.RequestEmailVerification,
+			ConfirmEmailVerification: dep.Identity.ConfirmEmailVerification,
+			Refresh:                  dep.Identity.Refresh,
+			Logout:                   dep.Identity.Logout,
+			RBACChecker:              dep.Identity.RBACChecker,
 		},
 		Identity: sharedhandler.IdentityDependencies{
 			LogoutAll:                dep.Identity.LogoutAll,
@@ -80,7 +83,12 @@ func NewModule(dep Dependencies) (Module, error) {
 func (m Module) Mount(mux *http.ServeMux) {
 	mux.Handle("GET /{$}", m.withPageSecurity(m.withCSRFCookie(m.handler.Home())))
 	mux.Handle("GET /login", m.withPageSecurity(m.withCSRFCookie(m.handler.LoginPage())))
+	mux.Handle("GET /register", m.withPageSecurity(m.withCSRFCookie(m.handler.RegisterPage())))
+	mux.Handle("GET /verification-pending", m.withPageSecurity(m.withCSRFCookie(m.handler.VerificationPendingPage())))
 	mux.Handle("POST /login", m.withCSRFProtection(m.handler.LoginAction()))
+	mux.Handle("POST /register", m.withCSRFProtection(m.handler.RegisterAction()))
+	mux.Handle("POST /request-email-verification", m.withCSRFProtection(m.handler.RequestEmailVerificationAction()))
+	mux.Handle("GET /verify-email", m.withPageSecurity(m.handler.VerifyEmailAction()))
 	mux.Handle("POST /logout", m.withCSRFProtection(m.handler.LogoutAction()))
 	mux.Handle("GET /sessions", m.withPageSecurity(m.withCSRFCookie(m.handler.SessionsPage())))
 	mux.Handle("GET /users", m.withPageSecurity(m.withCSRFCookie(m.handler.UsersPage())))

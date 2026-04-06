@@ -11,12 +11,13 @@ import (
 // User representa uma entidade de domínio do contexto de Identity.
 // Como Entidade Rica, ela contém lógica de negócio e protege seus invariantes.
 type User struct {
-	id           vo.ID
-	primaryEmail vo.Email
-	passwordHash vo.PasswordHash
-	isBlocked    bool
-	createdAt    time.Time
-	updatedAt    time.Time
+	id                     vo.ID
+	primaryEmail           vo.Email
+	passwordHash           vo.PasswordHash
+	isBlocked              bool
+	primaryEmailVerifiedAt *time.Time
+	createdAt              time.Time
+	updatedAt              time.Time
 }
 
 // UserBuilder segue o padrão Builder para construção segura de User.
@@ -52,6 +53,11 @@ func (b *UserBuilder) WithPasswordHash(hash string) *UserBuilder {
 
 func (b *UserBuilder) WithIsBlocked(blocked bool) *UserBuilder {
 	b.u.isBlocked = blocked
+	return b
+}
+
+func (b *UserBuilder) WithPrimaryEmailVerifiedAt(verifiedAt *time.Time) *UserBuilder {
+	b.u.primaryEmailVerifiedAt = verifiedAt
 	return b
 }
 
@@ -93,6 +99,10 @@ func (u *User) PasswordHash() vo.PasswordHash { return u.passwordHash }
 
 // IsBlocked retorna se o usuário está bloqueado.
 func (u *User) IsBlocked() bool { return u.isBlocked }
+
+func (u *User) IsPrimaryEmailVerified() bool { return u.primaryEmailVerifiedAt != nil }
+
+func (u *User) PrimaryEmailVerifiedAt() *time.Time { return u.primaryEmailVerifiedAt }
 
 // CreatedAt retorna a data de criação do usuário.
 func (u *User) CreatedAt() time.Time { return u.createdAt }
@@ -173,4 +183,13 @@ func (u *User) Unblock() {
 // Útil para validações de login e recuperação de senha.
 func (u *User) EmailEquals(email string) bool {
 	return u.primaryEmail.Equals(vo.Email(email))
+}
+
+func (u *User) MarkPrimaryEmailVerified(now time.Time) error {
+	if u.IsPrimaryEmailVerified() {
+		return ErrEmailAlreadyVerified
+	}
+	u.primaryEmailVerifiedAt = &now
+	u.updatedAt = now
+	return nil
 }

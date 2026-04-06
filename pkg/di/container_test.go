@@ -1,6 +1,7 @@
 package di_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/paladignus/actajus/pkg/di"
@@ -42,7 +43,7 @@ func TestContainerClose(t *testing.T) {
 
 func TestContainerTypeCompiles(t *testing.T) {
 	var c di.Container
-	if c.Modules != (di.Modules{}) {
+	if !reflect.DeepEqual(c.Modules, di.Modules{}) {
 		t.Fatal("expected zero-value modules")
 	}
 }

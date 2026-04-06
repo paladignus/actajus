@@ -181,6 +181,7 @@ CREATE TABLE public.emails (
 	idemails bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
 	address text NOT NULL,
 	is_primary bool NOT NULL DEFAULT FALSE,
+	verified_at timestamptz,
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
 	deleted_at timestamptz,
@@ -207,6 +208,24 @@ CREATE TABLE public.password_resets (
 ALTER TABLE public.password_resets OWNER TO postgres;
 -- ddl-end --
 
+-- object: public.email_verifications | type: TABLE --
+-- DROP TABLE IF EXISTS public.email_verifications CASCADE;
+CREATE TABLE public.email_verifications (
+	idemail_verifications bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
+	id_users bigint NOT NULL,
+	id_emails bigint NOT NULL,
+	token_hash bytea NOT NULL,
+	expires_at timestamptz NOT NULL,
+	used_at timestamptz,
+	revoked_at timestamptz,
+	created_at timestamptz NOT NULL DEFAULT NOW(),
+	CONSTRAINT email_verifications_pk PRIMARY KEY (idemail_verifications),
+	CONSTRAINT email_verifications_token_hash_len_chk CHECK (octet_length(token_hash) = 32)
+);
+-- ddl-end --
+ALTER TABLE public.email_verifications OWNER TO postgres;
+-- ddl-end --
+
 -- object: people_fk | type: CONSTRAINT --
 -- ALTER TABLE public.users DROP CONSTRAINT IF EXISTS people_fk CASCADE;
 ALTER TABLE public.users ADD CONSTRAINT people_fk FOREIGN KEY (idusers)
@@ -225,6 +244,20 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ALTER TABLE public.password_resets DROP CONSTRAINT IF EXISTS users_fk CASCADE;
 ALTER TABLE public.password_resets ADD CONSTRAINT users_fk FOREIGN KEY (id_users)
 REFERENCES public.users (idusers) MATCH FULL
+ON DELETE RESTRICT ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: users_fk | type: CONSTRAINT --
+-- ALTER TABLE public.email_verifications DROP CONSTRAINT IF EXISTS users_fk CASCADE;
+ALTER TABLE public.email_verifications ADD CONSTRAINT users_fk FOREIGN KEY (id_users)
+REFERENCES public.users (idusers) MATCH FULL
+ON DELETE RESTRICT ON UPDATE CASCADE;
+-- ddl-end --
+
+-- object: emails_fk | type: CONSTRAINT --
+-- ALTER TABLE public.email_verifications DROP CONSTRAINT IF EXISTS emails_fk CASCADE;
+ALTER TABLE public.email_verifications ADD CONSTRAINT emails_fk FOREIGN KEY (id_emails)
+REFERENCES public.emails (idemails) MATCH FULL
 ON DELETE RESTRICT ON UPDATE CASCADE;
 -- ddl-end --
 

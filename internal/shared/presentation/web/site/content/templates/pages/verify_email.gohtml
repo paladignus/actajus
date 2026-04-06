@@ -1,0 +1,18 @@
+{{define "content/verify-email"}}
+{{$data := .Data}}
+<section class="auth-panel">
+    <p class="dashboard-hero__eyebrow">Identity WEB</p>
+    <h1>Verificacao de email</h1>
+    {{if index $data "Success"}}
+      <div class="dashboard-alert dashboard-alert--success">{{index $data "Message"}}</div>
+    {{else}}
+      <div class="dashboard-alert">{{index $data "Message"}}</div>
+    {{end}}
+    <div class="dashboard-actions">
+      <a class="button button--primary" href="/login">Ir para login</a>
+      <a class="button button--ghost" href="/register">Criar outra conta</a>
+    </div>
+</section>
+{{end}}
+
+{{define "pages/verify-email"}}{{template "layout/verify-email" .}}{{end}}

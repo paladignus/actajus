@@ -2,11 +2,14 @@ package authhandler
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	identitycmd "github.com/paladignus/actajus/internal/module/identity/application/command"
 	identityusecase "github.com/paladignus/actajus/internal/module/identity/application/usecase"
 	sharedhttp "github.com/paladignus/actajus/internal/shared/infrastructure/http/handler"
+	webflash "github.com/paladignus/actajus/internal/shared/presentation/web/app/adapter/flash"
 	requestmeta "github.com/paladignus/actajus/internal/shared/presentation/web/app/adapter/requestmeta"
 	authbinder "github.com/paladignus/actajus/internal/shared/presentation/web/app/binder/http/auth"
 	handlerctx "github.com/paladignus/actajus/internal/shared/presentation/web/app/handlerctx"
@@ -16,9 +19,12 @@ import (
 )
 
 type Controller struct {
-	Context handlerctx.Context
-	Login   identityusecase.Login
-	Logout  identityusecase.Logout
+	Context             handlerctx.Context
+	Login               identityusecase.Login
+	Register            identityusecase.Register
+	RequestVerification identityusecase.RequestEmailVerification
+	VerifyEmail         identityusecase.ConfirmEmailVerification
+	Logout              identityusecase.Logout
 }
 
 func (c Controller) Home() http.Handler {
@@ -38,7 +44,37 @@ func (c Controller) LoginPage() http.Handler {
 			c.Context.Navigator.SeeOther(w, r, "/sessions")
 			return
 		}
-		_ = c.Context.HTML.Render(w, http.StatusOK, "pages/login", authpage.LoginPage("", ""))
+		flash := c.Context.Navigator.ReadFlash(w, r, c.Context.FlashCookie)
+		message := ""
+		if flash.Message != "" {
+			message = flash.Message
+		}
+		_ = c.Context.HTML.Render(w, http.StatusOK, "pages/login", authpage.LoginPage("", message))
+	})
+}
+
+func (c Controller) RegisterPage() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if state, err := c.Context.AuthFromRequest(w, r); err == nil && state != nil && state.Claims != nil {
+			c.Context.Navigator.SeeOther(w, r, "/sessions")
+			return
+		}
+		_ = c.Context.HTML.Render(w, http.StatusOK, "pages/register", authpage.RegisterPage(map[string]any{}))
+	})
+}
+
+func (c Controller) VerificationPendingPage() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if state, err := c.Context.AuthFromRequest(w, r); err == nil && state != nil && state.Claims != nil {
+			c.Context.Navigator.SeeOther(w, r, "/sessions")
+			return
+		}
+		flash := c.Context.Navigator.ReadFlash(w, r, c.Context.FlashCookie)
+		message := "Se o cadastro puder ser concluido, voce recebera um email com os proximos passos."
+		if flash.Message != "" {
+			message = flash.Message
+		}
+		_ = c.Context.HTML.Render(w, http.StatusOK, "pages/verification-pending", authpage.VerificationPendingPage(r.URL.Query().Get("email"), message))
 	})
 }
 
@@ -91,6 +127,88 @@ func (c Controller) LoginAction() http.Handler {
 	})
 }
 
+func (c Controller) RegisterAction() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		form, err := authbinder.BindRegisterForm(r)
+		if err != nil {
+			httperror.BadRequest(w, "invalid form")
+			return
+		}
+		input := identitycmd.RegisterCommand{
+			FirstName: form.FirstName,
+			LastName:  form.LastName,
+			Birthday:  form.Birthday,
+			GenderID:  form.GenderID,
+			Email:     form.Email,
+			Password:  form.Password,
+		}
+		out, err := c.Register.Execute(r.Context(), input)
+		if err != nil {
+			status, message := authmessage.RegisterError(err)
+			_ = c.Context.HTML.Render(w, status, "pages/register", authpage.RegisterPage(map[string]any{
+				"FirstName": form.FirstName,
+				"LastName":  form.LastName,
+				"Birthday":  form.Birthday,
+				"GenderID":  form.GenderID,
+				"Email":     form.Email,
+				"Error":     message,
+			}))
+			return
+		}
+		location := "/verification-pending"
+		if form.Email != "" {
+			location += "?email=" + url.QueryEscape(form.Email)
+		}
+		c.Context.Navigator.SeeOtherWithFlash(w, r, location, c.Context.FlashCookie, webflash.Message{
+			Code:    "auth_register_succeeded",
+			Kind:    "success",
+			Message: out.Message,
+			Source:  "register.form",
+		})
+	})
+}
+
+func (c Controller) RequestEmailVerificationAction() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		form, err := authbinder.BindLoginForm(r)
+		if err != nil {
+			httperror.BadRequest(w, "invalid form")
+			return
+		}
+		out, err := c.RequestVerification.Execute(r.Context(), identitycmd.RequestEmailVerificationCommand{
+			Email: form.Email,
+		})
+		if err != nil {
+			status, message := authmessage.RegisterError(err)
+			_ = c.Context.HTML.Render(w, status, "pages/login", authpage.LoginPage(form.Email, message))
+			return
+		}
+		location := requestEmailVerificationReturnPath(r, form.Email)
+		c.Context.Navigator.SeeOtherWithFlash(w, r, location, c.Context.FlashCookie, webflash.Message{
+			Code:    "auth_request_email_verification_succeeded",
+			Kind:    "success",
+			Message: out.Message,
+			Source:  "login.form",
+		})
+	})
+}
+
+func (c Controller) VerifyEmailAction() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		query := authbinder.BindVerifyEmailQuery(r)
+		out, err := c.VerifyEmail.Execute(r.Context(), identitycmd.ConfirmEmailVerificationCommand{
+			IDVerification: query.IDVerification,
+			Token:          query.Token,
+		})
+		if err != nil {
+			status, message := authmessage.VerifyEmailError(err)
+			_ = c.Context.HTML.Render(w, status, "pages/verify-email", authpage.VerifyEmailPage(message, false))
+			return
+		}
+		_ = c.Context.HTML.Render(w, http.StatusOK, "pages/verify-email", authpage.VerifyEmailPage(out.Message, true))
+	})
+}
+
 func (c Controller) LogoutAction() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		state, err := c.Context.RequireAuth(w, r)
@@ -114,4 +232,24 @@ func (c Controller) Bootstrap() http.Handler {
 			c.Context.Logger.Error(r.Context(), "write web bootstrap", "error", err)
 		}
 	})
+}
+
+func requestEmailVerificationReturnPath(r *http.Request, email string) string {
+	location := "/login"
+	ref := strings.TrimSpace(r.Referer())
+	if ref == "" {
+		return location
+	}
+	refURL, err := url.Parse(ref)
+	if err != nil {
+		return location
+	}
+	if refURL.Path != "/verification-pending" {
+		return location
+	}
+	location = "/verification-pending"
+	if email != "" {
+		location += "?email=" + url.QueryEscape(email)
+	}
+	return location
 }

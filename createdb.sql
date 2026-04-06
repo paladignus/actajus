@@ -180,6 +180,7 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE TABLE public.emails (
 	idemails bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
 	address text NOT NULL,
+	verified_at timestamptz,
 	created_at timestamptz NOT NULL DEFAULT now(),
 	updated_at timestamptz NOT NULL DEFAULT now(),
 	deleted_at timestamptz,
@@ -202,6 +203,24 @@ CREATE TABLE public.password_reset (
 );
 -- ddl-end --
 ALTER TABLE public.password_reset OWNER TO marcelo;
+-- ddl-end --
+
+-- object: public.email_verifications | type: TABLE --
+-- DROP TABLE IF EXISTS public.email_verifications CASCADE;
+CREATE TABLE public.email_verifications (
+	idemail_verifications bigint NOT NULL GENERATED ALWAYS AS IDENTITY ,
+	id_users bigint NOT NULL,
+	id_emails bigint NOT NULL,
+	token_hash bytea NOT NULL,
+	expires_at timestamptz NOT NULL,
+	used_at timestamptz,
+	revoked_at timestamptz,
+	created_at timestamptz NOT NULL DEFAULT NOW(),
+	CONSTRAINT email_verifications_pk PRIMARY KEY (idemail_verifications),
+	CONSTRAINT email_verifications_token_hash_len_chk CHECK (octet_length(token_hash) = 32)
+);
+-- ddl-end --
+ALTER TABLE public.email_verifications OWNER TO marcelo;
 -- ddl-end --
 
 -- object: people_fk | type: CONSTRAINT --

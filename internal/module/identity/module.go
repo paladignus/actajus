@@ -33,6 +33,9 @@ import (
 type Module struct {
 	ValidateAccess           usecase.ValidateAccess
 	Login                    usecase.Login
+	Register                 usecase.Register
+	RequestEmailVerification usecase.RequestEmailVerification
+	ConfirmEmailVerification usecase.ConfirmEmailVerification
 	Refresh                  usecase.Refresh
 	Logout                   usecase.Logout
 	LogoutAll                usecase.LogoutAll
@@ -188,6 +191,26 @@ func NewModule(dep Dependencies) (Module, error) {
 		*authMapper,
 		true,
 	)
+	registerUC := usecase.NewRegister(
+		dep.UoW,
+		dep.Repository,
+		dep.OutboxFactory,
+		*authMapper,
+		hasher,
+		refreshSvc,
+		clk,
+		dep.Serializer,
+		dep.IDGenerator,
+		dep.Config.PasswordResetConfig.ResetTTL,
+	)
+	confirmEmailVerificationUC := usecase.NewConfirmEmailVerification(
+		dep.Repository.User(),
+		dep.Repository.EmailVerification(),
+		refreshSvc,
+		clk,
+		*authMapper,
+	)
+	requestEmailVerificationUC := usecase.NewRequestEmailVerification(registerUC, *authMapper)
 	validateAccessUC := usecase.NewValidateAccess(
 		accessSvc,
 		cachedSessionRepo,
@@ -250,6 +273,9 @@ func NewModule(dep Dependencies) (Module, error) {
 	module := Module{
 		ValidateAccess:           validateAccessUC,
 		Login:                    loginUC,
+		Register:                 registerUC,
+		RequestEmailVerification: requestEmailVerificationUC,
+		ConfirmEmailVerification: confirmEmailVerificationUC,
 		Refresh:                  refreshUC,
 		Logout:                   logoutUC,
 		LogoutAll:                logoutAllUC,

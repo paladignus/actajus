@@ -9,6 +9,7 @@ type Factory interface {
 	WithTx(tx uow.Tx) Factory
 	User() UserRepository
 	PasswordReset() PasswordResetRepository
+	EmailVerification() EmailVerificationRepository
 	// Company() CompanyRepository
 	// Address() addr.AddressRepository
 	// CompanyAddress() domain.CompanyAddressRepository

@@ -59,6 +59,15 @@ func newTestHTMLResponder(t *testing.T) *webhtml.Responder {
 			"templates/pages/login.gohtml": {
 				Data: []byte(`{{define "pages/login"}}<html><body><h1>{{.Page.Title}}</h1><p>{{index .Data "Email"}}</p><p>{{index .Data "Error"}}</p></body></html>{{end}}`),
 			},
+			"templates/pages/register.gohtml": {
+				Data: []byte(`{{define "pages/register"}}<html><body><h1>{{.Page.Title}}</h1><p>{{index .Data "Email"}}</p><p>{{index .Data "Error"}}</p></body></html>{{end}}`),
+			},
+			"templates/pages/verify-email.gohtml": {
+				Data: []byte(`{{define "pages/verify-email"}}<html><body><h1>{{.Page.Title}}</h1><p>{{index .Data "Message"}}</p></body></html>{{end}}`),
+			},
+			"templates/pages/verification-pending.gohtml": {
+				Data: []byte(`{{define "pages/verification-pending"}}<html><body><h1>{{.Page.Title}}</h1><p>{{index .Data "Email"}}</p><p>{{index .Data "Message"}}</p></body></html>{{end}}`),
+			},
 		},
 		TemplatePatterns: []string{"templates/pages/*.gohtml"},
 		DevServerURL:     "http://localhost:5173",
@@ -151,6 +160,97 @@ func TestLoginPageRedirectsAuthenticatedUser(t *testing.T) {
 
 	if rec.Header().Get("Location") != "/sessions" {
 		t.Fatalf("expected /sessions redirect, got %q", rec.Header().Get("Location"))
+	}
+}
+
+func TestRegisterPageRendersForGuest(t *testing.T) {
+	controller := Controller{
+		Context: handlerctx.Context{
+			HTML:      newTestHTMLResponder(t),
+			Navigator: navigation.New(false),
+			AuthFromRequest: func(http.ResponseWriter, *http.Request) (*handlerctx.State, error) {
+				return nil, errors.New("missing auth")
+			},
+		},
+	}
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/register", nil)
+	controller.RegisterPage().ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, rec.Code)
+	}
+	if !strings.Contains(rec.Body.String(), "Criar conta") {
+		t.Fatalf("expected rendered register page, got %q", rec.Body.String())
+	}
+}
+
+func TestVerificationPendingPageRendersForGuest(t *testing.T) {
+	controller := Controller{
+		Context: handlerctx.Context{
+			HTML:      newTestHTMLResponder(t),
+			Navigator: navigation.New(false),
+			AuthFromRequest: func(http.ResponseWriter, *http.Request) (*handlerctx.State, error) {
+				return nil, errors.New("missing auth")
+			},
+		},
+	}
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/verification-pending?email=test%40mail.com", nil)
+	controller.VerificationPendingPage().ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, rec.Code)
+	}
+	body := rec.Body.String()
+	if !strings.Contains(body, "Verificacao pendente") || !strings.Contains(body, "test@mail.com") {
+		t.Fatalf("expected rendered pending page, got %q", body)
+	}
+}
+
+func TestRequestEmailVerificationReturnPathUsesPendingPageReferer(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/request-email-verification", nil)
+	req.Header.Set("Referer", "http://localhost:8080/verification-pending?email=test%40mail.com")
+
+	location := requestEmailVerificationReturnPath(req, "test@mail.com")
+	if location != "/verification-pending?email=test%40mail.com" {
+		t.Fatalf("expected redirect back to pending page, got %q", location)
+	}
+}
+
+func TestRequestEmailVerificationReturnPathDefaultsToLogin(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/request-email-verification", nil)
+	req.Header.Set("Referer", "http://localhost:8080/login")
+
+	location := requestEmailVerificationReturnPath(req, "test@mail.com")
+	if location != "/login" {
+		t.Fatalf("expected login fallback, got %q", location)
+	}
+}
+
+func TestVerifyEmailActionRendersErrorPage(t *testing.T) {
+	controller := Controller{
+		Context: handlerctx.Context{HTML: newTestHTMLResponder(t)},
+		VerifyEmail: identityusecase.NewConfirmEmailVerification(
+			nil,
+			nil,
+			nil,
+			nil,
+			*identitymapper.NewAuthMapper(validation.New()),
+		),
+	}
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/verify-email", nil)
+	controller.VerifyEmailAction().ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected status %d, got %d", http.StatusBadRequest, rec.Code)
+	}
+	if !strings.Contains(rec.Body.String(), "Validar email") {
+		t.Fatalf("expected rendered verify email page, got %q", rec.Body.String())
 	}
 }
 

@@ -4,6 +4,7 @@ import { setupFormConfirmations } from "./confirm";
 import { setupSocialMediaForm } from "./company-form";
 import { setupErrorRouteTools } from "./error-tools";
 import { enhanceForms } from "./forms";
+import { setupRegisterForm } from "./register-form";
 import { trackRecentRoute } from "./routes";
 import { setupSidebarToggle } from "./sidebar";
 import { setupToasts } from "./toast";
@@ -17,6 +18,7 @@ export async function initApp() {
   setupCommandPalette();
   setupErrorRouteTools();
   setupSocialMediaForm();
+  setupRegisterForm();
 
   const payload = await loadBootstrap();
   if (!payload) {

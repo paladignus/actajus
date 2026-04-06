@@ -1,0 +1,58 @@
+{{define "content/register"}}
+{{$data := .Data}}
+<section class="auth-panel">
+    <p class="dashboard-hero__eyebrow">Identity WEB</p>
+    <h1>Criar conta</h1>
+    <p class="dashboard-panel__summary">Cadastre sua conta para acessar a area WEB. O acesso so sera liberado apos a verificacao do email.</p>
+    {{with index $data "Error"}}{{if .}}<div class="dashboard-alert">{{.}}</div>{{end}}{{end}}
+    <form class="dashboard-form" method="post" action="/register" data-register-form>
+      <div class="dashboard-form__grid">
+        <label class="form-field">
+          <span>Primeiro nome</span>
+          <input type="text" name="first_name" value="{{with index $data "FirstName"}}{{.}}{{end}}" autocomplete="given-name" required>
+        </label>
+        <label class="form-field">
+          <span>Sobrenome</span>
+          <input type="text" name="last_name" value="{{with index $data "LastName"}}{{.}}{{end}}" autocomplete="family-name" required>
+        </label>
+        <label class="form-field">
+          <span>Data de nascimento</span>
+          <input type="date" name="birthday" value="{{with index $data "Birthday"}}{{.}}{{end}}" required>
+        </label>
+        <label class="form-field">
+          <span>Genero</span>
+          {{$genderID := index $data "GenderID"}}
+          <select name="gender_id" required>
+            <option value="">Selecione</option>
+            <option value="1" {{if eq $genderID 1}}selected{{end}}>Feminino</option>
+            <option value="2" {{if eq $genderID 2}}selected{{end}}>Masculino</option>
+          </select>
+        </label>
+      </div>
+      <label class="form-field">
+        <span>Email</span>
+        <input type="email" name="email" value="{{with index $data "Email"}}{{.}}{{end}}" autocomplete="email" required>
+      </label>
+      <label class="form-field">
+        <span>Senha</span>
+        <input type="password" name="password" autocomplete="new-password" minlength="8" required data-password-input aria-describedby="register-password-rules">
+      </label>
+      <div class="password-checklist" id="register-password-rules" data-password-checklist>
+        <p class="password-checklist__title">Sua senha deve conter:</p>
+        <ul class="password-checklist__list">
+          <li class="password-checklist__item" data-password-rule="length">No minimo 8 caracteres</li>
+          <li class="password-checklist__item" data-password-rule="lower">Ao menos 1 letra minuscula</li>
+          <li class="password-checklist__item" data-password-rule="upper">Ao menos 1 letra maiuscula</li>
+          <li class="password-checklist__item" data-password-rule="number">Ao menos 1 numero</li>
+          <li class="password-checklist__item" data-password-rule="special">Ao menos 1 caractere especial</li>
+        </ul>
+      </div>
+      <div class="dashboard-actions">
+        <button class="button button--primary" type="submit">Criar conta</button>
+        <a class="button button--ghost" href="/login">Ja tenho conta</a>
+      </div>
+    </form>
+</section>
+{{end}}
+
+{{define "pages/register"}}{{template "layout/register" .}}{{end}}

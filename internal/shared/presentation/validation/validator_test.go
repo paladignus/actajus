@@ -39,3 +39,20 @@ func TestValidatorIgnoresNonStructInput(t *testing.T) {
 		t.Fatalf("expected no violations, got %d", len(violations))
 	}
 }
+
+func TestValidatorPasswordRule(t *testing.T) {
+	type input struct {
+		Password string `json:"password" validate:"required|min=8|password"`
+	}
+
+	violations := New().ValidateStruct(input{Password: "abcdefgh"})
+	if len(violations) != 1 {
+		t.Fatalf("expected 1 violation, got %d", len(violations))
+	}
+	if violations[0].Path != "password" {
+		t.Fatalf("expected path password, got %q", violations[0].Path)
+	}
+	if violations[0].Code != CodePassword {
+		t.Fatalf("expected code %q, got %q", CodePassword, violations[0].Code)
+	}
+}

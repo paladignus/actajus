@@ -34,6 +34,8 @@ func applyRules(path string, root, value any, tag string, out *[]Violation) {
 			validateOneOf(path, value, splitCSV(raw), out)
 		case "email":
 			validateEmail(path, value, out)
+		case "password":
+			validatePassword(path, value, out)
 		case "required_if":
 			refField, expected := parseRequiredIf(raw)
 			if refField != "" && evalRequiredIf(root, refField, expected) {
@@ -109,6 +111,27 @@ func validateEmail(path string, value any, out *[]Violation) {
 	if _, err := mail.ParseAddress(s); err != nil {
 		*out = append(*out, Violation{Path: path, Code: CodeEmail})
 	}
+}
+
+func validatePassword(path string, value any, out *[]Violation) {
+	s := fmt.Sprintf("%v", value)
+	if strings.TrimSpace(s) == "" {
+		return
+	}
+	hasLower := regexp.MustCompile(`[a-z]`).MatchString(s)
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(s)
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(s)
+	hasSpecial := regexp.MustCompile(`[^A-Za-z0-9]`).MatchString(s)
+	if hasLower && hasUpper && hasNumber && hasSpecial {
+		return
+	}
+	*out = append(*out, Violation{
+		Path: path,
+		Code: CodePassword,
+		Meta: map[string]string{
+			"requires": "lower,upper,number,special",
+		},
+	})
 }
 
 func evalRequiredIf(root any, refField, expected string) bool {

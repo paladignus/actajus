@@ -3,6 +3,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/paladignus/actajus/internal/module/identity/application/readmodel"
@@ -76,6 +77,7 @@ func (s AuthnService) Authenticate(
 ) (*AuthenticateResult, error) {
 	// Find user
 	user, err := s.user.FindByEmail(ctx, email)
+	fmt.Println("user", user, "err", err)
 	if err != nil || user == nil {
 		return nil, domain.ErrInvalidCredentials
 	}
@@ -83,6 +85,9 @@ func (s AuthnService) Authenticate(
 	// Check if user is blocked
 	if user.IsBlocked() {
 		return nil, domain.ErrUserBlocked
+	}
+	if !user.IsPrimaryEmailVerified() {
+		return nil, domain.ErrEmailNotVerified
 	}
 
 	// Verify password

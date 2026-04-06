@@ -20,6 +20,9 @@ type authDependencies struct {
 	adapter      *webauth.Adapter
 	audit        *auditadapter.Adapter
 	login        identityusecase.Login
+	registerUC   identityusecase.Register
+	resendVerify identityusecase.RequestEmailVerification
+	verifyEmail  identityusecase.ConfirmEmailVerification
 	logout       identityusecase.Logout
 	loginLimiter loginLimiter
 }

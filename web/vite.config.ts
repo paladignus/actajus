@@ -9,7 +9,7 @@ export default defineConfig({
   },
   build: {
     manifest: true,
-    outDir: "../internal/module/web/presentation/http/handler/content/dist",
+    outDir: "../internal/shared/presentation/web/site/content/dist",
     emptyOutDir: true,
     rollupOptions: {
       input: "src/main.ts"

@@ -9,9 +9,9 @@ import (
 
 	"github.com/paladignus/actajus/internal/module/company"
 	identitymodule "github.com/paladignus/actajus/internal/module/identity"
-	webmodule "github.com/paladignus/actajus/internal/module/web"
 	sharedrepo "github.com/paladignus/actajus/internal/shared/application/repository"
 	"github.com/paladignus/actajus/internal/shared/infrastructure/config"
+	webmodule "github.com/paladignus/actajus/internal/shared/presentation/web/site"
 	"github.com/paladignus/actajus/pkg/di"
 )
 

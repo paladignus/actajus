@@ -8,11 +8,14 @@ import (
 )
 
 type AuthDependencies struct {
-	ValidateAccess identityusecase.ValidateAccess
-	Login          identityusecase.Login
-	Refresh        identityusecase.Refresh
-	Logout         identityusecase.Logout
-	RBACChecker    sharedRepo.PermissionChecker
+	ValidateAccess           identityusecase.ValidateAccess
+	Login                    identityusecase.Login
+	Register                 identityusecase.Register
+	RequestEmailVerification identityusecase.RequestEmailVerification
+	ConfirmEmailVerification identityusecase.ConfirmEmailVerification
+	Refresh                  identityusecase.Refresh
+	Logout                   identityusecase.Logout
+	RBACChecker              sharedRepo.PermissionChecker
 }
 
 type IdentityDependencies struct {

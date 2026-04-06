@@ -34,9 +34,12 @@ func (h AppHandler) baseContext() handlerctx.Context {
 
 func (h AppHandler) authController() authhandler.Controller {
 	return authhandler.Controller{
-		Context: h.baseContext(),
-		Login:   h.auth.login,
-		Logout:  h.auth.logout,
+		Context:             h.baseContext(),
+		Login:               h.auth.login,
+		Register:            h.auth.registerUC,
+		RequestVerification: h.auth.resendVerify,
+		VerifyEmail:         h.auth.verifyEmail,
+		Logout:              h.auth.logout,
 	}
 }
 
@@ -77,7 +80,20 @@ func (h AppHandler) identityController() identityhandler.Controller {
 
 func (h AppHandler) Home() http.Handler         { return h.authController().Home() }
 func (h AppHandler) LoginPage() http.Handler    { return h.authController().LoginPage() }
-func (h AppHandler) LoginAction() http.Handler  { return h.authController().LoginAction() }
+func (h AppHandler) RegisterPage() http.Handler { return h.authController().RegisterPage() }
+func (h AppHandler) VerificationPendingPage() http.Handler {
+	return h.authController().VerificationPendingPage()
+}
+func (h AppHandler) LoginAction() http.Handler { return h.authController().LoginAction() }
+func (h AppHandler) RegisterAction() http.Handler {
+	return h.authController().RegisterAction()
+}
+func (h AppHandler) RequestEmailVerificationAction() http.Handler {
+	return h.authController().RequestEmailVerificationAction()
+}
+func (h AppHandler) VerifyEmailAction() http.Handler {
+	return h.authController().VerifyEmailAction()
+}
 func (h AppHandler) LogoutAction() http.Handler { return h.authController().LogoutAction() }
 func (h AppHandler) Bootstrap() http.Handler    { return h.authController().Bootstrap() }
 func (h AppHandler) SessionsPage() http.Handler { return h.identityController().SessionsPage() }

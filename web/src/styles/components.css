@@ -193,6 +193,36 @@
   color: #256b2b;
 }
 
+.password-checklist {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--dashboard-border);
+  border-radius: 1rem;
+  background: rgba(247, 249, 251, 0.85);
+}
+
+.password-checklist__title {
+  margin: 0;
+  color: var(--dashboard-muted);
+  font-size: 0.92rem;
+}
+
+.password-checklist__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.password-checklist__item {
+  color: var(--dashboard-muted);
+}
+
+.password-checklist__item[data-valid="true"] {
+  color: #256b2b;
+}
+
 .confirm-dialog {
   position: fixed;
   inset: 0;
